@@ -24,3 +24,5 @@ logs
 /.project
 build
 /bin/
+
+target/
