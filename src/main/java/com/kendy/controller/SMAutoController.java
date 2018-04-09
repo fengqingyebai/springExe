@@ -1,0 +1,788 @@
+package com.kendy.controller;
+
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.stream.Collectors;
+
+import org.apache.http.client.ClientProtocolException;
+import org.apache.log4j.Logger;
+
+import com.alibaba.fastjson.JSON;
+import com.kendy.db.DBUtil;
+import com.kendy.entity.Huishui;
+import com.kendy.entity.Player;
+import com.kendy.entity.SMAutoInfo;
+import com.kendy.entity.ShangmaInfo;
+import com.kendy.entity.ShangmaNextday;
+import com.kendy.excel.ExportExcelTemplate;
+import com.kendy.model.SMResultModel;
+import com.kendy.service.ShangmaService;
+import com.kendy.spider.GameRoomModel;
+import com.kendy.spider.HttpUtil;
+import com.kendy.spider.RespResult;
+import com.kendy.spider.WanjiaApplyInfo;
+import com.kendy.spider.WanjiaListResult;
+import com.kendy.util.CollectUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
+import com.kendy.util.TableUtil;
+import com.kendy.util.TimeUtil;
+
+import application.DataConstans;
+import application.MyController;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+
+/**
+ * 处理联盟配额的控制器
+ * 
+ * @author 林泽涛
+ * @time 2017年11月24日 下午9:31:04
+ */
+public class SMAutoController implements Initializable {
+
+    private static Logger log = Logger.getLogger(SMAutoController.class);
+
+    @FXML
+    public TextField smNextDayRangeFieldd; // 次日上码配置
+
+    @FXML
+    public TextArea tokenArea;// token值
+    @FXML
+    public Label tokenStatus; // token状态
+    @FXML
+    public ListView<String> logArea;
+    @FXML
+    public TextField sysCodeField;
+    @FXML
+    public TextField sperateTimeField;//每隔多久去刷新
+    @FXML
+    public TextField filterPlayIdFields;//上码过过滤人员（只给这些人上码）
+
+    // =====================================================================自动上码日志记录表
+    @FXML
+    public TableView<SMAutoInfo> tableSMAuto;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoDate;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoPlayerId;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoPlayerName;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoPaiju;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoApplyAccount;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoIsTeamAvailabel;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoIsCurrentDay;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoIsNextDay;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoIsAgree;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoIsAgreeSuccess;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoAvailabel;
+    @FXML
+    private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
+
+    private static final String SM_AOTO_NEXT_DAY_DB_KEY = "sm_aoto_next_day_db_key"; // 保存到数据库的key
+    private static final String SM_AOTO_TOKEN_DB_KEY = "sm_aoto_token_db_key"; // 保存到数据库的key
+
+    private static final String CONNECT_FAIL = "连接失败,失败码：";
+
+    private static boolean isStartPressed = false; // 继续从后台取数据标志
+
+    private static Runnable task;
+
+    private Timer timer;
+
+    /**
+     * DOM加载完后的事件
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        // 换行
+        tokenArea.setWrapText(true);
+        // 绑定列值属性
+        MyController.bindCellValue(smAutoDate, smAutoPlayerId, smAutoPlayerName, smAutoPaiju, smAutoApplyAccount,
+                smAutoIsTeamAvailabel, smAutoIsCurrentDay, smAutoIsNextDay, smAutoIsAgree, smAutoIsAgreeSuccess,
+                smAutoAvailabel, smAutoTeamTotalAvailabel);
+        // bindColorColumns(new TGLirunInfo(),tgLirunTotalProfit,
+        // tgLirunTotalKaixiao, tgLirunATMCompany, tgLirunTGCompany,
+        // tgLirunTeamProfit, tgLirunRestHeji, tgLirunHeji);
+        // 初始化次日上码范围
+        initNextDayRange();
+        
+        loadTokenAction(new ActionEvent());
+    }
+
+    /**
+     * 初始化次日上码范围
+     * 
+     * @time 2018年3月28日
+     */
+    private void initNextDayRange() {
+        String range = DBUtil.getValueByKeyWithoutJson(SM_AOTO_NEXT_DAY_DB_KEY);
+        if (StringUtil.isNotBlank(range)) {
+            smNextDayRangeFieldd.setText(range);
+        }else {
+        	smNextDayRangeFieldd.setText("01-90##8001-8090##9001-9090");
+        }
+    }
+    
+    /**
+     *加载次日上码范围
+     *
+     * @time 2018年3月31日
+     * @param event
+     */
+    public void loadNextDayAction(ActionEvent event) {
+    	initNextDayRange();
+    }
+    
+    
+    /**
+     * 保存Token
+     * 
+     * @time 2018年3月31日
+     * @param event
+     */
+    public void saveTokenAction(ActionEvent event) {
+    	String token = tokenArea.getText();
+        if (StringUtil.isNotBlank(token)) {
+            DBUtil.saveOrUpdateOthers(SM_AOTO_TOKEN_DB_KEY, token.trim());
+            ShowUtil.show("保存OK", 1);
+        } else {
+            ShowUtil.show("别逗，token啥都没写，你就要保存?", 1);
+        }
+    }
+    
+    /**
+     * 加载Token
+     * 
+     * @time 2018年3月31日
+     * @param event
+     */
+    public void loadTokenAction(ActionEvent event) {
+    	 String token = DBUtil.getValueByKeyWithoutJson(SM_AOTO_TOKEN_DB_KEY);
+         if(StringUtil.isNotBlank(token)) {
+            tokenArea.setText(token);
+            ShowUtil.show("加载完成", 1);
+         }
+    }
+
+    /**
+     * 测试token
+     * 
+     * @throws Exception
+     * 
+     * @time 2018年3月26日
+     */
+    public void tokenTestAction(ActionEvent event) {
+        logInfo("正在检测token...");
+        String token = getToken();
+        if (StringUtil.isBlank(token)) {
+            String message = "token值不能为空！！";
+            ShowUtil.show(message);
+            logInfo(message);
+            return;
+        }
+        WanjiaListResult wanjiaListResult = HttpUtil.getWanjiaListResult(token);
+        if (wanjiaListResult == null) {
+            setTokenStatusFail("接口无返回");
+            return;
+        }
+        if (wanjiaListResult.getiErrCode() != 0) {
+            setTokenStatusFail(wanjiaListResult.getiErrCode() + "");
+            return;
+        }
+        setTokenStatusSuccess();
+    }
+
+    private void setTokenStatusFail(String description) {
+        String message = CONNECT_FAIL + description;
+        if ("1000".equals(description) || "1001".equals(description)) {
+            message += ",请更新Token";
+            ShowUtil.show("请更新Token", 1);
+        }
+        tokenStatus.setText(message);
+        logInfo(message);
+    }
+
+    private void setTokenStatusSuccess() {
+        String message = "token连接正常";
+        tokenStatus.setText(message);
+        logInfo(message);
+    }
+
+    /**
+     * 记录日志
+     * 
+     * @time 2018年3月26日
+     * @param description
+     */
+    private void logInfo(String description) {
+        ObservableList<String> items = logArea.getItems();
+        if (items != null) {
+            items.add(description);
+        } else {
+            items = FXCollections.observableArrayList(new ArrayList<String>(Arrays.asList("ssss")));
+        }
+        logArea.refresh();
+    }
+
+    /**
+     * 清空右边日志框内容ListView
+     * 
+     * @time 2018年3月26日
+     * @param event
+     */
+    public void removeLogAreaAction(ActionEvent event) {
+        if (logArea.getItems() != null)
+            logArea.getItems().clear();
+    }
+
+    /**
+     * 获取token
+     * 
+     * @time 2018年3月26日
+     * @return
+     */
+    public String getToken() {
+        return StringUtil.nvl(tokenArea.getText(), "");
+    }
+
+    /**
+     * 保存次日上码的配置
+     * 
+     * @time 2018年3月26日
+     * @param evet
+     */
+    public void saveNextDayConfigAction(ActionEvent evet) {
+        String smNextDayRange = smNextDayRangeFieldd.getText();
+        if (StringUtil.isNotBlank(smNextDayRange)) {
+            DBUtil.saveOrUpdateOthers(SM_AOTO_NEXT_DAY_DB_KEY, smNextDayRange);
+            ShowUtil.show("保存OK", 1);
+        } else {
+            ShowUtil.show("别逗，啥都没写，你就要保存?", 1);
+        }
+    }
+
+    /**
+     * 判断是否今日上码
+     * 
+     * @time 2018年3月27日
+     * @return
+     */
+    public boolean judgeIsTodaySM(String paijuString) {
+        Integer paiju = Integer.valueOf(paijuString);
+        String rangStr = smNextDayRangeFieldd.getText();
+        if (StringUtil.isBlank(rangStr))
+            return true;
+
+        String[] list = rangStr.split("##");
+        // List<String> list = Arrays.asList("01-90","8001-8090","9001-9090");
+        for (String range : list) {
+            String[] ranges = range.split("-");
+            boolean isInRange = paiju > Integer.valueOf(ranges[0]) && paiju < Integer.valueOf(ranges[1]);
+            if (isInRange) {
+                return false; // 该牌局是次日上码
+            }
+        }
+        return true; // 该牌局是今日上码
+    }
+
+    /**
+     * 开始爬取后台数据
+     * 
+     * @time 2018年3月26日
+     * @param evet
+     */
+    public void startSpiderAction(ActionEvent evet) {
+        if (this.timer != null) {
+            ShowUtil.show("后台程序正在运行！", 1);
+            return;
+        }
+        Integer separateTime = getRefreshSeparateTime();
+        tokenStatus.setText("正在爬取数据...");
+        logInfo("每隔"+separateTime/1000+"秒刷新一次！");
+        logInfo("开始爬取程序...");
+        this.timer = new Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
+                        try {
+                            // 调用接口
+                            List<WanjiaApplyInfo> buyinList = HttpUtil.getBuyinList(getToken());
+                            // 处理数据
+                            if (buyinList == null) {
+                                logInfo("获取到玩家为空!!!");
+                            } else {
+                                logInfo("获取到玩家个数：" + buyinList.size());
+                                // 真正的处理逻辑
+                                handleAutoShangma(buyinList);
+                            }
+                        } catch (Exception e) {
+                        	String errMesg = "获取玩家信息请求失败";
+                            logInfo(errMesg);
+                            log.error(errMesg);
+                        }
+                        logInfo("");
+                    	
+//                    	getRoomIdSet();
+                    }
+                });
+                // logInfo("此处等待10秒...");
+            }
+        }, 1000, separateTime); // 定时器的延迟时间及间隔时间
+    }
+    
+    private void getRoomIdSet() {
+    	String clubId = MyController.currentClubId.getText();
+    	String startTime = TimeUtil.getStartTimeString();
+    	String endTime = TimeUtil.getEndTimeString();
+    	String keyword = "";
+    	String order = "-1";
+    	String gameType = "1"; //1 普通 2奥马哈 3  4 
+    	String pageSize = "200";
+    	Map<String,String> params = new HashMap<>();
+    	params.put("clubId", clubId);
+    	params.put("startTime", startTime);
+    	params.put("endTime", endTime);
+    	params.put("keyword", keyword);
+    	params.put("order", order);
+    	params.put("gameType", gameType);
+    	params.put("pageSize", pageSize);
+    	
+    	RespResult<GameRoomModel> parseObject = new RespResult<>();
+    	try {
+    		logInfo("正在获取房间列表");
+			String respString = HttpUtil.sendPost("http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
+			if(StringUtil.isNotBlank(respString)) {
+				parseObject = (RespResult<GameRoomModel>)JSON.parseObject(respString, RespResult.class);
+				logInfo("普通房间数量："+ parseObject.getResult().getTotal());
+			}
+
+    	} catch (Exception e) {
+    		logInfo("网络异常...");
+			e.printStackTrace();
+		}
+    	
+    }
+    
+    private Map<String, String> getGameListParam(){
+    	
+    	return null;
+    }
+    
+    private Integer getRefreshSeparateTime() {
+    	
+    	String text = sperateTimeField.getText();
+    	Integer time = 20;
+    	try {
+    		time = Integer.valueOf(text.trim());
+    	}catch(Exception e) {
+    		time = 20;
+    	}
+    	return time * 1000;
+    }
+
+    /**
+     * 处理自动上码的逻辑（核心代码）
+     * 备注：申请数量过两道关之后程序会去实时上码Tab中自动上码
+     * 
+     * @time 2018年3月26日
+     * @param buyinList
+     */
+    public void handleAutoShangma(List<WanjiaApplyInfo> buyinList) {
+    	
+        for (WanjiaApplyInfo wanjiaApplyInfo : buyinList) {
+        	
+        	/*
+        	 * 玩家相关信息
+        	 */
+            String paijuStr = wanjiaApplyInfo.getGameRoomName();
+            String paijuString = paijuStr.substring(wanjiaApplyInfo.getGameRoomName().lastIndexOf("-") + 1);// 本系统桌号
+            String buyStack = wanjiaApplyInfo.getBuyStack().toString();// 购买数量
+            String playerId = wanjiaApplyInfo.getShowId();
+            String playerName = wanjiaApplyInfo.getStrNick();
+
+            Player player = DataConstans.membersMap.get(playerId);
+            if (player == null) {
+                logInfo("玩家（" + playerName + ")未录入到系统中！！！");
+                continue;
+            }
+            String teamId = player.getTeamName();
+            Huishui huishui = DataConstans.huishuiMap.get(teamId);
+            String selectTeamAvailabel = huishui.getTeamAvailabel(); // 是否勾选了团队上码：1是  0否
+           
+            logInfo(playerName+"正在模拟更新实时上码...");
+            SMResultModel resultModel = ShangmaService.getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
+            ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
+            if(selectedSMInfo == null) {
+            	 logInfo("玩家（" + playerName + ")在上码系统中不存在！！");
+            	 continue;
+            }
+            
+            String teamAvailabel = resultModel.getTeamTotalAvailabel(); // 获取团队可上码
+            String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId, playerName);  // 获取可上码
+            boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
+            boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel, calcAvailable); //是否同意
+
+            /****************************************/
+            List<String> testList = new ArrayList<>();
+            
+            boolean addOK = false;
+            if(hasFilterPlayerIds()) 
+            	testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##")).collect(Collectors.toList());
+            
+            if(CollectUtil.isNullOrEmpty(testList) || testList.contains(playerId)) {
+            	// 添加上码到软件中，同时发送后台请求
+                Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
+                Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
+                addOK = addShangma(resultModel,isTodaySM, passCheck, playerId, playerName, paijuString, buyStack, userUuid, roomId);
+            }
+            /****************************************/
+
+            SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), playerId, playerName, paijuString, buyStack,
+                    teamAvailabel, // 团队可上码 (第一关)
+                    calcAvailable, // 计算可上码（第二关）
+                    "1".equals(selectTeamAvailabel) ? "是" : "否", isTodaySM ? "是" : "否", // smAutoIsCurrentDay
+                    isTodaySM ? "否" : "是", // smAutoIsNextDay
+                    passCheck ? "是" : "否", // smAutoIsAgree
+                    ( passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
+            );
+            addItem(smAutoInfo);
+
+        }
+    }
+
+    /**
+     * 本类核心 ：添加上码到软件中，同时发送后台请求
+     * 
+     * @time 2018年3月28日
+     * @param isTodaySM 是否今日上码
+     * @param passCheck 是否审核通过
+     * @param paijuString 第几局
+     * @param buyStack 上码值
+     * @param userUuid 后台用户ID
+     * @param roomId 房间号
+     */
+    public boolean addShangma(SMResultModel resultModel,boolean isTodaySM, boolean passCheck, String playerId, String playerName,
+            String paijuString, String buyStack, Long userUuid, Long roomId) {
+        boolean addOK = false;
+        try {
+            if (passCheck) {
+                boolean acceptBuyOK = HttpUtil.acceptBuy(userUuid, roomId, getToken()); //后台申请买入
+                if(acceptBuyOK) {
+                    if (isTodaySM) {
+                        log.info("正在添加今日上码...");
+                        ShangmaService.addNewShangma2DetailTable_HT(resultModel, ShangmaService.getShangmaPaiju(paijuString), buyStack);
+                        log.info("添加今日上码结束:" + resultModel.getSelectedSMInfo().toString());
+                        
+                    } else {
+                        log.info("正在添加次日上码...");
+                        ShangmaNextday nextday = new ShangmaNextday();
+                        nextday.setPlayerId(playerId);
+                        nextday.setPlayerName(playerName);
+                        nextday.setChangci(ShangmaService.getShangmaPaiju(paijuString));
+                        nextday.setShangma(buyStack);
+                        nextday.setTime(TimeUtil.getDateTime2());
+                        
+                        // 新增玩家的次日数据
+                        ShangmaService.addNewRecord_nextday_HT(resultModel, nextday);
+                        log.info("添加次日上码结束：" + nextday.toString());
+                    }
+                    addOK = true;
+                }
+            }
+        } catch (Exception e) {
+            addOK = false;
+            e.printStackTrace();
+        }
+        return addOK;
+    }
+    
+
+
+    /**
+     * 判断a 是否在区间范围[b,c]
+     * 
+     * @time 2018年3月28日
+     * @param a  申请数量
+     * @param b  团队可上码
+     * @param c  个人可上码
+     * @return
+     */
+    private boolean checkInRange(String selectedTeamAvailabel, String a, String b, String c) {
+        Double A = NumUtil.getNum(a);
+        Double B = NumUtil.getNum(b);
+        Double C = NumUtil.getNum(c);
+        if ("1".equals(selectedTeamAvailabel)) { // 勾选了团队可上码，则申请数量只跟团队可上码比较
+            return A <= B;
+        } else {
+            return A <= B && A <= C;
+        }
+    }
+
+    /**
+     * 自动上码时获取玩家的可上码总接口 包括各种情况（如已勾选团队上码
+     * 
+     * @time 2018年3月27日
+     * @return
+     */
+    private String getAvailable(SMResultModel resultModel, String selectTeamAvailabel, String playerId, String playerName) {
+    	List<ShangmaInfo> smList = resultModel.getSmList();
+    	String available = "0";
+        // 勾选了团队上码
+        if ("1".equals(selectTeamAvailabel)) {
+            return "0";
+        } else {
+            // 以下是没有勾选团队上码的情况
+            boolean personNode = not_supter_not_sub(playerId);
+            if (personNode) {
+                // 情况1：私人节点ID
+                available = getOnePersonAvailabel(smList, playerId);
+            }else {
+                // 情况2：有联合ID
+                available = getLianheAvailabel(smList, playerId); 
+            }
+
+        }
+        return available;
+    }
+
+    /**
+     * 则只取团队可上码
+     * 
+     * @time 2018年3月27日
+     * @return
+     */
+    private String getTeamAvailable() {
+        return StringUtil.nvl(ShangmaService.teamShangmaAvailable.getText(), "0");
+    }
+
+    /**
+     * 联合额度
+     * 
+     * @time 2018年3月27日
+     * @param playerId
+     * @return
+     */
+    public String getLianheAvailabel(List<ShangmaInfo> smList, String playerId) {
+        String superId = DataConstans.Combine_Super_Id_Map.containsKey(playerId) ? playerId
+                : DataConstans.Combine_Sub_Id_Map.get(playerId);
+
+        if (StringUtil.isBlank(superId)) {
+            log.error(playerId + "非父非子！");
+            return "0";
+        }
+
+        String availaibel = smList.stream().filter(info -> superId.equals(info.getShangmaPlayerId()))
+                .map(ShangmaInfo::getShangmaLianheEdu).findFirst().orElseGet(() -> "0");
+
+        return availaibel;
+    }
+
+    /**
+     * 私人可上码（非父非子ID）
+     * 
+     * @time 2018年3月27日
+     * @param playerId
+     * @return
+     */
+    public String getOnePersonAvailabel(List<ShangmaInfo> smList, String playerId) {
+        String availaibel = smList.stream().filter(info -> playerId.equals(info.getShangmaPlayerId()))
+                .map(ShangmaInfo::getShangmaAvailableEdu).findFirst().orElseGet(() -> "0");
+        if (StringUtil.isBlank(availaibel)) {
+            availaibel = "000000";
+        }
+        return availaibel;
+    }
+
+    /**
+     * 往日志表添加记录
+     * 
+     * @time 2018年3月27日
+     * @param smAutoInfo
+     */
+    public void addItem(SMAutoInfo smAutoInfo) {
+        if (TableUtil.isNullOrEmpty(tableSMAuto)) {
+            tableSMAuto.setItems(FXCollections.observableArrayList());
+        } else {
+            tableSMAuto.getItems().add(smAutoInfo);
+        }
+        tableSMAuto.refresh();
+    }
+
+    /**
+     * 停止爬取后台数据
+     * 
+     * @time 2018年3月26日
+     * @param evet
+     */
+    public void stopSpiderAction(ActionEvent evet) {
+        if (this.timer == null) {
+            ShowUtil.show("后台程序没有启动", 1);
+            return;
+        }
+        this.timer.cancel();
+        this.timer = null;
+        logInfo("停止爬取后台数据!!!");
+        tokenStatus.setText("暂停爬取数据...");
+    }
+
+    /**
+     * 清空界面日志表
+     * 
+     * @time 2018年3月26日
+     * @param evet
+     */
+    public void clearTableDataAction(ActionEvent evet) {
+        TableUtil.clear(tableSMAuto);
+
+    }
+
+    /**
+     * 判断是否私人节点（非父非子）
+     * @time 2018年3月31日
+     * @param playerId
+     * @return
+     */
+    private static boolean not_supter_not_sub(String playerId) {
+        boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(playerId);
+        boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(playerId);
+        return !isSuperId && !isSubId;
+    }
+    
+    /**
+     * 是否有过滤节点
+     * @time 2018年3月31日
+     * @return
+     */
+    private boolean hasFilterPlayerIds() {
+    	return StringUtil.isNotBlank(filterPlayIdFields.getText());
+    }
+    
+    /**
+     * 导出有上码的记录
+     * 
+     * @time 2018年3月31日
+     * @param event
+     */
+    public void exportSMAction(ActionEvent event) {
+    	List<SMAutoInfo> autoShangmas = getAutoShangmas(1);
+    	if(CollectUtil.isNullOrEmpty(autoShangmas)) {
+    		ShowUtil.show("没有可供导出的数据！");
+    		return;
+    	}
+    	String[] rowsName = new String[]{"爬取时间","玩家ID","玩家名称","牌局","申请数量","团队可上码","计算可上码","勾选团队","当天","次日","同意审核","审核结果"};
+	    List<Object[]>  dataList = new ArrayList<Object[]>();
+	    Object[] objs = null;
+	    for(SMAutoInfo info : autoShangmas) {
+	          objs = new Object[rowsName.length];
+	          objs[0] = info.getSmAutoDate();
+	          objs[1] = info.getSmAutoPlayerId();
+	          objs[2] = info.getSmAutoPlayerName();
+	          objs[3] = info.getSmAutoPaiju();
+	          objs[4] = info.getSmAutoApplyAccount();
+	          objs[5] = info.getSmAutoTeamTotalAvailabel();
+	          objs[6] = info.getSmAutoAvailabel();
+	          objs[7] = info.getSmAutoIsTeamAvailabel();
+	          objs[8] = info.getSmAutoIsCurrentDay();
+	          objs[9] = info.getSmAutoIsNextDay();
+	          objs[10] = info.getSmAutoIsAgree();
+	          objs[11] = info.getSmAutoIsAgreeSuccess();
+	          dataList.add(objs);
+	    }
+	    String title = "自动上码-" +TimeUtil.getDateTime();
+	    List<Integer> columnWidths = Arrays.asList(3500,4000,3000,3000,3000,4000,4000,3000,3000,3000,3000,3000,5000);
+	    ExportExcelTemplate ex = new ExportExcelTemplate(title,rowsName, columnWidths, dataList);
+	    try {
+			ex.export();
+			ShowUtil.show("导出完成", 1);
+		} catch (Exception e) {
+			ErrorUtil.err("导出自动记录失败", e);
+			e.printStackTrace();
+		}
+    }
+    
+    
+    /**
+     * 获取相应的自动上码记录
+     * 
+     * @time 2018年3月31日
+     * @param type 1:审核结果非“-” 2：所有记录
+     * @return
+     */
+    public List<SMAutoInfo> getAutoShangmas(int type){
+    	if(TableUtil.isHasValue(tableSMAuto)) {
+    		ObservableList<SMAutoInfo> items = tableSMAuto.getItems();
+    		if(1 == type) {
+    			return items.stream().filter(info->!"-".equals(info.getSmAutoIsAgreeSuccess())).collect(Collectors.toList());
+    		}else {
+    			return items;
+    		}
+    	}
+    	return Collections.EMPTY_LIST;
+    }
+    
+    /**
+     * 测试模式时加载六个人
+     * @time 2018年3月31日
+     * @param event
+     */
+    public void load6PlayerIdsAction(ActionEvent event) {
+    	filterPlayIdFields.setText("2162968366##2162813955##2162971465##2162864256##2162932597##2162892097");
+    }
+    
+	public static String getTimeString() {
+		SimpleDateFormat format = new SimpleDateFormat("HH : mm : ss");
+		String timeStr = format.format(new Date());
+		return timeStr;
+	}
+    
+//    public static void main(String[] args) {
+//    	  String a = "01";
+//    	  String b = "01";
+//    	  String c = "90";
+//    	  Double A = NumUtil.getNum(a);
+//          Double B = NumUtil.getNum(b);
+//          Double C = NumUtil.getNum(c);
+//          boolean result =  A <= B && A <= C;
+//          System.out.println("A:"+A);
+//          System.out.println("C:"+C);
+//          System.out.println(result);
+//    }
+
+}
