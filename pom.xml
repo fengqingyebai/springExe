@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.kendy</groupId>
-  <artifactId>springExe</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<groupId>com.kendy</groupId>
+	<artifactId>springExe</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
 
     <name>exe-test</name>  
@@ -18,13 +18,14 @@
  
    
     <dependencies>
-		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+		<!-- 阿里fastjson -->
 		<dependency>
 		    <groupId>com.alibaba</groupId>
 		    <artifactId>fastjson</artifactId>
 		    <version>1.2.47</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
+		
+		<!-- 引入 apache collections -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-collections4</artifactId>
@@ -40,21 +41,39 @@
     		<artifactId>commons-io</artifactId>
     		<version>2.6</version>
     	</dependency>
+    	
+    	<!-- 日志组件 -->
     	<dependency>
     		<groupId>log4j</groupId>
     		<artifactId>log4j</artifactId>
     		<version>1.2.17</version>
     	</dependency>
     	<dependency>
+    		<groupId>org.slf4j</groupId>
+    		<artifactId>slf4j-log4j12</artifactId>
+    		<version>1.7.2</version>
+    	</dependency>
+    	<dependency>
+    		<groupId>org.slf4j</groupId>
+    		<artifactId>slf4j-api</artifactId>
+    		<version>1.7.25</version>
+    	</dependency>
+    	
+    	<!-- 邮箱组件 -->
+    	<dependency>
     		<groupId>javax.mail</groupId>
     		<artifactId>mail</artifactId>
     		<version>1.4.1</version>
     	</dependency>
+    	
+    	<!-- mysql数据库连接 -->
     	<dependency>
     		<groupId>mysql</groupId>
     		<artifactId>mysql-connector-java</artifactId>
     		<version>5.1.40</version>
     	</dependency>
+    	
+    	<!-- POI Excel组件 -->
     	<dependency>
     		<groupId>org.apache.poi</groupId>
     		<artifactId>poi</artifactId>
@@ -71,16 +90,6 @@
     		<version>3.14</version>
     	</dependency>
     	<dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>slf4j-api</artifactId>
-    		<version>1.7.25</version>
-    	</dependency>
-    	<dependency>
-    		<groupId>org.slf4j</groupId>
-    		<artifactId>slf4j-log4j12</artifactId>
-    		<version>1.7.2</version>
-    	</dependency>
-    	<dependency>
     		<groupId>org.apache.xmlbeans</groupId>
     		<artifactId>xmlbeans</artifactId>
     		<version>2.6.0</version>
@@ -90,6 +99,8 @@
     		<artifactId>commons-logging</artifactId>
     		<version>1.0.4</version>
     	</dependency>
+    	
+    	<!-- 网络请求 -->
     	<dependency>
     		<groupId>org.apache.httpcomponents</groupId>
     		<artifactId>httpclient</artifactId>
@@ -129,7 +140,7 @@
                     <transformers>  
                         <transformer  
                             implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">  
-                            <mainClass>com.kendy.springExe.Main</mainClass>  
+                            <mainClass>${main.path}</mainClass>  
                         </transformer>  
                     </transformers>  
                 </configuration>  
@@ -150,7 +161,7 @@
                             <outfile>${project.build.directory}/springExe.exe</outfile>  
                             <downloadUrl>http://java.com/download</downloadUrl>  
                             <classPath>  
-                                <mainClass>com.kendy.springExe.Main</mainClass>  
+                                <mainClass>${main.path}</mainClass>  
                                 <preCp>anything</preCp>  
                             </classPath>  
                             <icon>resources/0.ico</icon>  
@@ -174,6 +185,17 @@
                     </execution>  
                 </executions>  
             </plugin>  
-        </plugins>  
+        </plugins>
+        
+        <!-- 引入相关资源 ，后期建议统一放到Resource目录中-->
+		<resources>
+			<resource>
+				<filtering>false</filtering>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.*</include>
+				</includes>
+			</resource>
+		</resources>
     </build>  
 </project>
