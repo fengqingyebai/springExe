@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 
-    <name>exe-test</name>  
+    <name>账务软件</name>  
     <url>http://maven.apache.org</url>  
   
     <properties>  
@@ -158,7 +158,7 @@
                         <configuration>  
                             <headerType>gui</headerType>  
                             <jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>  
-                            <outfile>${project.build.directory}/springExe.exe</outfile>  
+                            <outfile>${project.build.directory}/账务软件.exe</outfile>  
                             <downloadUrl>http://java.com/download</downloadUrl>  
                             <classPath>  
                                 <mainClass>${main.path}</mainClass>  
@@ -177,9 +177,9 @@
                                 <productVersion>1.0.0.0</productVersion>  
                                 <txtProductVersion>1.0.0.0</txtProductVersion>  
                                 <productName>${project.name}</productName>  
-                                <companyName>kendy.com</companyName>  
+                                <companyName>肯迪工作室</companyName>  
                                 <internalName>kendy</internalName>  
-                                <originalFilename>kendy.exe</originalFilename>  
+                                <originalFilename>肯迪-财务软件.exe</originalFilename>  
                             </versionInfo>  
                         </configuration>  
                     </execution>  
