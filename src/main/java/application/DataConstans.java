@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggerFactory;
+import org.springframework.util.NumberUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -408,6 +409,10 @@ public class DataConstans {
 		System.out.println("==============中途恢复缓存数据。。。finishes");
 	}
 	
+	
+	public String tests() {
+		return "spring test success...";
+	}
 	
 	
 }

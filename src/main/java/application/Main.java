@@ -1,11 +1,14 @@
 package application;
 	
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
-import com.kendy.controller.TGController;
 import com.kendy.controller.TeamProxyController;
-import com.kendy.util.ErrorUtil;
+import com.kendy.util.TimeUtil;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,25 +22,41 @@ import javafx.stage.Stage;
  * @author 林泽涛
  * @time 2017年10月21日 下午10:01:39
  */
+@Component
 public class Main extends Application {
 	
-	private static Logger log = Logger.getLogger(Main.class);
+//	static {
+//		try {
+//			ApplicationContext springContext = new ClassPathXmlApplicationContext("spring/spring-service.xml");
+//		} catch (BeansException e1) {
+//			e1.printStackTrace();
+//		}
+//	}
+	
+	private  Logger log = Logger.getLogger(Main.class);
 	
 	public static TeamProxyController teamProxyController  = new TeamProxyController();
 	
 	static {
+		
 		try {
-			//生产环境可用
-			String logName = "log4j.properties";
-			PropertyConfigurator.configure(
-					Main.class.getClassLoader().getResourceAsStream(logName));
-			log.info("日志组件初始化成功");
-		} catch (Exception e) {
-			ErrorUtil.err("日志组件初始化失败");
+			ApplicationContext springContext = new ClassPathXmlApplicationContext("spring/spring-service.xml");
+		} catch (BeansException e1) {
+			e1.printStackTrace();
 		}
 		
+//		try {
+//			System.out.println("Main.static...");
+//			//生产环境可用
+//			String logName = "log4j.properties";
+//			PropertyConfigurator.configure(
+//					Main.class.getClassLoader().getResourceAsStream(logName));
+//			log.info("日志组件初始化成功");
+//		} catch (Exception e) {
+//			ErrorUtil.err("日志组件初始化失败");
+//		}
+		
 		teamProxyController  = new TeamProxyController();
-		System.out.println("Main static");
 	}
 	
 	
@@ -47,8 +66,17 @@ public class Main extends Application {
 	public static MyController myController;
 	public static FXMLLoader _fxmlLoader;
 	
+	@Autowired
+	TimeUtil timeUtil;
+	
 	@Override
 	public void start(Stage primaryStage) {
+		System.out.println("Main.start...");
+		 
+//		 TimeUtil bean = (TimeUtil)springContext.getBean("timeUtil");
+//		System.out.println("sss==="+bean.getDateString());
+		 System.out.println("=============="+timeUtil.getDateString());
+		 
 		try {
 			//检查是否需要注册
 //			String mac = PropertiesUtil.readProperty("mac");

@@ -1,0 +1,2 @@
+1 新建maven项目没有Resources文件夹
+2 log4j.properties一直没有引进来，目前是放在src/main/java这里，估计是classpath的原因

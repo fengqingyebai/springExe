@@ -2,44 +2,58 @@ package com.kendy.spider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import com.alibaba.fastjson.JSON;
 
 public class AutoDownloadTest {
 	
 	private static Logger log = Logger.getLogger(AutoDownloadTest.class);
 
-    public static void main(String[] args) {
-        System.out.println("开始下载...");
-        autoDown("b.xls");
-        System.out.println("finishes...");
-
-    }
-    
     private static final String DOWN_LOAD_EXCEL_URL = "http://cms.pokermanager.club/cms-api/game/exportGame";
     
-    private static void autoDown(String fileName) {
-        Map<String, String> params = getParams("28763605");
+    public static void main(String[] args) {
+    	autoDown("294.xls", "28793755", getToken());
+    }
+    
+    private static void autoDown(String fileName, String rooId, String token) {
         try {
-//            String resString = HttpUtil.sendPost(DOWN_LOAD_EXCEL_URL, params, getToken());
-            String urlString = DOWN_LOAD_EXCEL_URL + "?roomId=28763605&token=" + getToken();
+            String urlString = String.format("%s?roomId=%s&token=%s", DOWN_LOAD_EXCEL_URL,rooId, token) ;
             String path = "D:/" + fileName;
+            long start = System.currentTimeMillis();
             download(urlString, path);
-            
-        } catch (Exception e) {
+            long end = System.currentTimeMillis();
+            log.info("已成功下载" +fileName+ ",,耗时："+(end - start) + "毫秒");
+        } catch (UnknownHostException ue) {
+        	log.error("自动下载异常：UnknownHostException，" + ue.getMessage() );
+        } catch( FileNotFoundException notfoundE) {
+        	log.error("自动下载异常：FileNotFoundException，原因，已经下载过，且正被使用中。");
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
         
     }
     
+    /**
+     * 下载网络文件
+     * @time 2018年4月10日
+     * @param url
+     * @param path
+     * @throws Exception
+     */
     public static void download(String url,String path) throws Exception {  
     	long start = System.currentTimeMillis();
         File file= null;  
@@ -51,8 +65,8 @@ public class AutoDownloadTest {
 			urlObj = new URL(url);  
 			con = urlObj.openConnection();  
 			httpCon =(HttpURLConnection) con;
-			httpCon.setConnectTimeout(15 * 1000);
-			httpCon.setReadTimeout(10 * 1000);
+			httpCon.setConnectTimeout(5 * 1000);
+			httpCon.setReadTimeout(5 * 1000);
 		} catch (Exception e1) {
 			throw e1;
 		}  
@@ -63,7 +77,8 @@ public class AutoDownloadTest {
             if(responseCode != 200) {
             	throw new Exception("自动下载返回码："+responseCode);
             }
-            
+            Map<String, List<String>> headerFields = httpCon.getHeaderFields();
+            log.info("respHeader:" + JSON.toJSONString(headerFields));
             //获取自己数组  
             byte[] getData = readInputStream(in); 
             fos.write(getData); 
@@ -109,7 +124,7 @@ public class AutoDownloadTest {
     
 
     private static String getToken() {
-        String token = "305c300d06092a864886f70d0101010500034b003048024100b7e2f18624017476266bdb2657ceaa66909e1f9370052c31c443d9f777e364eeb26c033ed1254a6275ccb2759b9db9c4a2350974b0f85a10426d04fb2e372cf50203010001";
+        String token = "305c300d06092a864886f70d0101010500034b003048024100844b9262dac8ceae5c7b29447843b8b3cf15c505bd18df02f610fdfd78781043c7c95c7ed781c9cc3807a6cfc6fca3ee5210dec01fef7bf3587f99b1260af47f0203010001";
         return token;
     }
 
