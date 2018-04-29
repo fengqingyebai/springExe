@@ -7,7 +7,7 @@ package application;
  */
 public class Constants {
 	
-	public static final String TITLE = "财务软件";
+	public static final String TITLE = "财务软件-springExe";
 	public static final String VERSION = "V2.0";
 	
 	public static final String ADD_TEAM_HUISHUI_FRAME = "addTeamHuishui";
