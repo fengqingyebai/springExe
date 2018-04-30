@@ -385,7 +385,7 @@ public class QuotaController implements Initializable{
 				money = small;
 				winner = row1;
 			}
-			log.info(String.format("%s转%s到%s", from,money,to));
+			//log.info(String.format("%s转%s到%s", from,money,to));
 			addRecord2TableQuotaPay(new QuotaMoneyInfo(winner.getQuotaClubId(),from,money,to));
 			
 		}

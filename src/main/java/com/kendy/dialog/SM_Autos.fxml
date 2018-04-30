@@ -79,9 +79,9 @@
             <TableColumn fx:id="smAutoIsAgreeSuccess" prefWidth="69.0" text="审核结果" />
         </columns>
       </TableView>
-      <ListView fx:id="logArea" layoutX="985.0" layoutY="36.0" prefHeight="796.0" prefWidth="294.0" />
+      <ListView fx:id="logArea" layoutX="985.0" layoutY="36.0" prefHeight="392.0" prefWidth="294.0" />
       <Button layoutX="1239.0" layoutY="13.0" mnemonicParsing="false" onAction="#removeLogAreaAction" prefHeight="23.0" prefWidth="40.0" text="清空" />
-      <Label layoutX="985.0" layoutY="12.0" prefHeight="26.0" prefWidth="88.0" text="爬取临时记录：" textFill="#a48383" />
+      <Label layoutX="985.0" layoutY="12.0" prefHeight="26.0" prefWidth="164.0" text="爬取临时记录：（自动上码）" textFill="#a48383" />
       <HBox layoutX="43.0" layoutY="68.0" prefHeight="26.0" prefWidth="925.0">
          <children>
             <Label layoutX="43.0" layoutY="87.0" prefHeight="26.0" prefWidth="85.0" text="只上码以下ID：" />
@@ -91,5 +91,25 @@
             <Label prefHeight="26.0" prefWidth="237.0" text="     示例：2162968366##2162813955" textFill="#a49292" />
          </children>
       </HBox>
+      <ListView fx:id="excelArea" layoutX="985.0" layoutY="543.0" prefHeight="289.0" prefWidth="294.0" />
+      <Button layoutX="1237.0" layoutY="486.0" mnemonicParsing="false" onAction="#removeExcelAreaAction" prefHeight="23.0" prefWidth="40.0" text="清空" />
+      <Button layoutX="1147.0" layoutY="486.0" mnemonicParsing="false" onAction="#seeHasDownExcelListCacheAction" prefHeight="23.0" prefWidth="78.0" text="查看已下载" />
+      <HBox layoutX="985.0" layoutY="587.0" visible="false">
+         <children>
+            <Label layoutX="1083.0" layoutY="570.0" prefHeight="21.0" prefWidth="30.0" text="每隔" />
+            <TextField fx:id="sperateTimeField1" layoutX="1034.0" layoutY="570.0" prefHeight="23.0" prefWidth="39.0" text="25" />
+            <Label layoutX="979.0" layoutY="570.0" prefHeight="23.0" prefWidth="76.0" text=" 秒刷新一次" />
+         </children>
+      </HBox>
+      <Button layoutX="983.0" layoutY="486.0" mnemonicParsing="false" onAction="#reAutoDownAction" prefHeight="23.0" prefWidth="145.0" text="删除文件夹并重新下载" />
+      <Label layoutX="1031.0" layoutY="441.0" prefHeight="44.0" prefWidth="220.0" text="自动下载战绩Excel" textAlignment="CENTER" textFill="#cdb65c">
+         <font>
+            <Font name="System Bold Italic" size="21.0" />
+         </font>
+      </Label>
+      <Button layoutX="985.0" layoutY="515.0" mnemonicParsing="false" onAction="#startDownloadTimerAction" prefHeight="23.0" prefWidth="109.0" text="开始下载Excel" />
+      <Button layoutX="1102.0" layoutY="515.0" mnemonicParsing="false" onAction="#stopAutoDownExcelAction" prefHeight="23.0" prefWidth="109.0" text="停止下载" />
+      <TextField fx:id="downExcelPierodField" layoutX="1218.0" layoutY="515.0" prefHeight="23.0" prefWidth="39.0" text="60" />
+      <Label layoutX="1257.0" layoutY="514.0" prefHeight="26.0" prefWidth="25.0" text=" 秒" textFill="#a48383" />
    </children>
  </AnchorPane>

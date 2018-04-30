@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,8 +73,10 @@ import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ConsUtil;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.FileUtil;
 import com.kendy.util.InputDialog;
 import com.kendy.util.NumUtil;
+import com.kendy.util.PathUtil;
 import com.kendy.util.RandomUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -734,7 +737,7 @@ public class MyController implements Initializable{
 	 
 	    try {
 	    	FXMLLoader loader = new FXMLLoader();
-	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/SM_Auto.fxml").openStream());
+	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/SM_Autos.fxml").openStream());
 	    	Tab gdTab = new Tab();
 	    	gdTab.setText("自动上码配置");
 	    	gdTab.setClosable(false);
@@ -1106,7 +1109,13 @@ public class MyController implements Initializable{
 			}
 			
 			//将人员名单文件缓存起来
-			Wrap wrap = ExcelReaderUtil.readZJRecord(new File(zjFilePath),lable_currentClubId.getText(),selected_LM_type,getVersionType());
+			Wrap wrap;
+			try {
+				wrap = ExcelReaderUtil.readZJRecord(new File(zjFilePath),lable_currentClubId.getText(),selected_LM_type,getVersionType());
+			} catch (Exception e) {
+				ErrorUtil.err("战绩导入失败", e);
+				return;
+			}
 			dateLabel.setText(DataConstans.Date_Str);
 			if(wrap.resultSuccess){
 				indexLabel.setText("第"+tableId+"局");
@@ -2009,6 +2018,9 @@ public class MyController implements Initializable{
 				//当局已结算的团队服务费之和 要置为0
 				current_Jiesuaned_team_fwf_sum = 0d;
 				
+				//转移Excel
+				moveExcel();
+				
 				ShowUtil.show("锁定成功！", 2);
 			}else {
 				ShowUtil.show("平帐与交收的差值大于10，不能锁定！！！");
@@ -2017,6 +2029,25 @@ public class MyController implements Initializable{
 			ShowUtil.show("平帐失败，不能锁定！！！", 2);
 		}
 	}
+	
+	
+	/**
+	 * 转移Excel
+	 * @time 2018年4月21日
+	 */
+	private void moveExcel() {
+		String resourceFilePath = excelDir.getText();
+		String fileName = resourceFilePath.substring(resourceFilePath.lastIndexOf("\\") + 1);
+		String targetFilePath = PathUtil.getUserDeskPath() + "\\" +LocalDate.now()+"已锁定"+ "\\" +"已锁定-"+ fileName;
+		try {
+			FileUtil.moveFile(resourceFilePath, targetFilePath);
+		} catch (IOException e) {
+			ErrorUtil.err("锁定后转移Excel失败", e);
+		}
+	}
+	
+	
+
 	
 	/**
 	 * 锁定时设置导入的Excel到对应的联盟中

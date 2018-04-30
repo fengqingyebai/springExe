@@ -1,6 +1,10 @@
 package com.kendy.util;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -71,34 +75,25 @@ public class TimeUtil {
 	}
 	
 	/*******************************************************************/
+    
 	/**
-	 * 获取当天开始时间字符串
-	 * 应用场景：选择时间范围
-	 * @time 2018年4月8日
+	 * 根据当天起始时间点获取范围
+	 * 
+	 * @time 2018年4月14日
 	 * @return
 	 */
-	public static String getStartTimeString() {  
-        Calendar todayStart = Calendar.getInstance();  
-        todayStart.set(Calendar.HOUR, 0);  
-        todayStart.set(Calendar.MINUTE, 0);  
-        todayStart.set(Calendar.SECOND, 0);  
-        todayStart.set(Calendar.MILLISECOND, 0);  
-        return todayStart.getTime().getTime()+"";  
-    }  
-  
-	/**
-	 * 获取当天结束时间字符串
-	 * 应用场景：选择时间范围
-	 * @time 2018年4月8日
-	 * @return
-	 */
-    public static String getEndTimeString() {  
-        Calendar todayEnd = Calendar.getInstance();  
-        todayEnd.set(Calendar.HOUR, 23);  
-        todayEnd.set(Calendar.MINUTE, 59);  
-        todayEnd.set(Calendar.SECOND, 59);  
-        todayEnd.set(Calendar.MILLISECOND, 1000);  
-        return todayEnd.getTime().getTime()+"";  
-    } 
+	public static long[] getTimeRange() {
+		DateTimeFormatter sf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDate now = LocalDate.now();
+        LocalDateTime atStartOfDay = now.atStartOfDay();
+        
+        LocalDateTime todayTime24 = atStartOfDay.plusHours(24L);
+        
+        long start = atStartOfDay.toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        long end = todayTime24.toInstant(ZoneOffset.of("+8")).toEpochMilli();
+        
+        long[] timeRange = new long[] {start, end};
+        return timeRange;
+	}
 
 }

@@ -163,6 +163,7 @@ public class AddController implements Initializable{
     	player.setEdu(beizhuField.getText());
     	if(!StringUtil.isBlank(player.getgameId()) && !StringUtil.isBlank(player.getTeamName())){
     		DataConstans.membersMap.put(player.getgameId(), player);
+    		ConsUtil.refresh_SM_Detail_Map();
 //    		ConsUtil.refreshTeamIdAndPlayerId();
     		DBUtil.addMember(player);
     		log.info("已经添加该人员:"+player);

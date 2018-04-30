@@ -12,7 +12,6 @@ public class FilterUtf8mb4 {
 		System.out.println(filterUtf8mb4("叼鱼🐟"));
 		System.out.println(filterUtf8mb4("叼鱼佛挡杀佛e"));
 		System.out.println(filterUtf8mb4("叼___==33杀佛e"));
-		System.out.println(filterUtf8mb4("04月14号-🏧🐴24-274"));
 	}
 	
 	/**

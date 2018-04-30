@@ -1,8 +1,13 @@
 package com.kendy.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,15 +15,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.http.client.ClientProtocolException;
+import javax.swing.filechooser.FileSystemView;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
@@ -27,6 +37,7 @@ import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.ShangmaNextday;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.model.SMResultModel;
+import com.kendy.service.AutoDownloadZJExcelService;
 import com.kendy.service.ShangmaService;
 import com.kendy.spider.GameRoomModel;
 import com.kendy.spider.HttpUtil;
@@ -35,6 +46,8 @@ import com.kendy.spider.WanjiaApplyInfo;
 import com.kendy.spider.WanjiaListResult;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.FilterUtf8mb4;
+import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -49,12 +62,22 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 /**
  * 处理联盟配额的控制器
@@ -75,6 +98,8 @@ public class SMAutoController implements Initializable {
     public Label tokenStatus; // token状态
     @FXML
     public ListView<String> logArea;
+    @FXML
+    public ListView<String> excelArea;
     @FXML
     public TextField sysCodeField;
     @FXML
@@ -110,16 +135,42 @@ public class SMAutoController implements Initializable {
     @FXML
     private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
 
+    @FXML
+    public TextField downExcelPierodField;//每隔多久去刷新
+    
+    
     private static final String SM_AOTO_NEXT_DAY_DB_KEY = "sm_aoto_next_day_db_key"; // 保存到数据库的key
     private static final String SM_AOTO_TOKEN_DB_KEY = "sm_aoto_token_db_key"; // 保存到数据库的key
 
     private static final String CONNECT_FAIL = "连接失败,失败码：";
 
-    private static boolean isStartPressed = false; // 继续从后台取数据标志
-
-    private static Runnable task;
-
+    private Object lock = new Object();
+    private Object excelLock = new Object();
+    
+    public static Map<String,Boolean> downloadCache = new HashMap<>();
+    
     private Timer timer;
+    
+    private Timer excelTimer;
+    
+    static {
+    	log.info("软件新开启：加载自动下载数据");
+    	loadDownLoadCache();
+    }
+    
+    public static void loadDownLoadCache() {
+    	File downLoadFileFolder = new File(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() 
+    			+ "\\" +  LocalDate.now().toString());
+    	if(downLoadFileFolder.exists()) {
+    		for(File downLoadFile : downLoadFileFolder.listFiles()) {
+    			String fileName = downLoadFile.getName();
+    			if(fileName.endsWith(".xls")) {
+    				downloadCache.put(fileName, Boolean.TRUE);
+    			}
+    		}
+    		log.info("软件新开启：加载自动下载数据,个数：" + downLoadFileFolder.listFiles().length);
+    	}
+    }
 
     /**
      * DOM加载完后的事件
@@ -249,13 +300,15 @@ public class SMAutoController implements Initializable {
      * @param description
      */
     private void logInfo(String description) {
-        ObservableList<String> items = logArea.getItems();
-        if (items != null) {
-            items.add(description);
-        } else {
-            items = FXCollections.observableArrayList(new ArrayList<String>(Arrays.asList("ssss")));
-        }
-        logArea.refresh();
+	    synchronized (lock) {
+	    	ObservableList<String> items = logArea.getItems();
+	    	if (items != null) {
+	    		items.add(description);
+	    	} else {
+	    		items = FXCollections.observableArrayList(new ArrayList<String>(Arrays.asList("ssss")));
+	    	}
+	    	logArea.refresh();
+		}
     }
 
     /**
@@ -340,70 +393,36 @@ public class SMAutoController implements Initializable {
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
-                        try {
-                            // 调用接口
-                            List<WanjiaApplyInfo> buyinList = HttpUtil.getBuyinList(getToken());
-                            // 处理数据
-                            if (buyinList == null) {
-                                logInfo("获取到玩家为空!!!");
-                            } else {
-                                logInfo("获取到玩家个数：" + buyinList.size());
-                                // 真正的处理逻辑
-                                handleAutoShangma(buyinList);
-                            }
-                        } catch (Exception e) {
-                        	String errMesg = "获取玩家信息请求失败";
-                            logInfo(errMesg);
-                            log.error(errMesg);
-                        }
-                        logInfo("");
-                    	
-//                    	getRoomIdSet();
+                    	//自动上码
+                    	reqAndHandleBuyinList();
                     }
                 });
-                // logInfo("此处等待10秒...");
+//                 logInfo("此处等待10秒...");
             }
         }, 1000, separateTime); // 定时器的延迟时间及间隔时间
     }
     
-    private void getRoomIdSet() {
-    	String clubId = MyController.currentClubId.getText();
-    	String startTime = TimeUtil.getStartTimeString();
-    	String endTime = TimeUtil.getEndTimeString();
-    	String keyword = "";
-    	String order = "-1";
-    	String gameType = "1"; //1 普通 2奥马哈 3  4 
-    	String pageSize = "200";
-    	Map<String,String> params = new HashMap<>();
-    	params.put("clubId", clubId);
-    	params.put("startTime", startTime);
-    	params.put("endTime", endTime);
-    	params.put("keyword", keyword);
-    	params.put("order", order);
-    	params.put("gameType", gameType);
-    	params.put("pageSize", pageSize);
-    	
-    	RespResult<GameRoomModel> parseObject = new RespResult<>();
-    	try {
-    		logInfo("正在获取房间列表");
-			String respString = HttpUtil.sendPost("http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
-			if(StringUtil.isNotBlank(respString)) {
-				parseObject = (RespResult<GameRoomModel>)JSON.parseObject(respString, RespResult.class);
-				logInfo("普通房间数量："+ parseObject.getResult().getTotal());
-			}
-
-    	} catch (Exception e) {
-    		logInfo("网络异常...");
-			e.printStackTrace();
-		}
-    	
+    public void reqAndHandleBuyinList() {
+	      logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
+	      try {
+	          // 调用接口
+	          List<WanjiaApplyInfo> buyinList = HttpUtil.getBuyinList(getToken());
+	          // 处理数据
+	          if (buyinList == null) {
+	              logInfo("获取到玩家为空!!!");
+	          } else {
+	              logInfo("获取到玩家个数：" + buyinList.size());
+	              // 真正的处理逻辑
+	              handleAutoShangma(buyinList);
+	          }
+	      } catch (Exception e) {
+	      	String errMesg = "获取玩家信息请求失败";
+	          logInfo(errMesg);
+	          log.error(errMesg);
+	      }
+	      logInfo("");
     }
     
-    private Map<String, String> getGameListParam(){
-    	
-    	return null;
-    }
     
     private Integer getRefreshSeparateTime() {
     	
@@ -416,7 +435,7 @@ public class SMAutoController implements Initializable {
     	}
     	return time * 1000;
     }
-
+    
     /**
      * 处理自动上码的逻辑（核心代码）
      * 备注：申请数量过两道关之后程序会去实时上码Tab中自动上码
@@ -506,12 +525,9 @@ public class SMAutoController implements Initializable {
                 boolean acceptBuyOK = HttpUtil.acceptBuy(userUuid, roomId, getToken()); //后台申请买入
                 if(acceptBuyOK) {
                     if (isTodaySM) {
-                        log.info("正在添加今日上码...");
                         ShangmaService.addNewShangma2DetailTable_HT(resultModel, ShangmaService.getShangmaPaiju(paijuString), buyStack);
-                        log.info("添加今日上码结束:" + resultModel.getSelectedSMInfo().toString());
                         
                     } else {
-                        log.info("正在添加次日上码...");
                         ShangmaNextday nextday = new ShangmaNextday();
                         nextday.setPlayerId(playerId);
                         nextday.setPlayerName(playerName);
@@ -521,9 +537,11 @@ public class SMAutoController implements Initializable {
                         
                         // 新增玩家的次日数据
                         ShangmaService.addNewRecord_nextday_HT(resultModel, nextday);
-                        log.info("添加次日上码结束：" + nextday.toString());
                     }
                     addOK = true;
+                    log.info(String.format("%s[%s]第%s局买入%s,网络买入结果是[成功]，计入上码", playerName,playerId,paijuString,buyStack));
+                }else {
+                	log.error(String.format("%s[%s]第%s局买入%s,网络买入结果是[失败]，没有计入上码", playerName,playerId,paijuString,buyStack));
                 }
             }
         } catch (Exception e) {
@@ -771,18 +789,307 @@ public class SMAutoController implements Initializable {
 		String timeStr = format.format(new Date());
 		return timeStr;
 	}
+	
+	
+	
+	
+	
     
-//    public static void main(String[] args) {
-//    	  String a = "01";
-//    	  String b = "01";
-//    	  String c = "90";
-//    	  Double A = NumUtil.getNum(a);
-//          Double B = NumUtil.getNum(b);
-//          Double C = NumUtil.getNum(c);
-//          boolean result =  A <= B && A <= C;
-//          System.out.println("A:"+A);
-//          System.out.println("C:"+C);
-//          System.out.println(result);
-//    }
+	/************************************************************************************************
+	 * 
+	 * 											自动下载区域<a href=>
+	 *   http://cms.pokermanager.club/cms-api/game/exportGame?roomId=28739668&token=...
+	 * 
+	 *************************************************************************************************/
+	
+	//软件启动时先去加载桌面已经下载的Excel列表进缓存
+	//重复的跳过，不重复的则下载后更新缓存和数据
+    public void autoDownExcels(String DownType) {
+    	
+    	String houtai = "1".equals(DownType) ? "普通后台" : "2".equals(DownType) ? "奥马哈后台" : "其他后台" ; 
+    	
+    	RespResult<GameRoomModel> parseObject = new RespResult<>();
+    	try {
+    		excelInfo("正在获取"+houtai+"房间列表..." + TimeUtil.getTimeString());
+    		Map<String, String> params = getParams(DownType);
+			String respString = HttpUtil.sendPost("http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
+			if(StringUtil.isNotBlank(respString)) {
+				if(log.isDebugEnabled()){
+					String paramsJson = JSON.toJSONString(params);
+					log.info("req params : " + paramsJson);
+					log.info("rsp json : " + respString);
+				}
+				parseObject = (RespResult<GameRoomModel>)JSON.parseObject(respString, new TypeReference<RespResult<GameRoomModel>>() {});
+				excelInfo(houtai + "房间数量："+ parseObject.getResult().getTotal());
+			}
+    	} catch (Exception e) {
+    		String errMsg = "获取房间列表：网络异常...";
+    		excelInfo(errMsg);
+    		log.error(errMsg + e.getMessage());
+    		return;
+		}
+    	
+    	if(parseObject.getiErrCode() > 0){
+    		excelInfo("网络异常，后台返回码：" + parseObject.getiErrCode());
+    		return;
+    	}
+    	
+    	boolean hasRoomValue = parseObject.getResult().getList() != null;
+    	if(hasRoomValue) {
+    		List<GameRoomModel> roomList = parseObject.getResult().getList();
+    		long updateCount = updateCount(roomList);
+    		boolean isAllDown = updateCount == 0 ? true : false;
+    		if(isAllDown) {
+    			excelInfo(houtai + "无更新");
+    			return;
+    		}else {
+    			excelInfo(houtai + "更新了"+updateCount + "个白名单");
+    		}
+    		//排序
+    		roomList = roomList.stream()
+    			.sorted((m,n)-> Long.valueOf(m.getCreatetime()).compareTo(Long.valueOf(n.getCreatetime())))
+    			.collect(Collectors.toList());
+    		String token = getToken();
+    		for(GameRoomModel gameRoomModel : roomList) {
+    			String fileName = getDownLoadFilterName(gameRoomModel.getCreatetime(),gameRoomModel.getRoomname());
+    			if(downloadCache.containsKey(fileName)) {
+    				if(log.isDebugEnabled()) {
+    					log.info("跳过：" + fileName);
+    				}
+    				continue;
+    			}
+    			
+    			String roomId = gameRoomModel.getRoomid();
+    			try {
+    				
+    				long start = System.currentTimeMillis();
+    				
+    				AutoDownloadZJExcelService.autoDown(fileName, roomId, token);
+    				
+    		    	long end = System.currentTimeMillis();
+    		    	String message = "已下载" +fileName+ ",耗时："+(end - start) + "毫秒";
+    		    	excelInfo(message);
+    		        log.info(message);
+    		        downloadCache.put(fileName, Boolean.TRUE);
+    		        
+    	        } catch (UnknownHostException ue) {
+    	        	log.error("自动下载异常：UnknownHostException，" + ue.getMessage() );
+    	        } catch( FileNotFoundException notfoundE) {
+    	        	log.error("自动下载异常：FileNotFoundException，原因，已经下载过，且正被使用中，或者含有'/'" +fileName+",房间ID:" + roomId);
+    	        } catch(SocketTimeoutException timeOutE) {
+    	        	log.error("自动下载异常: 连接超时" );
+    	        }
+    	        catch (Exception e) {
+    	            e.printStackTrace();
+    	        }
+    			
+    		}
+    	}
+    	
+    }
+    
+    /**
+     * 获取房间列表后，检查与上次的对比
+     * @time 2018年4月15日
+     * @param roomList
+     * @return
+     */
+    private long updateCount(final List<GameRoomModel> roomList) {
+    	if(CollectUtil.isNullOrEmpty(roomList))
+    		return 0L;
+    	
+    	long updateCount = roomList.stream().filter(info -> !downloadCache.containsKey(getDownLoadFilterName(info.getCreatetime(),info.getRoomname()))).count();
+    	return updateCount;
+    }
+    
+    private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
+    	originalRoomName = originalRoomName.replace("/", "-").replace("%20", "-");
+    	originalRoomName =  FilterUtf8mb4.filterUtf8mb4(originalRoomName);
+    	String date = new SimpleDateFormat("MM月dd号-战绩导出-").format(new Date());
+    	return finishedTime +"-" +date + originalRoomName + ".xls";
+    }
+    
+    /**
+     * 获取自动下载战绩Excel的参数
+     * @time 2018年4月15日
+     * @param downType //1 普通 2奥马哈 3  4 
+     * @return
+     */
+    private Map<String,String> getParams(String downType){
+    	String clubId = MyController.currentClubId.getText();
+    	long[] timeRange = TimeUtil.getTimeRange();
+    	String startTime = timeRange[0]+"";
+    	String endTime = timeRange[1]+"";
+    	Map<String,String> params = new HashMap<>();
+    	params.put("clubId", clubId);
+    	params.put("startTime", startTime);
+    	params.put("endTime", endTime);
+    	params.put("keyword", "");
+    	params.put("order", "-1");
+    	params.put("gameType", downType);
+    	params.put("pageSize", "250");
+    	return params;
+    }
+    
+    /**
+     * 清空战绩Excel下载记录
+     * @time 2018年4月14日
+     * @param event
+     */
+    public void  removeExcelAreaAction(ActionEvent event){
+    	if (excelArea.getItems() != null)
+    		excelArea.getItems().clear();
+    }
+    
+    /**
+     * 查看已下载的Excel记录
+     * @time 2018年4月14日
+     * @param event
+     */
+    public void  seeHasDownExcelListCacheAction(ActionEvent event){
+    	if(MapUtil.isNullOrEmpty(downloadCache)) {
+    		ShowUtil.show("已下载记录，拜拜！", 1);
+    		return;
+    	}
+    	
+    	Dialog dialog = new Dialog<>();
+    	dialog.setResizable(true);
+    	dialog.setHeight(600);
+    	dialog.setWidth(1000);
+    	dialog.setTitle("已下载的Excel");
+    	dialog.setHeaderText(null);
+    	
+    	// Set the button types.
+    	ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
+    	dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+
+    	// Create the username and password labels and fields.
+    	GridPane grid = new GridPane();
+    	grid.setHgap(10);
+    	grid.setVgap(10);
+    	grid.setPadding(new Insets(20, 0, 10, 0));
+
+    	ScrollPane scrollPane = new ScrollPane();
+    	scrollPane.setFitToHeight(true);
+    	scrollPane.setFitToWidth(true);
+    	VBox cacheContent = new VBox();
+    	downloadCache.keySet().stream().sorted().forEach(downedExcelName -> {
+    		cacheContent.getChildren().add(new Label(downedExcelName));
+    	});
+    	scrollPane.setContent(cacheContent);
+
+    	grid.add(scrollPane, 0, 0); //最后一个0代码第一行
+
+    	// Enable/Disable login button depending on whether a username was entered.
+    	Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
+
+    	dialog.getDialogPane().setContent(grid);
+
+    	dialog.show();
+    }
+    
+    private void excelInfo(String description) {
+		ObservableList<String> items = excelArea.getItems();
+		if (items != null) {
+			items.add(description);
+		} else {
+			items = FXCollections.observableArrayList();
+		}
+		excelArea.refresh();
+    }
+    
+    /**
+     * 删除本地文件并重新下载
+     * @time 2018年4月15日
+     * @param event
+     */
+    public void reAutoDownAction(ActionEvent event) {
+    	Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("提示");
+		alert.setHeaderText(null);
+		alert.setContentText(System.lineSeparator()+"你即将删除本地文件【"+downloadCache.size()+"个】并重新下载 , 确定?");
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK){
+			if(this.timer != null) {
+	            ShowUtil.show("请先暂停爬取!");
+	            return;
+		    }else {
+		    	//删除本地文件夹内容
+		    	File downLoadFileFolder = new File(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() 
+		    			+ "\\" +  LocalDate.now().toString());
+		    	try {
+					FileUtils.forceDelete(downLoadFileFolder);
+					//清空缓存
+					downloadCache.clear();
+					ShowUtil.show("已删除本地文件夹！", 1);
+				} catch (IOException e) {
+					ErrorUtil.err("删除本地文件夹失败",e);
+				}
+		    }
+			
+		}
+    }
+    
+    
+    /**
+     * 开始下载Excel按钮
+     * 
+     * @time 2018年4月29日
+     * @param evet
+     */
+    public void startDownloadTimerAction(ActionEvent evet) {
+        if (this.excelTimer != null) {
+            ShowUtil.show("下载Excel的后台程序正在运行！", 1);
+            return;
+        }
+        Integer separateTime = getDownExcelPeriod();
+        excelInfo("每隔"+separateTime/1000+"秒刷新一次！");
+        excelInfo("开始程序爬取和下载...");
+        this.excelTimer = new Timer();
+        excelTimer.schedule(new TimerTask() {
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	
+                    	//自动下载当天普通房间Excel
+                    	autoDownExcels("1");
+                    	
+                    	//自动下载当天奥马哈房间Excel
+                    	//autoDownExcels("2");
+                    }
+                });
+            }
+        }, 1000, separateTime); // 定时器的延迟时间及间隔时间
+    }
+    
+    private Integer getDownExcelPeriod() {
+    	
+    	String text = downExcelPierodField.getText();
+    	Integer time = 60;
+    	try {
+    		time = Integer.valueOf(text.trim());
+    	}catch(Exception e) {
+    		time = 60;
+    	}
+    	return time * 1000;
+    }
+    
+    /**
+     * 停止下载Excel
+     * 
+     * @time 2018年4月29日
+     * @param evet
+     */
+    public void stopAutoDownExcelAction(ActionEvent evet) {
+        if (this.excelTimer == null) {
+            ShowUtil.show("后台程序没有启动", 1);
+            return;
+        }
+        this.excelTimer.cancel();
+        this.excelTimer = null;
+        excelInfo("停止下载后台Excel数据!!!");
+    }
+	
 
 }

@@ -30,6 +30,7 @@ import com.kendy.entity.WanjiaInfo;
 import com.kendy.excel.ExportShangmaExcel;
 import com.kendy.model.SMResultModel;
 import com.kendy.util.CollectUtil;
+import com.kendy.util.ConsUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -465,6 +466,13 @@ public class ShangmaService {
 		//add 2018-2-5 新增次日
 		List<ShangmaDetailInfo> detailList = new ArrayList<>();
 		List<ShangmaDetailInfo> _detailList = DataConstans.SM_Detail_Map.get(playerId);
+		if(_detailList == null) {
+			Player player = DataConstans.membersMap.get(playerId);
+			if(player != null) {
+				ConsUtil.refresh_SM_Detail_Map();
+				_detailList = DataConstans.SM_Detail_Map.get(playerId);
+			}
+		}
 		detailList.addAll(_detailList);
 		detailList.addAll(SM_NextDay_Map.getOrDefault(playerId,new ArrayList<>()));
 		
