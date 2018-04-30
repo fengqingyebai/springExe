@@ -9,10 +9,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -28,7 +31,6 @@ import com.kendy.entity.JifenInfo;
 import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.Record;
-import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.ShangmaNextday;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
@@ -522,6 +524,19 @@ public class DBUtil {
 				return map;
 			}
 			map = JSON.parseObject(res, new TypeReference<Map<String,String>>(){});
+			//======================================================把锁定的详细数据单独加进来
+			try {
+				sql = "select * from last_locked_data_detail ";
+				ps = con.prepareStatement(sql);
+				rs = ps.executeQuery();
+				Map<String,Map<String,String>> locked_data_detail_map = new HashMap<>();
+				while(rs.next()){
+					locked_data_detail_map.put(rs.getString(1), JSON.parseObject(rs.getString(2), new TypeReference<Map<String,String>>(){}));
+				}
+				map.put("All_Locked_Data_Map", JSON.toJSONString(locked_data_detail_map));
+				log.info("中途加载当天详细锁定数据,总局数："+locked_data_detail_map.size());
+			}catch(Exception e) {log.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());}
+			//======================================================
 //			//资金
 //			Map<String,String> zijinMap = _map.get("资金");
 //			//实时开销(可以实时金额那里拿)
@@ -533,6 +548,7 @@ public class DBUtil {
 //			Map<String,String> yesterdayProfitMap = _map.get("昨日利润");
 //			//联盟对帐
 //			Map<String,String> LMMap = _map.get("联盟对帐");
+			
 		}catch (SQLException e) {
 			ErrorUtil.err("查找最新的锁定数据失败",e);
 			return map;
@@ -807,7 +823,7 @@ public class DBUtil {
 	 */
 	public static int saveLastLockedData() {
 		int lockedIndex = 0;
-		Map<String,String> lastLockedDataMap = DataConstans.getLockedDataMap();
+		Map<String,String> lastLockedDataMap = DataConstans.getLockedDataMap();//这里没有场次信息的数据了
 		String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
 		int ju_size = DataConstans.Index_Table_Id_Map.size();
 		try {
@@ -835,6 +851,9 @@ public class DBUtil {
 			ps.execute();
 			
 			lockedIndex = ju_size;
+			
+			//单独保存最后一场的详细数据
+			saveLastLockedDataDetail();
 			return lockedIndex;
 		}catch (SQLException e) {
 			if(e.getMessage().contains("Incorrect")) {
@@ -847,6 +866,39 @@ public class DBUtil {
 		}
 		return lockedIndex;
 	}
+	
+	/**
+	 * 锁定时保存最后一场的详细数据
+	 * @time 2018年4月30日
+	 */
+	@SuppressWarnings("unlikely-arg-type")
+	private static void saveLastLockedDataDetail() {
+		try {
+			int ju_size =  DataConstans.Paiju_Index.get()-1;
+			log.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
+	        Map<String, String> lastDataDetailMap = DataConstans.All_Locked_Data_Map.get(ju_size+"");
+			String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
+			sql = "replace into last_locked_data_detail values(?,?)";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, ju_size+"");
+			ps.setString(2, lastDataDetailJson);
+			ps.execute();
+		}catch (SQLException e) {
+			ErrorUtil.err("锁定时保存最后一场的详细数据失败",e);
+		}finally{
+			close(con,ps);
+		}
+		
+	}
+	
+	  public static <K, V> Entry<K, V> getTail(LinkedHashMap<K, V> map) {
+	        Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
+	        Entry<K, V> tail = null;
+	        while (iterator.hasNext()) {
+	            tail = iterator.next();
+	        }
+	        return tail;
+	    }
 	
 	
 	/**
@@ -984,6 +1036,10 @@ public class DBUtil {
 			ps.execute();
 			
 			sql = "DELETE from gudong_kaixiao ";
+			ps = con.prepareStatement(sql);
+			ps.execute();
+			
+			sql = "DELETE from last_locked_data_detail ";
 			ps = con.prepareStatement(sql);
 			ps.execute();
 			
@@ -2968,6 +3024,24 @@ public class DBUtil {
 			ps.execute();
 		}catch (SQLException e) {
 			ErrorUtil.err("删除所有的托管日利润失败", e);
+		}finally{
+			close(con,ps);
+		}
+	}
+	
+	/**
+	 * 清空所有详细的锁定数据
+	 * @time 2018年4月30日
+	 */
+	public static void del_all_locked_data_details() {
+		try {
+			con = DBConnection.getConnection();
+			String sql = "delete from last_locked_data_detail ";
+			ps = con.prepareStatement(sql);
+			ps.execute();
+			
+		}catch (SQLException e) {
+			ErrorUtil.err("清空所有详细的锁定数据失败", e);
 		}finally{
 			close(con,ps);
 		}

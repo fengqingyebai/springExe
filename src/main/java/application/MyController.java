@@ -3,6 +3,7 @@ package application;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -2041,7 +2042,9 @@ public class MyController implements Initializable{
 		String targetFilePath = PathUtil.getUserDeskPath() + "\\" +LocalDate.now()+"已锁定"+ "\\" +"已锁定-"+ fileName;
 		try {
 			FileUtil.moveFile(resourceFilePath, targetFilePath);
-		} catch (IOException e) {
+		} catch(FileNotFoundException e) {
+			log.info("锁定后转移Excel失败,原因：FileNotFoundException，源地址是：" + resourceFilePath );
+		}catch (IOException e) {
 			ErrorUtil.err("锁定后转移Excel失败", e);
 		}
 	}
@@ -2899,10 +2902,15 @@ public class MyController implements Initializable{
     	alert.setContentText("\r\n即将结束今天所有操作并将数据保存到数据库，确定？");
     	Optional<ButtonType> result = alert.showAndWait();
     	if (result.get() == ButtonType.OK){
+    		if(DataConstans.All_Locked_Data_Map.isEmpty()) {
+    			ShowUtil.show("今日无锁定数据，不能归档！请检查");
+    			return;
+    		}
     		//将最后一场的锁定数据保存到数据库，只保留实时金额和昨日利润等
     		endOneDayStaticAndSave();
     		//处理锁定数据
     		DBUtil.handle_last_locked_data();
+    		DBUtil.del_all_locked_data_details();//删除今日的锁定数据
     		
     		//从数据库中删除相应信息
 			//DBUtil.del_club_and_record();

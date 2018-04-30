@@ -59,7 +59,7 @@ public class DataConstans {
 	public static Map<String,List<TeamHuishuiInfo>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
 	
 	//缓存120场次的所有锁定数据{页数第几局={...}}
-	public static Map<String,Map<String,String>> All_Locked_Data_Map  = new HashMap<>();//撤销后不变
+	public static Map<String,Map<String,String>> All_Locked_Data_Map  = new LinkedHashMap<>();//撤销后不变
 	//锁定后是第X局
 	public static AtomicInteger Paiju_Index = new AtomicInteger(1);//撤销后不变
 	//缓存场次与局映射
@@ -159,8 +159,9 @@ public class DataConstans {
 		lastLockedDataMap.put("Total_Team_Huishui_Map", JSON.toJSONString(DataConstans.Total_Team_Huishui_Map));
 		
 //		缓存120场次的所有锁定数据{页数第几局={...}}
-//		public static Map<String,Map<String,String>> All_Locked_Data_Map  = new HashMap<>();//撤销后不变
-		lastLockedDataMap.put("All_Locked_Data_Map", JSON.toJSONString(DataConstans.All_Locked_Data_Map));
+//		public static Map<String,Map<String,String>> All_Locked_Data_Map  = new LinkedHashMap<>();//撤销后不变
+		//2018-4-30 注销，单独存储最新局到last_locked_data_detail
+//		lastLockedDataMap.put("All_Locked_Data_Map", JSON.toJSONString(DataConstans.All_Locked_Data_Map));
 		
 //		锁定后是第X局
 //		public static AtomicInteger Paiju_Index = new AtomicInteger(1);//撤销后不变
@@ -238,7 +239,7 @@ public class DataConstans {
 		//这个不会被修改，是总的团队回水记录。用在团队回水当天查询
 		Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
 		//缓存120场次的所有锁定数据{页数第几局={...}}
-		All_Locked_Data_Map  = new HashMap<>();//撤销后不变
+		All_Locked_Data_Map  = new LinkedHashMap<>();//撤销后不变
 		//锁定后是第X局
 		Paiju_Index = new AtomicInteger(1);//撤销后不变
 		//缓存场次与局映射
