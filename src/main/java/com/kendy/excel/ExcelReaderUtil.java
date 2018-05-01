@@ -14,21 +14,20 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.alibaba.fastjson.JSON;
 import com.kendy.controller.LMController;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.entity.UserInfos;
+import com.kendy.exception.ExcelException;
 import com.kendy.other.Wrap;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -76,7 +75,7 @@ public class ExcelReaderUtil {
 			if (".xls".equals(fileType.trim().toLowerCase())) {
 				workbook = new HSSFWorkbook(fileStream);// 创建 Excel 2003 工作簿对象
 			} else if (".xlsx".equals(fileType.trim().toLowerCase())) {
-				workbook = new XSSFWorkbook(fileStream);// 创建 Excel 2007 工作簿对象
+				workbook = new HSSFWorkbook(fileStream);// 创建 Excel 2007 工作簿对象
 				//workbook = WorkbookFactory.create(fileStream);
 			}
 		}
@@ -278,11 +277,47 @@ public class ExcelReaderUtil {
 	 * @param versionType
 	 * @return
 	 */
-	public static Wrap readZJRecord(File file,String userClubId,String LMType, int versionType){
+	public static Wrap readZJRecord(File file,String userClubId,String LMType, int versionType) throws Exception{
+		if(checkIfNotCoinsisdence(file, versionType)){
+			throw new ExcelException("白名单选择版本与导入版本不一致");
+		}
 		if(0 == versionType)
 			return readZJRecord_OldVersion(file,userClubId,LMType);
 		else
 			return readZJRecord_NewVersion(file,userClubId,LMType);
+	}
+	
+	/**
+	 * 检查版本是否不一致，检查是否为xls格式
+	 * 新版CMS的第一行为空内容，旧版CMS第一行第一个单元格内容是"牌局类型"
+	 * @time 2018年4月9日
+	 * @param file
+	 * @param versionType
+	 * @return
+	 * @throws Exception
+	 */
+	private static boolean checkIfNotCoinsisdence(File file, int versionType){
+		if(file.getAbsolutePath().endsWith("xlsx")) {
+			return true;
+		}
+		try(FileInputStream in = new FileInputStream(file);
+			Workbook workbook = getWeebWork(file.getAbsolutePath())){
+			//获取excel sheet
+			Sheet sheet = workbook.getSheetAt(0);
+			Row firstRow = sheet.getRow(0);
+			Cell firstCell = firstRow.getCell(0);
+			firstCell.setCellType(HSSFCell.CELL_TYPE_STRING);
+			String firstCellVal = firstCell.getStringCellValue();
+			boolean isOldVersionCoinsisdent = "牌局类型".equals(firstCellVal) && versionType == 0;
+			boolean isNewVersionCoinsisdent = StringUtil.isBlank(firstCellVal) && versionType == 1;
+			if(isOldVersionCoinsisdent || isNewVersionCoinsisdent) { //要么都为旧版本一致， 要么都为新版本一致
+				return false;
+			}
+			return true;
+		}catch(Exception e) {
+			return true;
+		}
+		
 	}
 	
 	/**
@@ -295,7 +330,7 @@ public class ExcelReaderUtil {
 	 * @param file 文件夹
 	 * @return
 	 */
-	public static Wrap readZJRecord_OldVersion(File file,String userClubId,String LMType){//新增了联盟类型
+	public static Wrap readZJRecord_OldVersion(File file,String userClubId,String LMType) throws Exception{//新增了联盟类型
 		List<UserInfos> userInfoList = new LinkedList<>();
 		UserInfos info = null;
 		FileInputStream is = null;
@@ -436,27 +471,26 @@ public class ExcelReaderUtil {
 	 * @param file 文件夹
 	 * @return
 	 */
-	public static Wrap readZJRecord_NewVersion(File file,String userClubId,String LMType){//新增了联盟类型
+	public static Wrap readZJRecord_NewVersion(File file,String userClubId,String LMType) throws Exception{//新增了联盟类型
 		List<UserInfos> userInfoList = new LinkedList<>();
 		UserInfos info = null;
-		FileInputStream is = null;
+//		FileInputStream is = null;
 		boolean isHasJudged = false;//是否已经判断过为空 波哥要求添加
-		try{
-			//桌号
-			String name = file.getName();
-			String tableId = name.substring(name.lastIndexOf("-")+1,name.lastIndexOf(".")); 
-			tableId="第"+tableId+"局";
-			if( StringUtil.isBlank(userClubId) || DataConstans.Index_Table_Id_Map.containsValue(tableId)){
-				return new Wrap(false,"该战绩表("+tableId+"场次)已经导过");
-			}
-			log.info("开始----------导入战绩Excel");
-			
-			userInfoList = new LinkedList<>();
-			is = new FileInputStream(file);
-			
+		//桌号
+		String name = file.getName();
+		String tableId = name.substring(name.lastIndexOf("-")+1,name.lastIndexOf(".")); 
+		tableId="第"+tableId+"局";
+		if( StringUtil.isBlank(userClubId) || DataConstans.Index_Table_Id_Map.containsValue(tableId)){
+			return new Wrap(false,"该战绩表("+tableId+"场次)已经导过");
+		}
+		log.info("开始----------导入战绩Excel");
+		
+		userInfoList = new LinkedList<>();
+//		is = new FileInputStream(file);
+		try(FileInputStream is = new FileInputStream(file)){
 			//获取excel sheet
-			Workbook workbook =(XSSFWorkbook) getWeebWork(file.getAbsolutePath());
-			XSSFSheet sheet = (XSSFSheet)workbook.getSheetAt(0);
+			Workbook workbook =(HSSFWorkbook) getWeebWork(file.getAbsolutePath());
+			HSSFSheet sheet = (HSSFSheet)workbook.getSheetAt(0);
 			
 			int rowNum = sheet.getLastRowNum();//若无数据，要提示
 			if(rowNum == 0 && !isHasJudged) {
@@ -469,11 +503,11 @@ public class ExcelReaderUtil {
 			Iterator<Row> rowIterator = sheet.iterator();
 			while (rowIterator.hasNext()) {
 				
-				XSSFRow row = (XSSFRow)rowIterator.next();
+				HSSFRow row = (HSSFRow)rowIterator.next();
 				
 				//add 总手数为空的提示
-//				Cell ZSScell = row.getCell(6);
-				XSSFCell ZSScell = row.getCell(7);
+//					Cell ZSScell = row.getCell(6);
+				HSSFCell ZSScell = row.getCell(8);
 				if(ZSScell == null){continue;}
 				String totalHandCount = ZSScell.toString();//总手数
 				Integer _tempCount = 0;
@@ -491,16 +525,15 @@ public class ExcelReaderUtil {
 				
 				info = new UserInfos();
 				//排除第一行以及俱乐部ID不匹配的情况
-//				String clubID = row.getCell(9).toString();
-				String clubID = row.getCell(10).toString();
+//					String clubID = row.getCell(9).toString();
+				String clubID = row.getCell(11).toString();
 				int rowNumIndex = row.getRowNum();
 				if(row.getRowNum()>1  && userClubId.equals(clubID)){	
 					//对于符合条件的进行存储
-//					int[] clumns = new int[]{6,7,8,9, 10,15,17,18,19};
-					int[] clumns = new int[]{7,8,9,10,11,16,18,19,20};
+					int[] clumns = new int[]{8,9,10,11,12,17,19,20,21};
 					
 					for(int cn : clumns){
-						XSSFCell cell = row.getCell(cn);
+						HSSFCell cell = row.getCell(cn);
 						
 						if(cell==null){
 							log.error("出现空值，导入战绩文件夹失败" + "\t");
@@ -510,25 +543,25 @@ public class ExcelReaderUtil {
 						String value = cell.getStringCellValue();
 						value = StringUtil.isBlank(value) ? "" : value.trim();
 						switch(cn){
-						case 7: //add 总手数（只判断不导入）
+						case 8: //add 总手数（只判断不导入）
 							if((StringUtil.isBlank(value) || "0".equals(value)) && !isHasJudged) {
 								isHasJudged = true;
 								ShowUtil.show("提示：总手数为0！");
 							}
+							break;
+						case 9: info.setPlayerId(value);
 						break;
-						case 8: info.setPlayerId(value);
+						case 10: info.setPlayerName(value);
 						break;
-						case 9: info.setPlayerName(value);
+						case 11: info.setClubId(value);
 						break;
-						case 10: info.setClubId(value);
+						case 12: info.setClubName(value);
 						break;
-						case 11: info.setClubName(value);
+						case 17: info.setInsurance(value);
 						break;
-						case 16: info.setInsurance(value);
+						case 20: info.setZj(value);
 						break;
-						case 19: info.setZj(value);
-						break;
-						case 20: {
+						case 21: {
 							String dateStr = value.split(" ")[0];
 							info.setDay(value);
 							//add 导入的第一局作为当天的时间
@@ -543,7 +576,7 @@ public class ExcelReaderUtil {
 									
 								}
 							}
-						break;}
+							break;}
 						default:break;
 						}
 					}
@@ -552,21 +585,20 @@ public class ExcelReaderUtil {
 				}
 			}//遍历excel结束
 			
-
-			//存储数据  {场次=infoList...}
-			DataConstans.zjMap.put(tableId, userInfoList);
-			is.close();
-			
 			//add 添加所有记录到联盟对帐表
 			LMController.currentRecordList = LM_ExcelReaderUtil.readRecord_NewVersion(file);
 			//LMController.refreshClubList();//放到锁定时去添加
 			//LMController.checkOverEdu();
 			
-            log.info("结束----------导入战绩Excel"+" ===size:"+ userInfoList.size());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Wrap();
-        } 
+			log.info("结束----------导入战绩Excel"+" ===size:"+ userInfoList.size());
+			
+			//存储数据  {场次=infoList...}
+			DataConstans.zjMap.put(tableId, userInfoList);
+		}catch(Exception e) {
+			throw new ExcelException("导入战绩失败",e);
+		}
+		
+		
 
 		return new Wrap(true,userInfoList);
 	}

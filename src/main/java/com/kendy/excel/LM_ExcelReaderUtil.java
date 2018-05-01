@@ -12,10 +12,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.alibaba.fastjson.JSON;
 import com.kendy.entity.Player;
 import com.kendy.entity.Record;
 import com.kendy.util.ErrorUtil;
@@ -131,85 +128,79 @@ public class LM_ExcelReaderUtil {
 	 * @param file
 	 * @return
 	 */
-	public static List<Record> readRecord_NewVersion(File file){
+	public static List<Record> readRecord_NewVersion(File file) throws Exception{
 		List<Record> result = new ArrayList<Record>();
-		try
+		FileInputStream is = new FileInputStream(file);
+		HSSFWorkbook workbook = new HSSFWorkbook(is);
+		//桌号
+		String name = file.getName();
+		String tableId = name.substring(name.lastIndexOf("-")+1,name.lastIndexOf(".")); 
+		tableId="第"+tableId+"局";
+		
+		HSSFSheet sheet = (HSSFSheet)workbook.getSheetAt(0);
+		
+		//Iterate through each rows one by one
+		Iterator<Row> rowIterator = sheet.iterator();
+		while (rowIterator.hasNext()) 
 		{
-			FileInputStream is = new FileInputStream(file);
-			XSSFWorkbook workbook = new XSSFWorkbook(is);
-			//桌号
-			String name = file.getName();
-			String tableId = name.substring(name.lastIndexOf("-")+1,name.lastIndexOf(".")); 
-			tableId="第"+tableId+"局";
-			
-			XSSFSheet sheet = (XSSFSheet)workbook.getSheetAt(0);
-			
-			//Iterate through each rows one by one
-			Iterator<Row> rowIterator = sheet.iterator();
-			while (rowIterator.hasNext()) 
-			{
-				Row row = rowIterator.next();
-				if(row.getCell(0)== null) {ShowUtil.show("该行第一个单元格为空", 2);break;}
-				Record record = new Record(); 
-				if(row.getRowNum()!=0){
-					int count2 = row.getLastCellNum();
-					String dateStr="";
-					for(int cn=0;cn<row.getLastCellNum();cn++){
-						Cell cell = row.getCell(cn);
-						record.setTableId(tableId);
-						if(cell==null){
-							log.error("cell 为null,继续下一个循环");
-							continue;
-						}
-						else{
-							switch(cn){
-							case 4: record.setBlind(cell.getStringCellValue());
-							break;
-							case 8: record.setPlayerId(cell.getStringCellValue());
-							break;
-							case 10: record.setClubId(cell.getStringCellValue());log.info("===="+cell.getStringCellValue());
-							break;
-							case 11: record.setClubName(cell.getStringCellValue());
-							break;
-							case 16: record.setInsuranceEach(cell.getStringCellValue());
-							break;
-							case 17: record.setInsurance(cell.getStringCellValue());
-							break;
-							case 19: record.setScore(cell.getStringCellValue());
-							break;
-							case 20: 
-								dateStr = cell.getStringCellValue().split(" ")[0];
-								if("结束时间".equals(dateStr)) break;
-								//add 导入的第一局作为当天的时间
-								if(StringUtil.isBlank(DataConstans.Date_Str)) {
-									DataConstans.Date_Str = dateStr;
-								}else {
-									try {
-										if(sdf.parse(dateStr).after(sdf.parse(DataConstans.Date_Str))) {
-											dateStr = DataConstans.Date_Str;
-										}
-									} catch (Exception e) {
-										log.error("XXXXXXX  导入的第一局作为当天的时间软件失败 XXXXXX",e);
+			Row row = rowIterator.next();
+			if(row.getCell(0)== null) {ShowUtil.show("该行第一个单元格为空", 2);break;}
+			Record record = new Record(); 
+			if(row.getRowNum()!=0){
+				int count2 = row.getLastCellNum();
+				String dateStr="";
+				for(int cn=0;cn<row.getLastCellNum();cn++){
+					Cell cell = row.getCell(cn);
+					record.setTableId(tableId);
+					if(cell==null){
+						log.error("cell 为null,继续下一个循环");
+						continue;
+					}
+					else{
+						switch(cn){
+						case 4: record.setBlind(cell.getStringCellValue());
+						break;
+						case 9: record.setPlayerId(cell.getStringCellValue());
+						break;
+						case 11: record.setClubId(cell.getStringCellValue());log.info("===="+cell.getStringCellValue());
+						break;
+						case 12: record.setClubName(cell.getStringCellValue());
+						break;
+						case 17: record.setInsuranceEach(cell.getStringCellValue());
+						break;
+						case 18: record.setInsurance(cell.getStringCellValue());
+						break;
+						case 20: record.setScore(cell.getStringCellValue());
+						break;
+						case 21: 
+							dateStr = cell.getStringCellValue().split(" ")[0];
+							if("结束时间".equals(dateStr)) break;
+							//add 导入的第一局作为当天的时间
+							if(StringUtil.isBlank(DataConstans.Date_Str)) {
+								DataConstans.Date_Str = dateStr;
+							}else {
+								try {
+									if(sdf.parse(dateStr).after(sdf.parse(DataConstans.Date_Str))) {
+										dateStr = DataConstans.Date_Str;
 									}
+								} catch (Exception e) {
+									log.error("XXXXXXX  导入的第一局作为当天的时间软件失败 XXXXXX",e);
 								}
-								record.setDay(dateStr);
-								break;
 							}
+							record.setDay(dateStr);
+							break;
 						}
 					}
-					if("结束时间".equals(dateStr)) continue;
-					//数据库 key: 时间#第次#俱乐部ID#玩家ID
-					String id = record.getDay()+"#"+record.getTableId()+"#"+record.getClubId()+"#"+record.getPlayerId();
-					record.setId(id);
-                    Player _p = DataConstans.membersMap.get(record.getPlayerId());
-                    if(_p == null)
-                    record.setTeamId(_p == null ? "" : _p.getTeamName());
-					result.add(record);
 				}
+				if("结束时间".equals(dateStr)) continue;
+				//数据库 key: 时间#第次#俱乐部ID#玩家ID
+				String id = record.getDay()+"#"+record.getTableId()+"#"+record.getClubId()+"#"+record.getPlayerId();
+				record.setId(id);
+				Player _p = DataConstans.membersMap.get(record.getPlayerId());
+				if(_p == null)
+					record.setTeamId(_p == null ? "" : _p.getTeamName());
+				result.add(record);
 			}
-		} 
-		catch (Exception e) {
-			ErrorUtil.err("当场战绩导入到联盟Tab失败",e);
 		}
 		return result;
 	}

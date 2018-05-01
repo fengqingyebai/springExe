@@ -270,10 +270,9 @@ public class ExportAllLMExcel {
 		if(log.isDebugEnabled()) {
 			prePath = this.getClass().getResource("/").getPath()+TEMPLE_PATH;
 		}else {
-			prePath = "excel/"+TEMPLE_PATH;
+			prePath = TEMPLE_PATH;
 		}
 		//开始读取
-		log.info("=================prePath:"+prePath);
 		InputStream is = null;
 		is = ExportAllLMExcel.class.getClassLoader().getResourceAsStream(prePath);//生产环境可用
 		Workbook templatewb = new HSSFWorkbook(is);
