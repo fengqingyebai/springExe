@@ -21,6 +21,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
+import com.kendy.controller.SMAutoController;
+
+import application.MyController;
 
 public class AutoDownloadZJExcelService {
 	
@@ -30,11 +33,13 @@ public class AutoDownloadZJExcelService {
     
     public static void autoDown(String fileName, String rooId, String token) throws Exception{
     	
+    	SMAutoController smAutoController = MyController.smAutoController;
+    	
     	String urlString = String.format("%s?roomId=%s&token=%s", DOWN_LOAD_EXCEL_URL,rooId, token) ;
     	
-    	String path = getUserDeskPath() + LocalDate.now().toString() + "\\" + fileName;
+    	String path = getUserDeskPath() + smAutoController.getSelectedDate().toString() + "\\" + fileName;
     	
-    	File dir = new File(getUserDeskPath() + LocalDate.now().toString() );
+    	File dir = new File(getUserDeskPath() + smAutoController.getSelectedDate().toString() );
     	
     	if(!dir.exists()) {
     		dir.mkdir();
@@ -45,7 +50,6 @@ public class AutoDownloadZJExcelService {
     public static String getUserDeskPath() {
     	String absolutePath = FileSystemView.getFileSystemView() .getHomeDirectory().getAbsolutePath();
     	return absolutePath + "\\";
-    	
     }
     
     /**

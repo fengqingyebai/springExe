@@ -79,7 +79,7 @@
             <TableColumn fx:id="smAutoIsAgreeSuccess" prefWidth="69.0" text="审核结果" />
         </columns>
       </TableView>
-      <ListView fx:id="logArea" layoutX="985.0" layoutY="36.0" prefHeight="392.0" prefWidth="294.0" />
+      <ListView fx:id="logArea" layoutX="985.0" layoutY="36.0" prefHeight="359.0" prefWidth="294.0" />
       <Button layoutX="1239.0" layoutY="13.0" mnemonicParsing="false" onAction="#removeLogAreaAction" prefHeight="23.0" prefWidth="40.0" text="清空" />
       <Label layoutX="985.0" layoutY="12.0" prefHeight="26.0" prefWidth="164.0" text="爬取临时记录：（自动上码）" textFill="#a48383" />
       <HBox layoutX="43.0" layoutY="68.0" prefHeight="26.0" prefWidth="925.0">
@@ -102,7 +102,7 @@
          </children>
       </HBox>
       <Button layoutX="983.0" layoutY="486.0" mnemonicParsing="false" onAction="#reAutoDownAction" prefHeight="23.0" prefWidth="145.0" text="删除文件夹并重新下载" />
-      <Label layoutX="1031.0" layoutY="441.0" prefHeight="44.0" prefWidth="220.0" text="自动下载战绩Excel" textAlignment="CENTER" textFill="#cdb65c">
+      <Label layoutX="1028.0" layoutY="410.0" prefHeight="44.0" prefWidth="220.0" text="自动下载战绩Excel" textAlignment="CENTER" textFill="#cdb65c">
          <font>
             <Font name="System Bold Italic" size="21.0" />
          </font>
@@ -111,5 +111,9 @@
       <Button layoutX="1102.0" layoutY="515.0" mnemonicParsing="false" onAction="#stopAutoDownExcelAction" prefHeight="23.0" prefWidth="109.0" text="停止下载" />
       <TextField fx:id="downExcelPierodField" layoutX="1218.0" layoutY="515.0" prefHeight="23.0" prefWidth="39.0" text="60" />
       <Label layoutX="1257.0" layoutY="514.0" prefHeight="26.0" prefWidth="25.0" text=" 秒" textFill="#a48383" />
+      <TextField fx:id="firstDayStartTimeField" layoutX="1138.0" layoutY="453.0" prefHeight="23.0" prefWidth="59.0" promptText="第一天开始时间点" text="02：00" />
+      <TextField fx:id="secondDayEndTimeField" layoutX="1219.0" layoutY="453.0" prefHeight="23.0" prefWidth="59.0" promptText="第二天开始时间点" text="22：00" />
+      <DatePicker fx:id="datePicker" layoutX="983.0" layoutY="453.0" prefHeight="23.0" prefWidth="138.0" />
+      <Label layoutX="1199.0" layoutY="452.0" prefHeight="26.0" prefWidth="25.0" text=" 到" textFill="#a48383" />
    </children>
  </AnchorPane>

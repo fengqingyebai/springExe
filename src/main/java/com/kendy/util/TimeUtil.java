@@ -17,7 +17,7 @@ import java.util.Date;
 public class TimeUtil {
 
 	public static void main(String[] args) {
-		System.out.println(getTime());
+		System.out.println(3 * (3600 / 20) * 24 * 30);
 
 	}
 	private static String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";

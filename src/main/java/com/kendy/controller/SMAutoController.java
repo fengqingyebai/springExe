@@ -8,6 +8,9 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,8 +22,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.filechooser.FileSystemView;
 
@@ -64,9 +67,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -75,7 +80,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -147,7 +151,7 @@ public class SMAutoController implements Initializable {
     private Object lock = new Object();
     private Object excelLock = new Object();
     
-    public static Map<String,Boolean> downloadCache = new HashMap<>();
+    public static Map<String,Boolean> downloadCache = new ConcurrentHashMap<>();
     
     private Timer timer;
     
@@ -801,6 +805,80 @@ public class SMAutoController implements Initializable {
 	 *   http://cms.pokermanager.club/cms-api/game/exportGame?roomId=28739668&token=...
 	 * 
 	 *************************************************************************************************/
+	@FXML
+	private DatePicker datePicker;
+	@FXML
+	private TextField firstDayStartTimeField;
+	@FXML
+	private TextField secondDayEndTimeField;
+	
+	private static final String EN_MH = ":";
+	private static final String CN_MH = "：";
+	
+	public LocalDate getSelectedDate() {
+		return datePicker.getValue();
+	}
+	
+	/**
+	 * 获取第一天的时间戳
+	 */
+	public String getFirstDayStartMillTime() {
+		String timeStr = firstDayStartTimeField.getText();
+		return getFinalTimeStr(timeStr);
+	}
+	
+	/**
+	 * 获取第二天的时间戳
+	 */
+	public String getSecondDayEndMillTime() {
+		String timeStr = secondDayEndTimeField.getText();
+		return getFinalTimeStr(timeStr);
+	}
+	
+	private boolean isUnValidTime(String timeStr) {
+		boolean isUnValid = true;
+		if(StringUtil.isBlank(timeStr) && timeStr.length() != 5) {
+			return isUnValid;
+		}
+		if(timeStr.contains(EN_MH) || timeStr.contains(CN_MH)) {
+			isUnValid = false;
+		}
+		return isUnValid;
+	}
+	
+	/**
+	 * 检查时间有效性
+	 * 包括选择日期，开始时间和结束时间
+	 * 
+	 * @time 2018年5月4日
+	 * @return
+	 */
+	private boolean checkTime() {
+		LocalDate selectDate = datePicker.getValue();
+		String starttime = firstDayStartTimeField.getText();
+		String endtime = secondDayEndTimeField.getText();
+		if(selectDate == null || isUnValidTime(starttime) || isUnValidTime(endtime)) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+	
+	/**
+	 * 获取时间戳(加一天)
+	 * 
+	 * @time 2018年5月4日
+	 * @param timeStr 有效的时：分， 如10：00，中文冒号和英文冒号都支持
+	 * @return
+	 */
+	private String getFinalTimeStr(String timeStr) {
+		timeStr = timeStr.replace(CN_MH, EN_MH);
+		timeStr = getSelectedDate().plusDays(1).toString() + " " + timeStr + ":00";
+		LocalDateTime dateTime = LocalDateTime.parse(timeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		long epochMilli = dateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
+		return epochMilli + "";
+	}
+	
 	
 	//软件启动时先去加载桌面已经下载的Excel列表进缓存
 	//重复的跳过，不重复的则下载后更新缓存和数据
@@ -873,14 +951,18 @@ public class SMAutoController implements Initializable {
     		        downloadCache.put(fileName, Boolean.TRUE);
     		        
     	        } catch (UnknownHostException ue) {
-    	        	log.error("自动下载异常：UnknownHostException，" + ue.getMessage() );
+    	        	log.error("自动下载异常：UnknownHostException，fileName：" + fileName  );
+    	        	downloadCache.remove(fileName);
     	        } catch( FileNotFoundException notfoundE) {
     	        	log.error("自动下载异常：FileNotFoundException，原因，已经下载过，且正被使用中，或者含有'/'" +fileName+",房间ID:" + roomId);
+    	        	downloadCache.remove(fileName);
     	        } catch(SocketTimeoutException timeOutE) {
-    	        	log.error("自动下载异常: 连接超时" );
+    	        	log.error("自动下载异常: 连接超时，fileName：" + fileName  );
+    	        	downloadCache.remove(fileName);
     	        }
     	        catch (Exception e) {
     	            e.printStackTrace();
+    	            downloadCache.remove(fileName);
     	        }
     			
     		}
@@ -905,7 +987,7 @@ public class SMAutoController implements Initializable {
     private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
     	originalRoomName = originalRoomName.replace("/", "-").replace("%20", "-");
     	originalRoomName =  FilterUtf8mb4.filterUtf8mb4(originalRoomName);
-    	String date = new SimpleDateFormat("MM月dd号-战绩导出-").format(new Date());
+    	String date =  DateTimeFormatter.ofPattern("MM月dd号-战绩导出-").format(getSelectedDate());
     	return finishedTime +"-" +date + originalRoomName + ".xls";
     }
     
@@ -917,9 +999,10 @@ public class SMAutoController implements Initializable {
      */
     private Map<String,String> getParams(String downType){
     	String clubId = MyController.currentClubId.getText();
-    	long[] timeRange = TimeUtil.getTimeRange();
-    	String startTime = timeRange[0]+"";
-    	String endTime = timeRange[1]+"";
+    	//long[] timeRange = TimeUtil.getTimeRange();
+    	String[] timeRange = getTimeRange();
+    	String startTime = timeRange[0];
+    	String endTime = timeRange[1];
     	Map<String,String> params = new HashMap<>();
     	params.put("clubId", clubId);
     	params.put("startTime", startTime);
@@ -930,6 +1013,14 @@ public class SMAutoController implements Initializable {
     	params.put("pageSize", "250");
     	return params;
     }
+    
+	public String[] getTimeRange() {
+        String start = getFirstDayStartMillTime();
+        String end = getSecondDayEndMillTime();
+        
+        String[] timeRange = new String[] {start, end};
+        return timeRange;
+	}
     
     /**
      * 清空战绩Excel下载记录
@@ -1014,17 +1105,26 @@ public class SMAutoController implements Initializable {
 	            ShowUtil.show("请先暂停爬取!");
 	            return;
 		    }else {
-		    	//删除本地文件夹内容
-		    	File downLoadFileFolder = new File(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() 
-		    			+ "\\" +  LocalDate.now().toString());
 		    	try {
-					FileUtils.forceDelete(downLoadFileFolder);
-					//清空缓存
+		    		//删除本地文件夹内容
+		    		File downLoadFileFolder = new File(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() 
+		    				+ "\\" +  getSelectedDate().toString());
+			    	if(downLoadFileFolder.exists()) {
+						FileUtils.forceDelete(downLoadFileFolder);
+						ShowUtil.show("已删除本地文件夹！", 1);
+			    	}else {
+			    		ShowUtil.show("本地不存在文件夹：" + downLoadFileFolder.getAbsolutePath());
+			    	}
+			    	
+		    	} catch (IOException  e) {
+		    		ErrorUtil.err("删除本地文件夹失败",e);
+		    	} catch (NullPointerException e) {
+		    		ShowUtil.show("请输入时间再删除本地文件夹");
+		    		
+		    	}finally {
+		    		//清空缓存
 					downloadCache.clear();
-					ShowUtil.show("已删除本地文件夹！", 1);
-				} catch (IOException e) {
-					ErrorUtil.err("删除本地文件夹失败",e);
-				}
+		    	}
 		    }
 			
 		}
@@ -1038,6 +1138,10 @@ public class SMAutoController implements Initializable {
      * @param evet
      */
     public void startDownloadTimerAction(ActionEvent evet) {
+    	if(!checkTime()) {
+    		ShowUtil.show("请先设置好时间！", 1);
+            return;
+    	}
         if (this.excelTimer != null) {
             ShowUtil.show("下载Excel的后台程序正在运行！", 1);
             return;
@@ -1056,7 +1160,7 @@ public class SMAutoController implements Initializable {
                     	autoDownExcels("1");
                     	
                     	//自动下载当天奥马哈房间Excel
-                    	//autoDownExcels("2");
+                    	autoDownExcels("2");
                     }
                 });
             }
