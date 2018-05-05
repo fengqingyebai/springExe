@@ -7,6 +7,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -824,15 +825,15 @@ public class SMAutoController implements Initializable {
 	 */
 	public String getFirstDayStartMillTime() {
 		String timeStr = firstDayStartTimeField.getText();
-		return getFinalTimeStr(timeStr);
+		return getFinalTimeStr(timeStr,1); //1表示start, 表示第一天
 	}
 	
 	/**
-	 * 获取第二天的时间戳
+	 * 获取第二天的时间戳(加一天)
 	 */
 	public String getSecondDayEndMillTime() {
 		String timeStr = secondDayEndTimeField.getText();
-		return getFinalTimeStr(timeStr);
+		return getFinalTimeStr(timeStr,2); //2表示end, 表示第二天
 	}
 	
 	private boolean isUnValidTime(String timeStr) {
@@ -865,16 +866,20 @@ public class SMAutoController implements Initializable {
 	}
 	
 	/**
-	 * 获取时间戳(加一天)
+	 * 获取时间戳
 	 * 
 	 * @time 2018年5月4日
 	 * @param timeStr 有效的时：分， 如10：00，中文冒号和英文冒号都支持
 	 * @return
 	 */
-	private String getFinalTimeStr(String timeStr) {
+	private String getFinalTimeStr(String timeStr,int type) {
 		timeStr = timeStr.replace(CN_MH, EN_MH);
-		timeStr = getSelectedDate().plusDays(1).toString() + " " + timeStr + ":00";
-		LocalDateTime dateTime = LocalDateTime.parse(timeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+		if( type == 1) {
+			timeStr = getSelectedDate().toString() + " " + timeStr + ":00";
+		}else {
+			timeStr = getSelectedDate().plusDays(1).toString().substring(0, 10) + " " + timeStr + ":00";
+		}
+		LocalDateTime dateTime = LocalDateTime.parse(timeStr, TimeUtil.sdf);
 		long epochMilli = dateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
 		return epochMilli + "";
 	}
@@ -1149,6 +1154,7 @@ public class SMAutoController implements Initializable {
         Integer separateTime = getDownExcelPeriod();
         excelInfo("每隔"+separateTime/1000+"秒刷新一次！");
         excelInfo("开始程序爬取和下载...");
+        setTimeRange();
         this.excelTimer = new Timer();
         excelTimer.schedule(new TimerTask() {
             public void run() {
@@ -1165,6 +1171,22 @@ public class SMAutoController implements Initializable {
                 });
             }
         }, 1000, separateTime); // 定时器的延迟时间及间隔时间
+    }
+    
+    /**
+     * 下载时记录下载范围
+     * 
+     * @time 2018年5月5日
+     */
+    private void setTimeRange() {
+    	String start = firstDayStartTimeField.getText().replace(CN_MH, EN_MH);
+    	start = getSelectedDate().toString() + " " + start ;
+    	
+    	String end = secondDayEndTimeField.getText().replace(CN_MH, EN_MH);
+    	end = getSelectedDate().plusDays(1).toString() + " " + end;
+    	
+    	String msg = String.format("下载范围：%s 到 %s", start, end);
+    	excelInfo(msg);
     }
     
     private Integer getDownExcelPeriod() {

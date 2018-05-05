@@ -17,17 +17,18 @@ import java.util.Date;
 public class TimeUtil {
 
 	public static void main(String[] args) {
-		System.out.println(3 * (3600 / 20) * 24 * 30);
+		System.out.println(getTime());
 
 	}
-	private static String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	private static SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_TIME_FORMAT);
+	public static String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	public static DateTimeFormatter sdf = DateTimeFormatter.ofPattern(DEFAULT_TIME_FORMAT);
 	
 	public static String getTime() {
 		String timeStr = "";
-		timeStr = sdf.format(new Date());
+		timeStr = LocalDateTime.now().format(sdf);
 		return timeStr;
 	}
+	
 	
 	/**
 	 * 获取时间
