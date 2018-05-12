@@ -1,7 +1,9 @@
 package com.kendy.controller;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.ProxyTeamInfo;
+import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TGFwfinfo;
@@ -27,17 +30,20 @@ import com.kendy.entity.TGLirunInfo;
 import com.kendy.entity.TGTeamInfo;
 import com.kendy.entity.TGTeamModel;
 import com.kendy.entity.TypeValueInfo;
+import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.interfaces.Entity;
 import com.kendy.service.TGExportExcelService;
 import com.kendy.service.TGFwfService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.TgWaizhaiService;
 import com.kendy.util.CollectUtil;
+import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
+import com.kendy.util.TimeUtil;
 
 import application.Constants;
 import application.DataConstans;
@@ -1445,8 +1451,46 @@ public class TGController implements Initializable{
 		return date_Str;
 	}
 	
-	
-	
+	/**
+	 * 导出当前月利润
+	 * 
+	 * @time 2018年5月12日
+	 * @param event
+	 */
+	public void exportLirunAction(ActionEvent event) {
+		if(TableUtil.isNullOrEmpty(tableTGLirun)) {
+			ShowUtil.show("左边栏当前无月利润！");
+			return;
+		}
+		ObservableList<TGLirunInfo> monthLiruns = tableTGLirun.getItems();
+    	String[] rowsName = new String[]{"日期","托管公司","总利润","总开销","合计","公司占股","托管公司占股","团队利润","托管合计"};
+	    List<Object[]>  dataList = new ArrayList<Object[]>();
+	    Object[] objs = null;
+	    for(TGLirunInfo info : monthLiruns) {
+	          objs = new Object[rowsName.length];
+	          objs[0] = info.getTgLirunDate();
+	          objs[1] = info.getTgLirunCompanyName();
+	          objs[2] = info.getTgLirunTotalProfit();
+	          objs[3] = info.getTgLirunTotalKaixiao();
+	          objs[4] = info.getTgLirunRestHeji();
+	          objs[5] = info.getTgLirunATMCompany();
+	          objs[6] = info.getTgLirunTGCompany();
+	          objs[7] = info.getTgLirunTeamProfit();
+	          objs[8] = info.getTgLirunHeji();
+	          dataList.add(objs);
+	    }
+	    String title = LocalDate.now()+"月利润";
+	    List<Integer> columnWidths = Arrays.asList(3500,4000,3000,3000,3000,4000,4000,3000,3000,3000,3000,3000,3000);
+	    ExportExcelTemplate ex = new ExportExcelTemplate(title,rowsName, columnWidths, dataList);
+	    try {
+			ex.export();
+			ShowUtil.show("月利润导出完成", 1);
+		} catch (Exception e) {
+			ErrorUtil.err("月利润导出自动记录失败", e);
+			e.printStackTrace();
+		}
+		
+	}
 	
 	
 

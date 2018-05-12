@@ -336,6 +336,7 @@
                               <Font size="17.0" />
                            </font>
                         </Text>
+                        <Button layoutX="794.0" layoutY="314.0" mnemonicParsing="false" onAction="#exportLirunAction" prefHeight="30.0" prefWidth="150.0" text="导出左边月利润" />
                      </children>
                   </AnchorPane>
             </content>
