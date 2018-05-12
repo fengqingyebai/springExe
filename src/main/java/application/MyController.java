@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -2039,7 +2040,12 @@ public class MyController implements Initializable{
 	private void moveExcel() {
 		String resourceFilePath = excelDir.getText();
 		String fileName = resourceFilePath.substring(resourceFilePath.lastIndexOf("\\") + 1);
-		String targetFilePath = PathUtil.getUserDeskPath() + "\\" +LocalDate.now()+"已锁定"+ "\\" +"已锁定-"+ fileName;
+		LocalDate selectedDate = smAutoController.getSelectedDate();
+		if(selectedDate == null ) {
+			ShowUtil.show("自动下载的日期还没设置，影响到转移Excel!");
+			selectedDate = LocalDate.now();
+		}
+		String targetFilePath = PathUtil.getUserDeskPath() + "\\" +selectedDate+"已锁定"+ "\\" +"已锁定-"+ fileName;
 		try {
 			FileUtil.moveFile(resourceFilePath, targetFilePath);
 		} catch(FileNotFoundException e) {
