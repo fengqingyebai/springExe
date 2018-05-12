@@ -3016,17 +3016,21 @@ public class DBUtil {
 	 * @time 2018年3月4日
 	 * @param key
 	 */
-	public static void del_all_tg_lirun() {
+	public static boolean del_all_tg_lirun() {
+		boolean delOK = false;
 		try {
 			con = DBConnection.getConnection();
 			String sql  = "delete from tg_lirun ";
 			ps = con.prepareStatement(sql);
 			ps.execute();
+			delOK = true;
 		}catch (SQLException e) {
 			ErrorUtil.err("删除所有的托管日利润失败", e);
+			delOK = false;
 		}finally{
 			close(con,ps);
 		}
+		return delOK;
 	}
 	
 	/**

@@ -1393,7 +1393,13 @@ public class TGController implements Initializable{
 	 * @time 2018年3月19日
 	 */
 	public void clearLirunAction() {
-		ShowUtil.show("未开发，敬请期待", 2);
+		boolean delOK = DBUtil.del_all_tg_lirun();
+		if(delOK) {
+			if(TableUtil.isHasValue(tableTGLirun)) {
+				tableTGLirun.getItems().clear();
+			}
+			ShowUtil.show("删除成功", 2);
+		}
 	}
 	
 	
