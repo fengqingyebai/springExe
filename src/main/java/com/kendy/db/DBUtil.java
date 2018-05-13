@@ -1789,7 +1789,7 @@ public class DBUtil {
 		List<Record> list = new ArrayList<>();
 		try {
 			con = DBConnection.getConnection();
-			String sql = "select * from  record where  clubId = ?";
+			String sql = "select r.*,c.teamId as temp_team_id from  record r  left join  members c on r.playerId = c.playerId where  r.clubId = ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, clubId);
 			ResultSet rs = ps.executeQuery();
@@ -1805,7 +1805,8 @@ public class DBUtil {
 				record.setDay(rs.getString(8));
 				record.setClubName(rs.getString(9));
 				record.setLmType(rs.getString(10));
-				record.setTeamId(rs.getString(11));
+//				record.setTeamId(rs.getString(11));
+				record.setTeamId(rs.getString(14));
 				record.setInsuranceEach(rs.getString(12));
 				record.setIsJiesuaned(rs.getString(13));
 				list.add(record);

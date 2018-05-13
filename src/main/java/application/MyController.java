@@ -765,7 +765,7 @@ public class MyController implements Initializable{
 	    whiteVersionNew.setToggleGroup(group);
 		whiteVersionOld.setUserData(0);//"旧名单"
 		whiteVersionNew.setUserData(1);//"新名单"
-		whiteVersionOld.setSelected(true);
+		whiteVersionNew.setSelected(true);
 		log.info("默认导入版本：新名单");
 		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 		    public void changed(ObservableValue<? extends Toggle> ov,
