@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -312,9 +313,51 @@ public class TeamProxyService {
 			hs = new Huishui();
 		}
 		//加载数据{teamId={}}
+//		double sumHS = 0d;
+//		double sumHB = 0d;
+//		for(Record info : list) {
+//			String yszj = info.getScore();
+//			String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
+//			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getInsuranceEach(),teamId));
+//			sumHS += (MoneyService.getNum(chuHuishui))*(-1);
+//			sumHB += MoneyService.getNum(baohui);
+//		}
+//		double HSRate = getNumByPercent(hs.getProxyHSRate());
+//		double HBRate = getNumByPercent(hs.getProxyHBRate());
+//		double FWFValid = NumUtil.getNum(hs.getProxyFWF());//服务费有效值
+//		//计算服务费
+//		double proxyFWFVal = calculateProxSumFWF(sumHS,HSRate,sumHB,HBRate,FWFValid);
+//	
+//		return NumUtil.digit0(proxyFWFVal);
+		
+		//备注：之前是该团队的所有历史数据都参与计算，现在改为该团队的每天服务费相加
+		double sumTeamFWF = 0.0;
+		Map<String, List<Record>> teamMap = list.stream().collect(Collectors.groupingBy(Record::getDay));
+		for(Map.Entry<String, List<Record>> entry : teamMap.entrySet()) {
+			String day = entry.getKey();
+			List<Record> teamEveryDayList = entry.getValue();
+			String teamFWF_GD_EveryDay = getTeamFWF_GD_EveryDay(teamId, teamEveryDayList, hs);
+			sumTeamFWF += NumUtil.getNum(teamFWF_GD_EveryDay);
+		}
+		
+		return NumUtil.digit2(sumTeamFWF + "");
+	}
+	
+	/**
+	 * 新增：股东贡献值的团队服务费
+	 * 备注：之前是该团队的所有历史数据都参与计算，现在改为该团队的每天服务费相加
+	 * 
+	 * @time 2018年5月18日
+	 * @param teamId
+	 * @param list
+	 * @return
+	 */
+	private static String getTeamFWF_GD_EveryDay(String teamId, List<Record> teamEveryDayList, Huishui hs) {
+		
+		//加载数据{teamId={}}
 		double sumHS = 0d;
 		double sumHB = 0d;
-		for(Record info : list) {
+		for(Record info : teamEveryDayList) {
 			String yszj = info.getScore();
 			String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
 			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getInsuranceEach(),teamId));
