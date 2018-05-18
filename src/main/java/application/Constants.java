@@ -25,4 +25,6 @@ public class Constants {
 	
 	
 	public static final String ZERO = "0";
+	
+	public static double HS_RATE = 0.975;//默认的回水比例
 }

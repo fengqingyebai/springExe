@@ -34,8 +34,8 @@ import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-import com.kendy.util.TimeUtil;
 
+import application.Constants;
 import application.DataConstans;
 import application.MyController;
 import javafx.beans.value.ChangeListener;
@@ -440,7 +440,7 @@ public class LMController implements Initializable{
 	/**
 	 * 每场都进行求和统计
 	 * 
-	 * 规则：每场的战绩公式：=（Sum(当场战绩)+俱乐部保险其中一个）*0.975
+	 * 规则：每场的战绩公式：=（Sum(当场战绩)+俱乐部保险其中一个）*Constants.HS_RATE
 	 * 新增了排序功能
 	 * 
 	 * @time 2017年11月25日
@@ -475,8 +475,8 @@ public class LMController implements Initializable{
 			}
 			Record sumRecord = new Record();
 			sumRecord.setTableId(entry.getKey());
-			sumRecord.setScore(NumUtil.digit0(""+((sumOfEachClubZJ+sumOfEachClubInsure) * 0.975)));
-			sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * 0.975 )));
+			sumRecord.setScore(NumUtil.digit0(""+((sumOfEachClubZJ+sumOfEachClubInsure) * Constants.HS_RATE)));
+			sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.HS_RATE )));
 			sumRecord.setPersonCount(sumOfEachClubPersonCount+"");
 			//添加到最后的总和列表中
 			sumList.add(sumRecord);

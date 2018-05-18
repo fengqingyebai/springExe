@@ -19,9 +19,7 @@ import org.apache.log4j.Logger;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.db.DBUtil;
-import com.kendy.entity.Huishui;
 import com.kendy.entity.ProxyTeamInfo;
-import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TGFwfinfo;
@@ -43,7 +41,6 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
-import com.kendy.util.TimeUtil;
 
 import application.Constants;
 import application.DataConstans;
@@ -834,7 +831,7 @@ public class TGController implements Initializable{
 				String teamUnknowStr = NumUtil.digit2(Math.abs(NumUtil.getNumTimes(info.getProxyYSZJ(), teamUnknowValue)) + "");
 				tgTeam.setTgZJUnknow(teamUnknowStr);
 				//设置回保
-				String teamHuibaoRateStr =  NumUtil.digit2((-1) * 0.975 * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
+				String teamHuibaoRateStr =  NumUtil.digit2((-1) * Constants.HS_RATE * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
 				if(tgTeam.getTgBaoxian().equals("0")) {
 					teamHuibaoRateStr = "0";
 				}
@@ -853,7 +850,7 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 获取每一行的利润
-	 * 公式 = 原始战绩 * （2.5% - unknow%） + 保险 * （-0.975） - 回保
+	 * 公式 = 原始战绩 * （2.5% - unknow%） + 保险 * （-Constants.HS_RATE） - 回保
 	 * 
 	 * @time 2018年3月7日
 	 * @param info
@@ -865,7 +862,7 @@ public class TGController implements Initializable{
 		String baoxian = info.getTgBaoxian();
 		String huibao = info.getTgHuiBao();
 		Double recordProfit = NumUtil.getNum(teamRate25) - NumUtil.getNum(teamRateUnknow) 
-		 + ( NumUtil.getNum(baoxian) * (-0.975)  - NumUtil.getNum(huibao) ); 
+		 + ( NumUtil.getNum(baoxian) * (-Constants.HS_RATE)  - NumUtil.getNum(huibao) ); 
 		return NumUtil.digit2(recordProfit + "");
 	}
 	
@@ -1078,7 +1075,7 @@ public class TGController implements Initializable{
 		// 3 保险
 		double zjBaoxianSum = items.stream()
 				.mapToDouble(info-> NumUtil.getNum(info.getTgBaoxian()))
-				.sum() * (-0.975);
+				.sum() * (-Constants.HS_RATE);
 		
 		// 4 回保
 		double zjHuibaoSum = items.stream()

@@ -24,6 +24,7 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 
+import application.Constants;
 import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -92,7 +93,7 @@ public class TGFwfService {
 			// 3 保险
 			double zjBaoxianSum = tgTeamInfoList.stream()
 					.mapToDouble(info-> NumUtil.getNum(info.getTgBaoxian()))
-					.sum() * (-0.975);
+					.sum() * (-Constants.HS_RATE);
 			
 			// 4 回保
 			double zjHuibaoSum = tgTeamInfoList.stream()
@@ -220,7 +221,7 @@ public class TGFwfService {
 				tgTeam.setTgZJUnknow(teamUnknowStr);
 				//设置回保
 				String teamHuibaoRateValue = tgTeamModel == null ? "0.0" : tgTeamModel.getTgHuiBao();
-				String teamHuibaoRateStr =  NumUtil.digit2(-0.975 * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
+				String teamHuibaoRateStr =  NumUtil.digit2(-Constants.HS_RATE * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
 				if(tgTeam.getTgBaoxian().equals("0")) {
 					teamHuibaoRateStr = "0";
 				}
