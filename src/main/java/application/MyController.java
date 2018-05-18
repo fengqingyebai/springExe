@@ -186,6 +186,8 @@ public class MyController implements Initializable{
     
     @FXML private RadioButton radio_autoTest_yes;
     @FXML private RadioButton radio_autoTest_no;
+    @FXML private RadioButton radio_rate_0975;
+    @FXML private RadioButton radio_rate_095;
     @FXML private HBox hbox_autoTestMode;
     
     
@@ -659,6 +661,9 @@ public class MyController implements Initializable{
 		//选择导入白名单的版本
 		initWhiteVersion();
 		
+		//初始化全局比例
+		initHSRate();
+		
 		
 //		try {
 //			FXMLLoader loader = new FXMLLoader();
@@ -810,6 +815,35 @@ public class MyController implements Initializable{
 					hbox_autoTestMode.setVisible(true);
 				}else {
 					hbox_autoTestMode.setVisible(false);
+				}
+			}
+		});
+	}
+	
+	/**
+	 * 界面回水比例
+	 * 
+	 * @time 2018年5月18日
+	 */
+	private void initHSRate() {
+		ToggleGroup group = new ToggleGroup();
+		radio_rate_0975.setToggleGroup(group);
+		radio_rate_095.setToggleGroup(group);
+		String rate0975 = "0.975";
+		String rate095 = "0.95";
+		radio_rate_0975.setUserData(rate0975);
+		radio_rate_095.setUserData(rate095);
+		radio_rate_0975.setSelected(true);
+		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
+			public void changed(ObservableValue<? extends Toggle> ov,
+					Toggle toggle, Toggle new_toggle) {
+				String rate =  (String)group.getSelectedToggle().getUserData();
+				if("0.975".equals(rate)) {
+					Constants.HS_RATE = 0.975;
+					log.info("当前全局比例修改为0.975");
+				}else {
+					Constants.HS_RATE = 0.95;
+					log.info("当前全局比例修改为0.95");
 				}
 			}
 		});

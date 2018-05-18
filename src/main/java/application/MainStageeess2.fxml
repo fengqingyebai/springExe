@@ -122,6 +122,13 @@
                         </Label>
                         <RadioButton fx:id="whiteVersionOld" layoutX="737.0" layoutY="79.0" mnemonicParsing="false" text="旧版本" />
                         <RadioButton fx:id="whiteVersionNew" layoutX="801.0" layoutY="79.0" mnemonicParsing="false" selected="true" text="新版本" />
+                        <Label fx:id="label_clubId212" layoutX="637.0" layoutY="195.0" text="             比例：">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <RadioButton fx:id="radio_rate_0975" layoutX="742.0" layoutY="197.0" mnemonicParsing="false" selected="true" text="0.975" />
+                        <RadioButton fx:id="radio_rate_095" layoutX="806.0" layoutY="197.0" mnemonicParsing="false" text="0.95" />
                      </children>
                   </AnchorPane>
             </content>
