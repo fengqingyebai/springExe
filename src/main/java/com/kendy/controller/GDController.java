@@ -448,13 +448,18 @@ public class GDController implements Initializable{
 		String zhanji = record.getScore();
 		String baoxian = record.getInsuranceEach();
 		String shishou = MoneyService.getShiShou(record.getScore());
-		String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(zhanji, teamId));
+//		String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(zhanji, teamId));
+		String chuHuishui = MyController.getHuishuiByYSZJ(zhanji, teamId, 1);
 		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
-		String shouHuishui = NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*0.025+"");
+//		String shouHuishui = NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*(1-Constants.HS_RATE)+"");
+		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
 		String baohui = NumUtil.digit1(MoneyService.getHuiBao(baoxian,teamId));
 		String heLirun = NumUtil.digit2(MoneyService.getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
 		return  NumUtil.getNum(heLirun);
 	}
+	
+
+	
 	
 	/**
 	 * 获取团队（非公司）的个人利润（区别于合利润）
@@ -470,9 +475,9 @@ public class GDController implements Initializable{
 		String zhanji = record.getScore();
 		String baoxian = record.getInsuranceEach();
 		String shishou = MoneyService.getShiShou(record.getScore());
-		String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(zhanji, teamId));
+		String chuHuishui = MyController.getHuishuiByYSZJ(zhanji, teamId, 1);
 		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
-		String shouHuishui = NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*0.025+"");
+		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
 		String baohui = NumUtil.digit1(MoneyService.getHuiBao(baoxian,teamId));
 //		Double personProfit = NumUtil.getNum(NumUtil.getSum(shouHuishui , chuHuishui , shuihouxian )) - Math.abs(NumUtil.getNum(baohui));
 		Double personProfit = NumUtil.getNum(NumUtil.getSum(shouHuishui , chuHuishui , shuihouxian )) - (NumUtil.getNum(baohui));

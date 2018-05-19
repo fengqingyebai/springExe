@@ -149,7 +149,7 @@ import javafx.util.Pair;
  */
 public class MyController implements Initializable{
     
-	Logger log = Logger.getLogger(MyController.class);
+	static Logger log = Logger.getLogger(MyController.class);
 	
 	private static final String ZERO = "0";
 	private static final String INDEX_ZERO = "第0局";
@@ -3503,5 +3503,52 @@ public class MyController implements Initializable{
 		importZJBtn.setDisable(true);//导入不可用
 		ShowUtil.show("导入空白战绩文件成功", 2);
     }
+    
+	/**
+	 * 根据原始战绩获取回水  
+	 * 1：出回水     2：收回水, 此时teamId非必要参数
+	 * 备注：0.95版本：如果原始战绩为正数，则出回水和收回水都是0
+	 * 
+	 * @time 2018年5月19日
+	 * @param yszj
+	 * @return
+	 */
+	public static String getHuishuiByYSZJ(String yszj, String teamId, int type) {
+		try {
+			if(Constants.HS_RATE_FINAL == Constants.HS_RATE) {
+				//0.975版本
+				return getByYSZJ(yszj, teamId, type);
+				
+			}else {
+				//0.95版本
+				Double zhanji = Double.valueOf(yszj);
+				if(zhanji.compareTo(0d) >= 0) {
+					return "0";
+				}else {
+					return getByYSZJ(yszj, teamId, type);
+				}
+			}
+		}catch(Exception e) {
+			log.error("根据原始战绩获取出回水出错，原因:" + e.getMessage());
+			return "0";
+		}
+	}
+	
+	/**
+	 * 根据原始战绩获取回水  (共用)
+	 * @time 2018年5月19日
+	 * @param yszj
+	 * @param teamId
+	 * @param type
+	 * @return
+	 */
+	private static String getByYSZJ(String yszj, String teamId, int type) {
+		Double zhanji = Double.valueOf(yszj);
+		if(type == 1) {
+			return NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
+		}else {
+			return NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*(1-Constants.HS_RATE)+"");
+		}
+	}
 
 }

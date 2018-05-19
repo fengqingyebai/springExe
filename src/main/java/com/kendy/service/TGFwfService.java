@@ -211,7 +211,7 @@ public class TGFwfService {
 				tgTeam.setTgBaoxian(info.getProxyBaoxian());
 				tgTeam.setTgChangci(info.getProxyTableId());
 				//设置战绩2.5% 
-				String percent25Str = NumUtil.digit2(Math.abs(NumUtil.getNum(info.getProxyYSZJ())) * 0.025 + "");
+				String percent25Str = NumUtil.digit2(Math.abs(NumUtil.getNum(info.getProxyYSZJ())) * (1-Constants.HS_RATE) + "");
 				tgTeam.setTgZJ25(percent25Str);
 				//设置战绩未知%
 				String teamId = info.getProxyTeamId();

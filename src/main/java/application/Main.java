@@ -1,16 +1,14 @@
 package application;
 	
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
-import com.kendy.controller.TGController;
 import com.kendy.controller.TeamProxyController;
-import com.kendy.util.ErrorUtil;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -35,7 +33,7 @@ public class Main extends Application {
 //		} catch (Exception e) {
 //			ErrorUtil.err("日志组件初始化失败");
 //		}
-//		
+		
 		teamProxyController  = new TeamProxyController();
 		System.out.println("Main static");
 	}
@@ -123,12 +121,11 @@ public class Main extends Application {
 			MyController mc = (MyController) fxmlLoader.getController();
 			
 			
-//			try {
-//				primaryStage.getIcons().add(new Image("file:resource/images/icon.png"));
-//			} catch (Exception e) {
-//				log.error("找不到icon图标！");
-//				e.printStackTrace();
-//			}
+			try {
+				primaryStage.getIcons().add(new Image("file:resources/icon.png"));
+			} catch (Exception e) {
+				log.error("找不到icon图标！");
+			}
 			primaryStage.setTitle(Constants.TITLE+Constants.VERSION);
             primaryStage.setScene(new Scene(root));
             //primaryStage.setResizable(false); 

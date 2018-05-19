@@ -125,9 +125,9 @@ public class MoneyService {
 			String name = zj.getPlayerName();
 			String baoxian = zj.getinsurance();
 			String shishou = getShiShou(zj.getZj());
-			String chuHuishui = digit1(getChuhuishui(zj.getZj(), teamId));
+			String chuHuishui = MyController.getHuishuiByYSZJ(zj.getZj(), teamId, 1);//digit1(getChuhuishui(zj.getZj(), teamId));
 			String shuihouxian = digit1((-1)*Double.valueOf(zj.getinsurance())*Constants.HS_RATE+"");
-			String shouHuishui = digit1(Math.abs(Double.valueOf(zj.getZj()))*0.025+"");
+			String shouHuishui = MyController.getHuishuiByYSZJ(zj.getZj(), "", 2);//digit1(Math.abs(Double.valueOf(zj.getZj()))*(1-Constants.HS_RATE)+"");
 			String baohui = digit1(getHuiBao(baoxian,teamId));
 			String heLirun = digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
 
