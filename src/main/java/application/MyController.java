@@ -3504,6 +3504,13 @@ public class MyController implements Initializable{
 		ShowUtil.show("导入空白战绩文件成功", 2);
     }
     
+    
+    /*******************************************************************************************
+     * 
+     *                                 0.95与0.975切换版本
+     *   
+     ********************************************************************************************/
+    
 	/**
 	 * 根据原始战绩获取回水  
 	 * 1：出回水     2：收回水, 此时teamId非必要参数
@@ -3550,5 +3557,6 @@ public class MyController implements Initializable{
 			return NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*(1-Constants.HS_RATE)+"");
 		}
 	}
+	
 
 }

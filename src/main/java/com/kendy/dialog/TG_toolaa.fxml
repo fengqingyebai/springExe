@@ -139,7 +139,7 @@
                               <TableColumn fx:id="tgPlayerName" prefWidth="110.0" text="玩家名称" />
                               <TableColumn fx:id="tgYSZJ" prefWidth="64.0" text="原始战绩" />
                               <TableColumn fx:id="tgBaoxian" prefWidth="74.0" text="保险" />
-                              <TableColumn fx:id="tgZJ25" prefWidth="94.0" text="战绩2.5%" />
+                              <TableColumn fx:id="tgZJ25" prefWidth="94.0" text="满水" />
                               <TableColumn fx:id="tgZJUnknow" prefWidth="82.0" text="战绩0%" />
                               <TableColumn fx:id="tgHuiBao" prefWidth="66.0" text="回保" />
                               <TableColumn fx:id="tgProfit" prefWidth="79.0" text="利润" />

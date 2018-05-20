@@ -291,7 +291,7 @@ public class TGExportExcelService {
 		List<String> titleSumList = new LinkedList<>();
 		List<Object[]> dataSum = new LinkedList<>();
 		
-		titleList = new LinkedList<>(Arrays.asList("玩家ID","玩家名称","原始战绩","保险","战绩2.5%","战绩"+hsRate,"回保","利润","场次"));
+		titleList = new LinkedList<>(Arrays.asList("玩家ID","玩家名称","原始战绩","保险","满水","战绩"+hsRate,"回保","利润","场次"));
 		ObservableList<TGTeamInfo> items = tgController.tableTGZhanji.getItems();
 		if(CollectUtil.isHaveValue(items)) {
 			data = items.stream().map(info->{

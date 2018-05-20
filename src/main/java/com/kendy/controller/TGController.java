@@ -30,6 +30,7 @@ import com.kendy.entity.TGTeamModel;
 import com.kendy.entity.TypeValueInfo;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.interfaces.Entity;
+import com.kendy.service.MoneyService;
 import com.kendy.service.TGExportExcelService;
 import com.kendy.service.TGFwfService;
 import com.kendy.service.TeamProxyService;
@@ -818,17 +819,20 @@ public class TGController implements Initializable{
 		
 		if(CollectUtil.isHaveValue(proxyTeamInfoList)) {
 			list = proxyTeamInfoList.stream().map(info -> {
+				String yszj = info.getProxyYSZJ();
 				TGTeamInfo tgTeam = new TGTeamInfo();
 				tgTeam.setTgPlayerId(info.getProxyPlayerId());
 				tgTeam.setTgPlayerName(info.getProxyPlayerName());
 				tgTeam.setTgYSZJ(info.getProxyYSZJ());
 				tgTeam.setTgBaoxian(info.getProxyBaoxian());
 				tgTeam.setTgChangci(info.getProxyTableId());
-				//设置战绩2.5% 
-				String percent25Str = NumUtil.digit2(Math.abs(NumUtil.getNum(info.getProxyYSZJ())) * (1-Constants.HS_RATE) + "");
+				//设置战绩2.5% ,即满水
+//				String percent25Str = NumUtil.digit2(Math.abs(NumUtil.getNum(info.getProxyYSZJ())) * (1-Constants.HS_RATE) + "");
+				String percent25Str = getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 1);
 				tgTeam.setTgZJ25(percent25Str);
 				//设置战绩未知%
-				String teamUnknowStr = NumUtil.digit2(Math.abs(NumUtil.getNumTimes(info.getProxyYSZJ(), teamUnknowValue)) + "");
+//				String teamUnknowStr = NumUtil.digit2(Math.abs(NumUtil.getNumTimes(info.getProxyYSZJ(), teamUnknowValue)) + "");
+				String teamUnknowStr = getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 2);
 				tgTeam.setTgZJUnknow(teamUnknowStr);
 				//设置回保
 				String teamHuibaoRateStr =  NumUtil.digit2((-1) * Constants.HS_RATE * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
@@ -838,7 +842,8 @@ public class TGController implements Initializable{
 				tgTeam.setTgHuiBao(teamHuibaoRateStr);
 				
 				//设置利润
-				String profit = getRecordProfit(tgTeam);
+//				String profit = getRecordProfit(tgTeam);
+				String profit = getLirunByYSZJ_TG(yszj, teamUnknowValue, tgTeam, 3);
 				tgTeam.setTgProfit(profit);
 				
 				return tgTeam;
@@ -1492,10 +1497,59 @@ public class TGController implements Initializable{
 			ErrorUtil.err("月利润导出自动记录失败", e);
 			e.printStackTrace();
 		}
-		
+	    
 	}
 	
+	/*******************************************************************************************
+     * 
+     *                                 0.95与0.975切换版本
+     *   
+     ********************************************************************************************/
+    
+	/**
+	 * 根据原始战绩获取利润 
+	 * 
+	 */
+	public  String getLirunByYSZJ_TG(String yszj, String teamUnknowValue, TGTeamInfo tgTeam, int type) {
+		try {
+			if(Constants.HS_RATE_FINAL == Constants.HS_RATE) {
+				//0.975版本
+				return getByYSZJ_TG(yszj, teamUnknowValue, tgTeam, type);
+				
+			}else {
+				//0.95版本
+				Double zhanji = Double.valueOf(yszj);
+				if(zhanji.compareTo(0d) >= 0) {
+					return "0";
+				}else {
+					return getByYSZJ_TG(yszj, teamUnknowValue, tgTeam, type);
+				}
+			}
+		}catch(Exception e) {
+			log.error("根据原始战绩获取出利润出错，原因:" + e.getMessage());
+			return "0";
+		}
+	}
 	
+	/**
+	 * 根据原始战绩获取利润  (共用)
+	 * 
+	 * @param yszj 原始战绩
+	 * @param teamUnknowValue 团队未知，用于获取(战绩0%)的值
+	 * @param tgTeam 指TGTeamInfo
+	 * @param type 1、战绩2.5%，即满水    2、战绩0%    3、一行的利润
+	 * @return
+	 */
+	private  String getByYSZJ_TG(String yszj, String teamUnknowValue, TGTeamInfo tgTeam, int type) {
+		if(type == 1) {
+			return NumUtil.digit2(Math.abs(NumUtil.getNum(yszj)) * (1-Constants.HS_RATE) + "");
+		} else if (type == 2) {
+			return NumUtil.digit2(Math.abs(NumUtil.getNumTimes(yszj, teamUnknowValue)) + "");
+		} else if (type == 3) {
+			return getRecordProfit(tgTeam);
+		} 
+		return "0";
+	}
 
     
     

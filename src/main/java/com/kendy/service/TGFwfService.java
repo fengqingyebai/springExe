@@ -204,21 +204,22 @@ public class TGFwfService {
 		
 		if(CollectUtil.isHaveValue(proxyTeamInfoList)) {
 			list = proxyTeamInfoList.stream().map(info -> {
+				String yszj = info.getProxyYSZJ();
 				TGTeamInfo tgTeam = new TGTeamInfo();
 				tgTeam.setTgPlayerId(info.getProxyPlayerId());
 				tgTeam.setTgPlayerName(info.getProxyPlayerName());
 				tgTeam.setTgYSZJ(info.getProxyYSZJ());
 				tgTeam.setTgBaoxian(info.getProxyBaoxian());
 				tgTeam.setTgChangci(info.getProxyTableId());
-				//设置战绩2.5% 
-				String percent25Str = NumUtil.digit2(Math.abs(NumUtil.getNum(info.getProxyYSZJ())) * (1-Constants.HS_RATE) + "");
-				tgTeam.setTgZJ25(percent25Str);
 				//设置战绩未知%
 				String teamId = info.getProxyTeamId();
 				TGTeamModel tgTeamModel = tgTeamRateMap.get(teamId);
 				String teamUnknowValue = tgTeamModel == null ? "0.0" : tgTeamModel.getTgHuishui();
-				String teamUnknowStr = NumUtil.digit2(Math.abs(NumUtil.getNumTimes(info.getProxyYSZJ(), teamUnknowValue)) + "");
+				String teamUnknowStr = MyController.tgController.getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 2);
 				tgTeam.setTgZJUnknow(teamUnknowStr);
+				//设置战绩2.5% ,即满水
+				String percent25Str = MyController.tgController.getLirunByYSZJ_TG(info.getProxyYSZJ(), teamUnknowValue, null, 1);
+				tgTeam.setTgZJ25(percent25Str);
 				//设置回保
 				String teamHuibaoRateValue = tgTeamModel == null ? "0.0" : tgTeamModel.getTgHuiBao();
 				String teamHuibaoRateStr =  NumUtil.digit2(-Constants.HS_RATE * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
