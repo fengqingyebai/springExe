@@ -148,6 +148,13 @@
 		    <artifactId>ehcache</artifactId>
 		    <version>2.10.4</version>
 		</dependency>
+		
+		<!-- 引入jfoenix -->
+		<dependency>
+		    <groupId>com.jfoenix</groupId>
+		    <artifactId>jfoenix</artifactId>
+		    <version>8.0.4</version>
+		</dependency>
     	
     </dependencies>
     
