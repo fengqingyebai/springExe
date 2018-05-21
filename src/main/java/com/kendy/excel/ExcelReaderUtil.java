@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.alibaba.fastjson.JSON;
 import com.kendy.controller.LMController;
@@ -75,7 +76,7 @@ public class ExcelReaderUtil {
 			if (".xls".equals(fileType.trim().toLowerCase())) {
 				workbook = new HSSFWorkbook(fileStream);// 创建 Excel 2003 工作簿对象
 			} else if (".xlsx".equals(fileType.trim().toLowerCase())) {
-				workbook = new HSSFWorkbook(fileStream);// 创建 Excel 2007 工作簿对象
+				workbook = new XSSFWorkbook(fileStream);// 创建 Excel 2007 工作簿对象
 				//workbook = WorkbookFactory.create(fileStream);
 			}
 		}
