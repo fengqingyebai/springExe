@@ -30,6 +30,7 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 
 import application.DataConstans;
+import application.MyController;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -359,7 +360,7 @@ public class TeamProxyService {
 		double sumHB = 0d;
 		for(Record info : teamEveryDayList) {
 			String yszj = info.getScore();
-			String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
+			String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);//NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
 			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getInsuranceEach(),teamId));
 			sumHS += (MoneyService.getNum(chuHuishui))*(-1);
 			sumHB += MoneyService.getNum(baohui);

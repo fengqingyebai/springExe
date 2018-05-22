@@ -189,3 +189,7 @@
 			    		Record::getClubId, //先按俱乐部分
 			    		Collectors.groupingBy(Record::getTeamId)));//再按团队分
 	}
+	
+## 技术参考
+    AwesomeJavaFX：https://github.com/mhrimaz/AwesomeJavaFX#tutorials
+    JFoenix：https://github.com/jfoenixadmin/JFoenix
