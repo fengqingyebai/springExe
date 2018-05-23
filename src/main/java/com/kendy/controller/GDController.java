@@ -455,6 +455,9 @@ public class GDController implements Initializable{
 		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
 		String baohui = NumUtil.digit1(MoneyService.getHuiBao(baoxian,teamId));
 		String heLirun = NumUtil.digit2(MoneyService.getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
+//		if("公司".equals(teamId)) {
+//			log.info(String.format("战绩：%s, 出回水：%s, 收回水：%s, 水后险：%s, 保回：%s, 合利润：%s", zhanji, chuHuishui, shouHuishui, shuihouxian,baohui,heLirun));
+//		}
 		return  NumUtil.getNum(heLirun);
 	}
 	

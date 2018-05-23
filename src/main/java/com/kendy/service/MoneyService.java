@@ -512,7 +512,7 @@ public class MoneyService {
 	 */
 	public static String getHeLirun(String shouHuishui,String chuHuishui,String baohui,String shuihouxian){
 		double _shouHushui = getNum(shouHuishui);
-		if(_shouHushui > 0){
+		if(_shouHushui >= 0){
 			return _shouHushui + getNum(chuHuishui) + getNum(baohui) + getNum(shuihouxian) + "";
 		}else{
 			return "0";
