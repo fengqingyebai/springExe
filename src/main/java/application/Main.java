@@ -115,7 +115,7 @@ public class Main extends Application {
 //			Parent root = FXMLLoader.load(getClass().getResource("MainStage4.fxml"));
 
 			FXMLLoader fxmlLoader = new FXMLLoader();
-			Parent root = fxmlLoader.load(getClass().getResource("MainStageeess2.fxml").openStream());
+			Parent root = fxmlLoader.load(getClass().getResource("MainStageees2.fxml").openStream());
 //			Pane p = fxmlLoader.load(getClass().getResource("MainStage4.fxml").openStream());
 //			Parent root = p.getParent()
 			MyController mc = (MyController) fxmlLoader.getController();

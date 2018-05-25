@@ -112,7 +112,7 @@ public class HttpUtil {
 			InputStream urlStream = openConnection.getInputStream();
 			String charsetName = MyController.smAutoController.sysCodeField.getText();
 			String ResString = org.apache.commons.io.IOUtils.toString(urlStream, Charset.forName(charsetName));
-			log.info(ResString);
+			log.info("后台的玩家列表: "+ResString);
 			if(StringUtil.isBlank(ResString)) {
 				return null;
 			}

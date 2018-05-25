@@ -369,7 +369,7 @@ public class SMAutoController implements Initializable {
         // List<String> list = Arrays.asList("01-90","8001-8090","9001-9090");
         for (String range : list) {
             String[] ranges = range.split("-");
-            boolean isInRange = paiju > Integer.valueOf(ranges[0]) && paiju < Integer.valueOf(ranges[1]);
+            boolean isInRange = paiju >= Integer.valueOf(ranges[0]) && paiju <= Integer.valueOf(ranges[1]);
             if (isInRange) {
                 return false; // 该牌局是次日上码
             }
