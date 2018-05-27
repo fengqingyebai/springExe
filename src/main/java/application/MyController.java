@@ -425,6 +425,7 @@ public class MyController implements Initializable{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		initSystemCode();
 		table_Profit = this.tableProfit;
 		//第一次打开主窗口时设置当前俱乐部ID值
 		String clubIdValue = PropertiesUtil.readProperty("clubId");
@@ -757,6 +758,19 @@ public class MyController implements Initializable{
 	    	ErrorUtil.err("托管小工具tab加载失败", e);
 	    }
 	    
+	}
+	
+	/**
+	 * 初始化系统编码
+	 * 生产环境为GBK, 测试环境为UTF8
+	 * @time 2018年5月27日
+	 */
+	private void initSystemCode() {
+		if(log.isDebugEnabled()) {
+			sysCode.setText("UTF8");
+		}else {
+			sysCode.setText("GBK");
+		}
 	}
 		
 	/**
