@@ -847,7 +847,7 @@ public class MyController implements Initializable{
 		String rate095 = "0.95";
 		radio_rate_0975.setUserData(rate0975);
 		radio_rate_095.setUserData(rate095);
-		radio_rate_0975.setSelected(true);
+		radio_rate_095.setSelected(true);
 		group.selectedToggleProperty().addListener(new ChangeListener<Toggle>(){
 			public void changed(ObservableValue<? extends Toggle> ov,
 					Toggle toggle, Toggle new_toggle) {
