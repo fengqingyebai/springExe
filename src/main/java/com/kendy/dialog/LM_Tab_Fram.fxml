@@ -26,7 +26,7 @@
                    <Label layoutX="28.0" layoutY="126.0" prefHeight="24.0" prefWidth="156.0" text="俱乐部操作区：" />
                    <Label layoutX="86.0" layoutY="319.0" prefHeight="24.0" prefWidth="156.0" />
                    <Button disable="true" layoutX="106.0" layoutY="168.0" mnemonicParsing="false" onAction="#addNewClubAction" prefHeight="23.0" prefWidth="172.0" text="临时新增俱乐部" />
-                   <Button disable="true" layoutX="107.0" layoutY="215.0" mnemonicParsing="false" onAction="#delClubAction" prefHeight="23.0" prefWidth="171.0" text="删除俱乐部（不用）" />
+                   <Button layoutX="107.0" layoutY="215.0" mnemonicParsing="false" onAction="#updateClubNameAction" prefHeight="23.0" prefWidth="171.0" text="修改俱乐部名称" />
                    <Button layoutX="108.0" layoutY="496.0" mnemonicParsing="false" onAction="#exportSingleClubAction" prefHeight="23.0" prefWidth="163.0" text="导出当前俱乐部帐单" />
                    <Button layoutX="107.0" layoutY="600.0" mnemonicParsing="false" onAction="#exportAllClubAction" prefHeight="23.0" prefWidth="163.0" text="导出所有俱乐部总帐单" />
                    <Label layoutX="22.0" layoutY="453.0" prefHeight="24.0" prefWidth="156.0" text="导出Excel文件：" />

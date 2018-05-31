@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 
@@ -120,6 +121,7 @@ public class LMController implements Initializable{
 	
 	//同步俱乐部信息（缓存与数据库）
 	public static void refreshClubList() {
+		
 		//这里如果allClubMap这个缓存没有数据，尝试从数据库获取（或者在中途中就加载，或者初始化就加载）
 		
 		//锁定数据后同步到缓存中
@@ -131,6 +133,9 @@ public class LMController implements Initializable{
 				}
 			});
 		}
+		
+		//更新俱乐部名称
+		refreshAllClubMap();
 		
 		//缓存数据全部更新到数据库
 		if(allClubMap == null || allClubMap.size()==0) return;
@@ -166,6 +171,28 @@ public class LMController implements Initializable{
 	}
 	
 
+	/**
+	 * 更新俱乐部名称
+	 * @time 2018年5月30日
+	 */
+	private static void refreshAllClubMap() {
+		Map<String, Club> DBClubs = DBUtil.getAllClub();
+		if(MapUtil.isHavaValue(DBClubs) && MapUtil.isHavaValue(allClubMap)) {
+			allClubMap.forEach((clubId, club) -> {
+				Club dbClub = DBClubs.get(clubId);
+				if(dbClub == null) {
+					
+				}else {
+					String clubNmae = dbClub.getName();
+					String cacheClubNmae = club.getName();
+					if(!StringUtils.equals(clubNmae, cacheClubNmae)) {
+						club.setName(clubNmae);
+					}
+				}
+			});
+			
+		}
+	}
 	
 	/**
 	 * 刷新俱乐部列表视图
@@ -175,13 +202,13 @@ public class LMController implements Initializable{
 	 * index 取 [1,2,3]
 	 */
 	public static void refreshClubListView(int index) { 
+		
 		//这里更新俱乐部列表（静态访问）
 		_clubListView.setItems(null);
 		ObservableList<String> obList = FXCollections.observableArrayList();
 		if(!LMTotalList.isEmpty()) {
 			LMTotalList.get(index-1).keySet().forEach(clubId -> {
 				Club club = allClubMap.get(clubId);
-//				obList.add(club.getName()+"=="+club.getClubId()+"=="+club.getEdu());
 				obList.add(club.getName()+"=="+club.getClubId()+"=="+get_LM_edu(club, index));
 			});
 		}
@@ -860,6 +887,47 @@ public class LMController implements Initializable{
     		ShowUtil.show("模拟删除俱乐部操作...",2);
     		
     	});
+	}
+	
+	/**
+	 * 修改俱乐部名称
+	 * 
+	 * @time 2018年5月31日
+	 * @param event
+	 */
+	public void updateClubNameAction(ActionEvent event) {
+		Club club = getSelectedClub();
+		if(StringUtil.isBlank(club.getClubId())) {
+			ShowUtil.show("请先选择俱乐部！");
+			return;
+		}
+		String clubName = club.getName();
+		String clubId = club.getClubId();
+		
+		InputDialog inputDlg = new InputDialog("修改："+clubName," 俱乐部新名称：");
+    	Optional<String> result = inputDlg.getTextResult();
+    	result.ifPresent(newClubName -> {
+    		
+    		//判断
+    		if(StringUtil.isBlank(newClubName)) {
+    			ShowUtil.show("新俱乐部名称不能为空！！");
+    			return;
+    		}
+    		newClubName = newClubName.trim();
+    		club.setName(newClubName);
+    		
+    		//同步到数据库
+    		DBUtil.updateClub(club);
+    		DBUtil.batchUpdateRecordByClubId(clubId, newClubName);
+    		
+    		//重新刷新俱乐部列表
+    		refreshClubList();
+    		refreshClubListView(this.getCurrentLMType());
+    		
+    		//更新俱乐部（名称）操作
+    		ShowUtil.show("更新俱乐部（名称）操作成功",2);
+    	});
+		
 	}
 	
 	/**

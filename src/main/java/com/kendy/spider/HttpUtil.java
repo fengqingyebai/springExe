@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -113,10 +114,9 @@ public class HttpUtil {
 			String charsetName = MyController.smAutoController.sysCodeField.getText();
 			String ResString = org.apache.commons.io.IOUtils.toString(urlStream, Charset.forName(charsetName));
 			log.info("后台的玩家列表: "+ResString);
-			if(StringUtil.isBlank(ResString)) {
-				return null;
+			if(StringUtil.isNotBlank(ResString)) {
+				wanjiaListResult = JSON.parseObject(ResString, WanjiaListResult.class);
 			}
-			wanjiaListResult = JSON.parseObject(ResString, WanjiaListResult.class);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -1859,6 +1859,31 @@ public class DBUtil {
 	}
 	
 	/**
+	 * 客户更新俱乐部名称后，自动更新历史记录中含有俱乐部名称字段的记录
+	 * 
+	 * @time 2018年5月31日
+	 * @param clubId
+	 * @param newClubName
+	 */
+	public static boolean batchUpdateRecordByClubId(String clubId, String newClubName) {
+		boolean isOK = true;
+		try {
+			con = DBConnection.getConnection();
+			String sql = "update record r set r.clubName = ? where r.clubId = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, newClubName);
+			ps.setString(2, clubId);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			isOK = false;
+			ErrorUtil.err("更新俱乐部名称失败",e);
+		}finally{
+			close(con,ps);
+		}
+		return isOK;
+	}
+	
+	/**
 	 * 清空所有俱乐部桌费和已结算
 	 * @time 2017年11月26日
 	 * @param player
