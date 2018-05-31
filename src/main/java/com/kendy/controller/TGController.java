@@ -1215,18 +1215,13 @@ public class TGController implements Initializable{
 		//获取数据库的历史日利润表 TODO
 		List<TGLirunInfo> liruns = DBUtil.get_all_tg_lirun(tgCompany);
 		if(CollectUtil.isHaveValue(liruns)) {
-//			liruns = liruns.stream()
-//					.filter(info->tgCompany.equals(info.getTgLirunCompanyName())) // 获取当前托管公司的数据，但剔除今天已经保存过的数据，因为下面会重新计算
-//					.filter(info-> !(TimeUtil.getDateString().equals(info.getTgLirunDate()) && tgCompany.equals(info.getTgLirunCompanyName())))
-//					.collect(Collectors.toList());
-			list.addAll(liruns);
 			String today = getDateString();
-			boolean isTodayContains = list.stream().anyMatch(info->today.equals(info.getTgLirunDate()));
+			boolean isTodayContains = liruns.stream().anyMatch(info->today.equals(info.getTgLirunDate()));
 			if(isTodayContains) {
-				log.info("刷新月利润表时已经存在了今天"+today+"的数据了！所以不重复计算");
-				tableTGLirun.setItems(FXCollections.observableArrayList(list));
-				return;
+				liruns = liruns.stream().filter(info->!today.equals(info.getTgLirunDate())).collect(Collectors.toList());
+				log.info("刷新月利润表时已经存在了今天"+today+"的数据了！所以去除数据库的今天记录并重新计算");
 			}
+			list.addAll(liruns);
 		}
 		refreshFwfTab();//刷新服务费
 		
