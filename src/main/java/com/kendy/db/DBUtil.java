@@ -1,13 +1,16 @@
 package com.kendy.db;
 
 
+import java.security.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -17,14 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubZhuofei;
+import com.kendy.entity.HistoryBankMoney;
 import com.kendy.entity.HistoryRecord;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JifenInfo;
@@ -42,8 +44,8 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
-
 import application.DataConstans;
+import application.Main;
 
 
 
@@ -3076,6 +3078,69 @@ public class DBUtil {
 			close(con,ps);
 		}
 	}
+	
+	
+	/***************************************************************************
+     * 
+     *              银行流水表
+     * 
+     **************************************************************************/
+    /**
+     * 保存银行流水表
+     */
+    public static boolean saveHistoryBankMoney(final HistoryBankMoney moneyModel) {
+        boolean isOK = false;
+        try {
+            con = DBConnection.getConnection();
+            String sql;
+            sql = "insert into history_bank_money(bank_name, money, update_time, soft_time) values(?,?,?,?)";
+            ps = con.prepareStatement(sql);
+            ps.setString(1, moneyModel.getBankName());
+            ps.setInt(2, moneyModel.getMoney());
+            ps.setString(3, moneyModel.getUpdateTime());
+            ps.setString(4, moneyModel.getSoftTime());
+            ps.execute();
+            isOK = true;
+        }catch (SQLException e) {
+            ErrorUtil.err(moneyModel.toString()+",保存银行流水失败", e);
+            isOK = false;
+        }finally{
+            close(con,ps);
+        }
+        return isOK;
+    }
+    
+    /**
+     * 获取所有银行流水
+     * 
+     * @param tgCompany
+     * @return
+     */
+    public static List<HistoryBankMoney> getAllHistoryBankMoney() {
+        List<HistoryBankMoney> list = new ArrayList<>();
+        try {
+            con = DBConnection.getConnection();
+            String sql = "select * from history_bank_money";
+            ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                HistoryBankMoney money = new HistoryBankMoney(
+                        rs.getString(1),
+                        rs.getInt(2),
+                        rs.getString(3),
+                        rs.getString(4)
+                        );
+                list.add(money);
+            }
+        } catch (SQLException e) {
+            ErrorUtil.err("获获取所有银行流水失败",e);
+        }finally{
+            close(con,ps);
+        }
+        return list;
+    }
+    
+
 	
 	
 	

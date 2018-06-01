@@ -2,6 +2,7 @@ package com.kendy.service;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,9 +22,11 @@ import org.apache.log4j.Logger;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.controller.GDController;
+import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
+import com.kendy.entity.HistoryBankMoney;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.KaixiaoInfo;
@@ -44,7 +47,7 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
-
+import com.kendy.util.TimeUtil;
 import application.Constants;
 import application.DataConstans;
 import application.Main;
@@ -1579,12 +1582,27 @@ public class MoneyService {
 
 			Optional<String> result = dialog.showAndWait();
 			if (result.isPresent()){
+			    int value = 0;
 				try {
-					Integer.valueOf(result.get().trim());
+				  value = Integer.valueOf(result.get().trim());
 				}catch(Exception e) {
 					ShowUtil.show("非法数据!");
 					return;
 				}
+				LocalDate time = MyController.smAutoController.getSelectedDate();
+				if(time == null) {
+				  ShowUtil.show("请先选择自动上码配置中的今日时间!");
+				  return;
+				}
+				//保存到数据库
+				HistoryBankMoney bankMoney = new HistoryBankMoney(
+				    info.getZijinType(),
+				    value,
+				    TimeUtil.getDateTime2(),
+				    time.toString()//DataConstans.Date_Str
+				    );
+				DBUtil.saveHistoryBankMoney(bankMoney);
+				//生成界面表记录
 			    info.setZijinAccount(MoneyService.digit0(MoneyService.getNum(oddZijin)+MoneyService.getNum(result.get().trim())));
 			}
 			if(tableZijin != null && tableZijin.getItems() != null) {
