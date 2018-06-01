@@ -126,7 +126,7 @@ public class Main extends Application {
 			} catch (Exception e) {
 				log.error("找不到icon图标！");
 			}
-			primaryStage.setTitle(Constants.TITLE+Constants.VERSION);
+			primaryStage.setTitle(Constants.TITLE + Constants.VERSION);
             primaryStage.setScene(new Scene(root));
             //primaryStage.setResizable(false); 
             primaryStage.show();
@@ -137,16 +137,6 @@ public class Main extends Application {
             _fxmlLoader = fxmlLoader;
             
             primaryStage.setOnCloseRequest(e -> {
-//        		Alert alert = new Alert(AlertType.CONFIRMATION);
-//        		alert.setTitle("提示");
-//        		alert.setHeaderText(null);
-//        		alert.setContentText("\r\n确定退出吗?");
-//        		Optional<ButtonType> result = alert.showAndWait();
-//        		if (result.get() == ButtonType.OK){
-//        			exit();
-//        		}else {
-//        			return;
-//        		}
         		exit();
             });
                
