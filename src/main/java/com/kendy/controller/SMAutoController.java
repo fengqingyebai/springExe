@@ -815,6 +815,9 @@ public class SMAutoController implements Initializable {
 	
 	private static final String EN_MH = ":";
 	private static final String CN_MH = "：";
+	private static final String PU_TONG = "1";
+	private static final String AO_MA_HA = "2";
+	private static final String DA_BO_LUO = "6";
 	
 	public LocalDate getSelectedDate() {
 		return datePicker.getValue();
@@ -889,7 +892,7 @@ public class SMAutoController implements Initializable {
 	//重复的跳过，不重复的则下载后更新缓存和数据
     public void autoDownExcels(String DownType) {
     	
-    	String houtai = "1".equals(DownType) ? "普通后台" : "2".equals(DownType) ? "奥马哈后台" : "其他后台" ; 
+    	String houtai = PU_TONG.equals(DownType) ? "普通后台" : AO_MA_HA.equals(DownType) ? "奥马哈后台" : DA_BO_LUO.equals(DownType) ? "大菠萝" : "其他后台"; 
     	
     	RespResult<GameRoomModel> parseObject = new RespResult<>();
     	try {
@@ -1162,11 +1165,14 @@ public class SMAutoController implements Initializable {
                     @Override
                     public void run() {
                     	
-                    	//自动下载当天普通房间Excel
-                    	autoDownExcels("1");
+//                    	//自动下载当天普通房间Excel
+//                    	autoDownExcels(PU_TONG);
+//                    	
+//                    	//自动下载当天奥马哈房间Excel
+//                    	autoDownExcels(AO_MA_HA);
                     	
-                    	//自动下载当天奥马哈房间Excel
-                    	autoDownExcels("2");
+                    	//自动下载当天大菠萝Excel
+                    	autoDownExcels(DA_BO_LUO);
                     }
                 });
             }

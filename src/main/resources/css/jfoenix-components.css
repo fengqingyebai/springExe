@@ -1,3 +1,21 @@
+
+.dateLabel {
+	 -fx-font-weight: BOLD;
+	 -fx-text-fill: blue;
+	 -fx-font-size: 0.75em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .root {
     -fx-font-family: Roboto;
     src: "/resources/roboto/Roboto-Regular.ttf";

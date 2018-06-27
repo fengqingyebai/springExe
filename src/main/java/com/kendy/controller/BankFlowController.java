@@ -28,17 +28,15 @@ public class BankFlowController implements Initializable{
 	
 	private static Logger log = Logger.getLogger(BankFlowController.class);
 
-//	//=====================================================================
-//	@FXML public VBox TG_Company_VBox; // 托管公司（按钮）
-	
+	//=====================================================================
 	@FXML public ScrollPane scrollDates; // 
-	@FXML public AnchorPane detailFlowDataAnchor; // 
 	
 
 	
 //	@FXML private Label currentTGCompanyLabel; //当前托管公司
 	@FXML private Label currentTGTeamLabel; //当前托管团队
 	
+	private static final String DATE_LABEL_CSS = "dateLabel";
     private static final String FX_TEXT_FILL_WHITE = "-fx-text-fill:BLACK";
     private static final String ANIMATED_OPTION_BUTTON = "animated-option-button";
     private static final String ANIMATED_OPTION_SUB_BUTTON = "animated-option-sub-button";
@@ -51,26 +49,17 @@ public class BankFlowController implements Initializable{
     VBox cacheContent = new VBox();
 
     cacheContent.setPrefHeight(1000);
-    for(int i=0; i<50; i++) {
-      Button sbutton = new Button(localDate.minusDays(i).toString().replace("2018-", ""));
-      sbutton.setPrefWidth(100);
-      sbutton.getStyleClass().add(ANIMATED_OPTION_BUTTON);
-  //    sbutton.setStyle("-fx-font-size: 23px");
-  //    sbutton.setButtonType(ButtonType.RAISED);
-  //    sbutton.getStyleClass().addAll(ANIMATED_OPTION_BUTTON, ANIMATED_OPTION_SUB_BUTTON);
-      sbutton.setOnAction(e->{
-        ShowUtil.show(sbutton.getText(), 1);
-      });
+    for(int i=0; i<20; i++) {
+      Label dateLabel = new Label(localDate.minusDays(i).toString().replace("2018-", ""));
+      dateLabel.setStyle("-fx-font-size: 1.75em");
+      dateLabel.setStyle("-fx-text-fill:blue");
       TableView table = new TableView();
       table.setPrefHeight(200);
       table.setMinHeight(200);
       table.getColumns().add(new TableColumn(i+""));
-      cacheContent.getChildren().add(sbutton);
-      //cacheContent.setVgrow(table, Priority.ALWAYS);
+      cacheContent.getChildren().add(dateLabel);
       cacheContent.getChildren().add(table);
-//      detailFlowDataAnchor.getChildren().add(table);
    }
-   // nodesList.setRotate(-90);
   
     scrollDates.setPadding(new Insets(10));
     scrollDates.setFitToHeight(true);
