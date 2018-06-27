@@ -19,21 +19,18 @@
 
 <AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.BankFlowController">
    <children>
-      <TableView layoutX="54.0" layoutY="34.0" prefHeight="200.0" prefWidth="713.0">
+      <TableView layoutX="52.0" layoutY="88.0" prefHeight="337.0" prefWidth="444.0">
         <columns>
           <TableColumn prefWidth="75.0" text="C1" />
           <TableColumn prefWidth="75.0" text="C2" />
             <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="86.0" text="C2" />
+            <TableColumn prefWidth="93.0" text="C2" />
         </columns>
       </TableView>
-      <AnchorPane layoutX="54.0" layoutY="262.0" prefHeight="539.0" prefWidth="713.0">
+      <AnchorPane layoutX="515.0" layoutY="42.0" prefHeight="794.0" prefWidth="766.0">
          <children>
-            <ScrollPane fx:id="scrollDates" prefHeight="539.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="713.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <ScrollPane fx:id="scrollDates" layoutX="61.0" prefHeight="771.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="644.0" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="61.0" AnchorPane.rightAnchor="61.0" AnchorPane.topAnchor="0.0" />
          </children>
       </AnchorPane>
    </children>

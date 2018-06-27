@@ -1165,11 +1165,11 @@ public class SMAutoController implements Initializable {
                     @Override
                     public void run() {
                     	
-//                    	//自动下载当天普通房间Excel
-//                    	autoDownExcels(PU_TONG);
-//                    	
-//                    	//自动下载当天奥马哈房间Excel
-//                    	autoDownExcels(AO_MA_HA);
+                    	//自动下载当天普通房间Excel
+                    	autoDownExcels(PU_TONG);
+                    	
+                    	//自动下载当天奥马哈房间Excel
+                    	autoDownExcels(AO_MA_HA);
                     	
                     	//自动下载当天大菠萝Excel
                     	autoDownExcels(DA_BO_LUO);
