@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.scene.*?>
+<?import javafx.embed.swing.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.paint.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.BankFlowController">
+   <children>
+      <TableView layoutX="54.0" layoutY="34.0" prefHeight="200.0" prefWidth="713.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="C1" />
+          <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="75.0" text="C2" />
+            <TableColumn prefWidth="75.0" text="C2" />
+        </columns>
+      </TableView>
+      <AnchorPane layoutX="54.0" layoutY="262.0" prefHeight="539.0" prefWidth="713.0">
+         <children>
+            <ScrollPane fx:id="scrollDates" prefHeight="539.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="713.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
