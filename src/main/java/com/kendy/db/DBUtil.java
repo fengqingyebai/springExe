@@ -1,16 +1,13 @@
 package com.kendy.db;
 
 
-import java.security.Timestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -26,7 +23,6 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubZhuofei;
-import com.kendy.entity.HistoryBankMoney;
 import com.kendy.entity.HistoryRecord;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JifenInfo;
@@ -39,13 +35,13 @@ import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TGKaixiaoInfo;
 import com.kendy.entity.TGLirunInfo;
 import com.kendy.entity.TGTeamModel;
+import com.kendy.model.BankFlowModel;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
 import application.DataConstans;
-import application.Main;
 
 
 
@@ -3088,7 +3084,7 @@ public class DBUtil {
     /**
      * 保存银行流水表
      */
-    public static boolean saveHistoryBankMoney(final HistoryBankMoney moneyModel) {
+    public static boolean saveHistoryBankMoney(final BankFlowModel moneyModel) {
         boolean isOK = false;
         try {
             con = DBConnection.getConnection();
@@ -3116,15 +3112,15 @@ public class DBUtil {
      * @param tgCompany
      * @return
      */
-    public static List<HistoryBankMoney> getAllHistoryBankMoney() {
-        List<HistoryBankMoney> list = new ArrayList<>();
+    public static List<BankFlowModel> getAllHistoryBankMoney() {
+        List<BankFlowModel> list = new ArrayList<>();
         try {
             con = DBConnection.getConnection();
             String sql = "select * from history_bank_money";
             ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                HistoryBankMoney money = new HistoryBankMoney(
+              BankFlowModel money = new BankFlowModel(
                         rs.getString(1),
                         rs.getInt(2),
                         rs.getString(3),

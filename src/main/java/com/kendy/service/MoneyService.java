@@ -16,17 +16,13 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.controller.GDController;
-import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
-import com.kendy.entity.HistoryBankMoney;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.KaixiaoInfo;
@@ -42,6 +38,7 @@ import com.kendy.entity.ZijinInfo;
 import com.kendy.excel.ExportMembersExcel;
 import com.kendy.excel.ExportTeamhsExcel;
 import com.kendy.interfaces.Entity;
+import com.kendy.model.BankFlowModel;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -1595,7 +1592,7 @@ public class MoneyService {
 				  return;
 				}
 				//保存到数据库
-				HistoryBankMoney bankMoney = new HistoryBankMoney(
+				BankFlowModel bankMoney = new BankFlowModel(
 				    info.getZijinType(),
 				    value,
 				    TimeUtil.getDateTime2(),
