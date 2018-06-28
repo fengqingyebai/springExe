@@ -46,10 +46,6 @@ public class BankFlowController implements Initializable{
 	//=====================================================================
 	@FXML public ScrollPane scrollDates; // 
 	
-
-	
-//	@FXML private Label currentTGCompanyLabel; //当前托管公司
-	@FXML private Label currentTGTeamLabel; //当前托管团队
 	
 	private static final String DATE_LABEL_CSS = "dateLabel";
     private static final String FX_TEXT_FILL_WHITE = "-fx-text-fill:BLACK";
@@ -78,10 +74,7 @@ public class BankFlowController implements Initializable{
             Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类 
     
     //TODO 每一天进行排序
-    //Map<String, Long> groups = students.stream().collect(Collectors.groupingBy(Student::getSchool, Collectors.counting()));
-    Map<String, Long> collect = totalBankFlowList.stream().collect( Collectors.groupingBy(BankFlowModel::getBankName , Collectors.counting()));
     
-    log.debug("result:" + collect);
     //动态生成表
     int size = BankFlowMap.size();
     BankFlowMap.forEach((dayKey, dayDataMap) -> {
@@ -116,9 +109,16 @@ public class BankFlowController implements Initializable{
     int loopTimes = todayMap.values().stream().mapToInt(Collection::size).max().orElseGet(()-> 0);
     if(loopTimes > 0) {
       ObservableList<BankFlowInfo> obList= FXCollections.observableArrayList();
-      BankFlowInfo info = new BankFlowInfo();
-      info.setYuEBao("100");
-      obList.add(info);
+      for(int i=0; i< loopTimes ; i++) {
+    	  BankFlowInfo info = new BankFlowInfo();
+    	  try { info.setYuEBao(todayMap.get(BankEnum.YuEBao.getName()).get(i).getMoney()+"");} catch (Exception e) { }
+    	  try { info.setHuaXia(todayMap.get(BankEnum.HuaXia.getName()).get(i).getMoney()+"");} catch (Exception e) { }
+    	  try { info.setPingAn(todayMap.get(BankEnum.PingAn.getName()).get(i).getMoney()+"");} catch (Exception e) { }
+    	  try { info.setZhaoShang(todayMap.get(BankEnum.ZhaoShang.getName()).get(i).getMoney()+"");} catch (Exception e) { }
+    	  try { info.setZhiFuBao(todayMap.get(BankEnum.ZhiFuBao.getName()).get(i).getMoney()+"");} catch (Exception e) { }
+    	  try { info.setPuFa(todayMap.get(BankEnum.PuFa.getName()).get(i).getMoney()+"");} catch (Exception e) { }
+    	  obList.add(info);
+      }
       table.setItems(obList);
     }
   }
@@ -129,12 +129,12 @@ public class BankFlowController implements Initializable{
    */
   @SuppressWarnings("unchecked")
   private TableView<BankFlowInfo> dynamicGenerateGDTable() {
-     TableColumn<BankFlowInfo,String> yuEBaoCol = getTableColumn(BankEnum.YuEBao.getName(), "yuEBao"); 
-     TableColumn<BankFlowInfo,String> huaXiaCol = getTableColumn("华夏", "huaXia"); 
-     TableColumn<BankFlowInfo,String> pingAnCol = getTableColumn("平安", "pingAn"); 
-     TableColumn<BankFlowInfo,String> zhaoShangCol = getTableColumn("招商", "zhaoShang"); 
-     TableColumn<BankFlowInfo,String> zhiFuBaoCol = getTableColumn("支付宝", "zhiFuBao"); 
-     TableColumn<BankFlowInfo,String> puFaCol = getTableColumn("浦发", "puFa"); 
+     TableColumn<BankFlowInfo,String> yuEBaoCol = getTableColumn(BankEnum.YuEBao.getName(), BankEnum.YuEBao.getValue()); 
+     TableColumn<BankFlowInfo,String> huaXiaCol = getTableColumn(BankEnum.HuaXia.getName(), BankEnum.HuaXia.getValue()); 
+     TableColumn<BankFlowInfo,String> pingAnCol = getTableColumn(BankEnum.PingAn.getName(), BankEnum.PingAn.getValue()); 
+     TableColumn<BankFlowInfo,String> zhaoShangCol = getTableColumn(BankEnum.ZhaoShang.getName(), BankEnum.ZhaoShang.getValue()); 
+     TableColumn<BankFlowInfo,String> zhiFuBaoCol = getTableColumn(BankEnum.ZhiFuBao.getName(), BankEnum.ZhiFuBao.getValue()); 
+     TableColumn<BankFlowInfo,String> puFaCol = getTableColumn(BankEnum.PuFa.getName(), BankEnum.PuFa.getValue()); 
      TableView<BankFlowInfo> table = new TableView<BankFlowInfo>();
      table.setPrefWidth(210);
      table.getColumns().addAll(yuEBaoCol, huaXiaCol, pingAnCol, zhaoShangCol, zhiFuBaoCol, puFaCol);
@@ -154,11 +154,16 @@ public class BankFlowController implements Initializable{
   }
   
   
+  /**
+   * 银行类型枚举类
+   * @author 林泽涛
+   * @time 2018年6月28日 下午11:34:00
+   */
   private static enum BankEnum {
 	  YuEBao("余额宝", "yuEBao"),
 	  HuaXia("华夏", "huaXia"),
 	  PingAn("平安", "pingAn"),
-	  ZhaoSang("招商", "zhaoShang"),
+	  ZhaoShang("招商", "zhaoShang"),
 	  ZhiFuBao("支付宝", "zhiFuBao"),
 	  PuFa("浦发", "puFa")
 	  ;

@@ -12,12 +12,12 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class BankFlowInfo implements Entity{
 
-	private SimpleStringProperty yuEBao = new SimpleStringProperty(); // 余额宝
-	private SimpleStringProperty huaXia = new SimpleStringProperty(); // 华夏
-	private SimpleStringProperty pingAn = new SimpleStringProperty(); // 平安
-	private SimpleStringProperty zhaoShang = new SimpleStringProperty(); // 招商
-	private SimpleStringProperty zhiFuBao = new SimpleStringProperty(); // 支付宝
-	private SimpleStringProperty puFa = new SimpleStringProperty(); // 浦发
+	private SimpleStringProperty yuEBao = new SimpleStringProperty(""); // 余额宝
+	private SimpleStringProperty huaXia = new SimpleStringProperty(""); // 华夏
+	private SimpleStringProperty pingAn = new SimpleStringProperty(""); // 平安
+	private SimpleStringProperty zhaoShang = new SimpleStringProperty(""); // 招商
+	private SimpleStringProperty zhiFuBao = new SimpleStringProperty(""); // 支付宝
+	private SimpleStringProperty puFa = new SimpleStringProperty(""); // 浦发
 	
 	
 	public BankFlowInfo() {
