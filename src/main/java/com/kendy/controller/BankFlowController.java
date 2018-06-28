@@ -78,7 +78,6 @@ public class BankFlowController implements Initializable{
             Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类 
     
     //TODO 每一天进行排序
-    //2111
     //Map<String, Long> groups = students.stream().collect(Collectors.groupingBy(Student::getSchool, Collectors.counting()));
     Map<String, Long> collect = totalBankFlowList.stream().collect( Collectors.groupingBy(BankFlowModel::getBankName , Collectors.counting()));
     
@@ -103,22 +102,6 @@ public class BankFlowController implements Initializable{
 
    // cacheContent.getChildren().addAll(nodesList);
     scrollDates.setContent(cacheContent);//.add(nodesList);
-    
-//  ObservableList<BankFlowInfo> obList= FXCollections.observableArrayList();
-//  for(String gudongName : _gudongList) {
-//
-//      //设置数据
-//      //{团队ID:List<Record}
-//      Map<String,List<Record>> teamMap = gudongTeamMap.get(gudongName);
-//      List<KaixiaoInfo> kaixiaoList = gudongKaixiaoMap.get(gudongName);
-//      setDynamicTableData(table,teamMap, kaixiaoList, gudongName);
-//      //往左边的股东表中添加记录
-//      setDataToSumTable(table);
-//      
-//      contributionHBox.setSpacing(5);
-//      contributionHBox.setPadding(new Insets(0, 0, 0, 0));
-//      contributionHBox.getChildren().addAll(table);
-//  }
     
   }
   
@@ -146,7 +129,7 @@ public class BankFlowController implements Initializable{
    */
   @SuppressWarnings("unchecked")
   private TableView<BankFlowInfo> dynamicGenerateGDTable() {
-     TableColumn<BankFlowInfo,String> yuEBaoCol = getTableColumn("余额宝", "yuEBao"); 
+     TableColumn<BankFlowInfo,String> yuEBaoCol = getTableColumn(BankEnum.YuEBao.getName(), "yuEBao"); 
      TableColumn<BankFlowInfo,String> huaXiaCol = getTableColumn("华夏", "huaXia"); 
      TableColumn<BankFlowInfo,String> pingAnCol = getTableColumn("平安", "pingAn"); 
      TableColumn<BankFlowInfo,String> zhaoShangCol = getTableColumn("招商", "zhaoShang"); 
@@ -168,6 +151,37 @@ public class BankFlowController implements Initializable{
     col.setCellValueFactory(new PropertyValueFactory<BankFlowInfo, String>(colVal));
     col.setCellFactory(MyController.getColorCellFactory(new BankFlowInfo()));
     return col;
+  }
+  
+  
+  private static enum BankEnum {
+	  YuEBao("余额宝", "yuEBao"),
+	  HuaXia("华夏", "huaXia"),
+	  PingAn("平安", "pingAn"),
+	  ZhaoSang("招商", "zhaoShang"),
+	  ZhiFuBao("支付宝", "zhiFuBao"),
+	  PuFa("浦发", "puFa")
+	  ;
+	  
+	  String  name;
+	  String value;
+	  BankEnum(String name, String value){
+		  this.name = name;
+		  this.value = value;
+	  }
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getValue() {
+		return value;
+	}
+	public void setValue(String value) {
+		this.value = value;
+	}
+	  
   }
 	
     

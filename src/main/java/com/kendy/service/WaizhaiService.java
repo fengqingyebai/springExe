@@ -353,7 +353,7 @@ public class WaizhaiService {
 	            			CurrentMoneyInfo teamInfo = teamInfoOpt.get();
 	            			teamInfo.setShishiJine(NumUtil.getSum(teamInfo.getShishiJine(),cmi.getShishiJine()));
 	            			ite.remove();
-	            			log.info(String.format("外债：股东%s--有联合ID的父节点%s(%s)将%s转移到%s，并删除父节点", gudongName,playerName,pId,cmi.getShishiJine(),teamInfo.getMingzi()));
+	            			//log.info(String.format("外债：股东%s--有联合ID的父节点%s(%s)将%s转移到%s，并删除父节点", gudongName,playerName,pId,cmi.getShishiJine(),teamInfo.getMingzi()));
 	            		}else {
 	            			//新增一个所属团队信息
 	            			ite.remove();
@@ -486,7 +486,7 @@ public class WaizhaiService {
 	    				//CurrentMoneyInfo superInfo = ssje_map.get(playerId);
 	    				CurrentMoneyInfo superInfo = cmiInfo;
 	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) >= 0) {
-	    					log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
+	    					//log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
 	    					ite.remove();
 	    				}
 	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) < 0 ) {

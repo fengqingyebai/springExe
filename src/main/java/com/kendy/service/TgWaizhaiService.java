@@ -489,7 +489,7 @@ public class TgWaizhaiService {
 	    				//CurrentMoneyInfo superInfo = ssje_map.get(playerId);
 	    				CurrentMoneyInfo superInfo = cmiInfo;
 	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) >= 0) {
-	    					log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
+	    					//log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
 	    					ite.remove();
 	    				}
 	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) < 0 ) {

@@ -313,6 +313,7 @@ public class SMAutoController implements Initializable {
 	    		items = FXCollections.observableArrayList(new ArrayList<String>(Arrays.asList("ssss")));
 	    	}
 	    	logArea.refresh();
+	    	log.info(description);
 		}
     }
 
@@ -448,7 +449,7 @@ public class SMAutoController implements Initializable {
      * @time 2018年3月26日
      * @param buyinList
      */
-    public void handleAutoShangma(List<WanjiaApplyInfo> buyinList) {
+    public synchronized void handleAutoShangma(List<WanjiaApplyInfo> buyinList) {
     	
         for (WanjiaApplyInfo wanjiaApplyInfo : buyinList) {
         	
@@ -482,6 +483,10 @@ public class SMAutoController implements Initializable {
             String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId, playerName);  // 获取可上码
             boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
             boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel, calcAvailable); //是否同意
+            if(!passCheck) {
+            	logInfo(player.getPlayerName()+"买入"+buyStack+"不在范围中"+ ("1".equals(selectTeamAvailabel) ? "=>勾选团队<"+teamAvailabel : ""));
+            	return;
+            }
 
             /****************************************/
             List<String> testList = new ArrayList<>();
@@ -492,9 +497,11 @@ public class SMAutoController implements Initializable {
             
             if(CollectUtil.isNullOrEmpty(testList) || testList.contains(playerId)) {
             	// 添加上码到软件中，同时发送后台请求
-                Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
-                Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
-                addOK = addShangma(resultModel,isTodaySM, passCheck, playerId, playerName, paijuString, buyStack, userUuid, roomId);
+            	if(passCheck) {
+	                Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
+	                Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
+	                addOK = addShangma(resultModel,isTodaySM, playerId, playerName, paijuString, buyStack, userUuid, roomId);
+            	}
             }
             /****************************************/
 
@@ -507,7 +514,6 @@ public class SMAutoController implements Initializable {
                     ( passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
             );
             addItem(smAutoInfo);
-
         }
     }
 
@@ -522,36 +528,36 @@ public class SMAutoController implements Initializable {
      * @param userUuid 后台用户ID
      * @param roomId 房间号
      */
-    public boolean addShangma(SMResultModel resultModel,boolean isTodaySM, boolean passCheck, String playerId, String playerName,
+    public boolean addShangma(SMResultModel resultModel,boolean isTodaySM, String playerId, String playerName,
             String paijuString, String buyStack, Long userUuid, Long roomId) {
         boolean addOK = false;
         try {
-            if (passCheck) {
-                boolean acceptBuyOK = HttpUtil.acceptBuy(userUuid, roomId, getToken()); //后台申请买入
-                if(acceptBuyOK) {
-                    if (isTodaySM) {
-                        ShangmaService.addNewShangma2DetailTable_HT(resultModel, ShangmaService.getShangmaPaiju(paijuString), buyStack);
-                        
-                    } else {
-                        ShangmaNextday nextday = new ShangmaNextday();
-                        nextday.setPlayerId(playerId);
-                        nextday.setPlayerName(playerName);
-                        nextday.setChangci(ShangmaService.getShangmaPaiju(paijuString));
-                        nextday.setShangma(buyStack);
-                        nextday.setTime(TimeUtil.getDateTime2());
-                        
-                        // 新增玩家的次日数据
-                        ShangmaService.addNewRecord_nextday_HT(resultModel, nextday);
-                    }
-                    addOK = true;
-                    log.info(String.format("%s[%s]第%s局买入%s,网络买入结果是[成功]，计入上码", playerName,playerId,paijuString,buyStack));
-                }else {
-                	log.error(String.format("%s[%s]第%s局买入%s,网络买入结果是[失败]，没有计入上码", playerName,playerId,paijuString,buyStack));
-                }
-            }
+        	boolean acceptBuyOK = HttpUtil.acceptBuy(userUuid, roomId, getToken()); //后台申请买入
+        	if(acceptBuyOK) {
+        		if (isTodaySM) {
+        			ShangmaService.addNewShangma2DetailTable_HT(resultModel, ShangmaService.getShangmaPaiju(paijuString), buyStack);
+        			
+        		} else {
+        			ShangmaNextday nextday = new ShangmaNextday();
+        			nextday.setPlayerId(playerId);
+        			nextday.setPlayerName(playerName);
+        			nextday.setChangci(ShangmaService.getShangmaPaiju(paijuString));
+        			nextday.setShangma(buyStack);
+        			nextday.setTime(TimeUtil.getDateTime2());
+        			
+        			// 新增玩家的次日数据
+        			ShangmaService.addNewRecord_nextday_HT(resultModel, nextday);
+        		}
+        		addOK = true;
+        		log.info(String.format("%s[%s]第%s局买入%s,网络买入结果是[成功]，计入上码", playerName,playerId,paijuString,buyStack));
+        	}else {
+        		log.error(String.format("%s[%s]第%s局买入%s,网络买入结果是[失败]，没有计入上码", playerName,playerId,paijuString,buyStack));
+        	}
         } catch (Exception e) {
-            addOK = false;
-            e.printStackTrace();
+        	String msg = String.format("%s[%s]第%s局买入%s,网络买入结果是[失败]，原因：网络异常[%s]", 
+        			playerName,playerId,paijuString,buyStack, e.getMessage());
+        	log.error(msg, e);
+            return Boolean.FALSE;
         }
         return addOK;
     }

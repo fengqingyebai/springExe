@@ -143,25 +143,15 @@ public class HttpUtil {
 		}
 	}
 	
-	public static boolean acceptBuy(Long userUuid, Long roomId, String token) {
+	public static boolean acceptBuy(Long userUuid, Long roomId, String token) throws ClientProtocolException, IOException {
 		Map<String,String> map = new HashMap<>();
 		map.put("userUuid", userUuid+"");
 		map.put("roomId", roomId+"");
-		String ResString = "";
-		try {
-			ResString = sendPost(ACCEPT_BUY_URL,map,token);
-		} catch (Exception e) {
-			log.info("请求异常：" + e.getMessage());
-			return false;
+		String result = sendPost(ACCEPT_BUY_URL,map,token);
+		if(StringUtil.isNotBlank(result) && result.endsWith("0}")) {
+			return Boolean.TRUE;
 		}
-		
-		log.info(ResString);
-		if(StringUtil.isBlank(ResString) || ResString.endsWith("\"iErrCode\":1}") || (!ResString.endsWith("0}"))) {
-			return false;
-		}else {
-			return true;
-		}
-		
+		return Boolean.FALSE;
 	}
 	
 	
@@ -201,8 +191,10 @@ public class HttpUtil {
             result = EntityUtils.toString(entity, "utf-8");
             EntityUtils.consume(entity);
             response.close();
+    		log.info("请求结果："+result);
             return result;
         } else {
+        	log.info("请求结果："+result);
             return null;
         }
     }
