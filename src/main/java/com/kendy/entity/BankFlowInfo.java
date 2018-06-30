@@ -11,6 +11,9 @@ import javafx.beans.property.SimpleStringProperty;
  * @time 2018年6月28日 
  */
 public class BankFlowInfo implements Entity{
+	
+	
+	private SimpleStringProperty index = new SimpleStringProperty(""); // 序号
 
 	private SimpleStringProperty yuEBao = new SimpleStringProperty(""); // 余额宝
 	private SimpleStringProperty huaXia = new SimpleStringProperty(""); // 华夏
@@ -18,6 +21,7 @@ public class BankFlowInfo implements Entity{
 	private SimpleStringProperty zhaoShang = new SimpleStringProperty(""); // 招商
 	private SimpleStringProperty zhiFuBao = new SimpleStringProperty(""); // 支付宝
 	private SimpleStringProperty puFa = new SimpleStringProperty(""); // 浦发
+	private SimpleStringProperty xingYe = new SimpleStringProperty(""); // 兴业
 	
 	
 	public BankFlowInfo() {
@@ -33,6 +37,19 @@ public class BankFlowInfo implements Entity{
 		this.zhaoShang = new SimpleStringProperty(zhaoShang);
 		this.zhiFuBao = new SimpleStringProperty(zhiFuBao);
 		this.puFa = new SimpleStringProperty(puFa);
+	}
+	
+	//==========================================
+	public SimpleStringProperty indexProperty() {
+		return this.index;
+	}
+	
+	public String getIndex() {
+		return this.indexProperty().get();
+	}
+	
+	public void setIndex(final String index) {
+		this.indexProperty().set(index);
 	}
 	
 
@@ -106,6 +123,16 @@ public class BankFlowInfo implements Entity{
     public void setPuFa(final String puFa) {
         this.puFaProperty().set(puFa);
     }
+    //=======================
+	public SimpleStringProperty xingYeProperty() {
+		return this.xingYe;
+	}
+	public String getXingYe() {
+		return this.xingYeProperty().get();
+	}
+	public void setXingYe(final String xingYe) {
+		this.xingYeProperty().set(xingYe);
+	}
 	
 
 	@Override

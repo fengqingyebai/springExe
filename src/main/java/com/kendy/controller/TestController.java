@@ -31,12 +31,11 @@ public class TestController extends Application {
 
 
     public static void main(String[] args) {
-        launch(args);
     }
 
     @Override
     public void start(Stage stage) throws IOException {
-
+    	log.info("开始启动程序...");
 //        JFXButton button1 = new JFXButton();
 //        Label label = new Label("翻查");
 //        button1.setGraphic(label);
@@ -78,7 +77,7 @@ public class TestController extends Application {
         
         //**********************************************************
         FXMLLoader fxmlLoader = new FXMLLoader();
-        Parent root = fxmlLoader.load(getClass().getResource("/com/kendy/dialog/bank_flow_frame.fxml").openStream());
+        Parent root = fxmlLoader.load(getClass().getResource("/com/kendy/dialog/bank_flow_frame1.fxml").openStream());
 //      Pane p = fxmlLoader.load(getClass().getResource("MainStage4.fxml").openStream());
 //      Parent root = p.getParent()
         BankFlowController controller = (BankFlowController) fxmlLoader.getController();

@@ -483,25 +483,23 @@ public class SMAutoController implements Initializable {
             String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId, playerName);  // 获取可上码
             boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
             boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel, calcAvailable); //是否同意
-            if(!passCheck) {
-            	logInfo(player.getPlayerName()+"买入"+buyStack+"不在范围中"+ ("1".equals(selectTeamAvailabel) ? "=>勾选团队<"+teamAvailabel : ""));
-            	return;
-            }
 
             /****************************************/
-            List<String> testList = new ArrayList<>();
-            
             boolean addOK = false;
-            if(hasFilterPlayerIds()) 
-            	testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##")).collect(Collectors.toList());
-            
-            if(CollectUtil.isNullOrEmpty(testList) || testList.contains(playerId)) {
-            	// 添加上码到软件中，同时发送后台请求
-            	if(passCheck) {
-	                Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
-	                Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
-	                addOK = addShangma(resultModel,isTodaySM, playerId, playerName, paijuString, buyStack, userUuid, roomId);
-            	}
+            if(passCheck) {
+	            List<String> testList = new ArrayList<>();
+	            
+	            if(hasFilterPlayerIds()) 
+	            	testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##")).collect(Collectors.toList());
+	            
+	            if(CollectUtil.isNullOrEmpty(testList) || testList.contains(playerId)) {
+	            	// 添加上码到软件中，同时发送后台请求
+	            	Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
+	            	Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
+	            	addOK = addShangma(resultModel,isTodaySM, playerId, playerName, paijuString, buyStack, userUuid, roomId);
+	            }
+            }else {
+            	log.debug(player.getPlayerName()+"买入"+buyStack+"不在范围中[" + teamAvailabel + "," + calcAvailable + "]") ;
             }
             /****************************************/
 
