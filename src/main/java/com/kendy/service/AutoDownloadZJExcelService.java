@@ -57,42 +57,34 @@ public class AutoDownloadZJExcelService {
      * @time 2018年4月10日
      * @param url
      * @param path
+     * @throws IOException 
      * @throws Exception
      */
-    public static void download(String url,String path) throws Exception {  
+    public static void download(String url,String path) throws IOException  {  
     	
         File file= null;  
         HttpURLConnection httpCon = null;  
         URLConnection  con = null;  
         URL urlObj=null;  
-        try {
-			file = new File(path); 
-			if(!file.exists()) {
-//				FileUtils.forceMkdir(file);
-				file.createNewFile();
-			}
-			urlObj = new URL(url);  
-			con = urlObj.openConnection();  
-			httpCon =(HttpURLConnection) con;
-			httpCon.setConnectTimeout(5 * 1000);
-			httpCon.setReadTimeout(5 * 1000);
-		} catch (Exception e1) {
-			throw e1;
-		}  
+        file = new File(path); 
+        if(!file.exists()) {
+        	file.createNewFile();
+        }
+        urlObj = new URL(url);  
+        con = urlObj.openConnection();  
+        httpCon =(HttpURLConnection) con;
+        httpCon.setConnectTimeout(5 * 1000);
+        httpCon.setReadTimeout(5 * 1000);
         
-        try(InputStream in = httpCon.getInputStream();
-        	FileOutputStream fos = new FileOutputStream(file);) {  
-            int responseCode = httpCon.getResponseCode();
-            if(responseCode != 200) {
-            	throw new Exception("自动下载返回码："+responseCode);
-            }
-            //获取自己数组  
-            byte[] getData = readInputStream(in); 
-            fos.write(getData); 
-            
-        } catch (Exception e) {  
-            throw e;
-        } 
+        InputStream in = httpCon.getInputStream();
+    	FileOutputStream fos = new FileOutputStream(file);
+        int responseCode = httpCon.getResponseCode();
+        if(responseCode != 200) {
+        	throw new IOException("自动下载返回码："+responseCode);
+        }
+        //获取自己数组  
+        byte[] getData = readInputStream(in); 
+        fos.write(getData); 
     }  
     
     

@@ -191,10 +191,9 @@ public class HttpUtil {
             result = EntityUtils.toString(entity, "utf-8");
             EntityUtils.consume(entity);
             response.close();
-    		log.info("请求结果："+result);
             return result;
         } else {
-        	log.info("请求结果："+result);
+        	log.error("response.getEntity() == null");
             return null;
         }
     }

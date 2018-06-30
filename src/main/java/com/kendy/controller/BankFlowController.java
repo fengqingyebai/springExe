@@ -1,7 +1,7 @@
 package com.kendy.controller;
 
 import java.net.URL;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +10,11 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.JFXTextArea;
+import com.kendy.BankEnum;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
 import com.kendy.model.BankFlowModel;
@@ -19,6 +24,8 @@ import com.kendy.util.MapUtil;
 import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -27,7 +34,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
 /**
  * 银行流水控制类
@@ -43,79 +53,132 @@ public class BankFlowController implements Initializable{
 	//=====================================================================
 	@FXML public ScrollPane scrollDates; // 
 	
-	
-	private static final String DATE_LABEL_CSS = "dateLabel";
-    private static final String FX_TEXT_FILL_WHITE = "-fx-text-fill:BLACK";
-    private static final String ANIMATED_OPTION_BUTTON = "animated-option-button";
-    private static final String ANIMATED_OPTION_SUB_BUTTON = "animated-option-sub-button";
-    private static final String ANIMATED_OPTION_SUB_BUTTON2 = "animated-option-sub-button2";
     private static final String CENTER_CSS = "-fx-alignment: CENTER;";
-    
+    private static final int COL_WIDTH = 98;
 	
+    VBox bankFlowVBox = new VBox();
 
-  @Override
-  public void initialize(URL location, ResourceBundle resources) {
-    LocalDate localDate = LocalDate.now();
-    VBox cacheContent = new VBox();
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
 
-    cacheContent.setPrefHeight(2000);
-    
-    List<BankFlowModel> totalBankFlowList = DBUtil.getAllHistoryBankMoney();
-    if(CollectUtil.isNullOrEmpty(totalBankFlowList)) {
-      log.debug("数据库中没有银行流水记录");
-      return;
-    }
-    //{每一天 ：{银行类型 ： 上码列表}}
-    Map<String, Map<String, List<BankFlowModel>>> BankFlowMap = totalBankFlowList.stream().collect(
-        Collectors.groupingBy(BankFlowModel::getSoftTime, // 先按每一天分类
-            Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类 
-    
-    //TODO 每一天进行排序
-    
-    //动态生成表
-    long start = System.currentTimeMillis();
-    BankFlowMap.forEach((dayKey, dayDataMap) -> {
-      Label dateLabel = new Label(dayKey);
-      dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill:	#5B5B5B");
-      TableView<BankFlowInfo> table = dynamicGenerateGDTable();
-      int tableHeight = 200;
-      if("2018-06-29".equals(dayKey)) {
-    	  tableHeight = 620;
-      }
-      table.setMinHeight(tableHeight);
-      
-      setTableData(table, dayDataMap);
-      cacheContent.getChildren().add(dateLabel);
-      cacheContent.getChildren().add(table);
-      cacheContent.getChildren().add(new Label());
-    });
-    long end = System.currentTimeMillis();
-    log.info(String.format("加载%d条流水进系统耗时：%d毫秒", totalBankFlowList.size(), end - start));
+
+		List<BankFlowModel> totalBankFlowList = DBUtil.getAllHistoryBankMoney();
+		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
+			log.debug("数据库中没有银行流水记录");
+			return;
+		}
+		// {每一天 ：{银行类型 ： 上码列表}}
+		Map<String, Map<String, List<BankFlowModel>>> BankFlowMap = totalBankFlowList.stream()
+				.collect(Collectors.groupingBy(BankFlowModel::getSoftTime, // 先按每一天分类
+						Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类
+
+		// TODO 每一天进行排序
+		String latestDay = BankFlowMap.keySet().stream().max((x,y)-> x.compareTo(y)).orElse("");
+
+		// 动态生成表
+		long start = System.currentTimeMillis();
+		BankFlowMap.forEach((dayKey, dayDataMap) -> {
+			Label dateLabel = new Label(dayKey);
+			dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill:	#5B5B5B");
+			TableView<BankFlowInfo> table = dynamicGenerateGDTable();
+			int tableHeight = 200;
+			if (latestDay.equals(dayKey)) {
+				tableHeight = 620;
+			}
+			table.setMinHeight(tableHeight);
+			setTableData(dayKey, table, dayDataMap);
+
+			// 添加内容
+			bankFlowVBox.getChildren().add(dateLabel);
+			addDetailStaticInfo(dayDataMap); // 添加详细信息
+			bankFlowVBox.getChildren().add(table);
+			bankFlowVBox.getChildren().add(new Label());
+		});
+		long end = System.currentTimeMillis();
+		log.info(String.format("加载%d条流水进系统耗时：%d毫秒", totalBankFlowList.size(), end - start));
+
+		scrollDates.setPadding(new Insets(10));
+		scrollDates.setFitToHeight(true);
+		scrollDates.setFitToWidth(true);
+		scrollDates.setContent(bankFlowVBox);
+	}
   
-    scrollDates.setPadding(new Insets(10));
-    scrollDates.setFitToHeight(true);
-    scrollDates.setFitToWidth(true);
-
-   // cacheContent.getChildren().addAll(nodesList);
-    scrollDates.setContent(cacheContent);//.add(nodesList);
-    
+  /**
+   * 添加详情统计信息
+   * @time 2018年6月30日
+   * @param todayMap
+   */
+  private void addDetailStaticInfo(final Map<String, List<BankFlowModel>>  todayMap) {
+	  if(todayMap != null ) {
+		  String bankName, msg;
+		  int todayCount;
+		  Long payCount, incomeCount,todaySumPay, todaySumIncome, todaySumFlow = 0L;
+		  List<Label> labelList = new ArrayList<>();
+		  //遍历所有银行
+		  for(BankEnum bankEnum : BankEnum.values()) {
+			  bankName = bankEnum.getName();
+			  List<BankFlowModel> todayBankList = todayMap.get(bankName);
+			  if(CollectUtil.isNullOrEmpty(todayBankList)) {
+				  msg = getBankFlowMsg(bankName, 0, 0L, 0L,0L, 0L, 0L);
+			  }else {
+				  todayCount = todayBankList.size();
+				  payCount = todayBankList.stream().filter(e->e.getMoney() < 0).count();
+				  incomeCount = todayBankList.stream().filter(e->e.getMoney() >= 0).count();
+				  todaySumPay = todayBankList.stream().filter(e->e.getMoney() < 0).mapToLong(BankFlowModel::getMoney).sum();
+				  todaySumIncome = todayBankList.stream().filter(e->e.getMoney() >= 0).mapToLong(BankFlowModel::getMoney).sum();
+				  todaySumFlow = todaySumPay + todaySumIncome;
+				  msg = getBankFlowMsg(bankName, todayCount, payCount, incomeCount, todaySumPay, todaySumIncome, todaySumFlow);
+			  }
+			  Label label = new Label(msg.toString());
+			  if(todaySumFlow.longValue() < -1) {
+				  label.setStyle("-fx-text-fill: red");
+			  }
+			  labelList.add(label);
+		  }
+		  labelList.add(new Label("详情  :"));
+		  bankFlowVBox.getChildren().addAll(labelList);
+	  }
   }
+  
+  /**
+   * 获取详情统计信息
+   * 
+   * @time 2018年6月30日
+   * @param bankName
+   * @param todayCount // 当天总笔数
+   * @param todaySumPay // 当天总支出
+   * @param todaySumIncome // 当天总收入
+   * @param todaySumFlow // 当天总流水
+   * @return
+   */
+   private String getBankFlowMsg(String bankName, int todayCount, Long payCount, Long incomeCount, Long todaySumPay, Long todaySumIncome, Long todaySumFlow) {
+		StringBuffer msg  = new StringBuffer();
+		String pattern = "%-8d";
+		msg.append(String.format("%-4s",bankName.replace("额", "").replace("付", ""))).append(": ")
+			.append(" 当天总笔数 ").append(String.format(pattern, todayCount))
+			.append(" 当天总支出笔数 ").append(String.format(pattern, payCount))
+			.append(" 当天总收入笔数 ").append(String.format(pattern, incomeCount))
+			.append(" 当天总支出￥").append(String.format(pattern, todaySumPay))
+			.append(" 当天总收入￥").append(String.format(pattern, todaySumIncome))
+			.append(" 当天总流水￥").append(String.format(pattern, todaySumFlow));
+		return msg.toString();
+	}
   
   /**
    * 设置动态表的数据
    * @param table
    * @param todayMap {银行类型 ： 上码列表}
    */
-  private void setTableData(TableView<BankFlowInfo> table, Map<String, List<BankFlowModel>> todayMap) {
+  private void setTableData(String dateString, TableView<BankFlowInfo> table, Map<String, List<BankFlowModel>> todayMap) {
     if(MapUtil.isNullOrEmpty(todayMap)) 
       return;
     int loopTimes = todayMap.values().stream().mapToInt(Collection::size).max().orElseGet(()-> 0);
     if(loopTimes > 0) {
       ObservableList<BankFlowInfo> obList= FXCollections.observableArrayList();
-      
       for(int i=0; i< loopTimes ; i++) {
     	  BankFlowInfo info = new BankFlowInfo();
     	  info.setIndex(i+1+"");
+    	  info.setDateString(dateString);
     	  info.setYuEBao(getBankFlowValue(i, BankEnum.YuEBao, todayMap));
     	  info.setHuaXia(getBankFlowValue(i, BankEnum.HuaXia, todayMap));
     	  info.setPingAn(getBankFlowValue(i, BankEnum.PingAn, todayMap));
@@ -155,8 +218,10 @@ public class BankFlowController implements Initializable{
 	 */
 	private TableView<BankFlowInfo> dynamicGenerateGDTable() {
 		TableView<BankFlowInfo> table = new TableView<BankFlowInfo>();
-		TableColumn<BankFlowInfo, String> indexCol = getTableColumn("序号", "index");
+		TableColumn<BankFlowInfo, String> indexCol = getTableColumnCommon("序号", "index");
+		TableColumn<BankFlowInfo, String> dateCol = getTableColumnCommon("日期", "dateString");
 		table.getColumns().add(indexCol);
+		table.getColumns().add(dateCol);
 		for (BankEnum bankEnum : BankEnum.values()) {
 			table.getColumns().add(getTableColumn(bankEnum.getName(), bankEnum.getValue()));
 		}
@@ -169,40 +234,53 @@ public class BankFlowController implements Initializable{
 	private TableColumn<BankFlowInfo, String> getTableColumn(String colName, String colVal) {
 		TableColumn<BankFlowInfo, String> col = new TableColumn<>(colName);
 		col.setStyle(CENTER_CSS);
-		col.setPrefWidth(82);
+		col.setPrefWidth(COL_WIDTH);
 		col.setCellValueFactory(new PropertyValueFactory<BankFlowInfo, String>(colVal));
 		col.setCellFactory(MyController.getColorCellFactory(new BankFlowInfo()));
 		col.setSortable(false);
 		return col;
 	}
-  
-  
+	
 	/**
-	 * 银行类型枚举类
-	 * 
-	 * @author 林泽涛
-	 * @time 2018年6月28日
+	 * 动态生成列(不用红色字段的列)
 	 */
-	private static enum BankEnum {
-		YuEBao("余额宝", "yuEBao"), 
-		HuaXia("华夏", "huaXia"), 
-		PingAn("平安", "pingAn"), 
-		ZhaoShang("招商", "zhaoShang"), 
-		ZhiFuBao("支付宝", "zhiFuBao"), 
-		PuFa("浦发", "puFa"), 
-		XingYe("兴业", "xingYe");
-
-		String name;
-		String value;
-		BankEnum(String name, String value) {
-			this.name = name;
-			this.value = value;
-		}
-		public String getName() {
-			return name;
-		}
-		public String getValue() {
-			return value;
-		}
+	private TableColumn<BankFlowInfo, String> getTableColumnCommon(String colName, String colVal) {
+		TableColumn<BankFlowInfo, String> col = new TableColumn<>(colName);
+		col.setStyle(CENTER_CSS);
+		col.setPrefWidth(COL_WIDTH);
+		col.setCellValueFactory(new PropertyValueFactory<BankFlowInfo, String>(colVal));
+		col.setSortable(false);
+		return col;
 	}
+	
+	
+	public void seeHistoryStaticAction(ActionEvent event) {
+		System.out.println("llllllllllllllllllllllllllllllllllllllllllllll");
+		JFXTextArea textArea = new JFXTextArea("aaaaaaa");
+		
+		JFXDialogLayout content = new JFXDialogLayout();
+		content.setHeading(new Text("headingText"));
+		content.setBody(textArea);
+		content.setPrefSize(600, 600);
+		StackPane stackPane = new StackPane();
+		stackPane.autosize();
+		JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
+		JFXButton button = new JFXButton("Okay");
+//		button.setOnAction(new EventHandler<ActionEvent>() {
+//			@Override
+//			public void handle(ActionEvent event) {
+//				dialog.close();
+//			}
+//		});
+		button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+		button.setPrefHeight(32);
+		content.setActions(button);
+//		pane.getChildren().add(stackPane);
+//		AnchorPane.setTopAnchor(stackPane, (pane.getHeight() - content.getPrefHeight()) / 2);
+//		AnchorPane.setLeftAnchor(stackPane, (pane.getWidth() - content.getPrefWidth()) / 2);
+		dialog.show();
+	}
+  
+  
+
 }

@@ -14,6 +14,7 @@ public class BankFlowInfo implements Entity{
 	
 	
 	private SimpleStringProperty index = new SimpleStringProperty(""); // 序号
+	private SimpleStringProperty dateString = new SimpleStringProperty(""); // 时间
 
 	private SimpleStringProperty yuEBao = new SimpleStringProperty(""); // 余额宝
 	private SimpleStringProperty huaXia = new SimpleStringProperty(""); // 华夏
@@ -50,6 +51,18 @@ public class BankFlowInfo implements Entity{
 	
 	public void setIndex(final String index) {
 		this.indexProperty().set(index);
+	}
+	//==========================================
+	public SimpleStringProperty dateStringProperty() {
+		return this.dateString;
+	}
+	
+	public String getDateString() {
+		return this.dateStringProperty().get();
+	}
+	
+	public void setDateString(final String index) {
+		this.dateStringProperty().set(index);
 	}
 	
 

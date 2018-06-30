@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.controller.BankFlowController;
 import com.kendy.controller.CombineIDController;
 import com.kendy.controller.GDController;
 import com.kendy.controller.LMController;
@@ -399,6 +400,7 @@ public class MyController implements Initializable{
 	
 	public static TGController tgController; //托管控制类
 	public static SMAutoController smAutoController; //托管控制类
+	public static BankFlowController bankFlowController; // 银行流水控制类
 	
 	
 	/* 每点击结算按钮就往这个静态变更累加（只针对当局）
@@ -736,7 +738,6 @@ public class MyController implements Initializable{
 	    	gdTab.setClosable(false);
 	    	gdTab.setContent(root);
 	    	tabs.getTabs().add(gdTab);  
-	    	
 	    	tgController = (TGController) loader.getController();
 	    	
 	    } catch (IOException e) {
@@ -751,11 +752,25 @@ public class MyController implements Initializable{
 	    	gdTab.setClosable(false);
 	    	gdTab.setContent(root);
 	    	tabs.getTabs().add(gdTab);  
-	    	
 	    	smAutoController = (SMAutoController) loader.getController();
 	    	
 	    } catch (IOException e) {
 	    	ErrorUtil.err("托管小工具tab加载失败", e);
+	    }
+	    
+	    try {
+	    	
+	    	FXMLLoader loader = new FXMLLoader();
+	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/bank_flow_frame.fxml").openStream());
+	    	Tab gdTab = new Tab();
+	    	gdTab.setText("银行流水");
+	    	gdTab.setClosable(false);
+	    	gdTab.setContent(root);
+	    	tabs.getTabs().add(gdTab);  
+	    	bankFlowController = (BankFlowController) loader.getController();
+	    	
+	    } catch (IOException e) {
+	    	ErrorUtil.err("银行流水tab加载失败", e);
 	    }
 	    
 	}

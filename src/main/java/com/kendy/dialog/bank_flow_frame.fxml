@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.*?>
 <?import com.jfoenix.controls.*?>
 <?import java.net.*?>
 <?import javafx.geometry.*?>
@@ -19,29 +20,33 @@
 
 <AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.BankFlowController">
    <children>
-      <TableView layoutX="752.0" layoutY="140.0" prefHeight="671.0" prefWidth="526.0">
-        <columns>
-          <TableColumn prefWidth="75.0" text="C1" />
-          <TableColumn prefWidth="75.0" text="C2" />
-            <TableColumn prefWidth="75.0" text="C2" />
-        </columns>
-      </TableView>
-      <AnchorPane layoutX="14.0" layoutY="71.0" prefHeight="747.0" prefWidth="708.0">
+      <AnchorPane layoutX="163.0" layoutY="80.0" prefHeight="747.0" prefWidth="943.0">
          <children>
-            <ScrollPane fx:id="scrollDates" layoutX="-1.0" prefHeight="787.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="708.0" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <ScrollPane fx:id="scrollDates" layoutX="-1.0" prefHeight="740.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="907.0" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
          </children>
       </AnchorPane>
-      <Label contentDisplay="CENTER" layoutX="262.0" layoutY="27.0" opacity="0.7" prefHeight="36.0" prefWidth="199.0" text="银行流水每日详情" textFill="#daa213">
+      <JFXButton buttonType="RAISED" layoutX="1134.0" layoutY="92.0" onAction="#seeHistoryStaticAction" opacity="0.85" prefHeight="51.0" prefWidth="116.0" text="历史汇总图" textFill="#bc7070">
          <font>
-            <Font size="22.0" />
+            <Font size="17.0" />
+         </font>
+      </JFXButton>
+      <JFXButton buttonType="RAISED" layoutX="479.0" layoutY="21.0" opacity="0.78" prefHeight="51.0" prefWidth="277.0" text="银行流水每日详情" textFill="#9c8617">
+         <font>
+            <Font name="System Bold" size="26.0" />
          </font>
          <effect>
-            <Lighting diffuseConstant="0.93" light="$null" specularConstant="0.48" specularExponent="3.72" surfaceScale="6.27">
+            <Lighting>
                <bumpInput>
-                  <Shadow height="89.2" radius="45.582499999999996" width="95.13" />
+                  <Shadow />
                </bumpInput>
+               <light>
+                  <Light.Distant />
+               </light>
             </Lighting>
          </effect>
-      </Label>
+      </JFXButton>
    </children>
+   <cursor>
+      <Cursor fx:constant="HAND" />
+   </cursor>
 </AnchorPane>

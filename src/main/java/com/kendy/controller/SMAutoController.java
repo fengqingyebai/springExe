@@ -7,7 +7,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.swing.filechooser.FileSystemView;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
@@ -914,8 +914,7 @@ public class SMAutoController implements Initializable {
 			}
     	} catch (Exception e) {
     		String errMsg = "获取房间列表：网络异常...";
-    		excelInfo(errMsg);
-    		log.error(errMsg + e.getMessage());
+    		excelInfo(errMsg + e.getMessage());
     		return;
 		}
     	
@@ -963,19 +962,22 @@ public class SMAutoController implements Initializable {
     		        downloadCache.put(fileName, Boolean.TRUE);
     		        
     	        } catch (UnknownHostException ue) {
-    	        	log.error("自动下载异常：UnknownHostException，fileName：" + fileName  );
+    	        	log.error("自动下载异常：UnknownHostException，文件名：" + fileName  );
     	        	downloadCache.remove(fileName);
     	        } catch( FileNotFoundException notfoundE) {
     	        	log.error("自动下载异常：FileNotFoundException，原因，已经下载过，且正被使用中，或者含有'/'" +fileName+",房间ID:" + roomId);
     	        	downloadCache.remove(fileName);
     	        } catch(SocketTimeoutException timeOutE) {
-    	        	log.error("自动下载异常: 连接超时，fileName：" + fileName  );
+    	        	log.error("自动下载异常: 连接超时，文件名：" + fileName  );
     	        	downloadCache.remove(fileName);
-    	        }
-    	        catch (Exception e) {
-    	            e.printStackTrace();
-    	            downloadCache.remove(fileName);
-    	        }
+    	        } catch (IOException ioe) {
+    	        	String errMsg = ioe.getMessage();
+    	        	log.error("自动下载失败：文件名：" + fileName  + (errMsg.contains("403") ? ",具体信息：403返回码！" : "")) ;
+    	        	downloadCache.remove(fileName);
+    	        } catch (Exception e) {
+    	        	log.error("自动下载异常：未捕获的其他异常，文件名：" + fileName  +",具体信息：" + e.getMessage(), e);
+    	        	downloadCache.remove(fileName);
+    	        } 
     			
     		}
     	}
@@ -1095,6 +1097,7 @@ public class SMAutoController implements Initializable {
 		ObservableList<String> items = excelArea.getItems();
 		if (items != null) {
 			items.add(description);
+			log.info(description);
 		} else {
 			items = FXCollections.observableArrayList();
 		}
@@ -1169,11 +1172,11 @@ public class SMAutoController implements Initializable {
                     @Override
                     public void run() {
                     	
-                    	//自动下载当天普通房间Excel
-                    	autoDownExcels(PU_TONG);
-                    	
-                    	//自动下载当天奥马哈房间Excel
-                    	autoDownExcels(AO_MA_HA);
+//                    	//自动下载当天普通房间Excel
+//                    	autoDownExcels(PU_TONG);
+//                    	
+//                    	//自动下载当天奥马哈房间Excel
+//                    	autoDownExcels(AO_MA_HA);
                     	
                     	//自动下载当天大菠萝Excel
                     	autoDownExcels(DA_BO_LUO);
