@@ -1001,8 +1001,9 @@ public class SMAutoController implements Initializable {
     private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
     	originalRoomName = originalRoomName.replace("/", "-").replace("%20", "-");
     	originalRoomName =  FilterUtf8mb4.filterUtf8mb4(originalRoomName);
-    	String date =  DateTimeFormatter.ofPattern("MM月dd号-战绩导出-").format(getSelectedDate());
-    	return finishedTime +"-" +date + originalRoomName + ".xls";
+    	//String date =  DateTimeFormatter.ofPattern("MM月dd号-战绩导出-").format(getSelectedDate());
+    	//return finishedTime +"-" +date + originalRoomName + ".xls";
+    	return "战绩导出-" + originalRoomName + ".xls";
     }
     
     /**
@@ -1172,11 +1173,11 @@ public class SMAutoController implements Initializable {
                     @Override
                     public void run() {
                     	
-//                    	//自动下载当天普通房间Excel
-//                    	autoDownExcels(PU_TONG);
-//                    	
-//                    	//自动下载当天奥马哈房间Excel
-//                    	autoDownExcels(AO_MA_HA);
+                    	//自动下载当天普通房间Excel
+                    	autoDownExcels(PU_TONG);
+                    	
+                    	//自动下载当天奥马哈房间Excel
+                    	autoDownExcels(AO_MA_HA);
                     	
                     	//自动下载当天大菠萝Excel
                     	autoDownExcels(DA_BO_LUO);

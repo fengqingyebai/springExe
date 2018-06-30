@@ -2,7 +2,9 @@ package com.kendy.controller;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -13,15 +15,17 @@ import org.apache.log4j.Logger;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.controls.JFXTextArea;
 import com.kendy.BankEnum;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
 import com.kendy.model.BankFlowModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
 
 import application.MyController;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,12 +33,22 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.StackedBarChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -52,23 +66,29 @@ public class BankFlowController implements Initializable{
 
 	//=====================================================================
 	@FXML public ScrollPane scrollDates; // 
+	@FXML public StackPane stackPane; // 
 	
     private static final String CENTER_CSS = "-fx-alignment: CENTER;";
     private static final int COL_WIDTH = 98;
 	
     VBox bankFlowVBox = new VBox();
+    
+    List<BankFlowModel> totalBankFlowList;
+    
+    // {每一天 ：{银行类型 ： 上码列表}}
+    Map<String, Map<String, List<BankFlowModel>>> BankFlowMap;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
 
-		List<BankFlowModel> totalBankFlowList = DBUtil.getAllHistoryBankMoney();
+		totalBankFlowList = DBUtil.getAllHistoryBankMoney();
 		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
 			log.debug("数据库中没有银行流水记录");
 			return;
 		}
 		// {每一天 ：{银行类型 ： 上码列表}}
-		Map<String, Map<String, List<BankFlowModel>>> BankFlowMap = totalBankFlowList.stream()
+		BankFlowMap = totalBankFlowList.stream()
 				.collect(Collectors.groupingBy(BankFlowModel::getSoftTime, // 先按每一天分类
 						Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类
 
@@ -79,7 +99,7 @@ public class BankFlowController implements Initializable{
 		long start = System.currentTimeMillis();
 		BankFlowMap.forEach((dayKey, dayDataMap) -> {
 			Label dateLabel = new Label(dayKey);
-			dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill:	#5B5B5B");
+			dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill: #5B5B5B");
 			TableView<BankFlowInfo> table = dynamicGenerateGDTable();
 			int tableHeight = 200;
 			if (latestDay.equals(dayKey)) {
@@ -253,32 +273,58 @@ public class BankFlowController implements Initializable{
 		return col;
 	}
 	
-	
+	@FXML
 	public void seeHistoryStaticAction(ActionEvent event) {
-		System.out.println("llllllllllllllllllllllllllllllllllllllllllllll");
-		JFXTextArea textArea = new JFXTextArea("aaaaaaa");
-		
-		JFXDialogLayout content = new JFXDialogLayout();
-		content.setHeading(new Text("headingText"));
-		content.setBody(textArea);
-		content.setPrefSize(600, 600);
-		StackPane stackPane = new StackPane();
-		stackPane.autosize();
-		JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
-		JFXButton button = new JFXButton("Okay");
-//		button.setOnAction(new EventHandler<ActionEvent>() {
-//			@Override
-//			public void handle(ActionEvent event) {
-//				dialog.close();
-//			}
-//		});
-		button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
-		button.setPrefHeight(32);
-		content.setActions(button);
-//		pane.getChildren().add(stackPane);
-//		AnchorPane.setTopAnchor(stackPane, (pane.getHeight() - content.getPrefHeight()) / 2);
-//		AnchorPane.setLeftAnchor(stackPane, (pane.getWidth() - content.getPrefWidth()) / 2);
-		dialog.show();
+		Dialog dialog = new Dialog<>();
+		dialog.setTitle("银行流水每日汇总图");
+		dialog.setHeaderText(null);
+		dialog.setHeight(600.0);
+		dialog.setWidth(900.0);
+    	ButtonType loginButtonType = new ButtonType("关闭", ButtonData.APPLY);
+    	dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+
+    	GridPane grid = new GridPane();
+    	grid.setHgap(10);
+    	grid.setVgap(10);
+    	grid.setPadding(new Insets(20, 15, 10, 10));
+    	//==============================================================
+		totalBankFlowList = DBUtil.getAllHistoryBankMoney();
+		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
+			ShowUtil.show("数据库中没有银行流水记录");
+			return;
+		}
+    	final CategoryAxis xAxis = new CategoryAxis();
+    	final NumberAxis yAxis = new NumberAxis();
+    	final StackedBarChart<String, Number> sbc = new StackedBarChart<>(xAxis, yAxis);
+    	List<String> dayList = BankFlowMap.keySet().stream().collect(Collectors.toList());
+    	xAxis.setCategories(FXCollections.<String>observableArrayList( dayList));
+    	
+    	double sum = NumUtil.getNumDivide(totalBankFlowList.stream().mapToDouble(BankFlowModel::getMoney).sum(), 10000d);
+    	sbc.setTitle(String.format("历史总流水：￥%f万", sum));
+
+    	Platform.runLater(() -> {
+        	for(BankEnum bankEnum : BankEnum.values()) {
+        		String bankName = bankEnum.getName();
+        		final XYChart.Series<String, Number> series = new XYChart.Series<>();
+        		series.setName(bankName);
+        		BankFlowMap.forEach((day, dayMap) -> {
+        			List<BankFlowModel> bankFlowList = dayMap.get(bankName);
+        			int data = 0;
+        			if(CollectUtil.isHaveValue(bankFlowList)) {
+        				data = bankFlowList.stream().mapToInt(BankFlowModel::getMoney).sum();
+        			}
+        			series.getData().add(new XYChart.Data<>(day, data));
+        		});
+        		sbc.getData().addAll(series);
+        	}
+    	});
+    	//==============================================================
+		//grid.add(new Label("sdialog.getDialogPane().getButtonTypes().addAll(loginButtonType);"), 0, 0);
+		grid.add(sbc,0, 1);
+    	dialog.getDialogPane().setContent(grid);
+
+    	dialog.show();
+
 	}
   
   
