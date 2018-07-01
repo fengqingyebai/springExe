@@ -1,20 +1,18 @@
 package com.kendy.controller;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXDialogLayout;
 import com.kendy.BankEnum;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
@@ -23,35 +21,31 @@ import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
 
+import application.Main;
 import application.MyController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
 /**
  * 银行流水控制类
@@ -64,40 +58,47 @@ public class BankFlowController implements Initializable{
 	
 	private static Logger log = Logger.getLogger(BankFlowController.class);
 
-	//=====================================================================
-	@FXML public ScrollPane scrollDates; // 
-	@FXML public StackPane stackPane; // 
+	@FXML 
+	public ScrollPane scrollDates; // 放所有动态表的pane
+	
+	@FXML 
+	public StackPane stackPane; // 放条形图的pane
 	
     private static final String CENTER_CSS = "-fx-alignment: CENTER;";
     private static final int COL_WIDTH = 98;
 	
-    VBox bankFlowVBox = new VBox();
+    VBox bankFlowVBox = new VBox(); // 放所有动态表
     
     List<BankFlowModel> totalBankFlowList;
     
     // {每一天 ：{银行类型 ： 上码列表}}
-    Map<String, Map<String, List<BankFlowModel>>> BankFlowMap;
+    Map<String, Map<String, List<BankFlowModel>>> bankFlowMap;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-
-
-		totalBankFlowList = DBUtil.getAllHistoryBankMoney();
-		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
-			log.debug("数据库中没有银行流水记录");
-			return;
-		}
-		// {每一天 ：{银行类型 ： 上码列表}}
-		BankFlowMap = totalBankFlowList.stream()
-				.collect(Collectors.groupingBy(BankFlowModel::getSoftTime, // 先按每一天分类
-						Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类
-
-		// TODO 每一天进行排序
-		String latestDay = BankFlowMap.keySet().stream().max((x,y)-> x.compareTo(y)).orElse("");
-
+		
+		//初始化数据
+		initData();
+		if (CollectUtil.isNullOrEmpty(totalBankFlowList))  return;
+		
 		// 动态生成表
+		generateAllTables();
+
+	}
+	
+	
+	
+	/**
+	 * 动态生成表
+	 * 
+	 * @time 2018年7月1日
+	 */
+	public void generateAllTables() {
+		// 最新日期
+		String latestDay = bankFlowMap.keySet().stream().max((x,y)-> x.compareTo(y)).orElse("");
+		// 制表
 		long start = System.currentTimeMillis();
-		BankFlowMap.forEach((dayKey, dayDataMap) -> {
+		bankFlowMap.forEach((dayKey, dayDataMap) -> {
 			Label dateLabel = new Label(dayKey);
 			dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill: #5B5B5B");
 			TableView<BankFlowInfo> table = dynamicGenerateGDTable();
@@ -116,11 +117,29 @@ public class BankFlowController implements Initializable{
 		});
 		long end = System.currentTimeMillis();
 		log.info(String.format("加载%d条流水进系统耗时：%d毫秒", totalBankFlowList.size(), end - start));
-
+		
 		scrollDates.setPadding(new Insets(10));
 		scrollDates.setFitToHeight(true);
 		scrollDates.setFitToWidth(true);
 		scrollDates.setContent(bankFlowVBox);
+	}
+	
+	/**
+	 * 初始化数据
+	 * @time 2018年7月1日
+	 */
+	private void initData() {
+		totalBankFlowList = DBUtil.getAllHistoryBankMoney();
+		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) { return;}
+		
+		// {每一天 ：{银行类型 ： 上码列表}}
+		bankFlowMap = totalBankFlowList.stream().sorted((x,y) -> x.getUpdateTime().compareTo(y.getUpdateTime()))
+				.collect(Collectors.groupingBy(BankFlowModel::getSoftTime, //TreeMap::new // 先按每一天分类
+						Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类
+        // 按时间排序（必须！）
+        Map<String, Map<String, List<BankFlowModel>>> _bankFlowMap = new TreeMap<>((x, y) -> y.compareTo(x) );
+        _bankFlowMap.putAll(bankFlowMap);
+        bankFlowMap = _bankFlowMap;
 	}
   
   /**
@@ -273,58 +292,88 @@ public class BankFlowController implements Initializable{
 		return col;
 	}
 	
+	/**
+	 * 查看历史统计信息条形图
+	 * @time 2018年7月1日
+	 * @param event
+	 */
 	@FXML
 	public void seeHistoryStaticAction(ActionEvent event) {
-		Dialog dialog = new Dialog<>();
-		dialog.setTitle("银行流水每日汇总图");
-		dialog.setHeaderText(null);
-		dialog.setHeight(600.0);
-		dialog.setWidth(900.0);
-    	ButtonType loginButtonType = new ButtonType("关闭", ButtonData.APPLY);
-    	dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-
-    	GridPane grid = new GridPane();
-    	grid.setHgap(10);
-    	grid.setVgap(10);
-    	grid.setPadding(new Insets(20, 15, 10, 10));
-    	//==============================================================
-		totalBankFlowList = DBUtil.getAllHistoryBankMoney();
 		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
 			ShowUtil.show("数据库中没有银行流水记录");
 			return;
 		}
+		Dialog dialog = new Dialog<>();
+		dialog.setTitle("银行流水汇总");
+		dialog.setHeaderText(null);
+		dialog.setHeight(500.0);
+		dialog.setWidth(1000.0);
+		dialog.setResizable(true);
+    	ButtonType loginButtonType = new ButtonType("关闭", ButtonData.APPLY);
+    	dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+    	dialog.initOwner(Main.primaryStage0); //用于设置图标和使大小有效
+
+    	StackPane stackPane = new StackPane();
+
     	final CategoryAxis xAxis = new CategoryAxis();
     	final NumberAxis yAxis = new NumberAxis();
     	final StackedBarChart<String, Number> sbc = new StackedBarChart<>(xAxis, yAxis);
-    	List<String> dayList = BankFlowMap.keySet().stream().collect(Collectors.toList());
+    	List<String> dayList = bankFlowMap.keySet().stream().map(e->getSimpleDateString(e)).collect(Collectors.toList());
     	xAxis.setCategories(FXCollections.<String>observableArrayList( dayList));
-    	
-    	double sum = NumUtil.getNumDivide(totalBankFlowList.stream().mapToDouble(BankFlowModel::getMoney).sum(), 10000d);
-    	sbc.setTitle(String.format("历史总流水：￥%f万", sum));
+    	sbc.setTitle(getTitleInfo());
 
     	Platform.runLater(() -> {
         	for(BankEnum bankEnum : BankEnum.values()) {
         		String bankName = bankEnum.getName();
         		final XYChart.Series<String, Number> series = new XYChart.Series<>();
         		series.setName(bankName);
-        		BankFlowMap.forEach((day, dayMap) -> {
+        		bankFlowMap.forEach((day, dayMap) -> {
         			List<BankFlowModel> bankFlowList = dayMap.get(bankName);
         			int data = 0;
         			if(CollectUtil.isHaveValue(bankFlowList)) {
         				data = bankFlowList.stream().mapToInt(BankFlowModel::getMoney).sum();
         			}
-        			series.getData().add(new XYChart.Data<>(day, data));
+        			series.getData().add(new XYChart.Data<>(getSimpleDateString(day), data));
         		});
         		sbc.getData().addAll(series);
         	}
     	});
-    	//==============================================================
-		//grid.add(new Label("sdialog.getDialogPane().getButtonTypes().addAll(loginButtonType);"), 0, 0);
-		grid.add(sbc,0, 1);
-    	dialog.getDialogPane().setContent(grid);
+		stackPane.getChildren().add(sbc);
+    	dialog.getDialogPane().setContent(stackPane);
 
     	dialog.show();
-
+	}
+	
+	/**
+	 * 获取统计的信息头
+	 * @time 2018年7月1日
+	 * @return
+	 */
+	private String getTitleInfo() {
+		int sumIncome = totalBankFlowList.stream().filter(e->e.getMoney()>0).mapToInt(BankFlowModel::getMoney).sum();
+    	int sum = totalBankFlowList.stream().mapToInt(e->Math.abs(e.getMoney())).sum();
+    	double devideUnit = 10000d;
+    	String titleInfo = String.format("总流水%s万    总收入%s万    总支出%s万", 
+    			NumUtil.getNumDivide2(Double.valueOf(sum + ""), devideUnit),
+    			NumUtil.getNumDivide2(Double.valueOf(sumIncome + ""), devideUnit),
+    			NumUtil.getNumDivide2(Double.valueOf(sum-sumIncome + ""), devideUnit));
+    	return titleInfo;
+	}
+	
+	/**
+	 * 获取月份和日， 如2018-06-01 ==> 6-1
+	 * @time 2018年7月1日
+	 * @param dateString
+	 * @return
+	 */
+	private final String getSimpleDateString(String dateString) {
+		if(StringUtil.isNotBlank(dateString) && dateString.length() > 6) {
+			LocalDate date = LocalDate.parse(dateString);
+			int month = date.getMonthValue();
+			int day = date.getDayOfMonth();
+			return month + "-" + day;
+		}
+		return dateString;
 	}
   
   

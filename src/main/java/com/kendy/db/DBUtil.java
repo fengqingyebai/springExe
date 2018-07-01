@@ -3116,7 +3116,7 @@ public class DBUtil {
         List<BankFlowModel> list = new ArrayList<>();
         try {
             con = DBConnection.getConnection();
-            String sql = "select * from history_bank_money";
+            String sql = "select * from history_bank_money order by soft_time, update_time";
             ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){

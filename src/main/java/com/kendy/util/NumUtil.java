@@ -202,4 +202,8 @@ public class NumUtil {
 			return d1 / d2;
 		}
 	}
+	
+	public static String getNumDivide2(Double d1, Double d2) {
+		return digit2(getNumDivide(d1, d2) + "");
+	}
 }

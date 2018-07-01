@@ -59,6 +59,7 @@ import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
 
 import application.DataConstans;
+import application.Main;
 import application.MyController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -82,6 +83,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -1054,42 +1056,32 @@ public class SMAutoController implements Initializable {
      */
     public void  seeHasDownExcelListCacheAction(ActionEvent event){
     	if(MapUtil.isNullOrEmpty(downloadCache)) {
-    		ShowUtil.show("已下载记录，拜拜！", 1);
+    		ShowUtil.show("无下载记录，拜拜！", 1);
     		return;
     	}
     	
-    	Dialog dialog = new Dialog<>();
+    	Dialog dialog = new Dialog();
     	dialog.setResizable(true);
-    	dialog.setHeight(600);
-    	dialog.setWidth(1000);
+    	dialog.setHeight(600.0); // TODO 设置大小没效果？？？
+    	dialog.setWidth(400.0);
     	dialog.setTitle("已下载的Excel");
     	dialog.setHeaderText(null);
     	
-    	// Set the button types.
     	ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
     	dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-
-    	// Create the username and password labels and fields.
-    	GridPane grid = new GridPane();
-    	grid.setHgap(10);
-    	grid.setVgap(10);
-    	grid.setPadding(new Insets(20, 0, 10, 0));
 
     	ScrollPane scrollPane = new ScrollPane();
     	scrollPane.setFitToHeight(true);
     	scrollPane.setFitToWidth(true);
     	VBox cacheContent = new VBox();
-    	downloadCache.keySet().stream().sorted().forEach(downedExcelName -> {
-    		cacheContent.getChildren().add(new Label(downedExcelName));
-    	});
+    	int index = 0;
+    	String indexString = "";
+    	for( String downedExcelName : downloadCache.keySet()) {
+    		indexString = String.format("%04d", (++index));
+    		cacheContent.getChildren().add(new Label(indexString + " :   " + downedExcelName));
+    	}
     	scrollPane.setContent(cacheContent);
-
-    	grid.add(scrollPane, 0, 0); //最后一个0代码第一行
-
-    	// Enable/Disable login button depending on whether a username was entered.
-    	Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-
-    	dialog.getDialogPane().setContent(grid);
+    	dialog.getDialogPane().setContent(scrollPane);
 
     	dialog.show();
     }
