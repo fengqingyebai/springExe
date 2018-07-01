@@ -449,7 +449,7 @@ public class ExcelReaderUtil {
 			is.close();
 			
 			//add 添加所有记录到联盟对帐表
-			LMController.currentRecordList = LM_ExcelReaderUtil.readRecord(file);
+			LMController.currentRecordList = LMExcelReaderUtil.readRecord(file);
 			//LMController.refreshClubList();//放到锁定时去添加
 			//LMController.checkOverEdu();
 			
@@ -587,7 +587,7 @@ public class ExcelReaderUtil {
 			}//遍历excel结束
 			
 			//add 添加所有记录到联盟对帐表
-			LMController.currentRecordList = LM_ExcelReaderUtil.readRecord_NewVersion(file);
+			LMController.currentRecordList = LMExcelReaderUtil.readRecord_NewVersion(file);
 			//LMController.refreshClubList();//放到锁定时去添加
 			//LMController.checkOverEdu();
 			

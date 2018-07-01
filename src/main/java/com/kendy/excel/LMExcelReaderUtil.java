@@ -27,7 +27,7 @@ import application.DataConstans;
  * @author 小林
  * @time 2017年11月23日 下午10:41:35
  */
-public class LM_ExcelReaderUtil {
+public class LMExcelReaderUtil {
 
 	private static Logger log = Logger.getLogger(ExcelReaderUtil.class);
 	
