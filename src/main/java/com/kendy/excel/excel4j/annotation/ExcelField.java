@@ -47,4 +47,13 @@ public @interface ExcelField {
      * @return 列表顺序
      */
     int order() default Integer.MAX_VALUE;
+    
+    
+    /**
+     * 在excel的列宽
+     *
+     * @return 列宽, 最长为 256 * 256
+     */
+    int colWidth() default 15;
+    
 }

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -1170,6 +1171,22 @@ public final class ExcelUtils {
                 row.getCell(j).setCellStyle(style);
             }
         }
+        
+        // 设置列宽(泽涛：256的倍数，最长为256 * 256)
+		for (int colNum = 0; colNum < headers.size(); colNum++) {
+			int columnWidth = headers.get(colNum).getColWidth() ;
+			for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
+				Row currentRow;
+				// 当前行未被使用过
+				if (sheet.getRow(rowNum) == null) {
+					currentRow = sheet.createRow(rowNum);
+				} else {
+					currentRow = sheet.getRow(rowNum);
+					currentRow.setHeight((short) 400);
+				}
+			}
+			sheet.setColumnWidth(colNum, columnWidth * 256);
+		}
 
     }
 

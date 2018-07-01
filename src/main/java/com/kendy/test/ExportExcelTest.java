@@ -23,7 +23,7 @@ public class ExportExcelTest {
         List<Student1> list = new ArrayList<>();
         list.add(new Student1("1010001", "盖伦", "六年级三班"));
         list.add(new Student1("1010002", "古尔丹", "一年级三班"));
-        list.add(new Student1("1010003", "蒙多(被开除了)", "六年级一班"));
+        list.add(new Student1("1010003", "蒙多(被开除了)", "六年级一班449646546549846531654"));
         list.add(new Student1("1010004", "萝卜特", "三年级二班"));
         list.add(new Student1("1010005", "奥拉基", "三年级二班"));
         list.add(new Student1("1010006", "得嘞", "四年级二班"));
@@ -35,7 +35,7 @@ public class ExportExcelTest {
         data.put("info", "学校统一花名册");
         // 不基于模板导出Excel
         String userDeskPath = PathUtil.getUserDeskPath();
-        ExcelUtils.getInstance().exportObjects2Excel(list, Student1.class, true, null, true, userDeskPath + "a1.xlsx");
+        ExcelUtils.getInstance().exportObjects2Excel(list, Student1.class, true, null, true, userDeskPath + "a4.xlsx");
         
         System.out.println("finises...");
     }

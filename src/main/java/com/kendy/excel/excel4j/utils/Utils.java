@@ -92,7 +92,8 @@ public class Utils {
                             er.writeConverter().newInstance(),
                             er.readConverter().newInstance(),
                             field.getName(),
-                            field.getType()
+                            field.getType(),
+                            er.colWidth()
                     ));
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new Excel4JException(e);

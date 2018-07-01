@@ -37,6 +37,11 @@ public class ExcelHeader implements Comparable<ExcelHeader> {
      * 属性类型
      */
     private Class<?> filedClazz;
+    
+    /**
+     * 每一个标题的宽度(自定义)
+     */
+    private int colWidth;
 
     public String getTitle() {
         return title;
@@ -85,8 +90,17 @@ public class ExcelHeader implements Comparable<ExcelHeader> {
     public void setFiledClazz(Class<?> filedClazz) {
         this.filedClazz = filedClazz;
     }
+    
+    
+    public int getColWidth() {
+		return colWidth;
+	}
 
-    @Override
+	public void setColWidth(int colWidth) {
+		this.colWidth = colWidth;
+	}
+
+	@Override
     public int compareTo(ExcelHeader o) {
         return order - o.order;
     }
@@ -96,7 +110,7 @@ public class ExcelHeader implements Comparable<ExcelHeader> {
     }
 
     public ExcelHeader(String title, int order, WriteConvertible writeConverter,
-                       ReadConvertible readConverter, String filed, Class<?> filedClazz) {
+                       ReadConvertible readConverter, String filed, Class<?> filedClazz, int colWidth) {
         super();
         this.title = title;
         this.order = order;
@@ -104,5 +118,6 @@ public class ExcelHeader implements Comparable<ExcelHeader> {
         this.readConverter = readConverter;
         this.filed = filed;
         this.filedClazz = filedClazz;
+        this.colWidth = colWidth;
     }
 }

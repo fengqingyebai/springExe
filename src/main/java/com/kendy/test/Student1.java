@@ -13,7 +13,7 @@ public class Student1 {
     private String name;
 
     // 班级
-    @ExcelField(title = "班级", order = 3)
+    @ExcelField(title = "班级", order = 3, colWidth = 30)
     private String classes;
 
     public String getId() {
