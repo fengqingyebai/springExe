@@ -257,6 +257,10 @@ public class ExportAllLMExcel {
 		}
 		return templatewb;
 	}
+	
+	public void setSortMap(Map<String, String> sortMap) {
+		this.sortMap = sortMap;
+	}
 
 	/**
 	 * 加载Excel模板
@@ -266,20 +270,26 @@ public class ExportAllLMExcel {
 	 */
 	private Workbook loadTemple() throws IOException {
 		log.info("加载联盟总帐Excel模板");
-		String prePath = "";
-		if(log.isDebugEnabled()) {
-			prePath = this.getClass().getResource("/").getPath()+TEMPLE_PATH;
-		}else {
-			prePath = TEMPLE_PATH;
-		}
 		//开始读取
-		InputStream is = null;
-		is = ExportAllLMExcel.class.getClassLoader().getResourceAsStream(prePath);//生产环境可用
+		InputStream is = ExportAllLMExcel.class.getResource("/excel/联盟总账模板.xls").openStream();
 		Workbook templatewb = new HSSFWorkbook(is);
 		return templatewb;
 	}
-
-	public void setSortMap(Map<String, String> sortMap) {
-		this.sortMap = sortMap;
+	
+	public static void main(String[] args) throws IOException{
+		log.info("加载联盟总帐Excel模板");
+		//开始读取
+		InputStream is = null;
+		is = ExportAllLMExcel.class.getResource("/excel/联盟总账模板.xls").openStream();//生产环境可用
+		Workbook templatewb = null;
+		try {
+			templatewb = new HSSFWorkbook(is);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("finishes..." + templatewb== null);
 	}
+
+
 }
