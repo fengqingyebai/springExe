@@ -1,5 +1,4 @@
-package com.kendy;
-
+package com.kendy.enums;
 /**
  * 银行类型枚举类
  * 

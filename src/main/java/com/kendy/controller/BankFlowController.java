@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import com.kendy.BankEnum;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
+import com.kendy.enums.BankEnum;
 import com.kendy.model.BankFlowModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
