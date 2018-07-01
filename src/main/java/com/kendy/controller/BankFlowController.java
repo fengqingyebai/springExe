@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import com.jfoenix.controls.JFXButton;
 import com.kendy.BankEnum;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
@@ -85,7 +84,6 @@ public class BankFlowController implements Initializable{
 		generateAllTables();
 
 	}
-	
 	
 	
 	/**
@@ -199,7 +197,7 @@ public class BankFlowController implements Initializable{
 			.append(" 当天总收入笔数 ").append(String.format(pattern, incomeCount))
 			.append(" 当天总支出￥").append(String.format(pattern, todaySumPay))
 			.append(" 当天总收入￥").append(String.format(pattern, todaySumIncome))
-			.append(" 当天总流水￥").append(String.format(pattern, todaySumFlow));
+			.append(" 当天总利润￥").append(String.format(pattern, todaySumFlow));
 		return msg.toString();
 	}
   

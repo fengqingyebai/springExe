@@ -14,6 +14,7 @@
     <properties>  
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
 	    <spring.version>4.3.7.RELEASE</spring.version>
+	    <poi.version>3.14</poi.version>
         <main.path>application.Main</main.path>
     </properties>  
  
@@ -112,17 +113,17 @@
     	<dependency>
     		<groupId>org.apache.poi</groupId>
     		<artifactId>poi</artifactId>
-    		<version>3.14</version>
+    		<version>${poi.version}</version>
     	</dependency>
     	<dependency>
     		<groupId>org.apache.poi</groupId>
     		<artifactId>poi-ooxml</artifactId>
-    		<version>3.14</version>
+    		<version>${poi.version}</version>
     	</dependency>
     	<dependency>
     		<groupId>org.apache.poi</groupId>
     		<artifactId>poi-ooxml-schemas</artifactId>
-    		<version>3.14</version>
+    		<version>${poi.version}</version>
     	</dependency>
     	<dependency>
     		<groupId>org.apache.xmlbeans</groupId>
