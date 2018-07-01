@@ -12,11 +12,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
@@ -76,9 +77,8 @@ public class ExportExcel  {
             HSSFRow rowm = sheet.createRow(0);
             HSSFCell cellTiltle = rowm.createCell(0);
             
-//            sheet样式定义【getColumnTopStyle()/getStyle()均为自定义方法 - 在下面  - 可扩展
-            HSSFCellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);//获取列头样式对象
-            HSSFCellStyle style = ExcelCss.getStyle(workbook);                    //单元格样式对象
+            CellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);//获取列头样式对象
+            CellStyle style = ExcelCss.getStyle(workbook);                    //单元格样式对象
             
             sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, (rowName.length-1)));  
             cellTiltle.setCellStyle(columnTopStyle);
@@ -107,7 +107,7 @@ public class ExportExcel  {
             /*************************************  标题栏  ****************************/
             for(int n=0;n<columnNum;n++){
                 HSSFCell  cellRowName = rowRowName.createCell(n);                //创建列头对应个数的单元格
-                cellRowName.setCellType(HSSFCell.CELL_TYPE_STRING);                //设置列头单元格的数据类型
+                cellRowName.setCellType(CellType.STRING);                //设置列头单元格的数据类型
                 HSSFRichTextString text = new HSSFRichTextString(rowName[n]);
                 cellRowName.setCellValue(text);                                    //设置列头单元格的值
                 cellRowName.setCellStyle(columnTopStyle);                        //设置列头单元格样式
@@ -122,7 +122,7 @@ public class ExportExcel  {
                 
                 for(int j=0; j<obj.length; j++){
                     HSSFCell  cell = null;   //设置单元格的数据类型
-                    cell = row.createCell(j,HSSFCell.CELL_TYPE_STRING);
+                    cell = row.createCell(j,CellType.STRING);
                     if(!"".equals(obj[j]) && obj[j] != null){
                         cell.setCellValue(obj[j].toString());                        //设置单元格的值
                     }
@@ -132,11 +132,11 @@ public class ExportExcel  {
             
             /******************** 添加合计 ********/
             HSSFRow rr = sheet.getRow(1);
-            HSSFCell  cellHeji = rr.createCell(rowName.length+1,HSSFCell.CELL_TYPE_STRING);                //创建列头对应个数的单元格
+            HSSFCell  cellHeji = rr.createCell(rowName.length+1,CellType.STRING);                //创建列头对应个数的单元格
         	HSSFRichTextString cellHejiVal = new HSSFRichTextString(rowName2[0]);
         	cellHeji.setCellValue(cellHejiVal);                                    //设置列头单元格的值
         	cellHeji.setCellStyle(columnTopStyle); 
-        	HSSFCell  cellSum = rr.createCell(rowName.length+2,HSSFCell.CELL_TYPE_STRING);                //创建列头对应个数的单元格
+        	HSSFCell  cellSum = rr.createCell(rowName.length+2,CellType.STRING);                //创建列头对应个数的单元格
         	HSSFRichTextString sumVal = new HSSFRichTextString(rowName2[1]);
         	cellSum.setCellValue(sumVal);                                    //设置列头单元格的值
         	cellSum.setCellStyle(columnTopStyle); 
@@ -148,11 +148,11 @@ public class ExportExcel  {
             		 log.error("excel行为空");
             		 continue;
             	 }
-                 HSSFCell type = r.createCell(rowName.length+1,HSSFCell.CELL_TYPE_STRING);
+                 HSSFCell type = r.createCell(rowName.length+1,CellType.STRING);
                  type.setCellStyle(style);
                  type.setCellValue(dataList2.get(i)[0].toString());
                  
-                 HSSFCell sum = r.createCell(rowName.length+2,HSSFCell.CELL_TYPE_STRING);
+                 HSSFCell sum = r.createCell(rowName.length+2,CellType.STRING);
                  sum.setCellStyle(style);
                  sum.setCellValue(dataList2.get(i)[1].toString());
             }
@@ -161,35 +161,6 @@ public class ExportExcel  {
             sheet.setColumnWidth(rowName.length+2, 3500);
             /****************************/
             
-            
-            //让列宽随着导出的列长自动适应
-            for (int colNum = 0; colNum < columnNum; colNum++) {
-                int columnWidth = sheet.getColumnWidth(colNum) / 256;
-                for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
-                    HSSFRow currentRow;
-                    //当前行未被使用过
-                    if (sheet.getRow(rowNum) == null) {
-                        currentRow = sheet.createRow(rowNum);
-                    } else {
-                        currentRow = sheet.getRow(rowNum);
-                        currentRow.setHeight((short)400);
-                    }
-                    if (currentRow.getCell(colNum) != null) {
-                        HSSFCell currentCell = currentRow.getCell(colNum);
-                        if (currentCell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-                            int length = currentCell.getStringCellValue().getBytes().length;
-                            if (columnWidth < length) {
-                                columnWidth = length;
-                            }
-                        }
-                    }
-                }
-                if(colNum == 0){
-                    sheet.setColumnWidth(colNum, (columnWidth-2) * 256);
-                }else{
-                    sheet.setColumnWidth(colNum, (columnWidth+4) * 256);
-                }
-            }
             
             if(workbook !=null){
             	OutputStream out = null;

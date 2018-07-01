@@ -8,17 +8,15 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 
 import com.kendy.entity.TGExcelModel;
 
@@ -76,14 +74,14 @@ public class ExportTGExcel  {
 	            HSSFRow rowColumnName = sheet.createRow(0);
 	            
 	            // sheet样式定义【getColumnTopStyle()/getStyle()均为自定义方法 - 在下面  - 可扩展
-	            HSSFCellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);//获取列头样式对象
-	            HSSFCellStyle style = ExcelCss.getStyle(workbook);                    //单元格样式对象
+	            CellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);//获取列头样式对象
+	            CellStyle style = ExcelCss.getStyle(workbook);                    //单元格样式对象
 	            
 	            /*************************************  标题栏  ****************************/
 	            int columnNum = columnTitleList.size();
 	            for(int n=0; n<columnNum; n++){
 	                HSSFCell  cellName = rowColumnName.createCell(n);                //创建列头对应个数的单元格
-	                cellName.setCellType(HSSFCell.CELL_TYPE_STRING);                //设置列头单元格的数据类型
+	                cellName.setCellType(CellType.STRING);                //设置列头单元格的数据类型
 	                HSSFRichTextString text = new HSSFRichTextString(columnTitleList.get(n));
 	                cellName.setCellValue(text);                                    //设置列头单元格的值
 	                cellName.setCellStyle(columnTopStyle);                        //设置列头单元格样式
@@ -98,7 +96,7 @@ public class ExportTGExcel  {
 	                HSSFRow row = sheet.createRow(i+1);//创建所需的行数
 	                
 	                for(int j=0;  j<columnNum; j++){
-	                    HSSFCell  cell = row.createCell(j,HSSFCell.CELL_TYPE_STRING);
+	                    HSSFCell  cell = row.createCell(j,CellType.STRING);
 	                    if(!"".equals(obj[j]) && obj[j] != null){
 	                        cell.setCellValue(obj[j].toString());                        //设置单元格的值
 	                    }
@@ -117,11 +115,11 @@ public class ExportTGExcel  {
 	            	 if(r == null) {
 	            		 r = sheet.createRow(i+1);
 	            	 }
-	                 HSSFCell type = r.createCell(columnNum+1,HSSFCell.CELL_TYPE_STRING);
+	                 HSSFCell type = r.createCell(columnNum+1,CellType.STRING);
 	                 type.setCellStyle(style);
 	                 type.setCellValue(sumDataList.get(i)[0].toString());
 	                 
-	                 HSSFCell sum = r.createCell(columnNum+2,HSSFCell.CELL_TYPE_STRING);
+	                 HSSFCell sum = r.createCell(columnNum+2,CellType.STRING);
 	                 sum.setCellStyle(style);
 	                 sum.setCellValue(sumDataList.get(i)[1].toString());
 	                 
@@ -170,8 +168,8 @@ public class ExportTGExcel  {
     	  HSSFSheet sheet = workbook.createSheet(excelModel.getSheetName());  
     	  Map<String, List<Object[]>> waizhaiMap = excelModel.getWaizhaiMap();
           
-          HSSFCellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);//获取列头样式对象
-          HSSFCellStyle style = ExcelCss.getStyle(workbook);                    //单元格样式对象
+          CellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);//获取列头样式对象
+          CellStyle style = ExcelCss.getStyle(workbook);                    //单元格样式对象
           
           
           int index = 1;//第几个表
@@ -184,13 +182,13 @@ public class ExportTGExcel  {
     		  //标题
     		  String teamString = entry.getKey();
     		  HSSFCell  cellName = r.createCell((index -1) * 3);                
-              cellName.setCellType(HSSFCell.CELL_TYPE_STRING);               
+              cellName.setCellType(CellType.STRING);               
               HSSFRichTextString text = new HSSFRichTextString(teamString.split("#")[0]);
               cellName.setCellValue(text);                                   
               cellName.setCellStyle(columnTopStyle);                       
               
     		  cellName = r.createCell((index -1) * 3 + 1);               
-              cellName.setCellType(HSSFCell.CELL_TYPE_STRING);              
+              cellName.setCellType(CellType.STRING);              
               text = new HSSFRichTextString(teamString.split("#")[1]);
               cellName.setCellValue(text);                                   
               cellName.setCellStyle(columnTopStyle);                        
@@ -205,11 +203,11 @@ public class ExportTGExcel  {
         			  row = sheet.createRow(i+1);
         			  row.setHeight((short)400);
         		  }
-            	  HSSFCell type = row.createCell(start  ,HSSFCell.CELL_TYPE_STRING);
+            	  HSSFCell type = row.createCell(start  ,CellType.STRING);
             	  type.setCellStyle(style);
             	  type.setCellValue(obj[0].toString());
             	  
-            	  HSSFCell sum = row.createCell(start+1, HSSFCell.CELL_TYPE_STRING);
+            	  HSSFCell sum = row.createCell(start+1, CellType.STRING);
             	  sum.setCellStyle(style);
             	  sum.setCellValue(obj[1].toString());
             	  

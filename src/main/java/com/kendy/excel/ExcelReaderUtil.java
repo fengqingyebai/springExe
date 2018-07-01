@@ -18,6 +18,7 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -140,7 +141,7 @@ public class ExcelReaderUtil {
 		if(cell == null){
 			return "";
 		}else{
-			cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+			cell.setCellType(CellType.STRING);
 			return cell.toString();
 		}
 	}
@@ -189,7 +190,7 @@ public class ExcelReaderUtil {
 					String jfPercent = "";
 					for(int i=1;i<11;i++){
 						Cell cell = row.getCell(i);
-						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+						cell.setCellType(CellType.STRING);
 						String value = cell.getStringCellValue();
 						if(i==1){
 							//团ID====="+value);
@@ -307,7 +308,7 @@ public class ExcelReaderUtil {
 			Sheet sheet = workbook.getSheetAt(0);
 			Row firstRow = sheet.getRow(0);
 			Cell firstCell = firstRow.getCell(0);
-			firstCell.setCellType(HSSFCell.CELL_TYPE_STRING);
+			firstCell.setCellType(CellType.STRING);
 			String firstCellVal = firstCell.getStringCellValue();
 			boolean isOldVersionCoinsisdent = "牌局类型".equals(firstCellVal) && versionType == 0;
 			boolean isNewVersionCoinsisdent = StringUtil.isBlank(firstCellVal) && versionType == 1;
@@ -397,7 +398,7 @@ public class ExcelReaderUtil {
 							log.error("出现空值，导入战绩文件夹失败" + "\t");
 							return new Wrap();
 						}
-						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+						cell.setCellType(CellType.STRING);
 						String value = cell.getStringCellValue();
 						value = StringUtil.isBlank(value) ? "" : value.trim();
 						switch(cn){
@@ -540,7 +541,7 @@ public class ExcelReaderUtil {
 							log.error("出现空值，导入战绩文件夹失败" + "\t");
 							return new Wrap();
 						}
-						cell.setCellType(HSSFCell.CELL_TYPE_STRING);
+						cell.setCellType(CellType.STRING);
 						String value = cell.getStringCellValue();
 						value = StringUtil.isBlank(value) ? "" : value.trim();
 						switch(cn){
@@ -691,7 +692,7 @@ public class ExcelReaderUtil {
 				continue;
 			}
 		
-			valueCell.setCellType(HSSFCell.CELL_TYPE_STRING);
+			valueCell.setCellType(CellType.STRING);
 			//添加
 			if(!StringUtil.isBlank(key) && !StringUtil.isBlank(key.trim())){
 				if(key.endsWith(".0")) {//过滤诸如123被读成123.0的情况
@@ -744,13 +745,13 @@ public class ExcelReaderUtil {
 				resultMap.put(key, "0");
 				continue;
 			}
-			valueCell.setCellType(HSSFCell.CELL_TYPE_STRING);
+			valueCell.setCellType(CellType.STRING);
 			
 			Cell idCell = row.getCell(y+3);//ID列，即第J列
 			if(idCell == null) {
 				playerId = "";
 			}else {
-				idCell.setCellType(HSSFCell.CELL_TYPE_STRING);
+				idCell.setCellType(CellType.STRING);
 				playerId = idCell.getStringCellValue();
 			}
 			//添加
@@ -816,8 +817,8 @@ public class ExcelReaderUtil {
 					|| row.getCell(1) == null || StringUtil.isBlank(row.getCell(1).toString()))
 				new Exception("父ID或子ID列表不能为空，请检查！");
 			
-			row.getCell(0).setCellType(HSSFCell.CELL_TYPE_STRING);
-			row.getCell(1).setCellType(HSSFCell.CELL_TYPE_STRING);
+			row.getCell(0).setCellType(CellType.STRING);
+			row.getCell(1).setCellType(CellType.STRING);
 			combineIdMap.put(row.getCell(0).toString(), row.getCell(1).toString());
 		}
 		

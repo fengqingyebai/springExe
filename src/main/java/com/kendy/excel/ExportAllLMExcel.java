@@ -172,19 +172,6 @@ public class ExportAllLMExcel {
 		return map;
 	}
 	
-	//add 小胖追加 导出时取正数
-//	private String getNavigateZhuoFei(LMSumInfo info) {
-//		String zj = info.getLmSumZJ();
-//		boolean isZero = ("0".equals(zj));
-//		if(isZero)
-//			return "0";
-//		
-//		if("桌费".equals(info.getLmSumName()) && !isZero) {
-//				return NumUtil.digit0(NumUtil.getNum(info.getLmSumZJ())*-1);
-//		}
-//		return zj;
-//	}
-	
 	/**
 	 * 将workbook输出到Excel文件中并打开
 	 * 

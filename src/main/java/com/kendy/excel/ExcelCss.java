@@ -1,12 +1,13 @@
 package com.kendy.excel;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * 自定义Excel单元格样式
@@ -22,16 +23,16 @@ public class ExcelCss {
 	  /* 
      * 列头单元格样式
      */    
-      public static HSSFCellStyle getColumnTopStyle(HSSFWorkbook workbook) {
+      public static CellStyle getColumnTopStyle(Workbook workbook) {
           
             // 设置字体
-          HSSFFont font = workbook.createFont();
+          Font font = workbook.createFont();
           //设置字体大小
           font.setFontHeightInPoints((short)11);
           //字体加粗
           font.setBold(true);
           //设置样式; 
-          HSSFCellStyle style = workbook.createCellStyle();
+          CellStyle style = workbook.createCellStyle();
           //设置底边框; 
           style.setBorderBottom(BorderStyle.THIN);
           //设置底边框颜色;  
@@ -64,11 +65,11 @@ public class ExcelCss {
       /*  
      * 列数据信息单元格样式
      */  
-      public static HSSFCellStyle getStyle(HSSFWorkbook workbook) {
+      public static CellStyle getStyle(Workbook workbook) {
             // 设置字体
-            HSSFFont font = workbook.createFont();
+            Font font = workbook.createFont();
             //设置样式; 
-            HSSFCellStyle style = workbook.createCellStyle();
+            CellStyle style = workbook.createCellStyle();
             //设置底边框; 
             style.setBorderBottom(BorderStyle.THIN);
             //设置底边框颜色;  
