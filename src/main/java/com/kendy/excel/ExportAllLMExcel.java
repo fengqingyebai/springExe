@@ -269,26 +269,21 @@ public class ExportAllLMExcel {
 	 * @throws InvalidFormatException 
 	 */
 	private Workbook loadTemple() throws IOException {
-		log.info("加载联盟总帐Excel模板");
-		//开始读取
+		log.info("加载联盟总帐Excel模板...");
 		InputStream is = ExportAllLMExcel.class.getResource("/excel/联盟总账模板.xls").openStream();
 		Workbook templatewb = new HSSFWorkbook(is);
 		return templatewb;
 	}
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		log.info("加载联盟总帐Excel模板");
-		//开始读取
-		InputStream is = null;
-		is = ExportAllLMExcel.class.getResource("/excel/联盟总账模板.xls").openStream();//生产环境可用
-		Workbook templatewb = null;
 		try {
-			templatewb = new HSSFWorkbook(is);
+			InputStream is = ExportAllLMExcel.class.getResource("/excel/联盟总账模板.xls").openStream();// 生产环境可用
+			Workbook templatewb = new HSSFWorkbook(is);
+			System.out.println("finishes..." + templatewb == null ? "失败" : "成功");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("finishes..." + templatewb== null);
 	}
 
 
