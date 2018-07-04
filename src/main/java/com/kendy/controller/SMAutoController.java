@@ -22,14 +22,13 @@ import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import javax.swing.filechooser.FileSystemView;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.db.DBUtil;
@@ -56,6 +55,7 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
+
 import application.DataConstans;
 import application.MyController;
 import javafx.application.Platform;
@@ -147,7 +147,6 @@ public class SMAutoController implements Initializable {
     private static final String CONNECT_FAIL = "连接失败,失败码：";
 
     private Object lock = new Object();
-    private Object excelLock = new Object();
     
     public static Map<String,Boolean> downloadCache = new ConcurrentHashMap<>();
     
@@ -606,15 +605,15 @@ public class SMAutoController implements Initializable {
         return available;
     }
 
-    /**
-     * 则只取团队可上码
-     * 
-     * @time 2018年3月27日
-     * @return
-     */
-    private String getTeamAvailable() {
-        return StringUtil.nvl(ShangmaService.teamShangmaAvailable.getText(), "0");
-    }
+//    /**
+//     * 则只取团队可上码
+//     * 
+//     * @time 2018年3月27日
+//     * @return
+//     */
+//    private String getTeamAvailable() {
+//        return StringUtil.nvl(ShangmaService.teamShangmaAvailable.getText(), "0");
+//    }
 
     /**
      * 联合额度
@@ -769,7 +768,8 @@ public class SMAutoController implements Initializable {
      * @param type 1:审核结果非“-” 2：所有记录
      * @return
      */
-    public List<SMAutoInfo> getAutoShangmas(int type){
+    @SuppressWarnings("unchecked")
+	public List<SMAutoInfo> getAutoShangmas(int type){
     	if(TableUtil.isHasValue(tableSMAuto)) {
     		ObservableList<SMAutoInfo> items = tableSMAuto.getItems();
     		if(1 == type) {
@@ -819,6 +819,7 @@ public class SMAutoController implements Initializable {
 	private static final String PU_TONG = "1";
 	private static final String AO_MA_HA = "2";
 	private static final String DA_BO_LUO = "6";
+	private static final int DOWN_LIMIT = 6 ; //每次下载5个，总共一次性下载 6 * 3 = 18
 	
 	public LocalDate getSelectedDate() {
 		return datePicker.getValue();
@@ -889,34 +890,26 @@ public class SMAutoController implements Initializable {
 	}
 	
 	
-	private  class AutoDownExcelService extends Service<Void>{
-	  private String downType;
-
-      public AutoDownExcelService(String downType) {
-        super();
-        this.downType = downType;
-      }
+	private  class AutoDownExcelService extends Service<String>{
 
       @Override
-      protected Task<Void> createTask() {
-        return new AutoDownExcelTask(downType);
+      protected Task<String> createTask() {
+        return new AutoDownExcelTask();
       }
       
 	}
 	
 	
-	private  class AutoDownExcelTask extends Task<Void>{
-	  private String downType;
-	  
-      public AutoDownExcelTask(String downType) {
-        super();
-        this.downType = downType;
-      }
+	private  class AutoDownExcelTask extends Task<String>{
 
       @Override
-      protected Void call() throws Exception {
-        autoDownExcels(downType);
-        return null;
+      protected String call() throws Exception {
+        autoDownExcels(PU_TONG);
+        super.updateMessage("PU_TONG========");
+        autoDownExcels(AO_MA_HA);
+        super.updateMessage("AO_MA_HA========");
+        autoDownExcels(DA_BO_LUO);
+        return "一个周期执行完成";
       }
 
 	}
@@ -956,20 +949,20 @@ public class SMAutoController implements Initializable {
     	boolean hasRoomValue = parseObject.getResult().getList() != null;
     	if(hasRoomValue) {
     		List<GameRoomModel> roomList = parseObject.getResult().getList();
-    		long updateCount = updateCount(roomList);
-    		boolean isAllDown = updateCount == 0 ? true : false;
+    		List<GameRoomModel> updatedList = updatedList(roomList);
+    		boolean isAllDown = updatedList.isEmpty() ? true : false;
     		if(isAllDown) {
     			excelInfo(houtai + "无更新");
     			return;
     		}else {
-    			excelInfo(houtai + "更新了"+updateCount + "个白名单");
+    			excelInfo(houtai + "更新了"+updatedList.size() + "个白名单");
     		}
-    		//排序
-    		roomList = roomList.stream()
+    		//排序， 前6个
+    		updatedList = updatedList.stream().limit(DOWN_LIMIT)
     			.sorted((m,n)-> Long.valueOf(m.getCreatetime()).compareTo(Long.valueOf(n.getCreatetime())))
     			.collect(Collectors.toList());
     		String token = getToken();
-    		for(GameRoomModel gameRoomModel : roomList) {
+    		for(GameRoomModel gameRoomModel : updatedList) {
     			String fileName = getDownLoadFilterName(gameRoomModel.getCreatetime(),gameRoomModel.getRoomname());
     			if(downloadCache.containsKey(fileName)) {
     				if(log.isDebugEnabled()) {
@@ -1020,12 +1013,16 @@ public class SMAutoController implements Initializable {
      * @param roomList
      * @return
      */
-    private long updateCount(final List<GameRoomModel> roomList) {
+    @SuppressWarnings("unchecked")
+	private List<GameRoomModel> updatedList(final List<GameRoomModel> roomList) {
     	if(CollectUtil.isNullOrEmpty(roomList))
-    		return 0L;
+    		return Collections.EMPTY_LIST;
     	
-    	long updateCount = roomList.stream().filter(info -> !downloadCache.containsKey(getDownLoadFilterName(info.getCreatetime(),info.getRoomname()))).count();
-    	return updateCount;
+    	List<GameRoomModel> updateList = roomList.stream().filter(info -> {
+	    		String name = getDownLoadFilterName(info.getCreatetime(),info.getRoomname());
+	    		return !downloadCache.containsKey(name);
+    		}).collect(Collectors.toList());
+    	return updateList;
     }
     
     private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
@@ -1082,7 +1079,8 @@ public class SMAutoController implements Initializable {
      * @time 2018年4月14日
      * @param event
      */
-    public void  seeHasDownExcelListCacheAction(ActionEvent event){
+    @SuppressWarnings("rawtypes")
+	public void  seeHasDownExcelListCacheAction(ActionEvent event){
     	if(MapUtil.isNullOrEmpty(downloadCache)) {
     		ShowUtil.show("无下载记录，拜拜！", 1);
     		return;
@@ -1189,34 +1187,28 @@ public class SMAutoController implements Initializable {
         this.excelTimer = new Timer();
         excelTimer.schedule(new TimerTask() {
             public void run() {
-//                Platform.runLater(new Runnable() {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	
+                    	//自动下载当天普通房间Excel
+                    	autoDownExcels(PU_TONG);
+                    	
+                    	//自动下载当天奥马哈房间Excel
+                    	autoDownExcels(AO_MA_HA);
+                    	
+                    	//自动下载当天大菠萝Excel
+                    	autoDownExcels(DA_BO_LUO);
+                    }
+                });
+//            	Platform.runLater(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                    	
-//                    	//自动下载当天普通房间Excel
-//                    	autoDownExcels(PU_TONG);
-//                    	
-//                    	//自动下载当天奥马哈房间Excel
-//                    	autoDownExcels(AO_MA_HA);
-//                    	
-//                    	//自动下载当天大菠萝Excel
-//                    	autoDownExcels(DA_BO_LUO);
+//                    	Service<String> autoDownExcelService = new AutoDownExcelService();
+//                        autoDownExcelService.start();
 //                    }
 //                });
-              Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                  //自动下载当天普通房间Excel
-                  Service<Void> puTongService = new AutoDownExcelService(PU_TONG);
-                  puTongService.start();
-                  //自动下载当天奥马哈房间Excel
-                  Service<Void> auMaHaService = new AutoDownExcelService(AO_MA_HA);
-                  auMaHaService.start();
-                  //自动下载当天大菠萝Excel
-                  Service<Void> daBoLuoService = new AutoDownExcelService(DA_BO_LUO);
-                  daBoLuoService.start();
-                }
-            });
+                
             }
         }, 1000, separateTime); // 定时器的延迟时间及间隔时间
 
@@ -1230,18 +1222,6 @@ public class SMAutoController implements Initializable {
 //          }
 //          
 //        });
-        //自动下载当天普通房间Excel
-        Service<Void> puTongService = new AutoDownExcelService(PU_TONG);
-        puTongService.start();
-        //自动下载当天奥马哈房间Excel
-        Service<Void> auMaHaService = new AutoDownExcelService(AO_MA_HA);
-        auMaHaService.start();
-        //自动下载当天大菠萝Excel
-        Service<Void> daBoLuoService = new AutoDownExcelService(DA_BO_LUO);
-        daBoLuoService.start();
-        
-        
-        
     }
     
     /**
