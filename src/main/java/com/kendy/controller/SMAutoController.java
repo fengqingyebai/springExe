@@ -10,7 +10,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,14 +22,14 @@ import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import javax.swing.filechooser.FileSystemView;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.db.DBUtil;
@@ -57,18 +56,16 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
-
 import application.DataConstans;
-import application.Main;
 import application.MyController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -82,8 +79,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 /**
@@ -894,9 +889,42 @@ public class SMAutoController implements Initializable {
 	}
 	
 	
+	private  class AutoDownExcelService extends Service<Void>{
+	  private String downType;
+
+      public AutoDownExcelService(String downType) {
+        super();
+        this.downType = downType;
+      }
+
+      @Override
+      protected Task<Void> createTask() {
+        return new AutoDownExcelTask(downType);
+      }
+      
+	}
+	
+	
+	private  class AutoDownExcelTask extends Task<Void>{
+	  private String downType;
+	  
+      public AutoDownExcelTask(String downType) {
+        super();
+        this.downType = downType;
+      }
+
+      @Override
+      protected Void call() throws Exception {
+        autoDownExcels(downType);
+        return null;
+      }
+
+	}
+	
+	
 	//软件启动时先去加载桌面已经下载的Excel列表进缓存
 	//重复的跳过，不重复的则下载后更新缓存和数据
-    public void autoDownExcels(String DownType) {
+    public  void autoDownExcels(String DownType) {
     	
     	String houtai = PU_TONG.equals(DownType) ? "普通后台" : AO_MA_HA.equals(DownType) ? "奥马哈后台" : DA_BO_LUO.equals(DownType) ? "大菠萝" : "其他后台"; 
     	
@@ -1161,22 +1189,59 @@ public class SMAutoController implements Initializable {
         this.excelTimer = new Timer();
         excelTimer.schedule(new TimerTask() {
             public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                    	
-                    	//自动下载当天普通房间Excel
-                    	autoDownExcels(PU_TONG);
-                    	
-                    	//自动下载当天奥马哈房间Excel
-                    	autoDownExcels(AO_MA_HA);
-                    	
-                    	//自动下载当天大菠萝Excel
-                    	autoDownExcels(DA_BO_LUO);
-                    }
-                });
+//                Platform.runLater(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                    	
+//                    	//自动下载当天普通房间Excel
+//                    	autoDownExcels(PU_TONG);
+//                    	
+//                    	//自动下载当天奥马哈房间Excel
+//                    	autoDownExcels(AO_MA_HA);
+//                    	
+//                    	//自动下载当天大菠萝Excel
+//                    	autoDownExcels(DA_BO_LUO);
+//                    }
+//                });
+              Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                  //自动下载当天普通房间Excel
+                  Service<Void> puTongService = new AutoDownExcelService(PU_TONG);
+                  puTongService.start();
+                  //自动下载当天奥马哈房间Excel
+                  Service<Void> auMaHaService = new AutoDownExcelService(AO_MA_HA);
+                  auMaHaService.start();
+                  //自动下载当天大菠萝Excel
+                  Service<Void> daBoLuoService = new AutoDownExcelService(DA_BO_LUO);
+                  daBoLuoService.start();
+                }
+            });
             }
         }, 1000, separateTime); // 定时器的延迟时间及间隔时间
+
+//        ExecutorService service =  Executors.newScheduledThreadPool(1, new ThreadFactory() {
+//
+//          @Override
+//          public Thread newThread(Runnable r) {
+//            Thread t = new Thread();
+//            t.setDaemon(true);
+//            return t;
+//          }
+//          
+//        });
+        //自动下载当天普通房间Excel
+        Service<Void> puTongService = new AutoDownExcelService(PU_TONG);
+        puTongService.start();
+        //自动下载当天奥马哈房间Excel
+        Service<Void> auMaHaService = new AutoDownExcelService(AO_MA_HA);
+        auMaHaService.start();
+        //自动下载当天大菠萝Excel
+        Service<Void> daBoLuoService = new AutoDownExcelService(DA_BO_LUO);
+        daBoLuoService.start();
+        
+        
+        
     }
     
     /**
