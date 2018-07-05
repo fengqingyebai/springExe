@@ -890,6 +890,7 @@ public class SMAutoController implements Initializable {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private  class AutoDownExcelService extends Service<String>{
 
       @Override

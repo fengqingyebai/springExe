@@ -6,9 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -171,7 +169,7 @@ public class MyController implements Initializable{
     @FXML  private TextField huishui; //新增团队回水
     @FXML private TextField insuranceRate; //新增保险比例
     @FXML private TextField gudongInput; //新增股东名称
-    @FXML  private ListView gudongListView; //所有股东名称
+    @FXML  private ListView<String> gudongListView; //所有股东名称
     @FXML private Label indexLabel;//第几局
     @FXML  private Label dbConnectionState;//数据库连接状态
     @FXML  private TextField searchText;//
@@ -354,8 +352,6 @@ public class MyController implements Initializable{
 	@FXML private TableColumn<ShangmaInfo,String> shangmaSumOfZJ;
 	@FXML private TableColumn<ShangmaInfo,String> shangmaPlayerId;
 	@FXML private TableColumn<ShangmaInfo,String> shangmaLianheEdu;
-//	@FXML private TableColumn<ShangmaInfo,String> shangmaShishou;
-//	@FXML private TableColumn<ShangmaInfo,String> shangmaJu;//第多少局(自己初始化单元格)
 	@FXML private VBox shangmaVBox;//用于初始化团队ID按钮
 	@FXML public Label shangmaTeamId;//显示栏上的团队ID
 	@FXML private Label shangmaZSM;//团队总上码
@@ -401,6 +397,8 @@ public class MyController implements Initializable{
 	public static TGController tgController; //托管控制类
 	public static SMAutoController smAutoController; //托管控制类
 	public static BankFlowController bankFlowController; // 银行流水控制类
+	public static GDController gdController; // 股东控制类
+	public static QuotaController quotaController; // 配帐控制类
 	
 	
 	/* 每点击结算按钮就往这个静态变更累加（只针对当局）
@@ -424,7 +422,7 @@ public class MyController implements Initializable{
 	 * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		initSystemCode();
@@ -436,7 +434,6 @@ public class MyController implements Initializable{
 			lable_currentClubId.setText(clubIdValue);
 		
 		//第一次打开主窗口时显示所有股东
-//		//股东
 		String gudongs = PropertiesUtil.readProperty("gudong");
 		DataConstans.gudongList = new ArrayList<>();
 		if(!StringUtil.isBlank(gudongs)){
@@ -474,12 +471,11 @@ public class MyController implements Initializable{
 		cmSuperIdSum.setStyle("-fx-alignment: CENTER;-fx-font-weight: bold;");
                         
 		shishiJine.setCellFactory(TextFieldTableCell.forTableColumn());
-//		shishiJine.setCellFactory(redAndEditCellFactory);
 		shishiJine.setOnEditCommit(
 				new EventHandler<CellEditEvent<CurrentMoneyInfo, String>>() {
 					@Override
 					public void handle(CellEditEvent<CurrentMoneyInfo, String> t) {
-						String oldValue = t.getOldValue();
+						//String oldValue = t.getOldValue();
 						//修改原值
 						CurrentMoneyInfo cmInfo = (CurrentMoneyInfo) t.getTableView().getItems().get(
 								t.getTablePosition().getRow());
@@ -491,8 +487,6 @@ public class MyController implements Initializable{
 								cmInfo.setShishiJine(t.getNewValue());
 							}else {
 								cmInfo.setShishiJine(t.getOldValue());
-								String ss = t.getTableView().getItems().get(
-										t.getTablePosition().getRow()).getShishiJine();
 								tableCurrentMoneyInfo.refresh();
 							}
 							MoneyService.flush_SSJE_table();//最后刷新实时金额表
@@ -562,17 +556,11 @@ public class MyController implements Initializable{
 		//绑定实时上码表
 		bindCellValue(shangmaLianheEdu,shangmaName,shangmaEdu,shangmaAvailableEdu,shangmaYCJF,shangmaYiSM,shangmaSumOfZJ,shangmaPlayerId);//,shangmaShishou,shangmaJu
 		tableShangma.setRowFactory(new Callback<TableView<ShangmaInfo>, TableRow<ShangmaInfo>>() {  
-            @Override  
+			@Override  
             public TableRow<ShangmaInfo> call(TableView<ShangmaInfo> param) {  
                 return new TableRowControl(tableShangma);  
             }  
         });  
-//		shangmaPlayerId.setCellFactory(shangmaLeftNameCellFactory);
-//		shangmaName.setCellFactory(shangmaLeftNameCellFactory);
-//		shangmaEdu.setCellFactory(shangmaLeftNameCellFactory);
-//		shangmaSumOfZJ.setCellFactory(shangmaLeftNameCellFactory);
-//		shangmaYiSM.setCellFactory(shangmaLeftNameCellFactory);
-		//shangmaYCJF.setCellFactory(shangmaLeftNameCellFactory);
 		
 		shangmaLianheEdu.setCellFactory(getColorCellFactory(new ShangmaInfo()));
 		shangmaAvailableEdu.setCellFactory(getColorCellFactory(new ShangmaInfo()));//red_NotEdit_CellFactory
@@ -591,7 +579,7 @@ public class MyController implements Initializable{
 		shangmaSM.setCellFactory(ShangmaNameCellFactory);
 		shangmaShishou.setCellFactory(ShangmaNameCellFactory);
 		tableShangma.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {    
-			        @Override    
+					@Override    
 			        public void changed(ObservableValue observable,Object oldValue, Object newValue) {
 			        	ShangmaInfo smInfo = (ShangmaInfo)newValue;
 			        	//加载右边的个人详情
@@ -623,39 +611,33 @@ public class MyController implements Initializable{
 		bindCellValue(jfRank,jfPlayerName,jfValue);
 		
 		
-		//////初始化实时金额表
+		//初始化实时金额表
 		MoneyService.iniitMoneyInfo(tableCurrentMoneyInfo);
 		
-//		tableTotalInfo.setItems(tableTotalInfoList);
-		
-//		tableKaixiao.setItems(FXCollections.observableArrayList(
-//				new KaixiaoInfo("测试列","12")
-//				));
-		
-		
-		////////////////////总汇表中的初始化
+		//总汇表中的初始化
 		juTypeListView.getItems().add("合局");
 		
 		LMLabel.setTextFill(Color.web("#CD3700"));
 		indexLabel.setTextFill(Color.web("#0076a3"));// 设置Label 的文本颜色。
 		indexLabel.setFont(new Font("Arial", 30));
 		
-		////////////////////代理查询中的团队回水选择
+		//代理查询中的团队回水选择
 		TeamProxyService.initTeamProxy(
 				tableProxyTeam,proxySumHBox,teamIDCombox,isZjManage,proxyDateLabel,tableProxySum,proxyHSRate,proxyHBRate,proxyFWF,hasTeamBaoxian);
-		////////////////////代理查询中的团队回水选择
+		//代理查询中的团队回水选择
 		TeamProxyService.initTeamSelectAction(teamIDCombox,isZjManage,tableProxyTeam,proxySumHBox);
-		////////////////////会员服务类
+		
+		//会员服务类
 		MemberService.initMemberQuery(memberListView,tableMemberZJ,memberDateStr,memberPlayerId,memberPlayerName,memberSumOfZJ,memberTotalZJ);
 		
 		tabsAction();
-		////////////////////实时上马系统
+		//实时上马系统
 		initShanagma();
 		
-		///////////////合并ID
+		//合并ID
 		CombineIDController.initCombineIdController(tableCurrentMoneyInfo);
 		
-		////////////积分查询
+		//积分查询
 		JifenService.initJifenService(jfTeamIDCombox);
 		
 		//是否启动测试模式
@@ -667,113 +649,42 @@ public class MyController implements Initializable{
 		//初始化全局比例
 		initHSRate();
 		
-		
-//		try {
-//			FXMLLoader loader = new FXMLLoader();
-//			Parent root = loader.load(getClass().getResource("/com/kendy/dialog/team_proxy_frame.fxml").openStream());
-//			loader.setController(new TeamProxyController());
-////			loader.setController(ControllerManager.teamProxyController);
-//			//lmController = loader.getController();
-//			Tab tab1 = new Tab();
-//			tab1.setText("代理2查询");
-//			tab1.setClosable(false);
-//			tab1.setContent(root);
-//			tabs.getTabs().add(tab1);  
-//			
-//		} catch (IOException e) {
-//			ErrorUtil.err("代理2查询加载失败", e);
-//		}
-		
-	    try {
-	    	FXMLLoader loader = new FXMLLoader();
-			Parent root = loader.load(getClass().getResource("/com/kendy/dialog/LM_Tab_Fram.fxml").openStream());
-			//loader.setController(lmController);
-			lmController = loader.getController();
-			Tab tab1 = new Tab();
-		    tab1.setText("联盟对账");
-		    tab1.setClosable(false);
-			tab1.setContent(root);
-			tabs.getTabs().add(tab1);  
-			
-		} catch (IOException e) {
-			ErrorUtil.err("联盟tab加载失败", e);
-		}
+	    lmController = (LMController) addSubTab("联盟对账", "LM_Tab_Fram.fxml");
+	    quotaController = (QuotaController) addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
+	    gdController = (GDController) addSubTab("股东贡献值", "gudong_contribution.fxml");
+	    tgController = (TGController) addSubTab("托管工具", "TG_toolaa.fxml");
+	    smAutoController = (SMAutoController) addSubTab("自动上码配置", "SM_Autos.fxml");
+	    bankFlowController = (BankFlowController) addSubTab("银行流水", "bank_flow_frame.fxml");
 	    
-	    
-	    try {
-	    	FXMLLoader loader = new FXMLLoader();
-			Parent root = loader.load(getClass().getResource("/com/kendy/dialog/Quota_Tab_Fram.fxml").openStream());
-			loader.setController(new QuotaController());
-			Tab quotaTab = new Tab();
-			quotaTab.setText("联盟配账");
-			quotaTab.setClosable(false);
-			quotaTab.setContent(root);
-			tabs.getTabs().add(quotaTab);  
-			
-		} catch (IOException e) {
-			ErrorUtil.err("联盟配账tab加载失败", e);
-		}
-	    
-	    
-	    try {
-	    	FXMLLoader loader = new FXMLLoader();
-	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/gudong_contribution.fxml").openStream());
-	    	loader.setController(new GDController());
-	    	Tab gdTab = new Tab();
-	    	gdTab.setText("股东贡献值");
-	    	gdTab.setClosable(false);
-	    	gdTab.setContent(root);
-	    	tabs.getTabs().add(gdTab);  
-	    	
-	    } catch (IOException e) {
-	    	ErrorUtil.err("股东贡献值tab加载失败", e);
-	    }
-	    
-	    
-	    try {
-	    	FXMLLoader loader = new FXMLLoader();
-	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/TG_toolaa.fxml").openStream());
-	    	Tab gdTab = new Tab();
-	    	gdTab.setText("托管工具");
-	    	gdTab.setClosable(false);
-	    	gdTab.setContent(root);
-	    	tabs.getTabs().add(gdTab);  
-	    	tgController = (TGController) loader.getController();
-	    	
-	    } catch (IOException e) {
-	    	ErrorUtil.err("托管小工具tab加载失败", e);
-	    }
-	 
-	    try {
-	    	FXMLLoader loader = new FXMLLoader();
-	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/SM_Autos.fxml").openStream());
-	    	Tab gdTab = new Tab();
-	    	gdTab.setText("自动上码配置");
-	    	gdTab.setClosable(false);
-	    	gdTab.setContent(root);
-	    	tabs.getTabs().add(gdTab);  
-	    	smAutoController = (SMAutoController) loader.getController();
-	    	
-	    } catch (IOException e) {
-	    	ErrorUtil.err("托管小工具tab加载失败", e);
-	    }
-	    
-	    try {
-	    	
-	    	FXMLLoader loader = new FXMLLoader();
-	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/bank_flow_frame.fxml").openStream());
-	    	Tab gdTab = new Tab();
-	    	gdTab.setText("银行流水");
-	    	gdTab.setClosable(false);
-	    	gdTab.setContent(root);
-	    	tabs.getTabs().add(gdTab);  
-	    	bankFlowController = (BankFlowController) loader.getController();
-	    	
-	    } catch (IOException e) {
-	    	ErrorUtil.err("银行流水tab加载失败", e);
-	    }
 	    
 	}
+	
+	
+	/**
+	 * 加载子Tab
+	 * 
+	 * @time 2018年7月5日
+	 * @param tabName
+	 * @param frameName
+	 * @param clazz
+	 */
+	private Object addSubTab(String tabName, String frameName) {
+		try {
+	    	FXMLLoader loader = new FXMLLoader();
+	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/" + frameName).openStream());
+	    	Tab subTab = new Tab();
+	    	subTab.setText(tabName);
+	    	subTab.setClosable(false);
+	    	subTab.setContent(root);
+	    	tabs.getTabs().add(subTab);  
+	    	return loader.getController();
+	    } catch (IOException e) {
+	    	ErrorUtil.err(tabName + "tab加载失败", e);
+	    }
+		return null;
+	}
+	
+	
 	
 	/**
 	 * 初始化系统编码
@@ -883,14 +794,10 @@ public class MyController implements Initializable{
 	 * 
 	 * @time 2017年11月12日
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void tabsAction() {
-//		importMembersBtn.fire();
-//		importHuishuiBtn.fire();//已经导入数据库
-//		importPreDataBtn.fire();
-//		tabs.getSelectionModel().select(1);
 		tabs.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
+			@Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
             	Tab tab = (Tab)newValue;
             	log.info(" newTab:"+tab.getText());
@@ -1018,7 +925,7 @@ public class MyController implements Initializable{
 		fileChooser.setInitialDirectory(new File(rootPathName));//初始化根目标  
 		fileChooser.getExtensionFilters().addAll(
 				new FileChooser.ExtensionFilter("excel", "*.xls?")
-//				new FileChooser.ExtensionFilter("2007Excel", "*.xlsx")
+				//new FileChooser.ExtensionFilter("2007Excel", "*.xlsx")
 				);
 		File file = null;
 		try {
@@ -1082,7 +989,6 @@ public class MyController implements Initializable{
 				
 				ShowUtil.show("导入人员名单成功", 2);
 				//刷新相关缓存
-//				ConsUtil.refreshTeamIdAndPlayerId();
 				ConsUtil.refresh_SM_Detail_Map();//加载测试数据
 			} catch (Exception e) {
 				ErrorUtil.err("导入人员名单失败",e);
@@ -1095,6 +1001,7 @@ public class MyController implements Initializable{
 	/**
 	 * 导入回水比例文件
 	 */
+	@SuppressWarnings("unchecked")
 	public void importHuishuiExcelAction(ActionEvent even){
 		String huishuiFilePath = huishuiDir.getText();
 		if(!StringUtil.isBlank(huishuiFilePath)){
@@ -1104,7 +1011,6 @@ public class MyController implements Initializable{
 				DataConstans.huishuiMap.putAll((Map<String,Huishui>)wrap.obj);
 				DBUtil.insertTeamHS((Map<String,Huishui>) wrap.obj);
 				ShowUtil.show("导入回水比例成功", 2);
-//			    importHuishuiBtn.setDisable(true);//导入后不再导了
 			    //代理查询初始化团队ID
 				TeamProxyService.initTeamSelectAndZjManage(teamIDCombox);
 				//积分查询初始化团队ID
@@ -1131,9 +1037,6 @@ public class MyController implements Initializable{
 					ShowUtil.show("导入昨日留底失败!");
 				}else{
 					ShowUtil.show("导入昨日留底成功", 2);
-					//备份到01场次
-					//LMLabel.setText(getLMValFirstTime());
-					//MoneyService.fillTableCurrentMoneyInfo(tableCurrentMoneyInfo, tableZijin, tableProfit,tableKaixiao,LMLabel);
 					
 					//保存到数据库、
 					String dataTime = "2017-01-01";//第一次导入时是没有时间的，故到时可以改,注意这里没有匹配人员ID
@@ -1141,7 +1044,6 @@ public class MyController implements Initializable{
 					DBUtil.insertPreData(dataTime,json_preData);
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				ShowUtil.show("导入昨日留底出错,原因："+e.getMessage());
 				e.printStackTrace();
 			}
@@ -1152,6 +1054,7 @@ public class MyController implements Initializable{
 	/**
 	 * 导入战绩文件
 	 */
+	@SuppressWarnings("unchecked")
 	public void importZJExcelAction(ActionEvent even){
 		String zjFilePath = excelDir.getText();
 		if(!StringUtil.isBlank(zjFilePath)){
@@ -1184,12 +1087,6 @@ public class MyController implements Initializable{
 			dateLabel.setText(DataConstans.Date_Str);
 			if(wrap.resultSuccess){
 				indexLabel.setText("第"+tableId+"局");
-//				//1 填充总信息表
-//				MoneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju,tableDangju,tableJiaoshou,tableTeam,(List<UserInfos>)wrap.obj,tableId);
-//				//2填充当局表和交收表和团队表的总和
-//				MoneyService.setTotalNumOnTable(tableDangju, DataConstans.SumMap.get("当局"));
-//				MoneyService.setTotalNumOnTable(tableJiaoshou, DataConstans.SumMap.get("交收"));
-//				tableTeam.getColumns().get(4).setText(MoneyService.digit0(DataConstans.SumMap.get("团队回水及保险总和")));
 				importExcelData(tableId,(List<UserInfos>)wrap.obj);
 				
 				importZJBtn.setDisable(true);//导入不可用
@@ -1214,6 +1111,7 @@ public class MyController implements Initializable{
 	 */
 	private static String selected_LM_type = "";//选择后会被清空
 	private static String final_selected_LM_type = "";//选择后不会被清空，用于检测额度是否超出
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void selectLM() {
 		Dialog dialog = new Dialog<>();
      	dialog.setTitle("请选择联盟:");
@@ -1404,7 +1302,7 @@ public class MyController implements Initializable{
 	    	if(newClubId != null && !"".equals(newClubId)){
 	    		String oddClubId = PropertiesUtil.readProperty("clubId");
 	    		PropertiesUtil.writeProperty("clubId", newClubId);
-	    		log.info("修改了当前俱乐部ID：旧值"+oddClubId + "  新值"+newClubId);
+	    		log.info("修改当前俱乐部ID：旧值"+oddClubId + "  新值"+newClubId);
 	    		lable_currentClubId.setText(newClubId);
 	    		ShowUtil.show("俱乐部ID修改成功！", 2);
 	    	}
@@ -1414,7 +1312,7 @@ public class MyController implements Initializable{
     /**
      * 增加股东
      */
-    public void addGudongAction(ActionEvent event){
+	public void addGudongAction(ActionEvent event){
     	String newGudongName = gudongInput.getText();
     	if(!StringUtil.isBlank(newGudongName)){
     		if(!gudongListView.getItems().contains(newGudongName)){
@@ -1467,12 +1365,9 @@ public class MyController implements Initializable{
      * @time 2018年2月21日
      * @return
      */
-    public static ObservableList<String>  getGudongList(){
-    	ObservableList gudongItems = Main.myController.gudongListView.getItems();
+	public static ObservableList<String>  getGudongList(){
+    	ObservableList<String> gudongItems = Main.myController.gudongListView.getItems();
     	if(CollectUtil.isHaveValue(gudongItems)) {
-//    		List<String> gudongList = new ArrayList<>();
-//    		gudongItems.forEach(gudong -> gudongList.add((String)gudong));
-//    		return gudongList;
     		return gudongItems;
     	}else {
     		return FXCollections.observableArrayList();
@@ -1569,6 +1464,7 @@ public class MyController implements Initializable{
      */
     Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>> cellFactory = //
 	    new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
+		@SuppressWarnings("rawtypes")
 		@Override
 		public TableCell call(final TableColumn<WanjiaInfo, String> param) {
 		    final TableCell<WanjiaInfo, String> cell = new TableCell<WanjiaInfo, String>() {
@@ -1649,6 +1545,7 @@ public class MyController implements Initializable{
 	Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>> cellFactoryCopy
 	= //
 	new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
+		@SuppressWarnings("rawtypes")
 		@Override
 		public TableCell call(final TableColumn<WanjiaInfo, String> param) {
 			final TableCell<WanjiaInfo, String> cell = new TableCell<WanjiaInfo, String>() {
@@ -1688,6 +1585,7 @@ public class MyController implements Initializable{
      */
     Callback<TableColumn<TeamInfo, String>, TableCell<TeamInfo, String>> cellFactoryJiesuan = //
 	    new Callback<TableColumn<TeamInfo, String>, TableCell<TeamInfo, String>>() {
+		@SuppressWarnings("rawtypes")
 		@Override
 		public TableCell call(final TableColumn<TeamInfo, String> param) {
 		    final TableCell<TeamInfo, String> cell = new TableCell<TeamInfo, String>() {
@@ -1879,10 +1777,8 @@ public class MyController implements Initializable{
      * 
      */
     private class  TableRowControl<T> extends TableRow<T> {  
-    	private TableView<T> tableView;
     	public TableRowControl(TableView<T> tableView) {  
     		super();  
-    		this.tableView = tableView;
     		this.setOnMouseClicked(new EventHandler<MouseEvent>() {  
     			@Override  
     			public void handle(MouseEvent event) {  
@@ -1999,7 +1895,6 @@ public class MyController implements Initializable{
 	 * 锁定当局按钮
 	 */
 	public void lockDangjuAction(ActionEvent event) {
-		boolean isOK = false;
 		String JS = "交收";
 		String PZ = "平帐";
 		if(DataConstans.SumMap.get(JS) != null && DataConstans.SumMap.get(PZ) != null) {
@@ -2041,7 +1936,6 @@ public class MyController implements Initializable{
 				
 				//清空表数据
 				clearData(tableTotalInfo,tablePaiju,tableTeam,tableDangju,tableJiaoshou,tablePingzhang);
-						//tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit
 				//清空相关缓存
 				Double teamData = DataConstans.SumMap.get("团队回水及保险总和");//这个值必须保留
 				Double shangchangKaixiao = DataConstans.SumMap.get("上场开销");//这个值必须保留
@@ -2143,7 +2037,6 @@ public class MyController implements Initializable{
 	public void saveHistoryRecord() throws Exception {
 		List<TeamHuishuiInfo> list = DataConstans.Dangju_Team_Huishui_List;
 		List<HistoryRecord> ls = new ArrayList<>();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		if(list != null && list.size() > 0 ) {
 			for(TeamHuishuiInfo hs : list ) {
@@ -2208,13 +2101,12 @@ public class MyController implements Initializable{
 		//DataConstans.SumMap.clear();
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void clearData(TableView tableTotalInfo,TableView tablePaiju,TableView tableTeam,
 			TableView tableDangju,TableView tableJiaoshou,TableView tablePingzhang) {
 		//清空相关界面表数据
 		tableTotalInfo.setItems(null);
 		tablePaiju.setItems(null);
-//		tableTeam.setItems(null);
 		tableDangju.setItems(null);
 		tableJiaoshou.setItems(null);
 		tablePingzhang.setItems(null);
@@ -2222,23 +2114,18 @@ public class MyController implements Initializable{
 		MoneyService.setTotalNumOnTable(tableDangju, 0d);
 		MoneyService.setTotalNumOnTable(tableJiaoshou, 0d);
 		MoneyService.setTotalNumOnTable(tablePingzhang, 0d);
-//		MoneyService.setTotalNumOnTable(tableTeam, 0d,4);
 		
-		//2017-12-31注释
-		// if("2017-01-01".equals(DBUtil.Load_Date)) {
-		// tableTeam.setItems(null);
-		// MoneyService.setTotalNumOnTable(tableTeam, 0d,4);
-		// }
 		
 		//清空缓存中的数据
 		clearDataConstansCache();
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void clear10Tables(TableView tableTotalInfo,TableView tablePaiju,TableView tableTeam,
 			TableView tableDangju,TableView tableJiaoshou,TableView tablePingzhang) {
 		//清空相关界面表数据
 		tableTotalInfo.setItems(null);
 		tablePaiju.setItems(null);
-//		tableTeam.setItems(null);
 		tableDangju.setItems(null);
 		tableJiaoshou.setItems(null);
 		tablePingzhang.setItems(null);
@@ -2246,7 +2133,6 @@ public class MyController implements Initializable{
 		MoneyService.setTotalNumOnTable(tableDangju, 0d);
 		MoneyService.setTotalNumOnTable(tableJiaoshou, 0d);
 		MoneyService.setTotalNumOnTable(tablePingzhang, 0d);
-//		MoneyService.setTotalNumOnTable(tableTeam, 0d,4);
 		
 		if("2017-01-01".equals(DBUtil.Load_Date)) {
 			tableTeam.setItems(null);
@@ -2451,7 +2337,6 @@ public class MyController implements Initializable{
 		tableCurrentMoneyInfo.setEditable(false);
 		tableTeam.getColumns().get(5).setVisible(false);
 		tableTeam.refresh();
-//		tablePaiju.getColumns().get(0).setVisible(false);//copy
 		tablePaiju.getColumns().get(6).setVisible(false);
 		tablePaiju.refresh();
 		tableZijin.setEditable(false);
@@ -2471,7 +2356,6 @@ public class MyController implements Initializable{
 		tableCurrentMoneyInfo.setEditable(true);
 		tableTeam.getColumns().get(5).setVisible(true);
 		tableTeam.refresh();
-		//tablePaiju.getColumns().get(0).setVisible(false);//copy
 		tablePaiju.getColumns().get(6).setVisible(true);
 		tablePaiju.refresh();
 		tableZijin.setEditable(true);
@@ -2512,8 +2396,6 @@ public class MyController implements Initializable{
 		    //备份到01场次
 		    try {
 		    	//如果以下三个有没有数据则可判断还没导入最新的Excel
-		    	ObservableList<TotalInfo> obListTotal = tableTotalInfo.getItems();
-		    	ObservableList<WanjiaInfo> obListPaiju = tablePaiju.getItems();
 		    	selected_LM_type = "";
 		    	if(tableTotalInfo.getItems() == null
 		    			|| tablePaiju.getItems() == null
@@ -2541,10 +2423,6 @@ public class MyController implements Initializable{
 					return;
 			    }
 			    
-			    
-			    //情况二：锁定后再撤销
-			    //加载前一场数据
-				int pageIndex = DataConstans.Index_Table_Id_Map.size();
 				//撤销的代码
 				cancelDangju();
 				
@@ -2562,10 +2440,6 @@ public class MyController implements Initializable{
 	 * 清空联盟对帐的信息
 	 */
 	public void openLMDialogAction(ActionEvent event){
-		// if(!importZJBtn.isDisabled()) {
-		// ShowUtil.show("只能在导入战绩后才能清空联盟对帐！");
-		// return;
-		// }
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle("提示");
 		alert.setHeaderText(null);
@@ -2593,7 +2467,6 @@ public class MyController implements Initializable{
 		reCovery10TablesByPage(pageIndex);
 		//清空相关表数据（保留类似昨日留底的表数据）
 		clearData(tableTotalInfo,tablePaiju,tableTeam,tableDangju,tableJiaoshou,tablePingzhang);
-		//tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit
 		
 		//恢复缓存中的数据
 		reCoveryRelatedCache();
@@ -2612,24 +2485,8 @@ public class MyController implements Initializable{
 				//最好是保证场次是新的tableId
 			}
 			//恢复玩家战绩信息
-			Map.Entry<String, List<UserInfos>> map = ConsUtil.getTail(DataConstans.zjMap);
 			DataConstans.zjMap.remove(tableId);
-			//恢复团队回水信息====原先是注释那一部分的代码，现在注释掉，改为从数据库加载上一场锁定的团队回水信息
-//			Map<String,List<TeamHuishuiInfo>> teamHSMap = DataConstans.Team_Huishui_Map;
-//			log.debug("撤销前："+JSON.toJSONString(teamHSMap));
-//			log.debug("删除"+tableId);
-//			DataConstans.Dangju_Team_Huishui_List.forEach( info -> {
-//				String teamId = info.getTuan().toUpperCase();
-//				String tabelId = info.getTableId();
-//				List<TeamHuishuiInfo> tempList = teamHSMap.get(teamId);
-//				for(TeamHuishuiInfo hsInfo : tempList) {
-//					if(hsInfo.getTableId().equals(tabelId)) {
-//						tempList.remove(hsInfo);
-//						break;
-//					}
-//				}
-//			});
-//			log.debug("撤销后："+JSON.toJSONString(DataConstans.Team_Huishui_Map));
+			
 			Map<String, String> maps = DBUtil.getLastLockedData();
 			if(maps != null && maps.size() > 0) {
 				DataConstans.Team_Huishui_Map = JSON.parseObject(maps.get("Team_Huishui_Map"), new TypeReference<Map<String, List<TeamHuishuiInfo>>>() {});
@@ -2647,7 +2504,7 @@ public class MyController implements Initializable{
 				String sumOfTeam = MoneyService.getLockedInfo(size+"", "团队回水总和");
 				String shangchangKaixiao = MoneyService.getLockedInfo(size+"", "实时开销总和");
 				if("".equals(sumOfTeam)) {
-					log.debug("从上一场加载==团队回水总和失败！！！！");
+					log.error("从上一场加载==团队回水总和失败！！！！");
 				}else {
 					DataConstans.SumMap.put("团队回水及保险总和", Double.valueOf(sumOfTeam));
 					DataConstans.SumMap.put("上场开销", Double.valueOf(shangchangKaixiao));//add 9-1
@@ -2808,13 +2665,6 @@ public class MyController implements Initializable{
 			+"\r\n你确定要删除所选中的实时金额吗?");
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.get() == ButtonType.OK){
-				//add 删除前先判断这记录是子或父ID，若是则先解除父子ID关系
-//				String playerId = info.getWanjiaId();
-//				if(!StringUtil.isBlank(playerId) && (DataConstans.Combine_Sub_Id_Map.containsKey(playerId)
-//						|| DataConstans.Combine_Super_Id_Map.containsKey(playerId))) {
-//					ShowUtil.show("删除前请先解除本记录的父子ID关系!");
-//					return;
-//				}
 				tableCurrentMoneyInfo.getItems().remove(index);
 				tableCurrentMoneyInfo.refresh();
 				MoneyService.flush_SSJE_table();
@@ -2868,9 +2718,6 @@ public class MyController implements Initializable{
 			
 			//实时上码表：清空所有SM_Detail
 			DataConstans.SM_Detail_Map= new HashMap<>();//新一天统计时应该清空昨日数据
-			//实时上码表：获取最新的团队ID与玩家ID列表的映射
-//			ConsUtil.refreshTeamIdAndPlayerId();
-			//ConsUtil.refresh_SM_Detail_Map();//新一天统计时应该清空昨日数据
 			
 			//初始化股东列表
 			DataConstans.initGudong();
@@ -2892,7 +2739,6 @@ public class MyController implements Initializable{
 			Label LMLabel) {
     	//清空十个表数据
     	clearData(tableTotalInfo,tablePaiju,tableTeam,tableDangju,tableJiaoshou,tablePingzhang);
-		//tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit
     	indexLabel.setText(INDEX_ZERO);
 
     	if(DBUtil.isPreData2017VeryFirst()) {
@@ -2935,8 +2781,6 @@ public class MyController implements Initializable{
 			//加载十个表格数据
 			int pageIndex = DataConstans.Paiju_Index.get();
 			pageInput.setText(pageIndex+"");
-//			indexLabel.setText(value);
-//			getResultByPage(pageIndex);//切不可调用该方法，因为它会清空已经锁定的最后一场团队数据导致总和计算不对
 			try {
 				dateLabel.setText(DataConstans.Date_Str);
 				//恢复锁定的数据
@@ -2948,8 +2792,6 @@ public class MyController implements Initializable{
 				
 				//清空相关表数据（保留类似昨日留底的表数据）
 				clearData(tableTotalInfo,tablePaiju,tableTeam,tableDangju,tableJiaoshou,tablePingzhang);
-						//tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit
-				System.out.println(DataConstans.membersMap.size());
 				indexLabel.setText(INDEX_ZERO);
 			} catch (Exception e) {
 				ShowUtil.show("中途继续失败：原因："+e.getMessage());
@@ -2980,9 +2822,6 @@ public class MyController implements Initializable{
     		//处理锁定数据
     		DBUtil.handle_last_locked_data();
     		DBUtil.del_all_locked_data_details();//删除今日的锁定数据
-    		
-    		//从数据库中删除相应信息
-			//DBUtil.del_club_and_record();
     		
     		DBUtil.reset_clubZhuofei_to_0();//重置联盟中俱乐部的桌费和已结算为0
 			
@@ -3107,13 +2946,12 @@ public class MyController implements Initializable{
     	return new Callback<TableColumn<T,String>, TableCell<T,String>>() {  
     	    public TableCell<T,String> call(TableColumn<T,String> param) {  
     	    	TableCell<T,String> cell = new TableCell<T,String>() {  
-    	            ObservableValue ov;  
     	            @Override  
     	            public void updateItem(String item, boolean empty) {  
     	                super.updateItem(item, empty);  
     	                this.setTextFill(null); 
     	                if (!isEmpty() && item != null) {  
-    	                    ov = getTableColumn().getCellObservableValue(getIndex()); 
+    	                	 //ObservableValue<?> ov = getTableColumn().getCellObservableValue(getIndex()); 
     	                     //log.debug(ov.getValue());  
     	                     if(item.contains("-")) {
     	                    	 //this.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;");
@@ -3209,26 +3047,6 @@ public class MyController implements Initializable{
     	}
     }
     
-    /**
-     * 支付全部（有空再去实现吧）
-     * 
-     * @time 2017年11月11日
-     * @param event
-     */
-    public void payedAllAction(ActionEvent event) {
-    	if(tablePaiju != null && tablePaiju.getItems() != null ) {
-    		
-    		TableColumn<WanjiaInfo, ?> col = tablePaiju.getColumns().get(tablePaiju.getColumns().size()-1);
-    		
-    		ObservableList<TableColumn<WanjiaInfo, ?>> columns = tablePaiju.getColumns();
-    		
-    		for(WanjiaInfo info : tablePaiju.getItems()) {
-    			System.out.println(info.toString());
-    		}
-    	}else {
-    		ShowUtil.show("全支付失败：因为牌局表为空！");
-    	}
-    }
     
 
     /**
