@@ -503,7 +503,8 @@ public class GDController implements Initializable{
 		return findFirst;
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public void initialize(URL location, ResourceBundle resources) {
 		//主表
 		KF_gudongName.setEditable(true);

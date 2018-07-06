@@ -389,9 +389,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 新增托管开销
-	 * 
-	 * @time 2018年3月3日
-	 * @param event
 	 */
 	public void addPlayerCommentAction(ActionEvent event) {
 		openBasedDialog("TG_add_player_comment_frame.fxml","新增玩家备注",Constants.ADD_TG_KAIXIAAO_FRAME);
@@ -399,8 +396,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 删除开销记录
-	 * @time 2018年3月4日
-	 * @param event
 	 */
 	public void delTGKaixiaoAction(ActionEvent event) {
 		TGKaixiaoInfo selectedItem = tableTGKaixiao.getSelectionModel().getSelectedItem();
@@ -417,8 +412,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 删除玩家备注记录
-	 * @time 2018年3月4日
-	 * @param event
 	 */
 	public void delTGCommentAction(ActionEvent event) {
 		TGCommentInfo selectedItem = tableTGComment.getSelectionModel().getSelectedItem();
@@ -434,8 +427,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 刷新托管开销表
-	 * 
-	 * @time 2018年3月4日
 	 */
 	public void refreshTableTGKaixiao() {
 		
@@ -489,8 +480,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 刷新托管玩家备注表
-	 * 
-	 * @time 2018年3月4日
 	 */
 	public void refreshTableTGComment() {
 		//从数据库获取最新数据
@@ -544,8 +533,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 加载最新的数据
-	 * 
-	 * @time 2018年3月5日
 	 */
 	public void loadDataLastest() {
 		//清空数据
@@ -671,18 +658,12 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 点击托管公司按钮后先清空相应值
-	 * @time 2018年3月11日
 	 */
 	private void clearWhenChangeCompanyBtn() {
 		clearWhenChangeTeamBtn();
-		
 		tgCompanyYajin.setText("");
 		tgCompanyEdu.setText("");
 		tgYifenhong.setText("0");
-		
-//		tgTotalProfit.setText("0");
-//		tgAvailable.setText("0");
-//		totalWaizhai.setText("0");
 	}
 	
 	/**
@@ -774,27 +755,6 @@ public class TGController implements Initializable{
 		}else {
 			return "0";
 		}
-		
-		
-//		//求该团队的原始战绩
-//		double sumYSZJ = 0.0;
-//		if(TableUtil.isHasValue(tableTGZhanji)) {
-//			sumYSZJ = tableTGZhanji.getItems().stream().map(TGTeamInfo::getTgYSZJ).mapToDouble(NumUtil::getNum).sum();
-//		}else {
-//			return "0";
-//		}
-//		//求该团队的服务比例
-//		String fwfRate = tgTeamFwfRate.getText();
-//		fwfRate = StringUtil.isBlank(fwfRate) ? "0%" :  fwfRate.trim();
-//		double rate = NumUtil.getNumByPercent(fwfRate);
-//		if(rate == 0 || rate == 0.0) {
-//			return "0";
-//		}else {
-//			//托管团队服务费 = 团队原始战绩之和 * 团队服务比例 / 20
-//			return NumUtil.digit2(sumYSZJ * rate / 20.0 + "");
-//		}
-		
-		
 	}
 	
 	/**
@@ -827,7 +787,6 @@ public class TGController implements Initializable{
 				tgTeam.setTgBaoxian(info.getProxyBaoxian());
 				tgTeam.setTgChangci(info.getProxyTableId());
 				//设置战绩2.5% ,即满水
-//				String percent25Str = NumUtil.digit2(Math.abs(NumUtil.getNum(info.getProxyYSZJ())) * (1-Constants.HS_RATE) + "");
 				String percent25Str = getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 1);
 				tgTeam.setTgZJ25(percent25Str);
 				//设置战绩未知%
@@ -958,10 +917,6 @@ public class TGController implements Initializable{
 	}
 	
 	private void changeColumnName_TeamUnknowRate(String teamUnknowRate) {
-//		String newColumnName = "0%";
-//		if(teamUnknowRate.intValue() >= 0) {
-//			newColumnName = NumUtil.getPercentStr(teamUnknowRate);
-//		}
 		tableTGZhanji.getColumns().get(5).setText("战绩"+teamUnknowRate);
 	}
 	
@@ -1208,7 +1163,7 @@ public class TGController implements Initializable{
 			return;
 		}
 		
-		System.out.println("===========================刷新月利润表");
+		log.info("===========================刷新月利润表");
 		List<TGLirunInfo> list = new ArrayList<>();
 		TGLirunInfo lirun = new TGLirunInfo();
 		
@@ -1386,8 +1341,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 手动清空利润表
-	 * 
-	 * @time 2018年3月19日
 	 */
 	public void clearLirunAction() {
 		boolean delOK = DBUtil.del_all_tg_lirun();
@@ -1402,8 +1355,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 获取团队的回保比例
-	 * @param teamId
-	 * @return
 	 */
 	public double getTgTeamHuibaoRate(String teamId) {
 	    List<TGTeamModel> tgTeams = DBUtil.get_all_tg_team();
@@ -1424,8 +1375,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 获取团队的服务费比例
-	 * @param teamId
-	 * @return
 	 */
 	public double getTgTeamFwfRate(String teamId) {
 	    List<TGTeamModel> tgTeams = DBUtil.get_all_tg_team();
@@ -1456,9 +1405,6 @@ public class TGController implements Initializable{
 	
 	/**
 	 * 导出当前月利润
-	 * 
-	 * @time 2018年5月12日
-	 * @param event
 	 */
 	public void exportLirunAction(ActionEvent event) {
 		if(TableUtil.isNullOrEmpty(tableTGLirun)) {

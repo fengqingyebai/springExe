@@ -166,13 +166,13 @@ public class MyController implements Initializable{
     @FXML public static Label currentClubId; //当前俱乐部ID
     @FXML private TextField teamIdField; //新增团队ID
     @FXML private TextField teamNameField; //新增团队名称 
-    @FXML  private TextField huishui; //新增团队回水
+    @FXML private TextField huishui; //新增团队回水
     @FXML private TextField insuranceRate; //新增保险比例
     @FXML private TextField gudongInput; //新增股东名称
-    @FXML  private ListView<String> gudongListView; //所有股东名称
+    @FXML private ListView<String> gudongListView; //所有股东名称
     @FXML private Label indexLabel;//第几局
-    @FXML  private Label dbConnectionState;//数据库连接状态
-    @FXML  private TextField searchText;//
+    @FXML private Label dbConnectionState;//数据库连接状态
+    @FXML private TextField searchText;//
     @FXML private Button importHuishuiBtn;
     @FXML private Button importMembersBtn;
     @FXML private Button importPreDataBtn;
@@ -285,7 +285,6 @@ public class MyController implements Initializable{
 	@FXML private Button delKaixiaoBtn;
 	@FXML private HBox importZJHBox;
 	
-//	@FXML private Button checkExcelBtn;
 	@FXML private Hyperlink addCurrentMoneyLink;
 	@FXML private Hyperlink delCurrentMoneyLink;
 	@FXML private Label lockedLabel;
@@ -353,7 +352,7 @@ public class MyController implements Initializable{
 	@FXML private TableColumn<ShangmaInfo,String> shangmaPlayerId;
 	@FXML private TableColumn<ShangmaInfo,String> shangmaLianheEdu;
 	@FXML private VBox shangmaVBox;//用于初始化团队ID按钮
-	@FXML public Label shangmaTeamId;//显示栏上的团队ID
+	@FXML public  Label shangmaTeamId;//显示栏上的团队ID
 	@FXML private Label shangmaZSM;//团队总上码
 	@FXML private Label shangmaZZJ;//团队总战绩
 	@FXML private TextField shangmaSearch;//上码的输入框
@@ -425,7 +424,7 @@ public class MyController implements Initializable{
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		initSystemCode();
+		
 		table_Profit = this.tableProfit;
 		//第一次打开主窗口时设置当前俱乐部ID值
 		String clubIdValue = PropertiesUtil.readProperty("clubId");
@@ -503,7 +502,6 @@ public class MyController implements Initializable{
 		//绑定资金表
 		tableZijin.setEditable(true);
 		bindCellValue(zijinType,zijinAccount);
-		//zijinAccount.setCellFactory(TextFieldTableCell.forTableColumn());
 		zijinType.setCellFactory(zijinCellFactory);
 		zijinAccount.setCellFactory(getColorCellFactory(new ZijinInfo()));
 		
@@ -649,24 +647,31 @@ public class MyController implements Initializable{
 		//初始化全局比例
 		initHSRate();
 		
-	    lmController = (LMController) addSubTab("联盟对账", "LM_Tab_Fram.fxml");
-	    quotaController = (QuotaController) addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
-	    gdController = (GDController) addSubTab("股东贡献值", "gudong_contribution.fxml");
-	    tgController = (TGController) addSubTab("托管工具", "TG_toolaa.fxml");
-	    smAutoController = (SMAutoController) addSubTab("自动上码配置", "SM_Autos.fxml");
-	    bankFlowController = (BankFlowController) addSubTab("银行流水", "bank_flow_frame.fxml");
+		//加载各个tab页面
+		loadSubTabs();
 	    
 	    
 	}
 	
+
+	/**
+	 * 加载各个tab页面
+	 */
+    private void loadSubTabs() {
+      lmController = (LMController) addSubTab("联盟对账", "LM_Tab_Fram.fxml");
+      quotaController = (QuotaController) addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
+      gdController = (GDController) addSubTab("股东贡献值", "gudong_contribution.fxml");
+      tgController = (TGController) addSubTab("托管工具", "TG_toolaa.fxml");
+      smAutoController = (SMAutoController) addSubTab("自动上码配置", "SM_Autos.fxml");
+      bankFlowController = (BankFlowController) addSubTab("银行流水", "bank_flow_frame.fxml");
+    }
 	
 	/**
-	 * 加载子Tab
+	 * 加载子单个Tab
 	 * 
 	 * @time 2018年7月5日
 	 * @param tabName
 	 * @param frameName
-	 * @param clazz
 	 */
 	private Object addSubTab(String tabName, String frameName) {
 		try {
@@ -682,21 +687,6 @@ public class MyController implements Initializable{
 	    	ErrorUtil.err(tabName + "tab加载失败", e);
 	    }
 		return null;
-	}
-	
-	
-	
-	/**
-	 * 初始化系统编码
-	 * 生产环境为GBK, 测试环境为UTF8
-	 * @time 2018年5月27日
-	 */
-	private void initSystemCode() {
-		if(log.isDebugEnabled()) {
-			sysCode.setText("UTF8");
-		}else {
-			sysCode.setText("GBK");
-		}
 	}
 		
 	/**
@@ -718,7 +708,6 @@ public class MyController implements Initializable{
 		    	Integer version =  (Integer)group.getSelectedToggle().getUserData();
 		    	if(version == 1) {
 		    		log.info("导入版本：新名单");
-		    		//ShowUtil.show("新名单版本未开发！！！");
 		    	}else {
 		    		log.info("导入版本：旧名单");
 		    	}
@@ -815,7 +804,6 @@ public class MyController implements Initializable{
             		if(!StringUtil.isBlank(teamId))
             			TeamProxyService.refresh_TableTeamProxy_TableProxySum(teamId);
             		
-            		//TeamProxyService.allTeamDataMap = TeamProxyService.getTotalTeamHuishuiMap();
             	}
             	if("实时上码系统".equals(tab.getText())) {
             		//刷新上码中的teamWanjiaIdMap
