@@ -58,14 +58,6 @@ public class TgWaizhaiService {
 	private static final String UNKNOW_TG_TEAM = "未知托管团队";
 	public static DecimalFormat df = new DecimalFormat("#.00");
 	
-	/**
-	 * 刷新汇总信息表
-	 */
-	public static void refreWaizhaiTable(TableView<TypeValueInfo> tableWaizhai,TableView<zhaiwuInfo> tableZhaiwu) {
-		Map<String,Map<String,String>> lockedMap = DataConstans.All_Locked_Data_Map;
-		ZonghuiInfo zonghuiInfo = new ZonghuiInfo();
-		ObservableList<ZonghuiInfo> obList = FXCollections.observableArrayList();
-	}
 	
 	/**
 	 * 获取托管团队ID
@@ -97,7 +89,7 @@ public class TgWaizhaiService {
 	 * @param tableCurrentMoneyInfo
 	 * @param tableTeam
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void generateWaizhaiTables(TableView<TypeValueInfo> tableWaizhai,HBox hbox, 
 			TableView<CurrentMoneyInfo> tableCurrentMoneyInfo, TableView<TeamInfo> tableTeam) {
 //		//获取托管团队ID
@@ -241,13 +233,8 @@ public class TgWaizhaiService {
 		}
 		
 		//获取每个股东的实时金额数据
-		List<String> gudongList = DataConstans.gudongList;
-		int gudongSize = gudongList.size();
-		List<CurrentMoneyInfo> eachGudongList = null;
 		
 		//托管团队的实时金额信息{ 托管团队：托管团队金额列表List}
-		String playerId;
-		Player player;
 		
 		//步骤1：添加玩家
 		Map<String, List<CurrentMoneyInfo>> tgTeamCMIMap = SSJE_obList.stream()
@@ -276,9 +263,6 @@ public class TgWaizhaiService {
 			
 		
 		//步骤2：处理个人外债和有联合额度的外债
-		//Map<String,CurrentMoneyInfo> ssje_map = get_SSJE_Map(SSJE_obList);
-		//handlePersonWaizhai(tgTeamIdMap,ssje_map); TODO
-		System.out.println("===============================================以上外债信息为：处理个人外债和有联合额度的外债finishes");
 		tgTeamCMIMap = getFinalTGTeamMap(SSJE_obList);
 		return tgTeamCMIMap;
 	}
@@ -290,6 +274,7 @@ public class TgWaizhaiService {
 	 * @param tgTeamMap
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private static Map<String, List<CurrentMoneyInfo>> getFinalTGTeamMap(List<CurrentMoneyInfo> SSJE_obList){
 		
 		if(CollectUtil.isNullOrEmpty(SSJE_obList)) {
@@ -349,165 +334,11 @@ public class TgWaizhaiService {
 		return !isSuperId && !isSubId;
 	}
 	
-	private static boolean subList(CurrentMoneyInfo cmi) {
-		boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
-		boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
-		return !isSuperId && isSubId;
-	}
-	
 	private static boolean superList(CurrentMoneyInfo cmi) {
 		boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
 		boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
 		return isSuperId && !isSubId;
 	}
-	
-	/*
-	 * 获取子节点的实时金额总和
-	 */
-	private static Map<String, Double> getSubSumMap(List<CurrentMoneyInfo> sub_list){
-		Map<String, List<CurrentMoneyInfo>> _temSubMap = sub_list.stream().collect(
-				Collectors.groupingBy(info->{
-					CurrentMoneyInfo cmi = (CurrentMoneyInfo)info;
-					 String superId = DataConstans.Combine_Sub_Id_Map.get(cmi.getWanjiaId());
-					 if(StringUtil.isBlank(superId)) {
-						 log.error("玩家"+cmi.getWanjiaId()+"的父节点为空！处理托管团队数据有误！");
-						 superId = "";
-					 }
-					 return superId;
-				})
-				//,Collectors.countint())  // 要是可以使用这个方法的话，就不用下面的代码 了
-		);
-		
-		/*
-		 * 把父列表中的值与子列表集合中的金额总和进行合并
-		 * 备注：有一种，就是子节点中有更多的父ID信息，此情况是子ID在金额表中，但父ID不在金额表中
-		 */
-		Map<String, Double> subMap = new HashMap<>();
-		_temSubMap.forEach((superId, subList) -> 
-			subMap.put(superId, subList.stream().mapToDouble(cmi -> NumUtil.getNum(cmi.getShishiJine())).sum()));
-		log.info(subMap.keySet());
-		return subMap;
-	}
-	
-	
-	
-	/**
-	 * 复制一个列表
-	 * @time 2018年1月13日
-	 * @param sourceList
-	 * @return
-	 */
-	private static List<CurrentMoneyInfo> copyListCurrentMoneyInfo(List<CurrentMoneyInfo> sourceList){
-		List<CurrentMoneyInfo> list = new ArrayList<>();
-		if(CollectUtil.isHaveValue(sourceList)) {
-			sourceList.forEach(cmi -> {
-				list.add(copyCurrentMoneyInfo(cmi));
-			});
-		}
-		return list;
-		
-	}
-	/**
-	 * 获取实时金额表中的映射{玩家ID ： 金额信息}
-	 * @time 2017年12月28日
-	 * @param SSJE_obList
-	 */
-	private static Map<String,CurrentMoneyInfo> get_SSJE_Map(List<CurrentMoneyInfo> SSJE_obList) {
-		Map<String,CurrentMoneyInfo> ssje_map = new HashMap<>();
-		SSJE_obList.stream()
-			.filter(m -> StringUtil.isNotBlank(m.getWanjiaId()))
-			.forEach(info -> {
-				ssje_map.put(info.getWanjiaId(), copyCurrentMoneyInfo(info));//copy一个实时金额记录
-			});
-		return ssje_map;
-	}
-	
-	/**
-	 * 判断父类ID是否存在于实时金额表中
-	 * @time 2017年12月28日
-	 * @param playerId
-	 * @param ssje_map
-	 * @return 
-	 */
-	private static boolean isExistIn_SSJE(String playerId,Map<String,CurrentMoneyInfo> ssje_map) {
-		return ssje_map.containsKey(playerId);
-	}
-	
-	/**
-	 * 处理个人外债和有联合额度的外债
-	 * @time 2017年12月28日
-	 * @param tgTeamIdMap
-	 * @param ssje_map
-	 */
-	private static void  handlePersonWaizhai(Map<String,List<CurrentMoneyInfo>> tgTeamIdMap,Map<String,CurrentMoneyInfo> ssje_map) {
-		
-		
-		if(MapUtil.isNullOrEmpty(tgTeamIdMap)) return;
-		
-		Map<String,List<CurrentMoneyInfo>> _tgTeamIdMap = new HashMap<>();
-		Map<String,List<CurrentMoneyInfo>> tempSuperMap = new HashMap<>();//临时用的变量
-		Map<String,CurrentMoneyInfo> tempSuperInfoMap = new HashMap<>();//{父ID : 复制的CurrentMoneyInfo}
-		
-		//对负数的实时金额表记录进行处理，主要是对合并ID的记录进行
-		Iterator<Map.Entry<String, List<CurrentMoneyInfo>>> it = tgTeamIdMap.entrySet().iterator();  
-        while(it.hasNext()){  
-            Map.Entry<String, List<CurrentMoneyInfo>> entry = it.next();  
-            String gudongID = entry.getKey();
-            List<CurrentMoneyInfo> subList = entry.getValue();
-            ListIterator<CurrentMoneyInfo> ite = subList.listIterator();
-    		//删除有联合额度的子ID(只保留父节点信息，联合额度为负数），注意此父节点为复制的
-    		while(ite.hasNext()) {
-    			CurrentMoneyInfo cmiInfo = ite.next();
-    			String playerId = cmiInfo.getWanjiaId();
-    			boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(playerId);
-    			boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(playerId);
-    			//是子节点
-    			if(isSubId) {
-    				String superId = DataConstans.Combine_Sub_Id_Map.get(playerId);
-    				boolean isSuperInfo_exist_in_ssje = isExistIn_SSJE(superId,ssje_map);
-    				if(isSuperInfo_exist_in_ssje) {//父节点存在于实时金额表，直接删掉子ID
-    					log.info("外债：删除子节点("+getPlayerName(playerId)+"),其父节点是"+getSuperPlayerName(playerId));
-    					ite.remove();
-    					//特殊情况：此时父节点>=0
-    				}
-    				//Question:模拟的父节点是否要添加进来？？？？
-					 else {////父节点不存在于实时金额表，直接删掉子ID
-						 //CurrentMoneyInfo tempNewSuperInfo = getTempNewSuperInfo(superId,tempSuperMap);
-						 //ite.remove();//也要删掉
-						 //ite.add(tempNewSuperInfo);//添加一条模拟的父节点于外债表中
-						 log.error("外债：进入未开发的代码("+getPlayerName(playerId)+")，子节点在实时金额表，但父子点并未在金额表中！");
-					 }
-    				
-    			}
-    			//删除联合额度为正数的父节点（合并id总和为正，不提取进外债菜单显示）
-    			if(isSuperId) {
-    				if(isSubId) {
-    					ErrorUtil.err(String.format("玩家ID(%s)既是子ID,又是父ID", playerId));
-    				}
-    				String superId = playerId;
-    				if(superId != null && tempSuperInfoMap.get(superId) == null) {
-	    				//CurrentMoneyInfo superInfo = ssje_map.get(playerId);
-	    				CurrentMoneyInfo superInfo = cmiInfo;
-	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) >= 0) {
-	    					//log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
-	    					ite.remove();
-	    				}
-	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) < 0 ) {
-							log.info(String.format("外债：修改父节点%s的实时金额从%s到%s",getPlayerName(superId),
-									superInfo.getShishiJine(),superInfo.getCmSuperIdSum()));
-	    					superInfo.setShishiJine(superInfo.getCmSuperIdSum());//核心
-	    					tempSuperInfoMap.put(superId, superInfo);
-	    				}
-    				}
-    			}
-    			//Question:对于实时金额表中有，但其团队已经存在于左边的团队信息框中，是要加在团队信息中，而自己不显示？？？
-    			
-    		}
-        } 
-		
-	}
-	
-	
 	
 	/**
 	 * 复制一个实时金额表的记录
@@ -524,43 +355,4 @@ public class TgWaizhaiService {
 		return copyInfo;
 	}
 	
-	private static String getPlayerName(String playerId) {
-		String name = "";
-		try {
-			name = DataConstans.membersMap.get(playerId).getPlayerName()+"["+playerId+"]";
-		}catch(Exception e) {
-			log.error("找不到ID为"+playerId+"的人员名字！");
-		}
-		return name;
-	}
-	
-	private static String getSuperPlayerName(String subPlayerId) {
-		String name = "";
-		try {
-			String supertId = DataConstans.Combine_Sub_Id_Map.get(subPlayerId);
-			name = DataConstans.membersMap.get(supertId).getPlayerName()+"["+supertId+"]";
-		}catch(Exception e) {
-			log.error("找不到ID为"+subPlayerId+"的人员名字！");
-		}
-		return name;
-	}
-	
-	/**
-	 * 构造实时金额表的父节点信息
-	 * 场景：子节点存在于实时金额表中，但父节点没有存在于实时金额表
-	 * 效果：模拟出一条父节点信息，代替其下所有子ID信息（主要是联合额度）
-	 * @time 2017年12月28日
-	 * @param superId 父节点信息
-	 * @param tempSuperMap 临时存储的父节点及子列表信息，用于计算联合额度
-	 * @return
-	 */
-	private static CurrentMoneyInfo getTempNewSuperInfo(String superId,Map<String,List<CurrentMoneyInfo>> tempSuperMap) {
-		//获取父节点信息
-		Player superInfo = DataConstans.membersMap.get(superId);
-		//构造实时金额表的父节点信息
-		CurrentMoneyInfo tempNewSuperInfo = new CurrentMoneyInfo(superInfo.getPlayerName(),"0",superId,superInfo.getEdu());
-		//计算联合额度(待完成)...
-		
-		return tempNewSuperInfo;
-	}
 }

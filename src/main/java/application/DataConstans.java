@@ -406,7 +406,7 @@ public class DataConstans {
 		Team_Info_Pre_Map = JSON.parseObject(map.get("Team_Info_Pre_Map"), new TypeReference<Map<String, TeamInfo>>() {});
 		Date_Str = JSON.parseObject(map.get("Date_Str"), new TypeReference<String>() {});
 
-		System.out.println("==============中途恢复缓存数据。。。finishes");
+		log.info("==============中途恢复缓存数据。。。finishes");
 	}
 	
 	

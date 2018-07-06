@@ -10,6 +10,7 @@ import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.TeamHuishuiInfo;
+import com.kendy.util.NumUtil;
 import com.kendy.util.StringUtil;
 
 import application.DataConstans;
@@ -32,6 +33,7 @@ public class MemberService {
 	
 	private static Logger log = Logger.getLogger(MemberService.class);
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void initMemberQuery(ListView<String> memberListView,TableView<MemberZJInfo> tableMemberZJ,
 			Label memberDateStr,Label memberPlayerId,Label memberPlayerName,Label memberSumOfZJ,Label memberTotalZJ) {
 		//ListView变化时自动更新右边的信息
@@ -106,7 +108,7 @@ public class MemberService {
 					if(info.getWanjiaId().equals(wanjiaId)) {
 						zj = info.getShishou();
 						obList.add(new MemberZJInfo(info.getTableId(),zj));
-						sumOfZJ += MoneyService.getNum(zj);
+						sumOfZJ += NumUtil.getNum(zj);
 					}
 				}
 			}

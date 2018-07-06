@@ -25,6 +25,12 @@ import com.kendy.controller.SMAutoController;
 
 import application.MyController;
 
+/**
+ * 自动下载服务类
+ * 
+ * @author 林泽涛
+ * @time 2018年7月6日 下午9:40:36
+ */
 public class AutoDownloadZJExcelService {
 	
 	private static Logger log = Logger.getLogger(AutoDownloadZJExcelService.class);
@@ -60,7 +66,8 @@ public class AutoDownloadZJExcelService {
      * @throws IOException 
      * @throws Exception
      */
-    public static void download(String url,String path) throws IOException  {  
+    @SuppressWarnings("resource")
+	public static void download(String url,String path) throws IOException  {  
     	
         File file= null;  
         HttpURLConnection httpCon = null;  
@@ -105,24 +112,6 @@ public class AutoDownloadZJExcelService {
         return bos.toByteArray();    
     }
     
-    private static Map<String,String> getParams(String roomId) {
-        Map<String,String> params = new HashMap<>();
-        params.put("roomId", roomId);
-        return params;
-    }
-    
-    private static Map<String,Object> getHeaders(){
-        Map<String,Object> params = new HashMap<>();
-        String token = getToken();
-        params.put("token", token);
-        return params;
-        
-    }
-    
 
-    private static String getToken() {
-        String token = "305c300d06092a864886f70d0101010500034b0030480241009d78a8ad9148ee88fa4977a5b1b08b21e5bc09e27e5a1940e1064d1a390fb3a76fa5f60d31f0ce39741a2a7417ea6e3664d08521261b99c378578f3f1abeb7a90203010001";
-        return token;
-    }
 
 }

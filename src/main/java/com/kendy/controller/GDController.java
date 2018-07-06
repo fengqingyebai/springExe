@@ -203,9 +203,6 @@ public class GDController implements Initializable{
 				.collect(Collectors.groupingBy(//先按股东分
 						record -> getGudongByPlayerId((Record)record),
 						Collectors.groupingBy(info -> { 
-							if(StringUtil.isBlank(info.getTeamId())){
-								System.out.println("========"+info);
-							} 
 						return StringUtil.nvl(info.getTeamId(),UN_KNOWN);})
 		));//再按团队分
 		

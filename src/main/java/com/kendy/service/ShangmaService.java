@@ -263,9 +263,6 @@ public class ShangmaService {
 					CurrentMoneyInfo cmiInfo = cmiMap.get(playerId);
 					if(cmiInfo == null) {
 						Player player = DataConstans.membersMap.get(playerId);
-						if(player == null) {
-							int a = 0;
-						}
 						playerName = player.getPlayerName();
 						edu = player.getEdu();
 						yicunJifen = "";//最关键的区别
@@ -480,10 +477,10 @@ public class ShangmaService {
 			Double sumAvailableEdu = 0d,sumYiSM = 0d,sumZJ = 0d,sumZJ_hasPayed=0d;
 			for(ShangmaDetailInfo info : detailList) {
 				if("否".equals(info.getShangmaHasPayed())){//如果该战绩导入后按了支付按钮，则不计算(即未支付)
-					sumZJ_hasPayed += MoneyService.getNum(info.getShangmaShishou());
+					sumZJ_hasPayed += NumUtil.getNum(info.getShangmaShishou());
 				}
-				sumZJ += MoneyService.getNum(info.getShangmaShishou());
-				sumYiSM += MoneyService.getNum(info.getShangmaSM());
+				sumZJ += NumUtil.getNum(info.getShangmaShishou());
+				sumYiSM += NumUtil.getNum(info.getShangmaSM());
 			}
 			sumAvailableEdu = getSumAvailableEdu(edu,sumZJ_hasPayed+"",sumYiSM+"",playerId,yicunJifen);
 			sumDetail[0] = sumAvailableEdu;
@@ -505,10 +502,10 @@ public class ShangmaService {
 //		boolean hasPayed = isHasPayedByPlayerId(playerId);
 //		sumZJ = hasPayed ? "" : sumZJ;
 		sumAvailableEdu = 
-				MoneyService.getNum(edu) + 
-				MoneyService.getNum(sumZJ) + 
-				MoneyService.getNum(yicunJifen) -
-				MoneyService.getNum(sumYiSM);
+				NumUtil.getNum(edu) + 
+				NumUtil.getNum(sumZJ) + 
+				NumUtil.getNum(yicunJifen) -
+				NumUtil.getNum(sumYiSM);
 		return sumAvailableEdu;
 	}
 	
@@ -533,30 +530,9 @@ public class ShangmaService {
 		}
 	}
 	
-	/**
-	 * 如果该战绩导入后按了支付按钮，则不计算
-	 * 该方法逻辑不对，已将正确逻辑移至getSumDetail方法中由ShangmaHasPayed去判断
-	 */
-	@Deprecated
-	public static boolean isHasPayedByPlayerId(String playerId) {
-		String hasPayedStr = "";
-		ObservableList<WanjiaInfo> obList = tablePJ.getItems();
-		if(obList != null && obList.size() > 0) {
-			for(WanjiaInfo info : obList) {
-				if(info.getWanjiaId() != null && info.getWanjiaId().equals(playerId) && "1".equals(info.getHasPayed())) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	
-	
 	public static void scrollByPlayerId(String playerId , TableView<ShangmaInfo> tableShangma) {
 		if(!StringUtil.isBlank(playerId)) {
 			ObservableList<ShangmaInfo> list = tableShangma.getItems();
-			ShangmaInfo shangmaInfo = null;//待转到第一个的行数据
 			boolean isExist = false;//检查该玩家是否存在
 			String pId = "";
 			for(ShangmaInfo info : list) {
@@ -673,32 +649,6 @@ public class ShangmaService {
 		return null;
 	}
 	
-	/**
-	 * 根据玩家名称获取对应的玩家ID
-	 * 替代方法是getNextSelectedPlayer()
-	 * @param searchText
-	 * @return
-	 */
-	@Deprecated
-	public static Player getPlayerIdByName(String searchText) {
-		if(DataConstans.membersMap != null) {
-			String pId = "";
-			Player p;
-			for(Map.Entry<String, Player> entry : DataConstans.membersMap.entrySet()) {
-				p = entry.getValue();
-				if(!StringUtil.isBlank(p.getPlayerName()) && 
-						(p.getPlayerName().contains(searchText)
-						||p.getPlayerName().toLowerCase().contains(searchText.toLowerCase())
-						||p.getPlayerName().toUpperCase().contains(searchText.toUpperCase())
-								)
-						
-						){
-					return p;
-				}
-			}
-		}
-		return null;
-	}
 	
 	/**
 	 * 根据玩家ID加载个人上码详情表
@@ -771,8 +721,6 @@ public class ShangmaService {
 	 */
 	public static void openAddNextdayShangSMDiag(ShangmaDetailInfo detail) {
 		if(detail != null && detail.getShangmaDetailName() != null) {
-			String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
-			String newSM = "";
 			TextInputDialog dialog = new TextInputDialog();
 			dialog.setTitle("添加");
 			dialog.setHeaderText(null);
@@ -780,39 +728,8 @@ public class ShangmaService {
 			
 			Optional<String> result = dialog.showAndWait();
 			if (result.isPresent()){
-//				detail.setShangmaSM(MoneyService.digit0(MoneyService.getNum(oddSM)+MoneyService.getNum(result.get())));
 				resetNextDayDetailInfo(detail, result.get());
 			}
-			
-//			String playerId= detail.getShangmaPlayerId();
-//			String changci = detail.getShangmaJu();
-//			
-//			// 1保存到数据库
-//		    ShangmaNextday nextday = new ShangmaNextday();
-//		    nextday.setPlayerId(playerId);
-//		    nextday.setPlayerName(detail.getShangmaDetailName());
-//		    nextday.setChangci(detail.getShangmaJu());
-//		    nextday.setShangma(detail.getShangmaSM());
-//			DBUtil.saveOrUpdate_SM_nextday(nextday);
-//			
-//	    	// 2保存到缓存
-//	    	List<ShangmaDetailInfo> currentNextdayList = SM_NextDay_Map.getOrDefault(playerId, new ArrayList<>());
-//	    	ShangmaDetailInfo shangmaDetailInfo = currentNextdayList.stream()
-//	    			.filter(info->changci.equals(info.getShangmaJu())).findFirst().get();
-//	    	shangmaDetailInfo.setShangmaSM(detail.getShangmaSM());
-//	    	
-//	    	// 3刷新到当前的玩家次日表
-//	    	tableND.refresh();
-//	    	
-//	    	//4 修改主表的可上码额度 TODO
-////	    	refreshTableSM();
-//			
-//			//刷新左表对应记录
-//			try {
-//				updateRowByPlayerId(playerId,result.get());
-//			} catch (Exception e) {
-//				ErrorUtil.err("刷新左表对应记录失败",e);
-//			}
 		}
 	}
 	
@@ -824,7 +741,7 @@ public class ShangmaService {
 	 */
 	public static void resetNextDayDetailInfo(ShangmaDetailInfo detail,String nextDayShangmaVal) {
 		String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
-		detail.setShangmaSM(MoneyService.digit0(MoneyService.getNum(oddSM)+MoneyService.getNum(nextDayShangmaVal)));
+		detail.setShangmaSM(MoneyService.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(nextDayShangmaVal)));
 	
 		String playerId= detail.getShangmaPlayerId();
 		String changci = detail.getShangmaJu();
@@ -846,9 +763,6 @@ public class ShangmaService {
 		// 3刷新到当前的玩家次日表
 		tableND.refresh();
 		
-		//4 修改主表的可上码额度 TODO
-	//	refreshTableSM();
-		
 		//刷新左表对应记录
 		try {
 			updateRowByPlayerId(playerId,nextDayShangmaVal);
@@ -861,35 +775,22 @@ public class ShangmaService {
 	//右表：名称鼠标双击事件：打开对话框增加上码值
 	public static void openAddShangSMDiag(ShangmaDetailInfo detail) {
 		if(detail != null && detail.getShangmaDetailName() != null) {
-			String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
-			String newSM = "";
 			TextInputDialog dialog = new TextInputDialog();
-//			dialog.setGraphic(null);
 			dialog.setTitle("添加");
 			dialog.setHeaderText(null);
 			dialog.setContentText("续增上码值(Enter):");
 
 			Optional<String> result = dialog.showAndWait();
 			if (result.isPresent()){
-//			    detail.setShangmaSM(MoneyService.digit0(MoneyService.getNum(oddSM)+MoneyService.getNum(result.get())));
 				addDuplicateSM(detail, result.get());
 			}
-//			tableSMD.refresh();
-//			String playerId= detail.getShangmaPlayerId();
-//		    //save
-//			saveSMDetail(playerId);
-//			//刷新左表对应记录
-//			try {
-//				updateRowByPlayerId(playerId,result.get());
-//			} catch (Exception e) {
-//				e.printStackTrace();//不作记录
-//			}
 		}
 	}
 	
 	/**
 	 * 为了复用代码，将openAddShangSMDiag方法中的代码抽离出来
 	 * 使用场景：左边主表新增时若为相同桌号则续增
+	 * 
 	 * @time 2018年3月28日
 	 * @param detail
 	 * @param addMoney
@@ -897,7 +798,7 @@ public class ShangmaService {
 	private static void addDuplicateSM(ShangmaDetailInfo detail, String addMoney) {
 		String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
 		addMoney = StringUtil.nvl(addMoney);
-		detail.setShangmaSM(MoneyService.digit0(MoneyService.getNum(oddSM)+MoneyService.getNum(addMoney)));
+		detail.setShangmaSM(MoneyService.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(addMoney)));
 		tableSMD.refresh();
 		String playerId= detail.getShangmaPlayerId();
 	    //save
@@ -910,17 +811,16 @@ public class ShangmaService {
 		}
 	}
 	
-	//左表：名称鼠标双击事件：打开对话框增加第X局上码值
+	/**
+	 * 左表：名称鼠标双击事件：打开对话框增加第X局上码值
+	 */
 	public static void openNewShangSMDiag(ShangmaInfo smInfo) {
 		if(smInfo != null && smInfo.getShangmaName() != null) {
 			Dialog<Pair<String, String>> dialog = new Dialog<>();
-//			dialog.setTitle("添加新上码记录");
 			dialog.setTitle(smInfo.getShangmaName());
 			dialog.setHeaderText(null);
-			// Set the button types.
 			ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
 			dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
-			// Create the username and password labels and fields.
 			GridPane grid = new GridPane();
 			grid.setHgap(10);
 			grid.setVgap(10);
@@ -934,21 +834,17 @@ public class ShangmaService {
 			grid.add(new Label("上码:"), 0, 1);
 			grid.add(shangmaVal, 1, 1);
 
-			// Enable/Disable login button depending on whether a username was entered.
 			Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
 			loginButton.setDisable(true);
 
-			// Do some validation (using the Java 8 lambda syntax).
 			shangmaJu.textProperty().addListener((observable, oldValue, newValue) -> {
 			    loginButton.setDisable(newValue.trim().isEmpty());
 			});
 
 			dialog.getDialogPane().setContent(grid);
 
-			// Request focus on the username field by default.
 			Platform.runLater(() -> shangmaJu.requestFocus());
 
-			// Convert the result to a username-password-pair when the login button is clicked.
 			dialog.setResultConverter(dialogButton -> {
 			    if (dialogButton == loginButtonType) {
 			        return new Pair<>(shangmaJu.getText(), shangmaVal.getText());
@@ -1065,15 +961,15 @@ public class ShangmaService {
 			return;
 		}
 		if(!StringUtil.isBlank(addedYiShangmaVal)) {
-			double addedYSMVal = MoneyService.getNum(addedYiShangmaVal);
+			double addedYSMVal = NumUtil.getNum(addedYiShangmaVal);
 			ObservableList<ShangmaInfo> obList = tableSM.getItems();
 			for(ShangmaInfo info : obList) {
 				if(playerId.equals(info.getShangmaPlayerId())) {
 					String old_YSM_val = info.getShangmaYiSM();
 					String old_available_edu_val = info.getShangmaAvailableEdu();
-					info.setShangmaYiSM(MoneyService.digit0(MoneyService.getNum(old_YSM_val)+addedYSMVal));
-					info.setShangmaAvailableEdu(MoneyService.digit0(MoneyService.getNum(old_available_edu_val)-addedYSMVal));
-					labelZSM.setText(MoneyService.digit0(MoneyService.getNum(labelZSM.getText())+addedYSMVal));
+					info.setShangmaYiSM(NumUtil.digit0(NumUtil.getNum(old_YSM_val)+addedYSMVal));
+					info.setShangmaAvailableEdu(NumUtil.digit0(NumUtil.getNum(old_available_edu_val)-addedYSMVal));
+					labelZSM.setText(NumUtil.digit0(NumUtil.getNum(labelZSM.getText())+addedYSMVal));
 					tableSM.refresh();
 					break;
 				}
@@ -1092,11 +988,10 @@ public class ShangmaService {
 	 * 导入战绩时更新上码系统的个人信息
 	 */
 	public static void updateShangDetailMap(TableView<WanjiaInfo> table) {
-//		final List<TeamHuishuiInfo> list = DataConstans.Dangju_Team_Huishui_List;
 		ObservableList<WanjiaInfo> obList = table.getItems();
 		Map<String,List<ShangmaDetailInfo>> detailMap = DataConstans.SM_Detail_Map;
 		List<ShangmaDetailInfo> detailList= null;
-		String playerId="",preYSM,yiSM,tableId,ju;
+		String playerId="",preYSM,tableId,ju;
 		if(obList != null && obList.size() > 0) {
 			//遍历当局
 			for(WanjiaInfo info : obList) {
@@ -1117,12 +1012,6 @@ public class ShangmaService {
 							sdi.setShangmaShishou(info.getZhangji());
 							//add2017-09-24 加载主表
 							loadShangmaTable(DataConstans.membersMap.get(playerId).getTeamName(),tableSM);
-//							ShangmaInfo smif = tableSM.getSelectionModel().getSelectedItem();
-//							if(smif != null && !StringUtil.isBlank(smif.getShangmaPlayerId()) 
-//									&& smif.getShangmaPlayerId().equals(tableSMD.getSelectionModel().getSelectedItem().getShangmaPlayerId())) {
-//								loadShangmaTable(DataConstans.membersMap.get(playerId).getTeamName(),tableSM);
-//								scrollByPlayerId(playerId, tableSM);
-//							}
 							break;
 						}
 					}
@@ -1190,7 +1079,6 @@ public class ShangmaService {
     	}
     	List<Object[]>  dataList = new ArrayList<Object[]>();
 	    Object[] objs = null;
-	    String clubId = "";
 	    for(ShangmaInfo info : obList) {
 	        objs = new Object[rowName.length];
 	        objs[0] = info.getShangmaLianheEdu();
@@ -1261,7 +1149,7 @@ public class ShangmaService {
 				//清空当前的次日信息
 				tableND.setItems(null);
 				
-				//重新加载主表 TODO
+				//重新加载主表
 		    	refreshTableSM();
 		    	
 		    	//提示加载成功
@@ -1381,7 +1269,7 @@ public class ShangmaService {
 				log.info("新增时重复而续增次日上码值");
 				resetNextDayDetailInfo(duplicateDetail,shangma);
 			}
-//			ShowUtil.show("请勿重复添加"+changci+"!,该场次已存在!");
+			//ShowUtil.show("请勿重复添加"+changci+"!,该场次已存在!");
 			return;
 		}
     	
@@ -1397,7 +1285,7 @@ public class ShangmaService {
     	tableND.getItems().add(shangmaDetailInfo);
     	tableND.refresh();
     	
-    	//4 修改主表的可上码额度 TODO
+    	//4 修改主表的可上码额度
     	refreshTableSM();
     	
     }
@@ -1531,9 +1419,6 @@ public class ShangmaService {
 					CurrentMoneyInfo cmiInfo = cmiMap.get(playerId);
 					if(cmiInfo == null) {
 						Player player = DataConstans.membersMap.get(playerId);
-						if(player == null) {
-							int a = 0;
-						}
 						playerName = player.getPlayerName();
 						edu = player.getEdu();
 						yicunJifen = "";//最关键的区别
@@ -1643,18 +1528,18 @@ public class ShangmaService {
 	private static void addDuplicateSM_HT(ShangmaInfo selectedSMInfo,ShangmaDetailInfo detail, String addMoney) {
 		String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
 		addMoney = StringUtil.nvl(addMoney);
-		detail.setShangmaSM(MoneyService.digit0(MoneyService.getNum(oddSM)+MoneyService.getNum(addMoney)));
+		detail.setShangmaSM(NumUtil.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(addMoney)));
 
 		//刷新左表对应记录
 		updateRowByPlayerId_HT(selectedSMInfo, addMoney);
 	}
 	
 	private static void updateRowByPlayerId_HT(ShangmaInfo selectedSMInfo,String addedYiShangmaVal) {
-		double addedYSMVal = MoneyService.getNum(addedYiShangmaVal);
+		double addedYSMVal = NumUtil.getNum(addedYiShangmaVal);
 		String old_YSM_val = selectedSMInfo.getShangmaYiSM();
 		String old_available_edu_val = selectedSMInfo.getShangmaAvailableEdu();
-		selectedSMInfo.setShangmaYiSM(MoneyService.digit0(MoneyService.getNum(old_YSM_val)+addedYSMVal));
-		selectedSMInfo.setShangmaAvailableEdu(MoneyService.digit0(MoneyService.getNum(old_available_edu_val)-addedYSMVal));
+		selectedSMInfo.setShangmaYiSM(NumUtil.digit0(NumUtil.getNum(old_YSM_val)+addedYSMVal));
+		selectedSMInfo.setShangmaAvailableEdu(NumUtil.digit0(NumUtil.getNum(old_available_edu_val)-addedYSMVal));
 	}
 	
 	
@@ -1721,7 +1606,7 @@ public class ShangmaService {
 	 */
 	public static void resetNextDayDetailInfo_HT(ShangmaInfo selectedSMInfo, ShangmaDetailInfo detail,String nextDayShangmaVal) {
 		String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
-		detail.setShangmaSM(MoneyService.digit0(MoneyService.getNum(oddSM)+MoneyService.getNum(nextDayShangmaVal)));
+		detail.setShangmaSM(NumUtil.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(nextDayShangmaVal)));
 	
 		String playerId= detail.getShangmaPlayerId();
 		String changci = detail.getShangmaJu();

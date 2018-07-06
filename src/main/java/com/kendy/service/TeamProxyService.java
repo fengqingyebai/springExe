@@ -125,11 +125,12 @@ public class TeamProxyService {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void initTeamSelectAction(ComboBox<String> teamIDCombox,CheckBox isZjManage,
 			TableView<ProxyTeamInfo> tableProxyTeam,HBox proxySumHBox) {
 			teamIDCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
+            @SuppressWarnings("rawtypes")
+			@Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
             	refresh_TableTeamProxy_TableProxySum(newValue);
             	
@@ -242,16 +243,16 @@ public class TeamProxyService {
             			info.getWanjia(),
             			info.getZj(),//yszj
             			info.getShishou(),
-            			MoneyService.getNum(info.getChuHuishui())*(-1)+"",//出回水是否等于回水
+            			NumUtil.getNum(info.getChuHuishui())*(-1)+"",//出回水是否等于回水
             			info.getHuibao(),//保险是否等于回保
             			info.getTableId(),
             			info.getBaoxian()//保险
             			));
-            	sumYSZJ += MoneyService.getNum(info.getZj());
-            	sumZJ += MoneyService.getNum(info.getShishou());
-            	sumBX += MoneyService.getNum(info.getBaoxian());
-            	sumHS += (MoneyService.getNum(info.getChuHuishui()))*(-1);
-            	sumHB += MoneyService.getNum(info.getHuibao());
+            	sumYSZJ += NumUtil.getNum(info.getZj());
+            	sumZJ += NumUtil.getNum(info.getShishou());
+            	sumBX += NumUtil.getNum(info.getBaoxian());
+            	sumHS += (NumUtil.getNum(info.getChuHuishui()))*(-1);
+            	sumHB += NumUtil.getNum(info.getHuibao());
             	sumRC += 1;
             }
         }
@@ -263,10 +264,10 @@ public class TeamProxyService {
         	Label label = (Label)node;
         	String labelId = label.getId();
         	switch(labelId) {
-        	case "sumYSZJ": label.setText(MoneyService.digit0(sumYSZJ));break;
-        	case "sumZJ":	label.setText(MoneyService.digit0(sumZJ));break;
-        	case "sumBX":	label.setText(MoneyService.digit0(sumBX));break;
-        	case "sumHS":	label.setText(MoneyService.digit1(sumHS+""));break;
+        	case "sumYSZJ": label.setText(NumUtil.digit0(sumYSZJ));break;
+        	case "sumZJ":	label.setText(NumUtil.digit0(sumZJ));break;
+        	case "sumBX":	label.setText(NumUtil.digit0(sumBX));break;
+        	case "sumHS":	label.setText(NumUtil.digit1(sumHS+""));break;
         	case "sumHB":	label.setText(sumHB+"");break;
         	case "sumRC":	label.setText(sumRC+"");break;
         	}
@@ -335,7 +336,6 @@ public class TeamProxyService {
 		double sumTeamFWF = 0.0;
 		Map<String, List<Record>> teamMap = list.stream().collect(Collectors.groupingBy(Record::getDay));
 		for(Map.Entry<String, List<Record>> entry : teamMap.entrySet()) {
-			String day = entry.getKey();
 			List<Record> teamEveryDayList = entry.getValue();
 			String teamFWF_GD_EveryDay = getTeamFWF_GD_EveryDay(teamId, teamEveryDayList, hs);
 			sumTeamFWF += NumUtil.getNum(teamFWF_GD_EveryDay);
@@ -362,8 +362,8 @@ public class TeamProxyService {
 			String yszj = info.getScore();
 			String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);//NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
 			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getInsuranceEach(),teamId));
-			sumHS += (MoneyService.getNum(chuHuishui))*(-1);
-			sumHB += MoneyService.getNum(baohui);
+			sumHS += (NumUtil.getNum(chuHuishui))*(-1);
+			sumHB += NumUtil.getNum(baohui);
 		}
 		double HSRate = getNumByPercent(hs.getProxyHSRate());
 		double HBRate = getNumByPercent(hs.getProxyHBRate());
@@ -522,7 +522,6 @@ public class TeamProxyService {
 	 */
 	public static Double calculateProxSumFWF(String sumOfHS,String HSRate,String sumOfHB,String HBRate) {
 		Double _sumOfHS = NumUtil.getNum(sumOfHS);
-		Double _sumOfHB = NumUtil.getNum(sumOfHB);
 		Double _HSRate  = getNumByPercent(HSRate);
 		Double _HBRate  = getNumByPercent(HBRate);
 		Double res = _sumOfHS * _HSRate + _HSRate * _HBRate;
@@ -579,7 +578,6 @@ public class TeamProxyService {
 				String teamId = it.next().toUpperCase();
 				if(CollectionUtils.isEmpty(allTeamDataMap.get(teamId))){
 					it.remove();
-					log.info("代理：隐藏团队"+teamId);
 				}
 			}
 			ShowUtil.show("隐藏成功!",2);
@@ -648,17 +646,6 @@ public class TeamProxyService {
 	      List<Object[]> sumList = new ArrayList<>();
 	      Object[] sumObjs = null;
 		  ObservableList<ProxySumInfo> ob_List = tableProxySum.getItems();
-//			if(ob_List != null && ob_List.size() > 0) {
-//				for(ProxySumInfo info : ob_List) {
-//					sumObjs= new Object[rowsName2.length];
-//					sumObjs[0] = info.getProxySumType();
-//					sumObjs[1] = info.getProxySum();
-//					sumList.add(sumObjs);
-//				}
-//				String sum = tableProxySum.getColumns().get(1).getText();
-//				rowsName2[1] = sum;
-//			}
-			
 			List<String> baoxianFilters = getHejiFilters();
 			if(CollectUtil.isHaveValue(ob_List)) {
 				for(ProxySumInfo info : ob_List) {
@@ -794,12 +781,6 @@ public class TeamProxyService {
 		return out;
 	}
 	
-	private static String getOutPathOneKey(String rootPath, String title, String sumStr){
-		String out = "D:/" +  rootPath + "/" + title + System.currentTimeMillis() 
-			+ String.format("(%s)", 
-					(sumStr !=null && !sumStr.contains("-")) ? "+"+sumStr : sumStr);
-		return out;
-	}
 	
 	/**
 	 * 计算导出Excel时的合计

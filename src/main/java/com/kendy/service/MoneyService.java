@@ -126,10 +126,10 @@ public class MoneyService {
 			String baoxian = zj.getinsurance();
 			String shishou = getShiShou(zj.getZj());
 			String chuHuishui = MyController.getHuishuiByYSZJ(zj.getZj(), teamId, 1);//digit1(getChuhuishui(zj.getZj(), teamId));
-			String shuihouxian = digit1((-1)*Double.valueOf(zj.getinsurance())*Constants.HS_RATE+"");
+			String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(zj.getinsurance())*Constants.HS_RATE+"");
 			String shouHuishui = MyController.getHuishuiByYSZJ(zj.getZj(), "", 2);//digit1(Math.abs(Double.valueOf(zj.getZj()))*(1-Constants.HS_RATE)+"");
-			String baohui = digit1(getHuiBao(baoxian,teamId));
-			String heLirun = digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
+			String baohui = NumUtil.digit1(getHuiBao(baoxian,teamId));
+			String heLirun = NumUtil.digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
 
 			//团(团ID)
 			info.setTuan(teamId);
@@ -159,7 +159,7 @@ public class MoneyService {
 			/*************************************************** 填充牌局表 *****************/
 			wanjia = new WanjiaInfo();
 			String yicunJifen = getYicunJifen(zj.getPlayerId());
-			String heji = digit0(getNum(yicunJifen) + getNum(shishou) + "");
+			String heji = digit0(NumUtil.getNum(yicunJifen) + NumUtil.getNum(shishou) + "");
 			wanjia.setPaiju("第"+tableId+"局");
 			wanjia.setWanjiaName(zj.getPlayerName());
 			wanjia.setYicunJifen(yicunJifen);
@@ -187,15 +187,6 @@ public class MoneyService {
 				}
 				teamHuishuiList.add(teamHuishuiInfo);
 				DataConstans.Team_Huishui_Map.put(teamId,teamHuishuiList);
-//				//缓存到总团队回水中(不会从中减少)
-//				teamHuishuiList = DataConstans.Total_Team_Huishui_Map.get(teamId);
-//				if( teamHuishuiList == null ) {
-//					teamHuishuiList = new ArrayList<>();
-//				}
-//				teamHuishuiList.add(
-//						new TeamHuishuiInfo(teamId,playerId,name,shishou,baoxian,chuHuishui,"第"+tableId+"局")
-//						);
-//				DataConstans.Total_Team_Huishui_Map.put(teamId,teamHuishuiList);
 			}else {
 				log.warn("检测到团队ID是空或为公司，玩家是："+name);
 			}
@@ -234,13 +225,6 @@ public class MoneyService {
 			WanjiaInfo wj = null;
 			while(it.hasNext()) {
 				wj = it.next();
-//				//解决不时本应支付确显示成已支付的bug
-//				if(!"1".equals(wj.getHasPayed())){
-//					btn.setText("支付");
-//				}else {
-//					btn.setText("已支付");
-//				}
-//				setGraphic(btn);//小林：这一行解决了支付按钮消失的问题
 				//在此处增加是否要显示该按钮(如果玩家从属于某个非空或非公司的团队，则无需显示按钮)
 				String tempTeamId = wj.getHasPayed();//这个tempTeamId是hasPayed的内容,这里没有公司的人
 				if(!StringUtil.isBlank(tempTeamId) && !"0".equals(tempTeamId)) {
@@ -256,7 +240,6 @@ public class MoneyService {
 						}else {
 							noNeedPayList.add(wj);
 							it.remove();
-//							log.info("hsPayed:====================hs为空："+hs.getZjManaged());
 //							setGraphic(null);
 						}
 					}
@@ -319,7 +302,7 @@ public class MoneyService {
 				}
 				sum_teamHS_and_teamBS += sum;//团队回水和团队保险的总和
 				//计算当局需要显示的团队记录
-				list.add(new TeamInfo(relatedTeamId,digit0(sumOfZJ),digit1(sumOfHS+""),digit1(sumOfBS+""),digit0(sum)));
+				list.add(new TeamInfo(relatedTeamId,digit0(sumOfZJ), NumUtil.digit1(sumOfHS+""), NumUtil.digit1(sumOfBS+""), digit0(sum)));
 			}
 		});
 		//缓存总和
@@ -332,25 +315,12 @@ public class MoneyService {
 	public static double  getTeamSum(ObservableList<TeamInfo> resultTeamList) {
 		Double sum = 0.0;
 		for(TeamInfo teamInfo : resultTeamList) {
-			sum += getNum(teamInfo.getTeamSum());
+			sum += NumUtil.getNum(teamInfo.getTeamSum());
 		}
 		return sum.intValue();
 	}
 	
-	//获取团队实体
-	private static TeamInfo getTeamInfoEntity(TeamInfo t1,TeamInfo t2) {
-		return  new TeamInfo(
-				t1.getTeamID(),
-				getSumWithDigit0(t1.getTeamZJ(),t2.getTeamZJ()),
-				getSumWithDigit0(t1.getTeamHS(),t2.getTeamHS()),
-				getSumWithDigit0(t1.getTeamBS(),t2.getTeamBS()),
-				getSumWithDigit0(t1.getTeamSum(),t2.getTeamSum())
-				);
-	}
-	//求两个数据的和
-	private static String getSumWithDigit0(String first , String second) {
-		return digit0(getNum(first)+getNum(second));
-	}
+
 	//获取团队保险比例（回保）
 	public static double getTeamInsuranceRate(String teamId) {
 		Huishui hs = DataConstans.huishuiMap.get(teamId);
@@ -449,7 +419,7 @@ public class MoneyService {
 	public static Double getSum(List<String> list) {
 		double sum = 0.0;
 		for(String value : list) {
-			sum += getNum(value);
+			sum += NumUtil.getNum(value);
 		}
 		return Double.valueOf(df.format(sum));
 	}
@@ -511,9 +481,9 @@ public class MoneyService {
 	 * 
 	 */
 	public static String getHeLirun(String shouHuishui,String chuHuishui,String baohui,String shuihouxian){
-		double _shouHushui = getNum(shouHuishui);
+		double _shouHushui = NumUtil.getNum(shouHuishui);
 		if(_shouHushui >= 0){
-			return _shouHushui + getNum(chuHuishui) + getNum(baohui) + getNum(shuihouxian) + "";
+			return _shouHushui + NumUtil.getNum(chuHuishui) + NumUtil.getNum(baohui) + NumUtil.getNum(shuihouxian) + "";
 		}else{
 			return "0";
 		}
@@ -542,44 +512,45 @@ public class MoneyService {
 	
 	
 	//*****************************************************************************
-	public static Double getNum(String str){
-		if(StringUtil.isBlank(str)){
-			return 0.0;
-		}else{
-			try{
-				return Double.valueOf(str).doubleValue();
-			}catch(Exception e){
-				return 0.0;
-			}
-		}
-	}
+//	public static Double NumUtil.getNum(String str){
+//		if(StringUtil.isBlank(str)){
+//			return 0.0;
+//		}else{
+//			try{
+//				return Double.valueOf(str).doubleValue();
+//			}catch(Exception e){
+//				return 0.0;
+//			}
+//		}
+//	}
 	
-	public static String digit2(String str){
-		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#######0.00");  
-		if(!StringUtil.isBlank(str)){
-			String res = df.format(Double.valueOf(str));
-			return res;
-		}
-		return "0";
-	}
-	//截取一位小数，后面不进行舍入
-	public static String digit1(String str){
-		if(!(StringUtil.isBlank(str))) {
-			try {
-				if(str.contains(".")) {
-					str = str.substring(0, str.lastIndexOf(".")+2);
-					return str;
-				}else {
-					return str;
-				}
-			} catch (Exception e) {
-				str = String.format("%.4f",Float.valueOf(str));
-				str = str.substring(0, str.lastIndexOf(".")+2);
-				return str;
-			}
-    	}
-		return "0.0";
-	}
+//	public static String NumUtil.digit2(String str){
+//		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#######0.00");  
+//		if(!StringUtil.isBlank(str)){
+//			String res = df.format(Double.valueOf(str));
+//			return res;
+//		}
+//		return "0";
+//	}
+	
+//	//截取一位小数，后面不进行舍入
+//	public static String digit1(String str){
+//		if(!(StringUtil.isBlank(str))) {
+//			try {
+//				if(str.contains(".")) {
+//					str = str.substring(0, str.lastIndexOf(".")+2);
+//					return str;
+//				}else {
+//					return str;
+//				}
+//			} catch (Exception e) {
+//				str = String.format("%.4f",Float.valueOf(str));
+//				str = str.substring(0, str.lastIndexOf(".")+2);
+//				return str;
+//			}
+//    	}
+//		return "0.0";
+//	}
 	public static String digit0(String str){
 		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#######0");  
 		if(!StringUtil.isBlank(str)){
@@ -732,11 +703,9 @@ public class MoneyService {
 			}
 			
 			//sumMap相关设值
-			MyController mc = Main.myController;
 			int size = DataConstans.Index_Table_Id_Map.size();
 			if(size >= 1) {
 				//此情况下要从上一场加载==团队回水总和
-//				DataConstans.SumMap = new HashMap<String,Double>();
 				String shangchangKaixiao = MoneyService.getLockedInfo(size+"", "实时开销总和");
 				DataConstans.SumMap.put("上场开销", Double.valueOf(shangchangKaixiao));//add 9-1
 			}
@@ -763,7 +732,7 @@ public class MoneyService {
 		for(CurrentMoneyInfo moneyInfo : list) {
 			tempSingleVal = moneyInfo.getShishiJine();
 			if(!StringUtil.isBlank(tempSingleVal) && !"".equals(moneyInfo.getMingzi())) {
-				sumOfTableCurrentMoney += getNum(tempSingleVal);
+				sumOfTableCurrentMoney += NumUtil.getNum(tempSingleVal);
 			}
 		};
 		return sumOfTableCurrentMoney;
@@ -780,7 +749,7 @@ public class MoneyService {
 		String tempSingleVal = "";//表中每一行的具体金额
 		for(ZijinInfo moneyInfo : list) {
 			tempSingleVal = moneyInfo.getZijinAccount();
-			sumOfTable += getNum(tempSingleVal);
+			sumOfTable += NumUtil.getNum(tempSingleVal);
 		};
 		return sumOfTable;
 	}
@@ -795,7 +764,7 @@ public class MoneyService {
 		for(ProfitInfo moneyInfo : list) {
 			if(!"当日开销".endsWith(moneyInfo.getProfitType())) {
 			tempSingleVal = moneyInfo.getProfitAccount();
-			sumOfTable += getNum(tempSingleVal);
+			sumOfTable += NumUtil.getNum(tempSingleVal);
 			}
 		};
 		return sumOfTable;
@@ -813,7 +782,7 @@ public class MoneyService {
 	 	String tempSingleVal = "";//表中每一行的具体金额
 		for(KaixiaoInfo moneyInfo : list) {
 			tempSingleVal = moneyInfo.getKaixiaoMoney();
-			sumOfTable += getNum(tempSingleVal);
+			sumOfTable += NumUtil.getNum(tempSingleVal);
 		};
 		return sumOfTable;
 	}
@@ -827,7 +796,7 @@ public class MoneyService {
 		if(list == null )
 			return sumOfTable;
 		if(list.size() == 2) {
-			sumOfTable = getNum(list.get(1).getPingzhangMoney()) - getNum(list.get(0).getPingzhangMoney());
+			sumOfTable = NumUtil.getNum(list.get(1).getPingzhangMoney()) - NumUtil.getNum(list.get(0).getPingzhangMoney());
 		}
 		return sumOfTable;
 	}
@@ -845,22 +814,6 @@ public class MoneyService {
 		table.getColumns().get(sumCloumn).setText(digit0(sum+""));
 	}
 	
-	/**
-	 * 在加载上一场或从昨天加载利润表时（点击平帐按钮）先缓存总团队服务费的值
-	 * @time 2018年1月5日
-	 * @param table
-	 * @return
-	 */
-	private static String getAllTeamFWF(TableView<ProfitInfo> table) {
-		String allTeamFWF = "0";
-		try {
-			ProfitInfo profitInfo = TableUtil.getItem(table).filtered(info-> "总团队服务费".equals(info.getProfitType())).get(0);
-			allTeamFWF = profitInfo.getProfitAccount();
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return allTeamFWF;
-	}
 	
 	/**
 	 * 利润表修改总团队服务费(累积该团队的服务费)
@@ -959,20 +912,20 @@ public class MoneyService {
 			for(ProfitInfo info : list) {
 				String type = info.getProfitType();
 				if("总服务费".equals(type)){
-					info.setProfitAccount(digit0(getNum(info.getProfitAccount())+getTeamSum("服务费")));
+					info.setProfitAccount(digit0(NumUtil.getNum(info.getProfitAccount())+getTeamSum("服务费")));
 					
 				}else if("总保险".endsWith(type)) {
-					info.setProfitAccount(digit0(getNum(info.getProfitAccount())+getTeamSum("保险")));
+					info.setProfitAccount(digit0(NumUtil.getNum(info.getProfitAccount())+getTeamSum("保险")));
 					
 				}else if("总回水".endsWith(type)) {
-					info.setProfitAccount(digit0(getNum(info.getProfitAccount())+getTeamSum("团队回水")));
+					info.setProfitAccount(digit0(NumUtil.getNum(info.getProfitAccount())+getTeamSum("团队回水")));
 					
 				}else if("总开销".endsWith(type)) {
-					info.setProfitAccount(digit0((getNum(info.getProfitAccount())+todayKaixiao - getTeamSum("上场开销"))+""));
+					info.setProfitAccount(digit0((NumUtil.getNum(info.getProfitAccount())+todayKaixiao - getTeamSum("上场开销"))+""));
 					
 				}else if("总回保".endsWith(type)) {
 					//无公式  总保回
-					info.setProfitAccount(digit0(getNum(info.getProfitAccount())+(getTeamSum("总保回")*(-1))+""));
+					info.setProfitAccount(digit0(NumUtil.getNum(info.getProfitAccount())+(getTeamSum("总保回")*(-1))+""));
 				}
 			};
 			table.setItems(list);
@@ -1505,7 +1458,6 @@ public class MoneyService {
 			TableView<KaixiaoInfo> tableKaixiao,
 			Label LMLabel){
 
-		Map<String,String> map = DataConstans.preDataMap;
 		/************************************************ 团队回水表  **************/
 		tableTeam.setItems(null);
 		ObservableList<TeamInfo> obList = FXCollections.observableArrayList();
@@ -1562,7 +1514,6 @@ public class MoneyService {
 		DataConstans.SumMap.put("上场开销", getSumOfTableKaixiao(tableKaixiao));
 		/************************************************ 联盟对帐  **************/
 		String lm = DataConstans.preDataMap.get("联盟对帐");
-//		LMLabel.setText(LMLabel.getText());//注意这里是{联盟对帐={联盟对帐=3000}}
 		LMLabel.setText(lm);//注意这里是{联盟对帐={联盟对帐=3000}}
 	}
 	
@@ -1571,7 +1522,6 @@ public class MoneyService {
 	public static void openAddZijinDiag(TableView<ZijinInfo> tableZijin,ZijinInfo info) {
 		if(info != null && info.getZijinType() != null) {
 			String oddZijin = StringUtil.isBlank(info.getZijinAccount()) ? "0" : info.getZijinAccount();
-			String newSM = "";
 			TextInputDialog dialog = new TextInputDialog();
 			dialog.setTitle("添加");
 			dialog.setHeaderText(null);
@@ -1600,7 +1550,7 @@ public class MoneyService {
 				    );
 				DBUtil.saveHistoryBankMoney(bankMoney);
 				//生成界面表记录
-			    info.setZijinAccount(MoneyService.digit0(MoneyService.getNum(oddZijin)+MoneyService.getNum(result.get().trim())));
+			    info.setZijinAccount(MoneyService.digit0(NumUtil.getNum(oddZijin) + NumUtil.getNum(result.get().trim())));
 			}
 			if(tableZijin != null && tableZijin.getItems() != null) {
 				for(ZijinInfo zijin : tableZijin.getItems()) {
@@ -1651,8 +1601,11 @@ public class MoneyService {
 		
 	}
 	
-	/*************************   导出人员表Excel   ************************************/  
-	
+	/***********************************************************************************
+	 * 
+	 * 							导出人员表Excel
+	 * 
+	 * *********************************************************************************/  
 	public static void exportMemberExcel() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String title = "名单登记表-德扑圈" + sdf.format(new Date());
@@ -1685,7 +1638,11 @@ public class MoneyService {
 	}
 	
 	
-	/*************************   导出团队回水表Excel   ************************************/  
+	/***********************************************************************************
+	 * 
+	 * 							导出团队回水表Excel 
+	 * 
+	 * *********************************************************************************/ 
 	
 	public static void exportTeamhsExcel() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -1992,7 +1949,7 @@ public class MoneyService {
     		for(CurrentMoneyInfo info : subInfoList) {
     			superIdSum += NumUtil.getNum(info.getShishiJine());
     		}
-    		superInfo.setCmSuperIdSum(NumUtil.digit0(superIdSum+NumUtil.getNum(superInfo.getShishiJine())));
+    		superInfo.setCmSuperIdSum(NumUtil.digit0(superIdSum + NumUtil.getNum(superInfo.getShishiJine())));
     		
     		//添加空行和子节点
     		srcList.add(superInfo);//先添加父节点

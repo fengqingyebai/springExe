@@ -190,12 +190,4 @@ public class Record {
 	}
 
 
-	@Override
-	public String toString() {
-		return "Record [id=" + id + ", tableId=" + tableId + ", clubId=" + clubId + ", playerId=" + playerId
-				+ ", score=" + score + ", insurance=" + insurance + ", blind=" + blind + ", day=" + day + ", clubName="
-				+ clubName + ", lmType=" + lmType + ", teamId=" + teamId + ", insuranceEach=" + insuranceEach
-				+ ", isJiesuaned=" + isJiesuaned + ", personCount=" + personCount + "]";
-	}
-
 }

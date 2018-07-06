@@ -67,10 +67,10 @@ public class ZonghuiService {
 				teamHuishui = dangjuList.get(2).getMoney();//团队回水
 				teamHuibao = dangjuList.get(3).getMoney();//团队回保
 				//累计求和
-				sumOfFuwufei += MoneyService.getNum(fuwufei);
-				sumOfBaoxian += MoneyService.getNum(baoxiao);
-				sumOfTeamHuishui += MoneyService.getNum(teamHuishui);
-				sumOfTeamHuibao += MoneyService.getNum(teamHuibao);
+				sumOfFuwufei += NumUtil.getNum(fuwufei);
+				sumOfBaoxian += NumUtil.getNum(baoxiao);
+				sumOfTeamHuishui += NumUtil.getNum(teamHuishui);
+				sumOfTeamHuibao += NumUtil.getNum(teamHuibao);
 				//创建实体1
 				zonghuiInfo = new ZonghuiInfo(tableId,fuwufei,baoxiao,teamHuishui,teamHuibao);
 				obList.add(zonghuiInfo);
@@ -104,7 +104,7 @@ public class ZonghuiService {
 		
 		//当天汇总表复值
 		tableDangtianHuizong.setItems(obSumList);
-		tableDangtianHuizong.getColumns().get(1).setText(MoneyService.digit2(sumOfTotal+""));
+		tableDangtianHuizong.getColumns().get(1).setText(NumUtil.digit2(sumOfTotal+""));
 		tableDangtianHuizong.refresh();
 	}
 	
@@ -116,17 +116,6 @@ public class ZonghuiService {
 	 */
 	public static Double getTeamSumFWF(TableView<ProfitInfo> tableProfit) {
 		Double teamSumFWF = 0d;
-//		if(TableUtil.isHasValue(tableProfit)) {
-//			try {
-//				String fwf = tableProfit.getItems()
-//						.stream().filter(info -> "总团队服务费".equals(info.getProfitType()))
-//						.collect(Collectors.toList()).get(0)
-//						.getProfitAccount();
-//				teamSumFWF = NumUtil.getNum(fwf);
-//			} catch (Exception e) {
-//				ErrorUtil.err("总团队服务费不存在于昨日留底中!");
-//			}
-//		}
 		teamSumFWF = getTodayTotalTeamFWF();
 		return teamSumFWF;
 	}
@@ -157,7 +146,8 @@ public class ZonghuiService {
      * 昨日留底总团队服务费与所有总团队服务费的差 = 当天汇总中的总团队服务费
      * @time 2018年2月7日
      */
-    private static Double getTodayTotalTeamFWF() {
+    @SuppressWarnings("unchecked")
+	private static Double getTodayTotalTeamFWF() {
     	Double yesterday_diff_today_total_team_fwf_sum = 0d;
     	List<ProfitInfo> profitList;
     	String profit = DataConstans.preDataMap.get("利润");

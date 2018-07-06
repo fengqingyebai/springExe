@@ -1616,7 +1616,7 @@ public class MyController implements Initializable{
 		                    	String key = "团队回水及保险总和";
 		                    	if(DataConstans.SumMap.get(key)!=null) {
 		                    		double totalSum = DataConstans.SumMap.get(key);
-		                    		DataConstans.SumMap.put(key, Double.valueOf(MoneyService.digit0(totalSum - MoneyService.getNum(rowTeamSum))));
+		                    		DataConstans.SumMap.put(key, Double.valueOf(MoneyService.digit0(totalSum - NumUtil.getNum(rowTeamSum))));
 		                    	};
 		                    	//缓存中清空之前所加的团队回水，以便下次团队累计重新从0开始
 		                    	DataConstans.Team_Huishui_Map.remove(teamInfo.getTeamID());
@@ -2067,7 +2067,7 @@ public class MyController implements Initializable{
 		int preJuIndex = DataConstans.Index_Table_Id_Map.size();
 		if(DataConstans.All_Locked_Data_Map.get(preJuIndex+"") != null) {
 			String preJuLMVal = DataConstans.All_Locked_Data_Map.get(preJuIndex+"").get("联盟对帐");
-			return MoneyService.digit0(MoneyService.getNum(dangjuLMVal)+MoneyService.getNum(preJuLMVal));
+			return NumUtil.digit0(NumUtil.getNum(dangjuLMVal) + NumUtil.getNum(preJuLMVal));
 		}
 		return MoneyService.digit0(dangjuLMVal);
 	}
@@ -3327,12 +3327,6 @@ public class MyController implements Initializable{
 		LMController.currentRecordList = new ArrayList<>();
 
     	indexLabel.setText("第"+tableId+"局");
-//		//1 填充总信息表
-//		MoneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju,tableDangju,tableJiaoshou,tableTeam,(List<UserInfos>)wrap.obj,tableId);
-//		//2填充当局表和交收表和团队表的总和
-//		MoneyService.setTotalNumOnTable(tableDangju, DataConstans.SumMap.get("当局"));
-//		MoneyService.setTotalNumOnTable(tableJiaoshou, DataConstans.SumMap.get("交收"));
-//		tableTeam.getColumns().get(4).setText(MoneyService.digit0(DataConstans.SumMap.get("团队回水及保险总和")));
 		importExcelData(tableId, blankDataList);
 		
 		importZJBtn.setDisable(true);//导入不可用

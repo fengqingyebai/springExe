@@ -355,6 +355,7 @@ public class TGExportExcelService {
 	 * 导出托管公司的团队外债与团队外债明细
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private TGExcelModel getTGWaizhaiExcelModel() {
 		TGExcelModel excelModel = new TGExcelModel();
 		List<String> titleList = new LinkedList<>();
