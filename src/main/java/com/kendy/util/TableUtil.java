@@ -12,10 +12,12 @@ import javafx.scene.control.TableView;
  */
 public class TableUtil {
 	
+	@SuppressWarnings("rawtypes")
 	public static boolean isNullOrEmpty(TableView table) {
-		return table== null && table.getItems() == null;
+		return table== null || table.getItems() == null || table.getItems().isEmpty();
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public static boolean isHasValue(TableView table) {
 		return !isNullOrEmpty(table);
 	}
@@ -29,6 +31,7 @@ public class TableUtil {
 	}
 	
 	
+	@SuppressWarnings("rawtypes")
 	public static void clear(TableView table) {
 		if(isHasValue(table)) {
 			table.getItems().clear();

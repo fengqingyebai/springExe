@@ -390,7 +390,7 @@ public class MyController implements Initializable{
 	@FXML private TextField jifenRankLimit;//前50名
 	
 	
-	public static LMController lmController = new LMController();
+	public static LMController lmController;
 	public static TableView<ProfitInfo> table_Profit;
 	
 	public static TGController tgController; //托管控制类
