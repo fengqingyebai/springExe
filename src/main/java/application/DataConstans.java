@@ -79,7 +79,6 @@ public class DataConstans {
 	public static Map<String, String> kaixiaoMap = new HashMap<>();
 	
 	//缓存昨日留底
-//	public static Map<String,Map<String,String>> preDataMap = new HashMap<>();
 	public static Map<String,String> preDataMap = new HashMap<>();
 	
 	//缓存所有股东名称
@@ -126,13 +125,6 @@ public class DataConstans {
 	 */
 	public static Map<String,String> getLockedDataMap() {
 		Map<String,String> lastLockedDataMap = new HashMap<>();
-//		缓存人员名单登记Excel中的数据{玩家ID={}}
-//		public static Map<String, Player> membersMap = new HashMap<>();//撤销后不变
-//		lastLockedDataMap.put("membersMap", JSON.toJSONString(DataConstans.membersMap));
-		
-//		团队ID=玩家ID列表
-//		public static Map<String, List<String>> teamWanjiaIdMap = new HashMap<>();//撤销后不变
-//		lastLockedDataMap.put("teamWanjiaIdMap", JSON.toJSONString(DataConstans.teamWanjiaIdMap));
 		
 //		玩家ID=上码详情列表（正在使用的值）
 //		public static Map<String,List<ShangmaDetailInfo>> SM_Detail_Map= new HashMap<>();
@@ -158,11 +150,6 @@ public class DataConstans {
 //		public static Map<String,List<TeamHuishuiInfo>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
 		lastLockedDataMap.put("Total_Team_Huishui_Map", JSON.toJSONString(DataConstans.Total_Team_Huishui_Map));
 		
-//		缓存120场次的所有锁定数据{页数第几局={...}}
-//		public static Map<String,Map<String,String>> All_Locked_Data_Map  = new LinkedHashMap<>();//撤销后不变
-		//2018-4-30 注销，单独存储最新局到last_locked_data_detail
-//		lastLockedDataMap.put("All_Locked_Data_Map", JSON.toJSONString(DataConstans.All_Locked_Data_Map));
-		
 //		锁定后是第X局
 //		public static AtomicInteger Paiju_Index = new AtomicInteger(1);//撤销后不变
 		lastLockedDataMap.put("Paiju_Index", JSON.toJSONString(DataConstans.Paiju_Index));
@@ -171,21 +158,9 @@ public class DataConstans {
 //		public static Map<String,String> Index_Table_Id_Map = new HashMap<>();//撤销后不变
 		lastLockedDataMap.put("Index_Table_Id_Map", JSON.toJSONString(DataConstans.Index_Table_Id_Map));
 		
-//		缓存父ID和子ID  {父ID=List<子ID>}
-//		public static Map<String,Set<String>> Combine_Super_Id_Map = new HashMap<>();
-//		lastLockedDataMap.put("Combine_Super_Id_Map", JSON.toJSONString(DataConstans.Combine_Super_Id_Map));
-		
-//		缓存子ID和父ID  {子ID=父ID}
-//		public static Map<String,String> Combine_Sub_Id_Map = new HashMap<>();
-//		lastLockedDataMap.put("Combine_Sub_Id_Map", JSON.toJSONString(DataConstans.Combine_Sub_Id_Map));
-//		
 //		public static String Root_Dir = System.getProperty("user.home");//撤销后不变
 		lastLockedDataMap.put("Root_Dir", JSON.toJSONString(DataConstans.Root_Dir));
 
-//		缓存团队回水
-//		public static Map<String, Huishui> huishuiMap = new HashMap<>();//撤销后不变
-//		lastLockedDataMap.put("huishuiMap", JSON.toJSONString(DataConstans.huishuiMap));
-		
 //		缓存实时开销
 //		public static Map<String, String> kaixiaoMap = new HashMap<>();
 		lastLockedDataMap.put("kaixiaoMap", JSON.toJSONString(DataConstans.kaixiaoMap));
@@ -198,9 +173,6 @@ public class DataConstans {
 //		public static List<String> gudongList = new ArrayList<>();//撤销后不变
 		lastLockedDataMap.put("gudongList", JSON.toJSONString(DataConstans.gudongList));
 		
-//		缓存一些窗体的实例
-//		public static Map<String,Stage> framesNameMap = new HashMap<>();//撤销后不变
-		//lastLockedDataMap.put("framesNameMap", JSON.toJSONString(DataConstans.framesNameMap));
 		
 //		导入战绩后缓存一些总和信息
 //		public static Map<String,Double> SumMap = new HashMap<>();
@@ -328,12 +300,6 @@ public class DataConstans {
 			if(!DBUtil.isPreData2017VeryFirst()) {
 				Map<String, String> map = DBUtil.getLastLockedData();
 				SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {});
-				//add 2017-10-22
-				//增加父子合并ID数据
-				//缓存父ID和子ID  {父ID=List<子ID>}
-//				Combine_Super_Id_Map = JSON.parseObject(map.get("Combine_Super_Id_Map"), new TypeReference<Map<String, Set<String>>>() {});
-				//缓存子ID和父ID  {子ID=父ID}
-//				Combine_Sub_Id_Map = JSON.parseObject(map.get("Combine_Sub_Id_Map"), new TypeReference<Map<String, String> >() {});
 			}
 		} catch (Exception e) {
 			ShowUtil.show("警告：初始化昨日留底数据失败！原因："+e.getMessage());

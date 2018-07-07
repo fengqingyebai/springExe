@@ -2821,14 +2821,10 @@ public class MyController implements Initializable{
     	}
     }
     
-    
-	/**缓存到昨日留底总Map中**/
-//	preDataMap.put("资金", zijinMap);
-//	preDataMap.put("实时开销", presentPayoutMap);
-//	preDataMap.put("实时金额", presentMoneyMap);
-//	preDataMap.put("昨日利润", yesterdayProfitMap);//注意，不是整数LM
-//	preDataMap.put("联盟对帐", LMMap);//
-    
+    /**
+     * 结束一天的统计并进行归档
+     * @time 2018年7月7日
+     */
     public void endOneDayStaticAndSave() {
     	final Map<String, String>  lockedMap = getLastLockedData();
     	List<String> list = Arrays.asList("团队回水总和","团队回水","实时金额","实时金额总和","资金","资金总和","利润","利润总和","实时开销","实时开销总和","联盟对帐");

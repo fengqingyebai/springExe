@@ -146,6 +146,7 @@ public class QuotaController implements Initializable{
 	/**
 	 * DOM加载完后的事件
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
@@ -174,6 +175,7 @@ public class QuotaController implements Initializable{
 	 * 
 	 * @time 2017年12月18日
 	 */
+	@SuppressWarnings("static-access")
 	public void set_LM_club_info() {
 		try {
 			if(LMTotalList.isEmpty()) {
@@ -197,7 +199,6 @@ public class QuotaController implements Initializable{
 				// System.out.println(String.format("俱乐部：%s,总战绩：%s,桌费：%s,已结算：%s,===结余：%s",
 				// allClubMap.get(clubId).getName(),sumZJ,zhuoFei,yiJieshan,jieyu
 				// ));
-				List<ClubQuota> list  =  new ArrayList<>();
 				ClubQuota quota = new ClubQuota();
 				quota.setEuotaClubId(clubId);
 				quota.setQuotaClubName(club.getName());
@@ -312,6 +313,7 @@ public class QuotaController implements Initializable{
     	
     	boolean isDone = false;
     	int count = 0;
+    	// TODO 目前只有5个对冲，如果超过5过需要调整对冲
     	while(!isDone) {
     		count++;
     		ClubQuota row1 = getRecord(1);
@@ -441,19 +443,13 @@ public class QuotaController implements Initializable{
 	 */
     private ClubQuota getRecord(int type) {
     	if(1 ==  type )
-	    	return tableQuota.getItems().parallelStream().max(new Comparator<ClubQuota>() {  
-	            @Override  
-	            public int compare(ClubQuota o1, ClubQuota o2) {  
-	                 return NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()));  
-	            }  
-	        }).get();  
+	    	return tableQuota.getItems().parallelStream().max((o1, o2) ->   
+    			NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))
+            ).get();  
     	else
-	    	return tableQuota.getItems().parallelStream().min(new Comparator<ClubQuota>() {  
-	            @Override  
-	            public int compare(ClubQuota o1, ClubQuota o2) {  
-	                 return NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()));  
-	            }  
-	        }).get();  
+    		return tableQuota.getItems().parallelStream().min((o1, o2) ->   
+				NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))
+	        ).get();  
     }
     
     
@@ -521,6 +517,7 @@ public class QuotaController implements Initializable{
 	 * @time 2017年12月18日
 	 * @param colums
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void bindRedColor(TableColumn<? extends Entity,String>... colums){
 		try {
 			for(TableColumn column : colums){
@@ -572,7 +569,7 @@ public class QuotaController implements Initializable{
     		bank.setPersonName(personName);
     		bank.setPhoneNumber(phoneNumber);
     		bank.setBankAccountInfo(bankAccountInfo);
-    		boolean isAdd2DB = DBUtil.addOrUpdateClubBank(bank);
+    		DBUtil.addOrUpdateClubBank(bank);
     		
     		//往银行信息表添加一条记录
     		addClubBank2Table(bank);
@@ -627,18 +624,6 @@ public class QuotaController implements Initializable{
 		return bank;
     }
     
-    //转为模型
-    private ClubBankModel convert2ClubBankModel(ClubBankInfo info) {
-    	ClubBankModel model = new ClubBankModel();
-    	model.setClubId(info.getClubId());
-    	model.setMobilePayType(info.getMobilePayType());
-    	model.setClubName(info.getClubName());
-    	model.setBankType(info.getBankType());
-    	model.setPersonName(info.getPersonName());
-    	model.setPhoneNumber(info.getPhoneNumber());
-    	model.setBankAccountInfo(info.getBankAccountInfo());
-    	return model;
-    }
     
     /**
      * 获取选中的俱乐部银行卡记录
@@ -696,7 +681,7 @@ public class QuotaController implements Initializable{
     		model.setPersonName(personName);
     		model.setPhoneNumber(phoneNumber);
     		model.setBankAccountInfo(bankAccountInfo);
-    		boolean isUpdate2DB = DBUtil.addOrUpdateClubBank(model);
+    		DBUtil.addOrUpdateClubBank(model);
     		
     		//更新缓存
     		allClubBankModels.put(item.getClubId(),model);
@@ -714,6 +699,12 @@ public class QuotaController implements Initializable{
 	 *  
 	 ***********************************************************************************/
     public void exportClubPayExcel(ActionEvent event) {
+    	// 数据
+    	ObservableList<QuotaMoneyInfo> obList = tableQuotaPay.getItems();
+    	if(CollectUtil.isNullOrEmpty(obList)) {
+    		ShowUtil.show("没有需要导出的数据！");
+    		return;
+    	}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     	// 标题
 		String title = currentLMLabels.getText() + "俱乐部结账单-"+sdf.format(new Date());
@@ -721,15 +712,8 @@ public class QuotaController implements Initializable{
     	String[] rowName = new String[]{"付款方","收款方","转账","支付类型","联系人","手机","银行卡信息"};;
     	// 输出
     	String out = "D:/"+title+System.currentTimeMillis();
-    	// 数据
-    	ObservableList<QuotaMoneyInfo> obList = tableQuotaPay.getItems();
-    	if(CollectUtil.isNullOrEmpty(obList)) {
-    		ShowUtil.show("没有需要导出的数据！");
-    		return;
-    	}
     	List<Object[]>  dataList = new ArrayList<Object[]>();
 	    Object[] objs = null;
-	    String clubId = "";
 	    for(QuotaMoneyInfo info : obList) {
 	    	ClubBankModel model = allClubBankModels.get(info.getQuotaMoneyClubId());
 	        objs = new Object[rowName.length];
