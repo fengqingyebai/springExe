@@ -1,7 +1,5 @@
 package com.kendy.entity;
 
-import javafx.beans.property.SimpleStringProperty;
-
 public class TeamHuishuiInfo {
 
 	private String tuan;//团ID

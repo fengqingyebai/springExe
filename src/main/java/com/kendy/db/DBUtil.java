@@ -1533,29 +1533,6 @@ public class DBUtil {
 	
 	
 	/**
-	 * 删除某一天的战绩记录
-	 * 备注：这个会删除多条
-	 * 
-	 * @time 2017年11月22日
-	 * @param as_of 日期（如2017-02-01）
-	 */
-	public static void delRecord(final String as_of) {
-		try {
-			con = DBConnection.getConnection();
-			String sql;
-			if(!StringUtil.isBlank(as_of)) {
-				sql = "delete from Record where as_of = '"+as_of+"'";
-				ps = con.prepareStatement(sql);
-				ps.execute();
-			}
-		}catch (SQLException e) {
-			ErrorUtil.err("删除某一天的战绩记录失败", e);
-		}finally{
-			close(con,ps);
-		}
-	}
-	
-	/**
 	 * 更改团队
 	 * 备注：这个功能其实可以做成关联人员表，而不必这么麻烦
 	 */
@@ -1574,28 +1551,52 @@ public class DBUtil {
 			close(con,ps);
 		}
 	}
-	
-	/**
-	 * 删除某一场的战绩记录
-	 * 
-	 * @time 2017年11月23日
-	 * @param idSubStr
-	 */
-	public static void delRecordLike(final String idSubStr) {
-		try {
-			con = DBConnection.getConnection();
-			String sql;
-			if(!StringUtil.isBlank(idSubStr)) {
-				sql = "delete from Record where id like '"+idSubStr.trim()+"%'";
-				ps = con.prepareStatement(sql);
-				ps.execute();
-			}
-		}catch (SQLException e) {
-			ErrorUtil.err(idSubStr+",删除场次战绩记录失败", e);
-		}finally{
-			close(con,ps);
-		}
-	}
+//	
+//	/**
+//	 * 删除某一天的战绩记录
+//	 * 备注：这个会删除多条
+//	 * 
+//	 * @time 2017年11月22日
+//	 * @param as_of 日期（如2017-02-01）
+//	 */
+//	public static void delRecord(final String as_of) {
+//		try {
+//			con = DBConnection.getConnection();
+//			String sql;
+//			if(!StringUtil.isBlank(as_of)) {
+//				sql = "delete from Record where as_of = '"+as_of+"'";
+//				ps = con.prepareStatement(sql);
+//				ps.execute();
+//			}
+//		}catch (SQLException e) {
+//			ErrorUtil.err("删除某一天的战绩记录失败", e);
+//		}finally{
+//			close(con,ps);
+//		}
+//	}
+//	
+//	
+//	/**
+//	 * 删除某一场的战绩记录
+//	 * 
+//	 * @time 2017年11月23日
+//	 * @param idSubStr
+//	 */
+//	public static void delRecordLike(final String idSubStr) {
+//		try {
+//			con = DBConnection.getConnection();
+//			String sql;
+//			if(!StringUtil.isBlank(idSubStr)) {
+//				sql = "delete from Record where id like '"+idSubStr.trim()+"%'";
+//				ps = con.prepareStatement(sql);
+//				ps.execute();
+//			}
+//		}catch (SQLException e) {
+//			ErrorUtil.err(idSubStr+",删除场次战绩记录失败", e);
+//		}finally{
+//			close(con,ps);
+//		}
+//	}
 	
 	/**
 	 * 添加战绩记录

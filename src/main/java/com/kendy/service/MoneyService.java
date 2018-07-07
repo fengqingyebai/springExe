@@ -188,7 +188,7 @@ public class MoneyService {
 				teamHuishuiList.add(teamHuishuiInfo);
 				DataConstans.Team_Huishui_Map.put(teamId,teamHuishuiList);
 			}else {
-				log.warn("检测到团队ID是空或为公司，玩家是："+name);
+				log.debug("检测到团队ID是空或为公司，玩家是："+name);
 			}
 
 			//是否显示支付按钮

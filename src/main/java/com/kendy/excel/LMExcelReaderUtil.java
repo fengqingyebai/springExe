@@ -162,7 +162,7 @@ public class LMExcelReaderUtil {
 						break;
 						case 9: record.setPlayerId(cell.getStringCellValue());
 						break;
-						case 11: record.setClubId(cell.getStringCellValue());log.info("===="+cell.getStringCellValue());
+						case 11: record.setClubId(cell.getStringCellValue());
 						break;
 						case 12: record.setClubName(cell.getStringCellValue());
 						break;

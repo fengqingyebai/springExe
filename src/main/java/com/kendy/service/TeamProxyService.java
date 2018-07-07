@@ -314,23 +314,6 @@ public class TeamProxyService {
 			ErrorUtil.err(String.format("根据团队ID%s获取团队服务费出错！",teamId));
 			hs = new Huishui();
 		}
-		//加载数据{teamId={}}
-//		double sumHS = 0d;
-//		double sumHB = 0d;
-//		for(Record info : list) {
-//			String yszj = info.getScore();
-//			String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
-//			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getInsuranceEach(),teamId));
-//			sumHS += (MoneyService.getNum(chuHuishui))*(-1);
-//			sumHB += MoneyService.getNum(baohui);
-//		}
-//		double HSRate = getNumByPercent(hs.getProxyHSRate());
-//		double HBRate = getNumByPercent(hs.getProxyHBRate());
-//		double FWFValid = NumUtil.getNum(hs.getProxyFWF());//服务费有效值
-//		//计算服务费
-//		double proxyFWFVal = calculateProxSumFWF(sumHS,HSRate,sumHB,HBRate,FWFValid);
-//	
-//		return NumUtil.digit0(proxyFWFVal);
 		
 		//备注：之前是该团队的所有历史数据都参与计算，现在改为该团队的每天服务费相加
 		double sumTeamFWF = 0.0;
@@ -380,9 +363,7 @@ public class TeamProxyService {
 	 */
 	public static Map<String,List<TeamHuishuiInfo>> getTotalTeamHuishuiMap(){
 		Map<String,List<TeamHuishuiInfo>> teamMap = new HashMap<>();
-		//复制锁定数据(putAll方法不影响已锁定的数据）
-		//teamMap.putAll(DataConstans.Total_Team_Huishui_Map);//锁定就保留信息，不减(此方法不是深层复制，会影响DataConstans.Total_Team_Huishui_Map)
-		//深层复制（代替以上代码）
+		//深层复制
 		teamMap = copy_Total_Team_Huishui_Map();
 		
 		//加上最新导入的当局信息（可能没有）
