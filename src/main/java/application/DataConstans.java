@@ -1,9 +1,7 @@
 package application;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,20 +10,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.controller.CombineIDController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
-import com.kendy.entity.ProfitInfo;
 import com.kendy.entity.ShangmaDetailInfo;
-import com.kendy.entity.TeamHuishuiInfo;
 import com.kendy.entity.TeamInfo;
-import com.kendy.entity.UserInfos;
-import com.kendy.service.MoneyService;
+import com.kendy.model.GameRecord;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 
@@ -50,13 +43,13 @@ public class DataConstans {
 	public static Map<String,List<ShangmaDetailInfo>> SM_Detail_Map_Locked= new HashMap<>();
 	
 	//缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-	public static Map<String,List<UserInfos>> zjMap = new LinkedHashMap<>();
+	public static Map<String, List<GameRecord>> zjMap = new LinkedHashMap<>();
 	//缓存当局回水
-	public static List<TeamHuishuiInfo> Dangju_Team_Huishui_List = new LinkedList<>();
-	//缓存战绩文件夹中多份excel中的数据 {团队ID=List<TeamHuishuiInfo>...}这个可能会被修改，用在展示每场的tableTeam信息
-	public static Map<String,List<TeamHuishuiInfo>> Team_Huishui_Map = new LinkedHashMap<>();
+	public static List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
+	//缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
+	public static Map<String,List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
 	//这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-	public static Map<String,List<TeamHuishuiInfo>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
+	public static Map<String,List<GameRecord>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
 	
 	//缓存120场次的所有锁定数据{页数第几局={...}}
 	public static Map<String,Map<String,String>> All_Locked_Data_Map  = new LinkedHashMap<>();//撤销后不变
@@ -139,15 +132,15 @@ public class DataConstans {
 		lastLockedDataMap.put("zjMap", JSON.toJSONString(DataConstans.zjMap));
 		
 //		缓存当局回水
-//		public static List<TeamHuishuiInfo> Dangju_Team_Huishui_List = new LinkedList<>();
+//		public static List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
 		lastLockedDataMap.put("Dangju_Team_Huishui_List", JSON.toJSONString(DataConstans.Dangju_Team_Huishui_List));
 		
-//		缓存战绩文件夹中多份excel中的数据 {团队ID=List<TeamHuishuiInfo>...}这个可能会被修改，用在展示每场的tableTeam信息
-//		public static Map<String,List<TeamHuishuiInfo>> Team_Huishui_Map = new LinkedHashMap<>();
+//		缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
+//		public static Map<String,List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
 		lastLockedDataMap.put("Team_Huishui_Map", JSON.toJSONString(DataConstans.Team_Huishui_Map));
 		
 //		这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-//		public static Map<String,List<TeamHuishuiInfo>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
+//		public static Map<String,List<GameRecord>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
 		lastLockedDataMap.put("Total_Team_Huishui_Map", JSON.toJSONString(DataConstans.Total_Team_Huishui_Map));
 		
 //		锁定后是第X局
@@ -204,7 +197,7 @@ public class DataConstans {
 		zjMap = new LinkedHashMap<>();
 		//缓存当局回水
 		Dangju_Team_Huishui_List = new LinkedList<>();
-		//缓存战绩文件夹中多份excel中的数据 {团队ID=List<TeamHuishuiInfo>...}这个可能会被修改，用在展示每场的tableTeam信息
+		//缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
 		Team_Huishui_Map = new LinkedHashMap<>();
 		//这个不会被修改，是总的团队回水记录。用在团队回水当天查询
 		Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
@@ -329,16 +322,16 @@ public class DataConstans {
 		SM_Detail_Map_Locked= JSON.parseObject(map.get("SM_Detail_Map_Locked"), new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
 		
 		//缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-		zjMap = JSON.parseObject(map.get("zjMap"), new TypeReference<Map<String, List<UserInfos>>>() {});
+		zjMap = JSON.parseObject(map.get("zjMap"), new TypeReference<Map<String, List<GameRecord>>>() {});
 		
 		//缓存当局回水
-		Dangju_Team_Huishui_List = JSON.parseObject(map.get("Dangju_Team_Huishui_List"), new TypeReference<List<TeamHuishuiInfo>>() {});
+		Dangju_Team_Huishui_List = JSON.parseObject(map.get("Dangju_Team_Huishui_List"), new TypeReference<List<GameRecord>>() {});
 		
-		//缓存战绩文件夹中多份excel中的数据 {团队ID=List<TeamHuishuiInfo>...}这个可能会被修改，用在展示每场的tableTeam信息
-		Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"), new TypeReference<Map<String, List<TeamHuishuiInfo>>>() {});
+		//缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
+		Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
 		
 		//这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-		Total_Team_Huishui_Map = JSON.parseObject(map.get("Total_Team_Huishui_Map"), new TypeReference<Map<String, List<TeamHuishuiInfo>>>() {});
+		Total_Team_Huishui_Map = JSON.parseObject(map.get("Total_Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
 		
 		//缓存120场次的所有锁定数据{页数第几局={...}}
 		All_Locked_Data_Map  =JSON.parseObject(map.get("All_Locked_Data_Map"), new TypeReference<Map<String, Map<String, String>>>() {});

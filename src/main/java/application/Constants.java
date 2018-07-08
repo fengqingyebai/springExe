@@ -28,4 +28,6 @@ public class Constants {
 	
 	public static double HS_RATE_FINAL = 0.975;//回水比例
 	public static double HS_RATE = 0.95;//默认的回水比例
+	
+	
 }

@@ -193,6 +193,15 @@ public class SMAutoController implements Initializable {
         initNextDayRange();
         
         loadTokenAction(new ActionEvent());
+        
+        
+        datePicker.setOnAction(e->{
+        	log.info("datePicker: " + getSelectedDate().toString());
+        	// TODO 判断时间是否合理范围
+        	
+        	// TODO 设置当前软件时间
+        	
+        });
     }
 
     /**
@@ -808,7 +817,7 @@ public class SMAutoController implements Initializable {
 	 * 
 	 *************************************************************************************************/
 	@FXML
-	private DatePicker datePicker;
+	private DatePicker datePicker;  // dateLabel.setText(DataConstans.Date_Str);
 	@FXML
 	private TextField firstDayStartTimeField;
 	@FXML

@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,14 +14,15 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeanUtils;
 
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.Record;
-import com.kendy.entity.TeamHuishuiInfo;
 import com.kendy.excel.ExportExcel;
+import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
@@ -68,7 +68,7 @@ public class TeamProxyService {
 	public static  TextField proxyFWF;//服务费大于多少有效
 	
 	// 克隆场次信息的团队数据    {团队ID : 团队原始数据列表 }
-	public static Map<String,List<TeamHuishuiInfo>> allTeamDataMap = new HashMap<>();
+	public static Map<String,List<GameRecord>> allTeamDataMap = new HashMap<>();
 	/**
 	 * 初始化代理服务类
 	 */
@@ -228,31 +228,31 @@ public class TeamProxyService {
         double sumHB = 0d;
         double sumBX = 0d;
         int sumRC = 0;
-        //Map<String,List<TeamHuishuiInfo>> teamMap = DataConstans.Total_Team_Huishui_Map;//锁定就保留信息，不减
-        Map<String,List<TeamHuishuiInfo>> teamMap = getTotalTeamHuishuiMap();
+        //Map<String,List<GameRecord>> teamMap = DataConstans.Total_Team_Huishui_Map;//锁定就保留信息，不减
+        Map<String,List<GameRecord>> teamMap = getTotalTeamHuishuiMap();
         if(teamMap != null && teamMap.size() == 0) {
         	log.error("----------------");//这个有问题，后期再看
         }
-        List<TeamHuishuiInfo> teamList = teamMap.get(newValue.toString().toUpperCase());
+        List<GameRecord> teamList = teamMap.get(newValue.toString().toUpperCase());
         ObservableList<ProxyTeamInfo> obList = FXCollections.observableArrayList();
         if(teamList != null) {
-            for(TeamHuishuiInfo info : teamList) {
+            for(GameRecord info : teamList) {
             	obList.add(new ProxyTeamInfo(
-            			info.getTuan(),
-            			info.getWanjiaId(),
-            			info.getWanjia(),
-            			info.getZj(),//yszj
+            			info.getTeamId(),
+            			info.getPlayerId(),
+            			info.getPlayerName(),
+            			info.getYszj(),
             			info.getShishou(),
             			NumUtil.getNum(info.getChuHuishui())*(-1)+"",//出回水是否等于回水
-            			info.getHuibao(),//保险是否等于回保
+            			info.getHuiBao(),//保险是否等于回保
             			info.getTableId(),
-            			info.getBaoxian()//保险
+            			info.getSinegleInsurance()//保险
             			));
-            	sumYSZJ += NumUtil.getNum(info.getZj());
+            	sumYSZJ += NumUtil.getNum(info.getYszj());
             	sumZJ += NumUtil.getNum(info.getShishou());
-            	sumBX += NumUtil.getNum(info.getBaoxian());
+            	sumBX += NumUtil.getNum(info.getSinegleInsurance());
             	sumHS += (NumUtil.getNum(info.getChuHuishui()))*(-1);
-            	sumHB += NumUtil.getNum(info.getHuibao());
+            	sumHB += NumUtil.getNum(info.getHuiBao());
             	sumRC += 1;
             }
         }
@@ -361,25 +361,25 @@ public class TeamProxyService {
 	/**
 	 * 获取最新锁定数据（指导入战绩）+可能已经导入的战绩
 	 */
-	public static Map<String,List<TeamHuishuiInfo>> getTotalTeamHuishuiMap(){
-		Map<String,List<TeamHuishuiInfo>> teamMap = new HashMap<>();
+	public static Map<String,List<GameRecord>> getTotalTeamHuishuiMap(){
+		Map<String,List<GameRecord>> teamMap = new HashMap<>();
 		//深层复制
 		teamMap = copy_Total_Team_Huishui_Map();
 		
 		//加上最新导入的当局信息（可能没有）
 		if(DataConstans.Dangju_Team_Huishui_List.size() > 0) {
-			for(TeamHuishuiInfo info : DataConstans.Dangju_Team_Huishui_List) {
-				String teamId = info.getTuan();
+			for(GameRecord info : DataConstans.Dangju_Team_Huishui_List) {
+				String teamId = info.getTeamId();
 				System.out.println(teamId);
-				List<TeamHuishuiInfo> teamHuishuiList = teamMap.get(teamId);
+				List<GameRecord> teamHuishuiList = teamMap.get(teamId);
 				if( teamHuishuiList == null ) {
 					teamHuishuiList = new ArrayList<>();
 				}
 				//add 去重
 				boolean isExist = false;
-				for(TeamHuishuiInfo teamInfo : teamHuishuiList) {
+				for(GameRecord teamInfo : teamHuishuiList) {
 					if(teamInfo.getTableId().equals(info.getTableId())
-							&& teamInfo.getWanjia().equals(info.getWanjia())) {
+							&& teamInfo.getPlayerName().equals(info.getPlayerName())) {
 						isExist = true;
 					}
 				}
@@ -398,27 +398,17 @@ public class TeamProxyService {
 	 * @time 2017年10月29日
 	 * @return
 	 */
-	private static Map<String,List<TeamHuishuiInfo>> copy_Total_Team_Huishui_Map() {
-		Map<String,List<TeamHuishuiInfo>> teamMap = new HashMap<>();
+	private static Map<String,List<GameRecord>> copy_Total_Team_Huishui_Map() {
+		Map<String,List<GameRecord>> teamMap = new HashMap<>();
 		//复制锁定数据(不影响已锁定的数据）
 		//深层复制（代替以上代码）
-		for(Map.Entry<String, List<TeamHuishuiInfo>> entry : DataConstans.Total_Team_Huishui_Map.entrySet()) {
+		for(Map.Entry<String, List<GameRecord>> entry : DataConstans.Total_Team_Huishui_Map.entrySet()) {
 			String teamId = entry.getKey();
-			List<TeamHuishuiInfo> list = entry.getValue();
-			List<TeamHuishuiInfo> tempList = new ArrayList<>();
-			for(TeamHuishuiInfo tInfo : list) {
-				TeamHuishuiInfo tempHs = new TeamHuishuiInfo();
-				tempHs.setTuan(tInfo.getTuan());
-				tempHs.setWanjiaId(tInfo.getWanjiaId());
-				tempHs.setWanjia(tInfo.getWanjia());
-				tempHs.setShishou(tInfo.getShishou());
-				tempHs.setBaoxian(tInfo.getBaoxian());
-				tempHs.setChuHuishui(tInfo.getChuHuishui());
-				tempHs.setTableId(tInfo.getTableId());
-				tempHs.setZj(tInfo.getZj());
-				tempHs.setHuibao(tInfo.getHuibao());
-				tempHs.setShouHuishui(tInfo.getShouHuishui());
-				tempHs.setUpdateTime(tInfo.getUpdateTime());
+			List<GameRecord> list = entry.getValue();
+			List<GameRecord> tempList = new ArrayList<>();
+			for(GameRecord tInfo : list) {
+				GameRecord tempHs = new GameRecord();
+				BeanUtils.copyProperties(tInfo, tempHs);
 				tempList.add(tempHs);
 			}
 			teamMap.put(teamId, tempList);

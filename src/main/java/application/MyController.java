@@ -38,7 +38,6 @@ import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.DangtianHuizongInfo;
-import com.kendy.entity.HistoryRecord;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.JifenInfo;
@@ -51,10 +50,8 @@ import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.ShangmaInfo;
-import com.kendy.entity.TeamHuishuiInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
-import com.kendy.entity.UserInfos;
 import com.kendy.entity.WaizhaiInfo;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
@@ -62,6 +59,7 @@ import com.kendy.entity.ZonghuiInfo;
 import com.kendy.entity.ZonghuiKaixiaoInfo;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
+import com.kendy.model.GameRecord;
 import com.kendy.other.Wrap;
 import com.kendy.service.JifenService;
 import com.kendy.service.MemberService;
@@ -288,7 +286,7 @@ public class MyController implements Initializable{
 	@FXML private Hyperlink addCurrentMoneyLink;
 	@FXML private Hyperlink delCurrentMoneyLink;
 	@FXML private Label lockedLabel;
-	@FXML private Label dateLabel;
+	@FXML public Label dateLabel;
 	//===============================================================代理查询Tab
 	@FXML private TableView<ProxyTeamInfo> tableProxyTeam;
 	@FXML private HBox proxySumHBox;//每列上的总和
@@ -1044,11 +1042,12 @@ public class MyController implements Initializable{
 	 */
 	@SuppressWarnings("unchecked")
 	public void importZJExcelAction(ActionEvent even){
-		String zjFilePath = excelDir.getText();
-		if(!StringUtil.isBlank(zjFilePath)){
-			String tableId = zjFilePath.substring(zjFilePath.lastIndexOf("-")+1, zjFilePath.lastIndexOf("."));
-			if(!NumUtil.isNumeric(tableId)) {
-				ErrorUtil.err(zjFilePath+"不是一个合法的Excel文件名称，请检查！");
+		String excelFilePath = excelDir.getText();
+		String userClubId = lable_currentClubId.getText();
+		String tableId = FileUtil.getTableId(excelFilePath);
+		if(!StringUtil.isBlank(excelFilePath)){
+			if(!NumUtil.isNumeric(tableId.replace("第", "").replaceAll("局", ""))) {
+				ErrorUtil.err(excelFilePath+"不是一个合法的Excel文件名称，请检查！");
 				return;
 			}
 			if(hbox_autoTestMode.isVisible()) {
@@ -1058,36 +1057,33 @@ public class MyController implements Initializable{
 				selectLM();
 				if(StringUtil.isBlank(selected_LM_type)) {
 					String msg = "导入战绩时没有选择对应的联盟，场次："+tableId+" Excel不准导入！";
-					ShowUtil.show(msg);
-					log.warn(msg);
+					ErrorUtil.err(msg);
 					return;
 				}
 			}
-			
-			//将人员名单文件缓存起来
-			Wrap wrap;
-			try {
-				wrap = ExcelReaderUtil.readZJRecord(new File(zjFilePath),lable_currentClubId.getText(),selected_LM_type,getVersionType());
-			} catch (Exception e) {
-				ErrorUtil.err("战绩导入失败", e);
+			if( StringUtil.isBlank(userClubId) || DataConstans.Index_Table_Id_Map.containsValue(tableId)){
+				ErrorUtil.err("该战绩表("+tableId+"场次)已经导过");
 				return;
 			}
-			dateLabel.setText(DataConstans.Date_Str);
-			if(wrap.resultSuccess){
-				indexLabel.setText("第"+tableId+"局");
-				importExcelData(tableId,(List<UserInfos>)wrap.obj);
+			
+			try {
+				//将人员名单文件缓存起来
+				List<GameRecord>  gameRecords = ExcelReaderUtil.readZJRecord(excelFilePath, 
+						userClubId, selected_LM_type,getVersionType());
+				indexLabel.setText(tableId);
+				importExcelData(tableId, gameRecords);
 				
 				importZJBtn.setDisable(true);//导入不可用
 				ShowUtil.show("导入战绩文件成功", 2);
-			}else{
-				ShowUtil.show("导入失败!!!原因:"+wrap.obj, 2);
+			} catch (Exception e) {
+				ErrorUtil.err("战绩导入失败", e);
 			}
 		}
 	}
 	
-	private void importExcelData(String tableId, List<UserInfos> userInfoList) {
+	private void importExcelData(String tableId, List<GameRecord> gameRecords) {
 		//1 填充总信息表
-		MoneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju,tableDangju,tableJiaoshou,tableTeam, userInfoList, tableId);
+		MoneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju,tableDangju,tableJiaoshou,tableTeam, gameRecords, tableId);
 		//2填充当局表和交收表和团队表的总和
 		MoneyService.setTotalNumOnTable(tableDangju, DataConstans.SumMap.get("当局"));
 		MoneyService.setTotalNumOnTable(tableJiaoshou, DataConstans.SumMap.get("交收"));
@@ -1940,12 +1936,12 @@ public class MyController implements Initializable{
 				ConsUtil.lock_SM_Detail_Map();
 				
 				
-				//插入当前导入的战绩表
-				try {
-					saveHistoryRecord();
-				} catch (Exception e) {
-					ErrorUtil.err("保存历史数据失败",e);
-				}
+				//插入当前导入的战绩表  泽涛说明：由于所有的记录都统一使用GameRecord,故此记录统一去记录表查找
+//				try {
+//					saveHistoryRecord();
+//				} catch (Exception e) {
+//					ErrorUtil.err("保存历史数据失败",e);
+//				}
 				DataConstans.Dangju_Team_Huishui_List = new LinkedList<>();
 				
 				//保存所有缓存数据进数据库(与上面的数据顺序不要变换），不然会中途加载时想查看以前的数据会报请撤销或锁定数据
@@ -1957,7 +1953,8 @@ public class MyController implements Initializable{
 				
 				//联盟对帐：保存当场所有战绩到数据库
 				setLMRecords();
-				DBUtil.addRecordList(LMController.currentRecordList);//是否反回结果？？
+//				DBUtil.addRecordList(LMController.currentRecordList);//是否反回结果？？
+				DBUtil.addGameRecordList(LMController.currentRecordList);//是否反回结果？？
 				LMController.refreshClubList();
 				LMController.checkOverEdu(final_selected_LM_type);//检查俱乐部额度
 				
@@ -2022,39 +2019,39 @@ public class MyController implements Initializable{
 	 * 保存当前导入的战绩表，用于会员查询和积分查询
 	 * @throws Exception
 	 */
-	public void saveHistoryRecord() throws Exception {
-		List<TeamHuishuiInfo> list = DataConstans.Dangju_Team_Huishui_List;
-		List<HistoryRecord> ls = new ArrayList<>();
-
-		if(list != null && list.size() > 0 ) {
-			for(TeamHuishuiInfo hs : list ) {
-				/**
-				 * @param playerId
-				 * @param playerName
-				 * @param teamId
-				 * @param shishou
-				 * @param yszj
-				 * @param chuHuishui
-				 * @param shouHuishui
-				 * @param updateTime
-				 */
-				ls.add(new HistoryRecord(hs.getWanjiaId(),hs.getWanjia(),hs.getTuan(),
-						hs.getShishou(),hs.getZj(),hs.getChuHuishui(),hs.getShouHuishui(),hs.getUpdateTime()));
-			}
-			if(!ls.isEmpty()) {
-				DBUtil.saveHistoryRecord(ls);
-			}
-		}
-		
-	}
+//	public void saveHistoryRecord() throws Exception {
+//		List<GameRecord> list = DataConstans.Dangju_Team_Huishui_List;
+//		List<HistoryRecord> ls = new ArrayList<>();
+//
+//		if(list != null && list.size() > 0 ) {
+//			for(GameRecord hs : list ) {
+//				/**
+//				 * @param playerId
+//				 * @param playerName
+//				 * @param teamId
+//				 * @param shishou
+//				 * @param yszj
+//				 * @param chuHuishui
+//				 * @param shouHuishui
+//				 * @param updateTime
+//				 */
+//				ls.add(new HistoryRecord(hs.getWanjiaId(),hs.getWanjia(),hs.getTuan(),
+//						hs.getShishou(),hs.getZj(),hs.getChuHuishui(),hs.getShouHuishui(),hs.getUpdateTime()));
+//			}
+//			if(!ls.isEmpty()) {
+//				DBUtil.saveHistoryRecord(ls);
+//			}
+//		}
+//		
+//	}
 	
 
 	
 	//缓存到总团队回水中(不会从中减少)
 	public void setDangjuTeamInfo() {
 		DataConstans.Dangju_Team_Huishui_List.forEach(info -> {
-			String teamId = info.getTuan();
-			List<TeamHuishuiInfo> teamHuishuiList = DataConstans.Total_Team_Huishui_Map.get(teamId);
+			String teamId = info.getTeamId();
+			List<GameRecord> teamHuishuiList = DataConstans.Total_Team_Huishui_Map.get(teamId);
 			if( teamHuishuiList == null ) {
 				teamHuishuiList = new ArrayList<>();
 			}
@@ -2477,8 +2474,8 @@ public class MyController implements Initializable{
 			
 			Map<String, String> maps = DBUtil.getLastLockedData();
 			if(maps != null && maps.size() > 0) {
-				DataConstans.Team_Huishui_Map = JSON.parseObject(maps.get("Team_Huishui_Map"), new TypeReference<Map<String, List<TeamHuishuiInfo>>>() {});
-				DataConstans.Total_Team_Huishui_Map = JSON.parseObject(maps.get("Total_Team_Huishui_Map"), new TypeReference<Map<String, List<TeamHuishuiInfo>>>() {});
+				DataConstans.Team_Huishui_Map = JSON.parseObject(maps.get("Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
+				DataConstans.Total_Team_Huishui_Map = JSON.parseObject(maps.get("Total_Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
 			}
 			//初始化当局回水
 			DataConstans.Dangju_Team_Huishui_List = new LinkedList<>();
@@ -2733,10 +2730,10 @@ public class MyController implements Initializable{
 			MoneyService.fillTableCurrentMoneyInfo(tableCurrentMoneyInfo, tableZijin, tableProfit,tableKaixiao,LMLabel);
 		}else {
 			MoneyService.fillTableCurrentMoneyInfo2(tableTeam, tableCurrentMoneyInfo, tableZijin, tableProfit, tableKaixiao, LMLabel);
-			//缓存战绩文件夹中多份excel中的数据 {团队ID=List<TeamHuishuiInfo>...}这个可能会被修改，用在展示每场的tableTeam信息
+			//缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
 			Map<String, String> map = DBUtil.getLastLockedData();
 			if(map != null && map.size() > 0) {
-				DataConstans.Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"), new TypeReference<Map<String, List<TeamHuishuiInfo>>>() {});
+				DataConstans.Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
 			}
 		}
     }
@@ -3315,7 +3312,7 @@ public class MyController implements Initializable{
      */
     public void importBlankExcelAction(ActionEvent event) {
     	String tableId = RandomUtil.getRandomNumber(10000,20000) + "";//随机生成ID
-    	List<UserInfos> blankDataList = new ArrayList<UserInfos>();
+    	List<GameRecord> blankDataList = new ArrayList<GameRecord>();
     	//存储数据  {场次=infoList...}
 		DataConstans.zjMap.put(tableId, blankDataList);
 		final_selected_LM_type = "联盟1";

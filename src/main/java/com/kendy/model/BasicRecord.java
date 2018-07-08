@@ -28,13 +28,13 @@ public class BasicRecord {
 	private String clubName;
 	
 	@ExcelField (title = "保险合计", order=17 )
-	private String insuranceHiji;
+	private String sinegleInsurance;
 	
 	@ExcelField (title = "俱乐部保险", order=18 )
 	private String clubInsurance;
 	
 	@ExcelField (title = "保险", order=19 )
-	private String insurance;
+	private String currentTableInsurance;
 	
 	@ExcelField (title = "战绩", order=20 )
 	private String yszj;
@@ -47,112 +47,136 @@ public class BasicRecord {
 		super();
 	}
 
+
 	/**
 	 * @param sumHandsCount
 	 * @param playerId
 	 * @param playerName
 	 * @param clubId
 	 * @param clubName
-	 * @param insuranceHiji
+	 * @param sinegleInsurance
 	 * @param clubInsurance
-	 * @param insurance
+	 * @param currentTableInsurance
 	 * @param yszj
 	 * @param finisedTime
 	 */
 	public BasicRecord(String sumHandsCount, String playerId, String playerName, String clubId, String clubName,
-			String insuranceHiji, String clubInsurance, String insurance, String yszj, String finisedTime) {
+			String sinegleInsurance, String clubInsurance, String currentTableInsurance, String yszj,
+			String finisedTime) {
 		super();
 		this.sumHandsCount = sumHandsCount;
 		this.playerId = playerId;
 		this.playerName = playerName;
 		this.clubId = clubId;
 		this.clubName = clubName;
-		this.insuranceHiji = insuranceHiji;
+		this.sinegleInsurance = sinegleInsurance;
 		this.clubInsurance = clubInsurance;
-		this.insurance = insurance;
+		this.currentTableInsurance = currentTableInsurance;
 		this.yszj = yszj;
 		this.finisedTime = finisedTime;
 	}
+
 
 	public String getSumHandsCount() {
 		return sumHandsCount;
 	}
 
+
 	public void setSumHandsCount(String sumHandsCount) {
 		this.sumHandsCount = sumHandsCount;
 	}
+
 
 	public String getPlayerId() {
 		return playerId;
 	}
 
+
 	public void setPlayerId(String playerId) {
 		this.playerId = playerId;
 	}
+
 
 	public String getPlayerName() {
 		return playerName;
 	}
 
+
 	public void setPlayerName(String playerName) {
 		this.playerName = playerName;
 	}
+
 
 	public String getClubId() {
 		return clubId;
 	}
 
+
 	public void setClubId(String clubId) {
 		this.clubId = clubId;
 	}
+
 
 	public String getClubName() {
 		return clubName;
 	}
 
+
 	public void setClubName(String clubName) {
 		this.clubName = clubName;
 	}
 
-	public String getInsuranceHiji() {
-		return insuranceHiji;
+
+	public String getSinegleInsurance() {
+		return sinegleInsurance;
 	}
 
-	public void setInsuranceHiji(String insuranceHiji) {
-		this.insuranceHiji = insuranceHiji;
+
+	public void setSinegleInsurance(String sinegleInsurance) {
+		this.sinegleInsurance = sinegleInsurance;
 	}
+
 
 	public String getClubInsurance() {
 		return clubInsurance;
 	}
 
+
 	public void setClubInsurance(String clubInsurance) {
 		this.clubInsurance = clubInsurance;
 	}
 
-	public String getInsurance() {
-		return insurance;
+
+	public String getCurrentTableInsurance() {
+		return currentTableInsurance;
 	}
 
-	public void setInsurance(String insurance) {
-		this.insurance = insurance;
+
+	public void setCurrentTableInsurance(String currentTableInsurance) {
+		this.currentTableInsurance = currentTableInsurance;
 	}
+
 
 	public String getYszj() {
 		return yszj;
 	}
 
+
 	public void setYszj(String yszj) {
 		this.yszj = yszj;
 	}
+
 
 	public String getFinisedTime() {
 		return finisedTime;
 	}
 
+
 	public void setFinisedTime(String finisedTime) {
 		this.finisedTime = finisedTime;
 	}
+
+	
 
 
 

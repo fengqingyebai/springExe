@@ -28,6 +28,7 @@ import com.kendy.entity.Record;
 import com.kendy.excel.ExportAllLMExcel;
 import com.kendy.excel.ExportLMExcel;
 import com.kendy.interfaces.Entity;
+import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
@@ -104,7 +105,7 @@ public class LMController implements Initializable{
 	private static final String FLOW_PANE_ID = "flowPane";
 	
 	//导入每场战绩时的所有俱乐部记录
-	public static List<Record> currentRecordList = new ArrayList<>();
+	public static List<GameRecord> currentRecordList = new ArrayList<>();
 	
 	//{俱乐部ID : 俱乐部信息}
 	public static Map<String,Club> allClubMap = new HashMap<>();
@@ -151,20 +152,6 @@ public class LMController implements Initializable{
 		
 		//刷新每个俱乐部的列表
 		refresh_eachClubList();
-		
-		//这里更新俱乐部列表（静态访问）
-//		_clubListView.setItems(null);
-//		ObservableList<String> obList = FXCollections.observableArrayList();
-//		allClubMap.values().forEach(club -> {
-//			obList.add(club.getName()+"=="+club.getClubId()+"=="+club.getEdu());
-//		});
-//		_clubListView.setItems(obList);
-//		
-//		//默认选择第一个
-//		if(_clubListView.getItems() != null) {
-//			_clubListView.getSelectionModel().select(0);
-//		}
-		//refreshClubListView();
 		
 		compute3LM();//计算三个联盟的相关信息
 		refreshClubListView(1);//1表示加载联盟1的数据（依此类推）

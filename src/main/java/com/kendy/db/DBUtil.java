@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.entity.Club;
@@ -36,11 +38,14 @@ import com.kendy.entity.TGKaixiaoInfo;
 import com.kendy.entity.TGLirunInfo;
 import com.kendy.entity.TGTeamModel;
 import com.kendy.model.BankFlowModel;
+import com.kendy.model.GameRecord;
+import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
+
 import application.DataConstans;
 
 
@@ -1966,7 +1971,6 @@ public class DBUtil {
 		try {
 			con = DBConnection.getConnection();
 			String sql;
-//			sql = "insert into clubBank values(?,?,?,?,?,?,?)";
 			sql = "replace into clubBank values(?,?,?,?,?,?,?)";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, bank.getClubId());
@@ -1986,34 +1990,6 @@ public class DBUtil {
 		}
 		return isOK;
 	}
-//	/**
-//	 * 修改俱乐部银行卡信息
-//	 */
-//	public static boolean updateClubBank(final ClubBankModel bank) {
-//		boolean isOK = false;
-//		try {
-//			con = DBConnection.getConnection();
-//			String sql;
-////			sql = "update clubbank set clubName=?,mobilePayType=?,personName=?,phoneNumber=?,bankType=?,bankAccountInfo=? where clubId=?";
-//			sql = "update clubbank set clubName=?,mobilePayType=?,personName=?,phoneNumber=?,bankType=?,bankAccountInfo=? where clubId=?";
-//			ps = con.prepareStatement(sql);
-//			ps.setString(1, bank.getClubName());
-//			ps.setString(2, bank.getMobilePayType());
-//			ps.setString(3, bank.getPersonName());
-//			ps.setString(4, bank.getPhoneNumber());
-//			ps.setString(5, bank.getBankType());
-//			ps.setString(6, bank.getBankAccountInfo());
-//			ps.setString(7, bank.getClubId());
-//			ps.execute();
-//			isOK = true;
-//		}catch (SQLException e) {
-//			ErrorUtil.err("修改俱乐部银行卡信息记录失败", e);
-//			isOK = false;
-//		}finally{
-//			close(con,ps);
-//		}
-//		return isOK;
-//	}
 	
 	/**
 	 * 获取所有俱乐部银行卡信息
@@ -3137,6 +3113,255 @@ public class DBUtil {
         return list;
     }
     
+    
+    
+    /************************************************************************************************
+     * 
+     * 							    GameRecord表
+     * 
+     ***********************************************************************************************/
+    /**
+	 * 更改团队
+	 * 备注：这个功能其实可以做成关联人员表，而不必这么麻烦
+	 */
+	public static void updateGameRecordTeamId(final String playerId, final String teamId) {
+		try {
+			con = DBConnection.getConnection();
+			String sql;
+			if(!StringUtil.isBlank(playerId)) {
+				sql = "update record r set r.teamId = '"+teamId+"' where r.playerId = '"+playerId+"'";
+				ps = con.prepareStatement(sql);
+				ps.execute();
+			}
+		}catch (SQLException e) {
+			ErrorUtil.err("更改玩家团队失败", e);
+		}finally{
+			close(con,ps);
+		}
+	}
+	
+	/**
+	 * 添加战绩记录
+	 * @time 2017年11月22日
+	 * @param record
+	 */
+	public static void addGameRecord(final GameRecord record) {
+		try {
+			con = DBConnection.getConnection();
+			String sql;
+			sql = "insert into record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, record.getSoftDate());
+			ps.setString(2, record.getClubId());
+			ps.setString(3, record.getTableId());
+			ps.setString(4, record.getTeamId());
+			ps.setString(5, record.getPlayerId());
+			ps.setString(6, record.getClubName());
+			ps.setString(7, record.getYszj());
+			ps.setString(8, record.getSinegleInsurance());
+			ps.setString(9, record.getClubInsurance());
+			ps.setString(10, record.getCurrentTableInsurance());
+			ps.setString(11, record.getShishou());
+			ps.setString(12, record.getChuHuishui());
+			ps.setString(13, record.getShouHuishui());
+			ps.setString(14, record.getShuihouxian());
+			ps.setString(15, record.getHuiBao());
+			ps.setString(16, record.getHeLirun());
+			ps.setString(17, record.getLmType());
+			ps.setString(18, record.getFinisedTime());
+			ps.setString(19, record.getIsJiesuaned());
+			ps.execute();
+		}catch (SQLException e) {
+			ErrorUtil.err("添加战绩记录失败", e);
+		}finally{
+			close(con,ps);
+		}
+	}
+	
+	/**
+	 * 联盟对帐批量插入战绩记录
+	 * 
+	 * @time 2017年11月19日
+	 * @param map
+	 */
+	public static void addGameRecordList(final List<GameRecord> recordList) {
+		if(CollectUtil.isHaveValue(recordList)) {
+			for(GameRecord record : recordList) {
+				addGameRecord(record);
+			}
+		}
+	}
+	
+	/**
+	 * 获取已锁定的战绩记录中最大的时间
+	 * @time 2017年11月25日
+	 * @return
+	 */
+	public static String getMaxGameRecordTime() {
+		String maxRecordTime = "";
+		try {
+			con = DBConnection.getConnection();
+			String sql = "select max(soft_time) from game_record";
+			ps = con.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				maxRecordTime = rs.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally{
+			close(con,ps);
+		}
+		return maxRecordTime;
+	}
+	
+	/**
+	 * 获取最新的战绩记录列表（单位：天）
+	 * @time 2018年7月9日
+	 * @param maxRecordTime
+	 * @return
+	 */
+	public static List<GameRecord> getGameRecordsByMaxTime(String maxRecordTime) {
+		List<GameRecord> list = new ArrayList<>();
+		try {
+			con = DBConnection.getConnection();
+			String sql = "select * from  game_record where soft_time =  ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, maxRecordTime);
+			ResultSet rs = ps.executeQuery();
+			list = getGameRecordResult(rs);
+		} catch (Exception e) {
+			ErrorUtil.err("获取最新的战绩记录（单位：天）失败",e);
+		}finally{
+			close(con,ps);
+		}
+		return list;
+	}
+	
+	private static List<GameRecord> getGameRecordResult(ResultSet rs) throws Exception{
+		List<GameRecord> list = new ArrayList<>();
+		while(rs.next()){
+			GameRecord record = new GameRecord();
+			record.setSoftDate(rs.getString(1));
+			record.setClubId(rs.getString(2));
+			record.setTableId(rs.getString(3));
+			record.setTeamId(rs.getString(4));
+			record.setPlayerId(rs.getString(5));
+			record.setClubName(rs.getString(6));
+			record.setYszj(rs.getString(7));
+			record.setSinegleInsurance(rs.getString(8));
+			record.setClubInsurance(rs.getString(9));
+			record.setCurrentTableInsurance(rs.getString(10));
+			record.setShishou(rs.getString(11));
+			record.setChuHuishui(rs.getString(12));
+			record.setShouHuishui(rs.getString(13));
+			record.setShuihouxian(rs.getString(14));
+			record.setHuiBao(rs.getString(15));
+			record.setHeLirun(rs.getString(16));
+			record.setLmType(rs.getString(17));
+			record.setFinisedTime(rs.getString(18));
+			record.setIsJiesuaned(rs.getString(19));
+			list.add(record);
+		}
+		return list;
+	}
+	
+	/**
+	 * 获取最新的战绩记录列表（单位：当天某俱乐部）
+	 * @time 2018年7月9日
+	 * @param maxRecordTime
+	 * @param clubId
+	 * @return
+	 */
+	public static List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
+		List<GameRecord> list = new ArrayList<>();
+		try {
+			con = DBConnection.getConnection();
+			String sql = "select * from  game_record where soft_time =  ? and clubId = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, maxRecordTime);
+			ps.setString(2, clubId);
+			ResultSet rs = ps.executeQuery();
+			list = getGameRecordResult(rs);
+		} catch (Exception e) {
+			ErrorUtil.err("获取最新的战绩记录（单位：当天俱乐部）失败",e);
+		}finally{
+			close(con,ps);
+		}
+		return list;
+	}
+	
+	/**
+	 * TODO 关联部分未设值
+	 * @time 2018年7月9日
+	 * @param clubId
+	 * @return
+	 */
+	public static List<GameRecord> getGameRecordsByClubId(String clubId) {
+		List<GameRecord> list = new ArrayList<>();
+		try {
+			con = DBConnection.getConnection();
+			String sql = "select r.*,c.teamId as temp_team_id from  game_record r  left join  members c on r.playerId = c.playerId where  r.clubId = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, clubId);
+			ResultSet rs = ps.executeQuery();
+			list = getGameRecordResult(rs);
+		} catch (Exception e) {
+			ErrorUtil.err("获取最新的战绩记录（单位：当天俱乐部）失败",e);
+		}finally{
+			close(con,ps);
+		}
+		return list;
+	}
+	
+	
+	/**
+	 * TODO 是否只获取当天的
+	 * 获取最新的所有战绩记录列表（单位：天）
+	 * 由于前面的会被删掉，帮只取最最后一天的数据
+	 * @time 2017年11月25日
+	 * @param maxRecordTime
+	 */
+	public static List<GameRecord> getAllGameRecords() {
+		List<GameRecord> list = new ArrayList<>();
+		try {
+			con = DBConnection.getConnection();
+			String sql = "select * from  game_record";
+			ps = con.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			list = getGameRecordResult(rs);
+		} catch (Exception e) {
+			ErrorUtil.err("获取最新的战绩记录（单位：天）失败",e);
+		}finally{
+			close(con,ps);
+		}
+		return list;
+	}
+	
+	/**
+	 * 客户更新俱乐部名称后，自动更新历史记录中含有俱乐部名称字段的记录
+	 * 
+	 * @time 2018年5月31日
+	 * @param clubId
+	 * @param newClubName
+	 */
+	public static boolean batchUpdateGameRecordByClubId(String clubId, String newClubName) {
+		boolean isOK = true;
+		try {
+			con = DBConnection.getConnection();
+			String sql = "update game_record r set r.clubName = ? where r.clubId = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, newClubName);
+			ps.setString(2, clubId);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			isOK = false;
+			ErrorUtil.err("更新俱乐部名称失败",e);
+		}finally{
+			close(con,ps);
+		}
+		return isOK;
+	}
 
 	
 	

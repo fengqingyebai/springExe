@@ -2,21 +2,26 @@ package com.kendy.model;
 
 public class GameRecord extends BasicRecord{
 	
-	/*
-	 * 软件时间,以自动下载的时间为准
-	 */
-	private String softDate;
 	
-	/*
-	 * 桌号,如第X局
-	 */
-	private String tableId;
+	private String shishou;//实收
 	
-	/*
-	 * 是否已经结算过
-	 * 0：未结算  1：已结算
-	 */
-	private String isJiesuaned = "0";
+	private String chuHuishui;//出回水
+	
+	private String huiBao;//保回
+	
+	private String shuihouxian;//水后险
+	
+	private String shouHuishui;//收回水
+	
+	private String heLirun;//合利润
+	
+	private String softDate; // 软件时间,以自动下载的时间为准
+	
+	private String tableId; // 桌号,如第X局
+	
+	private String isJiesuaned = "0"; // 是否已经结算过 0：未结算  1：已结算
+	
+	private String teamId;
 	
 	/*
 	 * 联盟类型
@@ -36,24 +41,6 @@ public class GameRecord extends BasicRecord{
 		super();
 	}
 	
-
-	/**
-	 * @param sumHandsCount
-	 * @param playerId
-	 * @param playerName
-	 * @param clubId
-	 * @param clubName
-	 * @param insuranceHiji
-	 * @param clubInsurance
-	 * @param insurance
-	 * @param yszj
-	 * @param finisedTime
-	 */
-	public GameRecord(String sumHandsCount, String playerId, String playerName, String clubId, String clubName,
-			String insuranceHiji, String clubInsurance, String insurance, String yszj, String finisedTime) {
-		super(sumHandsCount, playerId, playerName, clubId, clubName, insuranceHiji, clubInsurance, insurance, yszj,
-				finisedTime);
-	}
 
 	public String getSoftDate() {
 		return softDate;
@@ -94,6 +81,78 @@ public class GameRecord extends BasicRecord{
 	public void setPersonCount(String personCount) {
 		this.personCount = personCount;
 	}
+
+
+	public String getShishou() {
+		return shishou;
+	}
+
+
+	public void setShishou(String shishou) {
+		this.shishou = shishou;
+	}
+
+
+	public String getChuHuishui() {
+		return chuHuishui;
+	}
+
+
+	public void setChuHuishui(String chuHuishui) {
+		this.chuHuishui = chuHuishui;
+	}
+
+
+	public String getHuiBao() {
+		return huiBao;
+	}
+
+
+	public void setHuiBao(String huiBao) {
+		this.huiBao = huiBao;
+	}
+
+
+	public String getShuihouxian() {
+		return shuihouxian;
+	}
+
+
+	public void setShuihouxian(String shuihouxian) {
+		this.shuihouxian = shuihouxian;
+	}
+
+
+	public String getShouHuishui() {
+		return shouHuishui;
+	}
+
+
+	public void setShouHuishui(String shouHuishui) {
+		this.shouHuishui = shouHuishui;
+	}
+
+
+	public String getHeLirun() {
+		return heLirun;
+	}
+
+
+	public void setHeLirun(String heLirun) {
+		this.heLirun = heLirun;
+	}
+
+
+	public String getTeamId() {
+		return teamId;
+	}
+
+
+	public void setTeamId(String teamId) {
+		this.teamId = teamId;
+	}
+	
+	
 	
 
 }

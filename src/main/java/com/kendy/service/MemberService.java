@@ -10,6 +10,7 @@ import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.TeamHuishuiInfo;
+import com.kendy.model.GameRecord;
 import com.kendy.util.NumUtil;
 import com.kendy.util.StringUtil;
 
@@ -102,10 +103,10 @@ public class MemberService {
 		String zj = "";//战绩
 		Double sumOfZJ = 0d;//战绩总和
 		if(DataConstans.Total_Team_Huishui_Map.size() != 0) {
-			List<TeamHuishuiInfo> list = DataConstans.Total_Team_Huishui_Map.get(teamId);
+			List<GameRecord> list = DataConstans.Total_Team_Huishui_Map.get(teamId);
 			if(list != null) {
-				for(TeamHuishuiInfo info : list) {
-					if(info.getWanjiaId().equals(wanjiaId)) {
+				for(GameRecord info : list) {
+					if(info.getPlayerId().equals(wanjiaId)) {
 						zj = info.getShishou();
 						obList.add(new MemberZJInfo(info.getTableId(),zj));
 						sumOfZJ += NumUtil.getNum(zj);

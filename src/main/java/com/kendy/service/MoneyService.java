@@ -16,7 +16,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.controller.GDController;
@@ -29,25 +31,24 @@ import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
-import com.kendy.entity.TeamHuishuiInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
-import com.kendy.entity.UserInfos;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
 import com.kendy.excel.ExportMembersExcel;
 import com.kendy.excel.ExportTeamhsExcel;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.BankFlowModel;
+import com.kendy.model.GameRecord;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
+
 import application.Constants;
 import application.DataConstans;
-import application.Main;
 import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -89,7 +90,8 @@ public class MoneyService {
 			TableView<DangjuInfo> tableDangju,
 			TableView<JiaoshouInfo> tableJiaoshou,
 			TableView<TeamInfo> tableTeam,
-			List<UserInfos> userInfoList,String tableId){
+			List<GameRecord> gameRecords,
+			String tableId){
 		//1清空 表数据
 		table.setItems(null);
 		//2获取InfoList
@@ -98,36 +100,22 @@ public class MoneyService {
 		TotalInfo info = null;
 		Player player ;
 		WanjiaInfo wanjia;
-		List<TeamHuishuiInfo>  teamHuishuiList = null;//用于缓存和计算团累计团队回水
+		List<GameRecord>  teamHuishuiList = null;//用于缓存和计算团累计团队回水
 		Set<String> relatedTeamIdSet = new HashSet<>();//用于只展示本次战绩的团队信息
 		DataConstans.Dangju_Team_Huishui_List = new LinkedList<>();//每次导入都去初始化当局团队战绩信息
-		for(UserInfos zj : userInfoList){
+		for(GameRecord r : gameRecords){
 			
 			/*************************************************** 填充信息表 *****************/
 			info = new TotalInfo();
-			//团	ID	玩家	计分	实收	保险
-			String playerId = zj.getPlayerId();
-			player = DataConstans.membersMap.get(playerId);
-			String teamId = "";
-			if(player != null){
-				teamId = player.getTeamName();
-				teamId = StringUtil.isBlank(teamId) ? "" : teamId.toUpperCase();
-			}
-			//add 2017-10-26
-			else {
-				Player tempPlayer = DBUtil.getMemberById(playerId);
-				if(tempPlayer != null && !StringUtil.isBlank(tempPlayer.getTeamName())) {
-					DataConstans.membersMap.put(playerId, tempPlayer);
-					teamId = tempPlayer.getTeamName();
-					teamId = StringUtil.isBlank(teamId) ? "" : teamId.toUpperCase();
-				}
-			}
-			String name = zj.getPlayerName();
-			String baoxian = zj.getinsurance();
-			String shishou = getShiShou(zj.getZj());
-			String chuHuishui = MyController.getHuishuiByYSZJ(zj.getZj(), teamId, 1);//digit1(getChuhuishui(zj.getZj(), teamId));
-			String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(zj.getinsurance())*Constants.HS_RATE+"");
-			String shouHuishui = MyController.getHuishuiByYSZJ(zj.getZj(), "", 2);//digit1(Math.abs(Double.valueOf(zj.getZj()))*(1-Constants.HS_RATE)+"");
+			String playerId = r.getPlayerId();
+			String teamId = getTeamId(playerId);
+			String yszj = r.getYszj();
+			String playerName = r.getPlayerName();
+			String baoxian = r.getSinegleInsurance();
+			String shishou = getShiShou(yszj);
+			String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);
+			String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
+			String shouHuishui = MyController.getHuishuiByYSZJ(yszj, "", 2);
 			String baohui = NumUtil.digit1(getHuiBao(baoxian,teamId));
 			String heLirun = NumUtil.digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
 
@@ -136,9 +124,9 @@ public class MoneyService {
 			//ID
 			info.setWanjiaId(playerId);
 			//玩家
-			info.setWanjia(name);
+			info.setWanjia(playerName);
 			//计分
-			info.setJifen(zj.getZj());//?计分 = 战绩？
+			info.setJifen(yszj);
 			//实收
 			info.setShishou(shishou);
 			//保险
@@ -158,10 +146,10 @@ public class MoneyService {
 			
 			/*************************************************** 填充牌局表 *****************/
 			wanjia = new WanjiaInfo();
-			String yicunJifen = getYicunJifen(zj.getPlayerId());
+			String yicunJifen = getYicunJifen(playerId);
 			String heji = digit0(NumUtil.getNum(yicunJifen) + NumUtil.getNum(shishou) + "");
-			wanjia.setPaiju("第"+tableId+"局");
-			wanjia.setWanjiaName(zj.getPlayerName());
+			wanjia.setPaiju(r.getTableId());
+			wanjia.setWanjiaName(playerName);
 			wanjia.setYicunJifen(yicunJifen);
 			wanjia.setZhangji(shishou);
 			wanjia.setHeji(heji);
@@ -169,13 +157,9 @@ public class MoneyService {
 			
 			/*************************************************** 缓存各团队回水记录 *****************/
 			teamId = teamId.toUpperCase();
-//			if(!StringUtil.isBlank(teamId) && !"公司".equals(teamId)) {
 			if(!StringUtil.isBlank(teamId)) {
 				//缓存到当局团队战绩信息中
-				TeamHuishuiInfo teamHuishuiInfo = 
-						new TeamHuishuiInfo(teamId,playerId,name,shishou,baoxian,chuHuishui,
-								"第"+tableId+"局",zj.getZj(),baohui,shouHuishui,zj.getDay());
-				DataConstans.Dangju_Team_Huishui_List.add(teamHuishuiInfo);
+				DataConstans.Dangju_Team_Huishui_List.add(r);
 				
 				if(!"公司".equals(teamId)) {
 					relatedTeamIdSet.add(teamId);
@@ -185,10 +169,10 @@ public class MoneyService {
 				if( teamHuishuiList == null ) {
 					teamHuishuiList = new ArrayList<>();
 				}
-				teamHuishuiList.add(teamHuishuiInfo);
+				teamHuishuiList.add(r);
 				DataConstans.Team_Huishui_Map.put(teamId,teamHuishuiList);
 			}else {
-				log.debug("检测到团队ID是空或为公司，玩家是："+name);
+				log.debug("检测到团队ID是空或为公司，玩家是：" + playerName);
 			}
 
 			//是否显示支付按钮
@@ -199,7 +183,6 @@ public class MoneyService {
 		//3填充
 		table.setItems(tableTotalInfoList);
 		table.refresh();
-//		tablePaiju.setItems(tableWanjiaInfoList);
 		fillTablePaiju(tablePaiju,tableWanjiaInfoList);//添加需要支付的按钮靠前排
 		
 		//缓存当局固定总和
@@ -211,6 +194,89 @@ public class MoneyService {
 		//更新实时上码表的个人详情
 		ShangmaService.updateShangDetailMap(tablePaiju);
 	}
+	
+	
+	/**
+	 * 补全每条记录的值(导入战绩后)
+	 * 如软件时间、收回水出回水之类的
+	 * 
+	 * @time 2018年7月8日
+	 * @param gameRecords
+	 */
+	public static void fillGameRecords(List<GameRecord> gameRecords, String tableId) {
+		for(GameRecord r : gameRecords) {
+			setSingleGameRecord(r, tableId);
+		}
+	}
+	
+	/**
+	 * 补全单条记录的值
+	 */
+	private static void setSingleGameRecord(GameRecord r, String tableId) {
+
+		String teamId = getTeamId(r.getPlayerId());
+		// 计算收回险
+		String yszj = r.getYszj();
+		String baoxian = r.getSinegleInsurance();
+		String shishou = getShiShou(yszj);
+		String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);
+		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
+		String shouHuishui = MyController.getHuishuiByYSZJ(yszj, "", 2);
+		String baohui = NumUtil.digit1(getHuiBao(baoxian,teamId));
+		String heLirun = NumUtil.digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
+		
+		// 获取软件时间
+		r.setSoftDate(DataConstans.Date_Str); 
+		// 设置桌号
+		r.setTableId(tableId);
+		// 设置团队ID
+		r.setTeamId(teamId);
+		// 实收
+		r.setShishou(shishou);
+		// 出回水
+		r.setChuHuishui(chuHuishui);
+		// 回保
+		r.setHuiBao(baohui);
+		// 水后险
+		r.setShuihouxian(shuihouxian);
+		// 收回水
+		r.setShouHuishui(shouHuishui);
+		// 合利润
+		r.setHeLirun(heLirun);
+	}
+	
+	/**
+	 * 获取团队ID
+	 * 
+	 * @time 2018年7月8日
+	 * @param r
+	 * @return
+	 */
+	private static String getTeamId(String playerId) {
+		Player player = DataConstans.membersMap.get(playerId);
+		String teamId = "";
+		if(player != null){
+			teamId = player.getTeamName();
+			teamId = StringUtil.isBlank(teamId) ? "" : teamId.toUpperCase();
+		}
+		//add 2017-10-26
+		else {
+			Player tempPlayer = DBUtil.getMemberById(playerId);
+			if(tempPlayer != null && !StringUtil.isBlank(tempPlayer.getTeamName())) {
+				DataConstans.membersMap.put(playerId, tempPlayer);
+				teamId = tempPlayer.getTeamName();
+				teamId = StringUtil.isBlank(teamId) ? "" : teamId.toUpperCase();
+			}
+		}
+		return teamId;
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	public static void fillTablePaiju(TableView<WanjiaInfo> tablePaiju,ObservableList<WanjiaInfo> tableWanjiaInfoList) {
 		List<WanjiaInfo> linkedList = new LinkedList<>();
@@ -284,11 +350,11 @@ public class MoneyService {
 				double sumOfZJ = 0.0;
 				double sumOfHS = 0.0;
 				double sumOfBS = 0.0;
-				List<TeamHuishuiInfo> teamLS = DataConstans.Team_Huishui_Map.get(relatedTeamId);
-				for(TeamHuishuiInfo info : teamLS) {
+				List<GameRecord> teamLS = DataConstans.Team_Huishui_Map.get(relatedTeamId);
+				for(GameRecord info : teamLS) {
 					sumOfZJ += Double.valueOf(info.getShishou());
 					sumOfHS += Math.abs(Double.valueOf(info.getChuHuishui()));
-					sumOfBS += Double.valueOf(info.getBaoxian());//就是回保
+					sumOfBS += Double.valueOf(info.getSinegleInsurance());//就是回保
 				}
 				double sum = 0.0d;
 				if(sumOfBS != 0) {//需要乘以团队保险比例的
@@ -449,7 +515,7 @@ public class MoneyService {
 	public static String getShiShou(String zhanji){
 		Double zj = Double.valueOf(zhanji);
 		if(zj > 0){
-			String shishou = zj * 0.95 +"";
+			String shishou = zj * Constants.HS_RATE +"";
 			if(shishou.contains(".")) {
 				shishou = shishou.substring(0, shishou.lastIndexOf("."));
 			}
@@ -510,47 +576,6 @@ public class MoneyService {
 		return "";
 	}
 	
-	
-	//*****************************************************************************
-//	public static Double NumUtil.getNum(String str){
-//		if(StringUtil.isBlank(str)){
-//			return 0.0;
-//		}else{
-//			try{
-//				return Double.valueOf(str).doubleValue();
-//			}catch(Exception e){
-//				return 0.0;
-//			}
-//		}
-//	}
-	
-//	public static String NumUtil.digit2(String str){
-//		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#######0.00");  
-//		if(!StringUtil.isBlank(str)){
-//			String res = df.format(Double.valueOf(str));
-//			return res;
-//		}
-//		return "0";
-//	}
-	
-//	//截取一位小数，后面不进行舍入
-//	public static String digit1(String str){
-//		if(!(StringUtil.isBlank(str))) {
-//			try {
-//				if(str.contains(".")) {
-//					str = str.substring(0, str.lastIndexOf(".")+2);
-//					return str;
-//				}else {
-//					return str;
-//				}
-//			} catch (Exception e) {
-//				str = String.format("%.4f",Float.valueOf(str));
-//				str = str.substring(0, str.lastIndexOf(".")+2);
-//				return str;
-//			}
-//    	}
-//		return "0.0";
-//	}
 	public static String digit0(String str){
 		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#######0");  
 		if(!StringUtil.isBlank(str)){

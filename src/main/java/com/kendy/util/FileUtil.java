@@ -31,4 +31,13 @@ public class FileUtil {
 	public  static void moveFile(String resourceFilePath, String targetFilePath) throws IOException{
 		FileUtils.moveFile(new File(resourceFilePath), new File(targetFilePath));
 	}
+	
+	
+	/**
+	 * 截取tableId
+	 */
+	public static String getTableId(String pathString) {
+		String tableId = pathString.substring(pathString.lastIndexOf("-")+1, pathString.lastIndexOf(".")); 
+		return "第"+tableId+"局";
+	}
 }

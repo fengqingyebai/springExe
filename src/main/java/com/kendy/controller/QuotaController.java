@@ -4,7 +4,6 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,6 +25,7 @@ import com.kendy.entity.QuotaMoneyInfo;
 import com.kendy.entity.Record;
 import com.kendy.excel.ExportQuotaPayExcel;
 import com.kendy.interfaces.Entity;
+import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
@@ -34,9 +34,7 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 
-import application.DataConstans;
 import application.MyController;
-import application.PropertiesUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -130,7 +128,7 @@ public class QuotaController implements Initializable{
 	Map<String,ClubQuota> single_LM_map = new HashMap<>();
 	
 	//导入每场战绩时的所有俱乐部记录
-	public static List<Record> currentRecordList = LMController.currentRecordList;
+	public static List<GameRecord> currentRecordList = LMController.currentRecordList;
 	
 	//{俱乐部ID : 俱乐部信息}
 	public static Map<String,Club> allClubMap = LMController.allClubMap;
