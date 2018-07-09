@@ -111,10 +111,10 @@ public class LMController implements Initializable{
 	public static Map<String,Club> allClubMap = new HashMap<>();
 	
 	//{俱乐部ID : 俱乐部每一场信息}
-	public static Map<String,List<Record>> eachClubList = new HashMap<>();
+	public static Map<String,List<GameRecord>> eachClubList = new HashMap<>();
 	
 	//缓存三个联盟的信息
-	public static List<Map<String,List<Record>>> LMTotalList = new ArrayList<>();
+	public static List<Map<String,List<GameRecord>>> LMTotalList = new ArrayList<>();
 	
 	public static ListView<String> _clubListView = new ListView<>();
 	
@@ -260,13 +260,13 @@ public class LMController implements Initializable{
 	 * @time 2017年11月26日
 	 * @return 所有俱乐部总帐Map
 	 */
-	public  Map<String, List<LMSumInfo>> getAllClubSumMap(Map<String, List<Record>> current_LM_Map){
+	public  Map<String, List<LMSumInfo>> getAllClubSumMap(Map<String, List<GameRecord>> current_LM_Map){
 		 Map<String,List<LMSumInfo>> map = new HashMap<>();
 		 
-		 for(Map.Entry<String, List<Record>> entry : current_LM_Map.entrySet()) {
+		 for(Map.Entry<String, List<GameRecord>> entry : current_LM_Map.entrySet()) {
 			 List<LMSumInfo> tempList = new ArrayList<>();
 			 String clubId     = entry.getKey();
-			 List<Record> list = entry.getValue();
+			 List<GameRecord> list = entry.getValue();
 			 
 			 if(list == null) {
 				 log.warn("根据详情找不到俱乐部信息:"+clubId);//如果有回查功能就有可能出现这个问题
@@ -284,9 +284,9 @@ public class LMController implements Initializable{
 			double sumOfEachClubZJ = 0d;
 			double sumOfEachClubInsure = 0d;//这个要全部全和
 			int sumOfEachClubPersonCount = 0;
-			for(Record record : list) {
-				sumOfEachClubZJ += NumUtil.getNum(record.getScore());
-				sumOfEachClubInsure += NumUtil.getNum(record.getInsurance());
+			for(GameRecord record : list) {
+				sumOfEachClubZJ += NumUtil.getNum(record.getYszj());
+				sumOfEachClubInsure += NumUtil.getNum(record.getSinegleInsurance());
 				sumOfEachClubPersonCount += NumUtil.getNum(record.getPersonCount());
 			}
 			info1.setLmSumZJ(NumUtil.digit0(""+sumOfEachClubZJ));
@@ -380,7 +380,7 @@ public class LMController implements Initializable{
 		//{联盟Index : {俱乐部ID : 俱乐部配额信息}}
 		//Map<String,Map<String,List<ClubQuota>>> totalMap = new HashMap<>();
 		int lmType = getCurrentLMType()-1;
-		Map<String, List<Record>> current_LM_Map =  LMTotalList.get(lmType);//遍历这三个
+		Map<String, List<GameRecord>> current_LM_Map =  LMTotalList.get(lmType);//遍历这三个
 		Map<String,List<LMSumInfo>> allClubSumMap = getAllClubSumMap(current_LM_Map);
 		allClubSumMap.forEach( (clubId,sumList) -> {
 			Club club = allClubMap.get(clubId);
@@ -389,7 +389,6 @@ public class LMController implements Initializable{
 			String zhuoFei = get_LM_Zhuofei(club, lmType);
 			String jieyu = NumUtil.digit0(
 					NumUtil.getNum(sumZJ)+NumUtil.getNum(yiJieshan)+NumUtil.getNum(zhuoFei));
-			List<ClubQuota> list  =  new ArrayList<>();
 			ClubQuota quota = new ClubQuota();
 			quota.setEuotaClubId(clubId);
 			quota.setQuotaClubName(club.getName());
@@ -423,8 +422,8 @@ public class LMController implements Initializable{
 		tableLMDetail.setItems(null);
 //		List<Record> list = eachClubList.get(clubId);
 		int LMTypeIndex = this.getCurrentLMType()-1;
-		Map<String,List<Record>> LMMap = LMTotalList.get(LMTypeIndex);
-		List<Record> list = LMMap.get(clubId);
+		Map<String,List<GameRecord>> LMMap = LMTotalList.get(LMTypeIndex);
+		List<GameRecord> list = LMMap.get(clubId);
 		
 		ObservableList<LMDetailInfo> obList = FXCollections.observableArrayList();
 		if(list == null) {
@@ -441,8 +440,8 @@ public class LMController implements Initializable{
 //			 * @param lmDetailInsure
 //			 * @param lmDetailPersonCount
 			String tableId = record.getTableId();
-			String zj = record.getScore();
-			String insure = record.getInsurance();
+			String zj = record.getYszj();
+			String insure = record.getSinegleInsurance();
 			String personNumbers = record.getPersonCount();
 			obList.add(new LMDetailInfo(tableId,zj,insure,personNumbers));
 			
@@ -460,37 +459,39 @@ public class LMController implements Initializable{
 	 * @time 2017年11月25日
 	 * @param list 某个俱乐部的所有场次信息，具体到每一条战绩记录
 	 */
-	private static List<Record> computSumList(List<Record> list,boolean isNeedSort) {
-		List<Record> sumList = new ArrayList<>();
-		Map<String,List<Record>> map = new HashMap<>();//key是tableId
+	private static List<GameRecord> computSumList(List<GameRecord> list, boolean isNeedSort) {
+		List<GameRecord> sumList = new ArrayList<>();
+		Map<String,List<GameRecord>> map = new HashMap<>();//key是tableId
 		String tableId = "";//以tableId进行分类求和
-		for(Record record : list) {
+		for(GameRecord record : list) {
 			tableId = record.getTableId();
-			List<Record> _list = map.get(tableId);
+			List<GameRecord> _list = map.get(tableId);
 			if(_list == null) {
 				_list = new ArrayList<>();
 			}
 			_list.add(record);
 			map.put(tableId, _list);
 		}
-		for(Map.Entry<String, List<Record>> entry : map.entrySet()) {
-			List<Record> eachClubList = entry.getValue();
+		for(Map.Entry<String, List<GameRecord>> entry : map.entrySet()) {
+			List<GameRecord> eachClubList = entry.getValue();
 			double sumOfEachClubZJ = 0d;
 			double sumOfEachClubInsure = 0d;//只取其中一个， 不求和（因为已经求和了）
 			int sumOfEachClubPersonCount = 0;
-			for(Record record : eachClubList) {
-				sumOfEachClubZJ += NumUtil.getNum(record.getScore());
-				sumOfEachClubInsure = NumUtil.getNum(record.getInsurance());
+			for(GameRecord record : eachClubList) {
+				sumOfEachClubZJ += NumUtil.getNum(record.getYszj());
+				//sumOfEachClubInsure = NumUtil.getNum(record.getInsurance());
+				sumOfEachClubInsure = NumUtil.getNum(record.getSinegleInsurance());
 				sumOfEachClubPersonCount++;
 			}
 			if(sumOfEachClubPersonCount == 0) {
 				//这里应该清空数据并返回
 				continue;
 			}
-			Record sumRecord = new Record();
+			GameRecord sumRecord = new GameRecord();
 			sumRecord.setTableId(entry.getKey());
-			sumRecord.setScore(NumUtil.digit0(""+((sumOfEachClubZJ+sumOfEachClubInsure) * Constants.CURRENT_HS_RATE)));
-			sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.CURRENT_HS_RATE )));
+			sumRecord.setYszj(NumUtil.digit0(""+((sumOfEachClubZJ+sumOfEachClubInsure) * Constants.CURRENT_HS_RATE)));
+//			sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.CURRENT_HS_RATE )));
+			sumRecord.setSinegleInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.CURRENT_HS_RATE )));
 			sumRecord.setPersonCount(sumOfEachClubPersonCount+"");
 			//添加到最后的总和列表中
 			sumList.add(sumRecord);
@@ -498,9 +499,9 @@ public class LMController implements Initializable{
 		}
 		//自定义场次排序（从低到高）
 		if(isNeedSort) {
-			 Collections.sort(sumList, new Comparator<Record>(){
+			 Collections.sort(sumList, new Comparator<GameRecord>(){
 		            @Override
-		            public int compare(Record r1, Record r2){
+		            public int compare(GameRecord r1, GameRecord r2){
 		            	String o1 = r1.getTableId();
 		            	String o2 = r2.getTableId();
 		                o1 = o1.replace("第","").replaceAll("局", "");
@@ -558,6 +559,7 @@ public class LMController implements Initializable{
     /**
      * FXML DOM节点加载完毕后的初始化
      */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		log.info("联盟对帐页面加载数据开始...");
@@ -597,7 +599,7 @@ public class LMController implements Initializable{
 							tableLMSum.refresh();
 							return;
 						}
-						String zf_or_yiJieSuan = sumInfo.getLmSumZJ();//因为桌费和已结算在战绩那列
+						//String zf_or_yiJieSuan = sumInfo.getLmSumZJ();//因为桌费和已结算在战绩那列
 						try {
 							if(!StringUtil.isBlank(newValue))
 								Double.valueOf(newValue);
@@ -691,14 +693,14 @@ public class LMController implements Initializable{
 		
 		String maxRecordTime = DBUtil.getMaxRecordTime();//最新一天的战绩记录（也可能是昨天的，是否要做个标记）
 		if(!StringUtil.isBlank(maxRecordTime)) {
-			List<Record> list = DBUtil.getRecordsByMaxTime(maxRecordTime);
+			List<GameRecord> list = DBUtil.getGameRecordsByMaxTime(maxRecordTime);
 			//处理从数据库返回的结果为Map
 			//即把List<Record>转为Map<String,List<Record>>
-			Map<String,List<Record>> map = new HashMap<>();
+			Map<String,List<GameRecord>> map = new HashMap<>();
 			if(list == null) list = new ArrayList<>();
 			list.forEach(record -> {
 				String clubId = record.getClubId();
-				List<Record>  _list = map.get(clubId);
+				List<GameRecord>  _list = map.get(clubId);
 				if(_list == null) {
 					_list = new ArrayList<>();
 				}
@@ -727,7 +729,8 @@ public class LMController implements Initializable{
 		try {
 			String maxRecordTime = DBUtil.getMaxRecordTime();//最新一天的战绩记录（也可能是昨天的，是否要做个标记）
 			if(!StringUtil.isBlank(maxRecordTime)) {
-				List<Record> list = DBUtil.getRecordsByMaxTime(maxRecordTime);
+//				List<Record> list = DBUtil.getRecordsByMaxTime(maxRecordTime);
+				List<GameRecord> list = DBUtil.getGameRecordsByMaxTime(maxRecordTime);
 				
 				//2018-01-01 add 大概个联盟分别报额度是否超出
 				if(!CollectionUtils.isEmpty(list)) {
@@ -735,11 +738,11 @@ public class LMController implements Initializable{
 				}
 				
 				//最新的当天所有战绩记录（包含当局记录）
-				Map<String,List<Record>> map = new HashMap<>();
+				Map<String,List<GameRecord>> map = new HashMap<>();
 				if(list == null) list = new ArrayList<>();
 				list.forEach(record -> {
 					String clubId = record.getClubId();
-					List<Record>  _list = map.get(clubId);
+					List<GameRecord>  _list = map.get(clubId);
 					if(_list == null) {
 						_list = new ArrayList<>();
 					}
@@ -751,17 +754,17 @@ public class LMController implements Initializable{
 				//到这里map
 				boolean isOver = false;
 				//计算总值
-				for(Map.Entry<String, List<Record>> entry : map.entrySet()) {
+				for(Map.Entry<String, List<GameRecord>> entry : map.entrySet()) {
 					String clubId = entry.getKey();
 					if(allClubMap.get(clubId)==null) continue;
-					List<Record> recordList =  entry.getValue();
+					List<GameRecord> recordList =  entry.getValue();
 					recordList = computSumList(recordList,false);//求和统计（针对每一场求和）
 					
 					Double sumOfZJ = 0d;
 					Double sumOfBX = 0d;
-					for(Record record : recordList) {
-						sumOfZJ += NumUtil.getNum(record.getScore());
-						sumOfBX += NumUtil.getNum(record.getInsurance());
+					for(GameRecord record : recordList) {
+						sumOfZJ += NumUtil.getNum(record.getYszj());
+						sumOfBX += NumUtil.getNum(record.getSinegleInsurance());
 					}
 
 					//结余=sum（当天总账+已结算+桌费）
@@ -889,7 +892,6 @@ public class LMController implements Initializable{
 			return;
 		}
 		String clubName = club.getName();
-		String clubId = club.getClubId();
 		
 		InputDialog inputDlg = new InputDialog("修改："+clubName," 俱乐部新名称：");
     	Optional<String> result = inputDlg.getTextResult();
@@ -930,7 +932,6 @@ public class LMController implements Initializable{
 			return;
 		}
 		String clubName = club.getName();
-		String clubId = club.getClubId();
 		
 		InputDialog inputDlg = new InputDialog("修改："+clubName,"联盟"+this.getCurrentLMType()+"的俱乐部新额度：");
     	Optional<String> result = inputDlg.getTextResult();
@@ -1197,15 +1198,15 @@ public class LMController implements Initializable{
 	 * @time 2017年11月22日
 	 * @param event
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void viewAllClubAction(ActionEvent event) {
 		//无数据就返回
-        int size = allClubMap.size();
         if(allClubMap == null || allClubMap.size() ==0) {
         	ShowUtil.show("无数据可以导出");
         	return;
         }
         
-        Map<String, List<Record>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
+        Map<String, List<GameRecord>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
         if(MapUtil.isNullOrEmpty(current_LM_Map)) {
         	ShowUtil.show("该联盟无数据可以导出");
         	return;
@@ -1233,11 +1234,6 @@ public class LMController implements Initializable{
         flow.setVgap(20);
         flow.setHgap(20);
         flow.setPadding(new Insets(10,10,10,30));
-//        int size = allClubMap.size();
-//        if(allClubMap == null || allClubMap.size() ==0) {
-//        	ShowUtil.show("无数据可以导出");
-//        	return;
-//        }
         final int talbeWidth = 300;//表示第一列的宽度
         final int With1 = 80;//表示第一列的宽度
         final int With2 = 70;//表示第二列的宽度
@@ -1245,8 +1241,6 @@ public class LMController implements Initializable{
         final int With4 = 60;
         final int height = 115;
         final String style = "-fx-alignment: CENTER;";
-        final String clubNameStyle = "-fx-background-color: #FFFFE0;";
-//        for(Map.Entry<String, Club> entry : allClubMap.entrySet()) {
     	for(Map.Entry<String, Club> entry : lmClubMap.entrySet()) {
         	Club club = entry.getValue();
         	String clubId = entry.getKey();
@@ -1303,7 +1297,7 @@ public class LMController implements Initializable{
 	 * @param current_LM_Map
 	 * @return
 	 */
-	private  Map<String,Club> getLMClub( Map<String, List<Record>> current_LM_Map){
+	private  Map<String,Club> getLMClub( Map<String, List<GameRecord>> current_LM_Map){
 		 Map<String, Club> _map = new HashMap<>();
 		 current_LM_Map.forEach( (clubId,list) -> {
 			 _map.put(clubId, allClubMap.get(clubId));
@@ -1311,6 +1305,7 @@ public class LMController implements Initializable{
 		 return _map;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setDynamicTableData(TableView table ,String clubId , Map<String,List<LMSumInfo>> allClubSumMap) {
 		List<LMSumInfo> list = allClubSumMap.get(clubId);
 		if(list != null && list.size() > 0) {
@@ -1352,20 +1347,6 @@ public class LMController implements Initializable{
 	}
 	
 	
-	/**
-	 * 刷新合计桌费
-	 * @time 2017年11月26日
-	 */
-//	private void setNewSumOfZF() {
-//		sumOfZF.setText("0");
-//		if(allClubMap != null && allClubMap.size() > 0) {
-//			 double sum = 0d;
-//			 for(Map.Entry<String, Club> entry : allClubMap.entrySet()) 
-//				sum += NumUtil.getNum(entry.getValue().getZhuoFei());
-//			 
-//			 sumOfZF.setText(NumUtil.digit0((-1)*sum));
-//		}
-//	}
 	private void setNewSumOfZF() {
 		try {
 			sumOfZF.setText("0");
@@ -1376,7 +1357,7 @@ public class LMController implements Initializable{
 			
 			int lmType = getCurrentLMType();
 			
-			Map<String, List<Record>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
+			Map<String, List<GameRecord>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
 			if(MapUtil.isNullOrEmpty(current_LM_Map))  return;
 			
 			//组装当前要展示的联盟的相应俱乐部
@@ -1402,7 +1383,7 @@ public class LMController implements Initializable{
 		
 		int lmType = getCurrentLMType();
 		
-        Map<String, List<Record>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
+        Map<String, List<GameRecord>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
         if(MapUtil.isNullOrEmpty(current_LM_Map))  return 0d;
         
         //组装当前要展示的联盟的相应俱乐部
@@ -1445,7 +1426,6 @@ public class LMController implements Initializable{
 			return;
 		}
 		String clubName = club.getName();
-		String clubId = club.getClubId();
 		
 		String time = DataConstans.Date_Str;
 		if(StringUtil.isBlank(time)) {
@@ -1539,13 +1519,12 @@ public class LMController implements Initializable{
 	public void exportAllClubAction(ActionEvent event) {
 		
 		//事先判断
-		int size = allClubMap.size();
         if(allClubMap == null || allClubMap.size() ==0) {
         	ShowUtil.show("无数据可以导出");
         	return;
         }
         
-        Map<String, List<Record>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
+        Map<String, List<GameRecord>> current_LM_Map =  LMTotalList.get(getCurrentLMType()-1);
         if(MapUtil.isNullOrEmpty(current_LM_Map)) {
         	ShowUtil.show("该联盟无数据可以导出");
         	return;
@@ -1578,10 +1557,10 @@ public class LMController implements Initializable{
 	public static void compute3LM() {
 		
 		//数据结构：[{LMType,List<LM_Record>}]
-		List<Map<String,List<Record>>> tempTotalList = new ArrayList<>();
-		Map<String,List<Record>> map1 = new HashMap<>();//代理联盟1，依此类推
-		Map<String,List<Record>> map2 = new HashMap<>();
-		Map<String,List<Record>> map3 = new HashMap<>();
+		List<Map<String,List<GameRecord>>> tempTotalList = new ArrayList<>();
+		Map<String,List<GameRecord>> map1 = new HashMap<>();//代理联盟1，依此类推
+		Map<String,List<GameRecord>> map2 = new HashMap<>();
+		Map<String,List<GameRecord>> map3 = new HashMap<>();
 		tempTotalList.add(map1);
 		tempTotalList.add(map2);
 		tempTotalList.add(map3);
@@ -1589,23 +1568,23 @@ public class LMController implements Initializable{
 		//数据来源 eachClubList = new HashMap<>() {俱乐部ID : 俱乐部每一场信息} 
 		String lmType ;
 		String clubId ;
-		for(Map.Entry<String, List<Record>> entry : eachClubList.entrySet()) {
+		for(Map.Entry<String, List<GameRecord>> entry : eachClubList.entrySet()) {
 			clubId = entry.getKey();
-			List<Record> singleClubList = entry.getValue();
-			for(Record record : singleClubList) {
+			List<GameRecord> singleClubList = entry.getValue();
+			for(GameRecord record : singleClubList) {
 				lmType = record.getLmType();
 				if(LM[0].equals(lmType)) {//"联盟1"
-					List<Record> _list = map1.getOrDefault(clubId, new ArrayList<>());
+					List<GameRecord> _list = map1.getOrDefault(clubId, new ArrayList<>());
 					_list.add(record);
 					map1.put(clubId, _list);
 				}
 				if(LM[1].equals(lmType)) {//"联盟2"
-					List<Record> _list = map2.getOrDefault(clubId, new ArrayList<>());
+					List<GameRecord> _list = map2.getOrDefault(clubId, new ArrayList<>());
 					_list.add(record);
 					map2.put(clubId, _list);
 				}
 				if(LM[2].equals(lmType)) {//"联盟3"
-					List<Record> _list = map3.getOrDefault(clubId, new ArrayList<>());
+					List<GameRecord> _list = map3.getOrDefault(clubId, new ArrayList<>());
 					_list.add(record);
 					map3.put(clubId, _list);
 				}

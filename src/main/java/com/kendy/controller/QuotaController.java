@@ -134,10 +134,10 @@ public class QuotaController implements Initializable{
 	public static Map<String,Club> allClubMap = LMController.allClubMap;
 	
 	//{俱乐部ID : 俱乐部每一场信息}
-	public static Map<String,List<Record>> eachClubList = LMController.eachClubList;
+	public static Map<String,List<GameRecord>> eachClubList = LMController.eachClubList;
 	
 	//缓存三个联盟的信息
-	public static List<Map<String,List<Record>>> LMTotalList = LMController.LMTotalList;
+	public static List<Map<String,List<GameRecord>>> LMTotalList = LMController.LMTotalList;
 	
 	public static final String[] LM = LMController.LM;
 
@@ -184,7 +184,7 @@ public class QuotaController implements Initializable{
 			//{联盟Index : {俱乐部ID : 俱乐部配额信息}} //后期如果性能慢的话，可以修改为这定个
 			//Map<String,Map<String,List<ClubQuota>>> totalMap = new HashMap<>();
 			int lmType = getCurrentLMType()-1;
-			Map<String, List<Record>> current_LM_Map =  LMTotalList.get(lmType);//遍历这三个
+			Map<String, List<GameRecord>> current_LM_Map =  LMTotalList.get(lmType);//遍历这三个
 			//LMController lmController= new LMController();
 			Map<String,List<LMSumInfo>> allClubSumMap = lmController.getAllClubSumMap(current_LM_Map);
 			allClubSumMap.forEach( (clubId,sumList) -> {

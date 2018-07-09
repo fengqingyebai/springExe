@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -19,6 +20,7 @@ import com.kendy.entity.Player;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.model.GameRecord;
+import com.kendy.util.CollectUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 
@@ -30,6 +32,16 @@ import javafx.stage.Stage;
  * @author 林泽涛
  */
 public class DataConstans {
+	
+	
+	/**************************************************************************************
+	 * 
+	 * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合
+	 * Map<String, List<GameRecord>> zjMap : 当前俱乐部的记录，以场次GroupBy
+	 * Map<String,List<GameRecord>> Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy
+	 * Map<String,List<GameRecord>> Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
+	 * 
+	 **************************************************************************************/
 	
 	private static Logger log = Logger.getLogger(DataConstans.class);
 	
@@ -127,21 +139,25 @@ public class DataConstans {
 //		public static Map<String,List<ShangmaDetailInfo>> SM_Detail_Map_Locked= new HashMap<>();
 		lastLockedDataMap.put("SM_Detail_Map_Locked", JSON.toJSONString(DataConstans.SM_Detail_Map_Locked));
 		
+		
+		//**********************************************************以下四个不保存数据，中途开始时去数据表拿*********************************
 //		缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
 //		public static Map<String,List<UserInfos>> zjMap = new LinkedHashMap<>();
-		lastLockedDataMap.put("zjMap", JSON.toJSONString(DataConstans.zjMap));
+//		lastLockedDataMap.put("zjMap", JSON.toJSONString(DataConstans.zjMap));
 		
 //		缓存当局回水
 //		public static List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
-		lastLockedDataMap.put("Dangju_Team_Huishui_List", JSON.toJSONString(DataConstans.Dangju_Team_Huishui_List));
+//		lastLockedDataMap.put("Dangju_Team_Huishui_List", JSON.toJSONString(DataConstans.Dangju_Team_Huishui_List));
 		
 //		缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
 //		public static Map<String,List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
-		lastLockedDataMap.put("Team_Huishui_Map", JSON.toJSONString(DataConstans.Team_Huishui_Map));
+//		lastLockedDataMap.put("Team_Huishui_Map", JSON.toJSONString(DataConstans.Team_Huishui_Map));
 		
 //		这个不会被修改，是总的团队回水记录。用在团队回水当天查询
 //		public static Map<String,List<GameRecord>> Total_Team_Huishui_Map = new LinkedHashMap<>();//撤销后不变
-		lastLockedDataMap.put("Total_Team_Huishui_Map", JSON.toJSONString(DataConstans.Total_Team_Huishui_Map));
+//		lastLockedDataMap.put("Total_Team_Huishui_Map", JSON.toJSONString(DataConstans.Total_Team_Huishui_Map));
+		
+		//*******************************************************************************************
 		
 //		锁定后是第X局
 //		public static AtomicInteger Paiju_Index = new AtomicInteger(1);//撤销后不变
@@ -313,6 +329,9 @@ public class DataConstans {
 		//清空所有数据
 		clearAllData();
 		
+		// 从数据库加载记录
+		recoveryGameRecords();
+		
 		//从数据库中获取上一次保存的锁定数据
 		Map<String, String> map = DBUtil.getLastLockedData();
 		
@@ -320,18 +339,6 @@ public class DataConstans {
 		SM_Detail_Map= JSON.parseObject(map.get("SM_Detail_Map"), new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
 		//玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
 		SM_Detail_Map_Locked= JSON.parseObject(map.get("SM_Detail_Map_Locked"), new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
-		
-		//缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-		zjMap = JSON.parseObject(map.get("zjMap"), new TypeReference<Map<String, List<GameRecord>>>() {});
-		
-		//缓存当局回水
-		Dangju_Team_Huishui_List = JSON.parseObject(map.get("Dangju_Team_Huishui_List"), new TypeReference<List<GameRecord>>() {});
-		
-		//缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-		Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
-		
-		//这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-		Total_Team_Huishui_Map = JSON.parseObject(map.get("Total_Team_Huishui_Map"), new TypeReference<Map<String, List<GameRecord>>>() {});
 		
 		//缓存120场次的所有锁定数据{页数第几局={...}}
 		All_Locked_Data_Map  =JSON.parseObject(map.get("All_Locked_Data_Map"), new TypeReference<Map<String, Map<String, String>>>() {});
@@ -360,6 +367,43 @@ public class DataConstans {
 		Date_Str = JSON.parseObject(map.get("Date_Str"), new TypeReference<String>() {});
 
 		log.info("==============中途恢复缓存数据。。。finishes");
+	}
+	
+	
+	/**************************************************************************************
+	 * 
+	 * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合
+	 * Map<String, List<GameRecord>> zjMap : 当前俱乐部的记录，以场次GroupBy
+	 * Map<String,List<GameRecord>> Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy
+	 * Map<String,List<GameRecord>> Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
+	 * 
+	 **************************************************************************************/
+	/**
+	 * 中途继续恢复记录信息
+	 * 主要是恢复  Dangju_Team_Huishui_List， zjMap，Team_Huishui_Map，Total_Team_Huishui_Map
+	 */
+	private static void recoveryGameRecords() {
+		String maxGameRecordTime = DBUtil.getMaxGameRecordTime();
+		String clubId = MyController.currentClubId.getText();
+		List<GameRecord> gameRecords = DBUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
+		
+		if (StringUtil.isAnyBlank(maxGameRecordTime, clubId) || CollectUtil.isNullOrEmpty(gameRecords)) {
+			//清空所有数据
+			clearAllData();
+		} else {
+			//缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
+			zjMap = gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTableId));
+			
+			//缓存当局回水
+			Dangju_Team_Huishui_List = gameRecords;
+			
+			//缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
+			Team_Huishui_Map = gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTeamId));
+			
+			//这个不会被修改，是总的团队回水记录。用在团队回水当天查询
+			Total_Team_Huishui_Map = gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTeamId));
+		}
+		
 	}
 	
 	

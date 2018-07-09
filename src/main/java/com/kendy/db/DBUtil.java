@@ -1715,39 +1715,39 @@ public class DBUtil {
 	 * @time 2017年11月25日
 	 * @param maxRecordTime
 	 */
-	public static List<Record> getRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
-		List<Record> list = new ArrayList<>();
-		try {
-			con = DBConnection.getConnection();
-			String sql = "select * from  record where as_of =  ? and clubId = ?";
-			ps = con.prepareStatement(sql);
-			ps.setString(1, maxRecordTime);
-			ps.setString(2, clubId);
-			ResultSet rs = ps.executeQuery();
-			while(rs.next()){
-				Record record = new Record();
-				record.setId(rs.getString(1));
-				record.setTableId(rs.getString(2));
-				record.setClubId(rs.getString(3));
-				record.setPlayerId(rs.getString(4));
-				record.setScore(rs.getString(5));
-				record.setInsurance(rs.getString(6));
-				record.setBlind(rs.getString(7));
-				record.setDay(rs.getString(8));
-				record.setClubName(rs.getString(9));
-				record.setLmType(rs.getString(10));
-				record.setTeamId(rs.getString(11));
-				record.setInsuranceEach(rs.getString(12));
-				record.setIsJiesuaned(rs.getString(13));
-				list.add(record);
-			}
-		} catch (SQLException e) {
-			ErrorUtil.err("获取最新的战绩记录（单位：当天俱乐部）失败",e);
-		}finally{
-			close(con,ps);
-		}
-		return list;
-	}
+//	public static List<Record> getRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
+//		List<Record> list = new ArrayList<>();
+//		try {
+//			con = DBConnection.getConnection();
+//			String sql = "select * from  record where as_of =  ? and clubId = ?";
+//			ps = con.prepareStatement(sql);
+//			ps.setString(1, maxRecordTime);
+//			ps.setString(2, clubId);
+//			ResultSet rs = ps.executeQuery();
+//			while(rs.next()){
+//				Record record = new Record();
+//				record.setId(rs.getString(1));
+//				record.setTableId(rs.getString(2));
+//				record.setClubId(rs.getString(3));
+//				record.setPlayerId(rs.getString(4));
+//				record.setScore(rs.getString(5));
+//				record.setInsurance(rs.getString(6));
+//				record.setBlind(rs.getString(7));
+//				record.setDay(rs.getString(8));
+//				record.setClubName(rs.getString(9));
+//				record.setLmType(rs.getString(10));
+//				record.setTeamId(rs.getString(11));
+//				record.setInsuranceEach(rs.getString(12));
+//				record.setIsJiesuaned(rs.getString(13));
+//				list.add(record);
+//			}
+//		} catch (SQLException e) {
+//			ErrorUtil.err("获取最新的战绩记录（单位：当天俱乐部）失败",e);
+//		}finally{
+//			close(con,ps);
+//		}
+//		return list;
+//	}
 	
 	
 	public static List<Record> getRecordsByClubId(String clubId) {
@@ -3089,12 +3089,13 @@ public class DBUtil {
 	 * 插入记录
 	 * 注意：批量插入有性能问题，需要后期优化
 	 * 不插入团队ID, 玩家名称， 和俱乐部名称，需要时自动去关联查询
+	 * @throws Exception 
 	 */
-	public static void addGameRecord(final GameRecord record) {
+	public static void addGameRecord(final GameRecord record) throws Exception {
 		try {
 			con = DBConnection.getConnection();
 			String sql;
-			sql = "insert into record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, record.getSoftDate());
 			ps.setString(2, record.getClubId());
@@ -3115,7 +3116,7 @@ public class DBUtil {
 			ps.setString(17, record.getIsJiesuaned());
 			ps.execute();
 		}catch (SQLException e) {
-			ErrorUtil.err("添加战绩记录失败", e);
+			throw new Exception("添加战绩记录失败", e);
 		}finally{
 			close(con,ps);
 		}
@@ -3126,8 +3127,9 @@ public class DBUtil {
 	 * 
 	 * @time 2017年11月19日
 	 * @param map
+	 * @throws Exception 
 	 */
-	public static void addGameRecordList(final List<GameRecord> recordList) {
+	public static void addGameRecordList(final List<GameRecord> recordList) throws Exception {
 		if(CollectUtil.isHaveValue(recordList)) {
 			long start = System.currentTimeMillis();
 			for(GameRecord record : recordList) {

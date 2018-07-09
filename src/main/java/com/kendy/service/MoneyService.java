@@ -209,16 +209,16 @@ public class MoneyService {
 	 * @time 2018年7月8日
 	 * @param gameRecords
 	 */
-	public static void fillGameRecords(List<GameRecord> gameRecords, String tableId) {
+	public static void fillGameRecords(List<GameRecord> gameRecords, String tableId, String LMType) {
 		for(GameRecord r : gameRecords) {
-			setSingleGameRecord(r, tableId);
+			setSingleGameRecord(r, tableId, LMType);
 		}
 	}
 	
 	/**
 	 * 补全单条记录的值
 	 */
-	private static void setSingleGameRecord(GameRecord r, String tableId) {
+	private static void setSingleGameRecord(GameRecord r, String tableId, String LMType) {
 
 		String teamId = getTeamId(r.getPlayerId());
 		// 计算收回险
@@ -235,6 +235,8 @@ public class MoneyService {
 		r.setSoftDate(DataConstans.Date_Str); 
 		// 设置桌号
 		r.setTableId(tableId);
+		// 设置联盟
+		r.setLmType(LMType);
 		// 设置团队ID
 		r.setTeamId(teamId);
 		// 实收
@@ -2074,6 +2076,9 @@ public class MoneyService {
 		}
 		return isExist;
 	}
+	
+	
+	
 	
 	
 

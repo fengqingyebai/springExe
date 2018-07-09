@@ -208,7 +208,7 @@ public class ExcelReaderUtil {
 							}
 							//回水比例====="+value);
 							if(value.contains("%")) {
-								value = NumUtil.getNumByPercent(value)+"";
+								value = NumUtil.digit4(NumUtil.getNumByPercent(value)+"");
 							}
 							huishuiRate = value;
 						}else if(i==4){
@@ -315,7 +315,7 @@ public class ExcelReaderUtil {
 		List<GameRecord> gameRecords = ExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
 		String tableId = FileUtil.getTableId(excelFilePath);
 		//补全每条记录的值
-		MoneyService.fillGameRecords(gameRecords, tableId);
+		MoneyService.fillGameRecords(gameRecords, tableId, LMType);
 		//判断总手数为0
 		judgeSumHandsCount(gameRecords);
 		

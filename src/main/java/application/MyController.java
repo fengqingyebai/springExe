@@ -1072,7 +1072,7 @@ public class MyController implements Initializable{
 			try {
 				//将人员名单文件缓存起来
 				List<GameRecord>  gameRecords = ExcelReaderUtil.readZJRecord(excelFilePath, 
-						userClubId, selected_LM_type,getVersionType());
+						userClubId, selected_LM_type, getVersionType());
 				indexLabel.setText(tableId);
 				importExcelData(tableId, gameRecords);
 				
@@ -1959,7 +1959,11 @@ public class MyController implements Initializable{
 //				DBUtil.addRecordList(LMController.currentRecordList);//是否反回结果？？
 				
 				//保存当前Excel记录到数据库
-				DBUtil.addGameRecordList(LMController.currentRecordList);
+				try {
+					DBUtil.addGameRecordList(LMController.currentRecordList);
+				} catch (Exception e) {
+					ErrorUtil.err(e.getMessage(), e);
+				}
 				LMController.refreshClubList();
 				LMController.checkOverEdu(final_selected_LM_type);//检查俱乐部额度
 				
@@ -1987,12 +1991,12 @@ public class MyController implements Initializable{
 	private void moveExcel() {
 		String resourceFilePath = excelDir.getText();
 		String fileName = resourceFilePath.substring(resourceFilePath.lastIndexOf("\\") + 1);
-		LocalDate selectedDate = smAutoController.getSelectedDate();
-		if(selectedDate == null ) {
-			ShowUtil.show("自动下载的日期还没设置，影响到转移Excel!");
-			selectedDate = LocalDate.now();
+		String softDate = DataConstans.Date_Str;
+		if(StringUtil.isBlank(softDate)) {
+			ShowUtil.show("软件时间未确定，影响到转移Excel!");
+			DataConstans.Date_Str = LocalDate.now().toString();
 		}
-		String targetFilePath = PathUtil.getUserDeskPath() + "\\" +selectedDate+"已锁定"+ "\\" +"已锁定-"+ fileName;
+		String targetFilePath = PathUtil.getUserDeskPath() + "\\" +softDate+"已锁定"+ "\\" +"已锁定-"+ fileName;
 		try {
 			FileUtil.moveFile(resourceFilePath, targetFilePath);
 		} catch(FileNotFoundException e) {
@@ -2004,52 +2008,6 @@ public class MyController implements Initializable{
 	
 	
 
-	
-	/**
-	 * 锁定时设置导入的Excel到对应的联盟中
-	 * @time 2017年12月13日
-	 */
-//	private void setLMRecords() {
-//		if(StringUtil.isBlank(selected_LM_type)) {
-//			ErrorUtil.err("锁定时没有选择所属联盟！");
-//			return;
-//		}
-//		LMController.currentRecordList.forEach(record -> {
-//			record.setLmType(selected_LM_type);
-//		});
-//		selected_LM_type = "";
-//	}
-	
-	/**
-	 * 保存当前导入的战绩表，用于会员查询和积分查询
-	 * @throws Exception
-	 */
-//	public void saveHistoryRecord() throws Exception {
-//		List<GameRecord> list = DataConstans.Dangju_Team_Huishui_List;
-//		List<HistoryRecord> ls = new ArrayList<>();
-//
-//		if(list != null && list.size() > 0 ) {
-//			for(GameRecord hs : list ) {
-//				/**
-//				 * @param playerId
-//				 * @param playerName
-//				 * @param teamId
-//				 * @param shishou
-//				 * @param yszj
-//				 * @param chuHuishui
-//				 * @param shouHuishui
-//				 * @param updateTime
-//				 */
-//				ls.add(new HistoryRecord(hs.getWanjiaId(),hs.getWanjia(),hs.getTuan(),
-//						hs.getShishou(),hs.getZj(),hs.getChuHuishui(),hs.getShouHuishui(),hs.getUpdateTime()));
-//			}
-//			if(!ls.isEmpty()) {
-//				DBUtil.saveHistoryRecord(ls);
-//			}
-//		}
-//		
-//	}
-	
 
 	
 	//缓存到总团队回水中(不会从中减少)
