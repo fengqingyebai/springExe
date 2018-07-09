@@ -26,6 +26,7 @@ import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
 import com.kendy.entity.Record;
+import com.kendy.model.GameRecord;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.util.CollectUtil;
@@ -123,21 +124,21 @@ public class GDController implements Initializable{
 	
 	
 	//数据来源:某俱乐部的数据
-	private static List<Record> dataList = new ArrayList();
+	private static List<GameRecord> dataList = new ArrayList();
 	
 	//数据来源:股东开销的总数据来源
 	private static List<KaixiaoInfo> gudongKaixiao_dataList = new ArrayList();
 	
 	//将dataList转成特定数据结构
 	//{股东ID:{团队ID:List<Record}}
-	private static  Map<String,Map<String,List<Record>>> gudongTeamMap = new HashMap<>();
+	private static  Map<String,Map<String,List<GameRecord>>> gudongTeamMap = new HashMap<>();
 	
 	//获取每个股东的开销总和
 	private static  Map<String,List<KaixiaoInfo>> gudongKaixiaoMap = new HashMap<>();
 	
 	//用于计算每个团队与股东客的利润（因为总利润 = 人次 + 团队+股东客 + 联盟桌费）
 	//{团队ID:List<Record>}
-	private static Map<String,List<Record>> teamMap = new HashMap<>();
+	private static Map<String,List<GameRecord>> teamMap = new HashMap<>();
 	
 	//{股东ID:股东利润占比} 注意：找不到股东的放在股东未知中
 	private static Map<String,String> gudongProfitsRateMap = new HashMap<>();
@@ -171,7 +172,7 @@ public class GDController implements Initializable{
 		String currentClubId = MyController.currentClubId.getText();
 		log.info("GDController's clubId:"+currentClubId);
 		if(!StringUtil.isAnyBlank(currentClubId)) {
-			List<Record> list = DBUtil.getRecordsByClubId(currentClubId);
+			List<GameRecord> list = DBUtil.getGameRecordsByClubId(currentClubId);
 			if(CollectUtil.isHaveValue(list)) {
 				dataList = list;
 			}
@@ -201,7 +202,7 @@ public class GDController implements Initializable{
 		gudongTeamMap = 
 				dataList.stream()
 				.collect(Collectors.groupingBy(//先按股东分
-						record -> getGudongByPlayerId((Record)record),
+						record -> getGudongByGameRecord((GameRecord)record),
 						Collectors.groupingBy(info -> { 
 						return StringUtil.nvl(info.getTeamId(),UN_KNOWN);})
 		));//再按团队分
@@ -265,7 +266,7 @@ public class GDController implements Initializable{
 	 * @param record
 	 * @return
 	 */
-	private static String getGudongByPlayerId(Record record) {
+	private static String getGudongByGameRecord(GameRecord record) {
 		String playerId = record.getPlayerId();
 		return getGudongByPlayerId(playerId);
 	}
@@ -305,8 +306,8 @@ public class GDController implements Initializable{
 	public  void prepareAllData() {
 		initData();
 		if(CollectUtil.isNullOrEmpty(dataList)) return;
-		Map<String,List<Record>> gudongRecordList = dataList.stream()
-				.collect(Collectors.groupingBy(record -> getGudongByPlayerId((Record)record)));
+		Map<String,List<GameRecord>> gudongRecordList = dataList.stream()
+				.collect(Collectors.groupingBy(record -> getGudongByGameRecord((GameRecord)record)));
 		//计算总利润
 		Double totalProfits = getTotalProfits();
 		if(Double.compare(totalProfits, 0) == 0) {
@@ -334,9 +335,9 @@ public class GDController implements Initializable{
 		Double totalProfits = 0d;
 		
 		//获取团队(服务费) and 获取股东客
-		for(Map.Entry<String, List<Record>> entry : teamMap.entrySet()) {
+		for(Map.Entry<String, List<GameRecord>> entry : teamMap.entrySet()) {
 			String teamId = entry.getKey();
-			List<Record> teamList = entry.getValue();
+			List<GameRecord> teamList = entry.getValue();
 			if("公司".equals(teamId)) {
 				Double companyProfit = getHelirun(teamList);
 				totalProfits += companyProfit;
@@ -426,7 +427,7 @@ public class GDController implements Initializable{
 	 * @param recordList
 	 * @return
 	 */
-	public static Double getHelirun(final List<Record> recordList) {
+	public static Double getHelirun(final List<GameRecord> recordList) {
 		return CollectUtil.isNullOrEmpty(recordList) ? 0d : 
 			recordList.stream().mapToDouble(item->getHeLirun(item)).sum();
 	}
@@ -439,11 +440,11 @@ public class GDController implements Initializable{
 	 * @param record
 	 * @return
 	 */
-	public static Double getHeLirun(final Record record) {
+	public static Double getHeLirun(final GameRecord record) {
 		String playerId = record.getPlayerId();
 		String teamId = getTeamIdWithUperCase(playerId);
-		String zhanji = record.getScore();
-		String baoxian = record.getInsuranceEach();
+		String zhanji = record.getYszj();
+		String baoxian = record.getSinegleInsurance();
 		String chuHuishui = MyController.getHuishuiByYSZJ(zhanji, teamId, 1);
 		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.CURRENT_HS_RATE+"");
 		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
@@ -463,11 +464,11 @@ public class GDController implements Initializable{
 	 * @param record
 	 * @return
 	 */
-	public static Double getTeamPersonProfit(final Record record) {
+	public static Double getTeamPersonProfit(final GameRecord record) {
 		String playerId = record.getPlayerId();
 		String teamId = getTeamIdWithUperCase(playerId);
-		String zhanji = record.getScore();
-		String baoxian = record.getInsuranceEach();
+		String zhanji = record.getYszj();
+		String baoxian = record.getSinegleInsurance();
 		String chuHuishui = MyController.getHuishuiByYSZJ(zhanji, teamId, 1);
 		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.CURRENT_HS_RATE+"");
 		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
@@ -487,7 +488,7 @@ public class GDController implements Initializable{
 		String findFirst = dataList.stream()
 				.filter(record->record.getPlayerId()==playerId)
 				.findFirst()
-				.map(Record::getTeamId)
+				.map(GameRecord::getTeamId)
 				.orElseGet(()->UN_KNOWN);
 		return findFirst;
 	}
@@ -599,6 +600,7 @@ public class GDController implements Initializable{
 	 * 
 	 * @time 2018年1月20日
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void dynamicGenerateGDTable() {
 		
 		//股东列表
@@ -608,7 +610,6 @@ public class GDController implements Initializable{
 		
 		 TableView<GudongRateInfo> table;
 	      
-		ObservableList<GudongRateInfo> obList= FXCollections.observableArrayList();
         for(String gudongName : _gudongList) {
         	table = new TableView<GudongRateInfo>();
 	 
@@ -639,7 +640,7 @@ public class GDController implements Initializable{
 	 
 	        //设置数据
 	        //{团队ID:List<Record}
-	        Map<String,List<Record>> teamMap = gudongTeamMap.get(gudongName);
+	        Map<String,List<GameRecord>> teamMap = gudongTeamMap.get(gudongName);
 	        List<KaixiaoInfo> kaixiaoList = gudongKaixiaoMap.get(gudongName);
 	        setDynamicTableData(table,teamMap, kaixiaoList, gudongName);
 	        //往左边的股东表中添加记录
@@ -678,15 +679,15 @@ public class GDController implements Initializable{
 	 * @param table  单个动态表
 	 * @param teamMap 单个动态表的团队数据，不包括联盟
 	 */
-	private  void setDynamicTableData(TableView<GudongRateInfo> table,Map<String,List<Record>> teamMap,
+	private  void setDynamicTableData(TableView<GudongRateInfo> table,Map<String,List<GameRecord>> teamMap,
 			List<KaixiaoInfo> kaixiaoList, String gudong) {
 		//设置股东的人次
 		//setGudongRenci(table,teamMap);
 		
 		//Loop设置单个动态表的数据(团队部分)
-		for(Map.Entry<String, List<Record>> teamEntry : teamMap.entrySet()) {
+		for(Map.Entry<String, List<GameRecord>> teamEntry : teamMap.entrySet()) {
         	String teamId = teamEntry.getKey();
-        	List<Record> teamList = teamEntry.getValue();
+        	List<GameRecord> teamList = teamEntry.getValue();
         	if("公司".equals(teamId)) {
         		setDynamicTableData_team_company_part(table,teamId,teamList,gudong);
         	}else {
@@ -742,6 +743,7 @@ public class GDController implements Initializable{
 	 * @param table 需要改变的表格
 	 * @param teamMap 用于计算生活中的人次
 	 */
+	@SuppressWarnings("unused")
 	private void setGudongRenci(TableView<GudongRateInfo> table,Map<String,List<Record>> teamMap) {
 		//整个股东的所有人次（生活）
 		Long gudongRenciCount = teamMap.values().stream().collect(Collectors.summarizingInt(l->l.size())).getSum();
@@ -793,7 +795,7 @@ public class GDController implements Initializable{
 	 * @param table
 	 * @param teamId
 	 */
-	private  void setDynamicTableData_team_not_comanpy_part(TableView<GudongRateInfo> table,String teamId, List<Record> teamList,String gudong) {
+	private  void setDynamicTableData_team_not_comanpy_part(TableView<GudongRateInfo> table,String teamId, List<GameRecord> teamList,String gudong) {
 		//获取团队服务费
 		String teamFWF = TeamProxyService.getTeamFWF_GD(teamId,teamList);//获取服务费（根据锁定的存到数据库中的数据）
 		//获取团队利润
@@ -818,7 +820,7 @@ public class GDController implements Initializable{
 	 * @param teamList
 	 * @return
 	 */
-	private Double getTeamProfit(List<Record> teamList) {
+	private Double getTeamProfit(List<GameRecord> teamList) {
 		return CollectUtil.isNullOrEmpty(teamList) ? 0d : 
 			teamList.stream().mapToDouble(item->getTeamPersonProfit(item)).sum();
 	}
@@ -829,7 +831,7 @@ public class GDController implements Initializable{
 	 * 公司利润计算公式：收回水+水后险，这里计成合利润
 	 * 
 	 */
-	private  void setDynamicTableData_team_company_part(TableView<GudongRateInfo> table,String teamId, List<Record> teamList,String gudong) {
+	private  void setDynamicTableData_team_company_part(TableView<GudongRateInfo> table,String teamId, List<GameRecord> teamList,String gudong) {
 		Double companyProfit = getHelirun(teamList);
 		
 		//计算团队中公司的占比      公式 = sum（收回水+水后险） / 计算总利润 
@@ -1025,10 +1027,10 @@ public class GDController implements Initializable{
 	 */
 	private void setTable_JLGu_data() {
 		//股东及股东的记录数，一个记录数就是一个人次
-		Map<String,List<Record>> gudongSizeMap = 
+		Map<String,List<GameRecord>> gudongSizeMap = 
 				dataList.stream()
 				.collect(Collectors.groupingBy(//按股东分
-						record -> getGudongByPlayerId((Record)record)));
+						record -> getGudongByGameRecord((GameRecord)record)));
 		ObservableList<String> gudongList = MyController.getGudongList();
 		for(String gudong : gudongList) {
 			if(!gudongSizeMap.keySet().contains(gudong)) {
@@ -1228,6 +1230,7 @@ public class GDController implements Initializable{
 	 * @time 2018年1月14日
 	 * @param event
 	 */
+	@SuppressWarnings("unchecked")
 	public void clearDataAction(ActionEvent event) {
 		//清空数据来源
 		dataList.clear();
@@ -1263,6 +1266,7 @@ public class GDController implements Initializable{
 	 * @time 2018年1月30日
 	 * @param tables
 	 */
+	@SuppressWarnings("unchecked")
 	private void setTableDataEmpty(TableView<GDInputInfo>... tables) {
 		for(TableView<GDInputInfo> table : tables) {
 			if(TableUtil.isNullOrEmpty(table)) {

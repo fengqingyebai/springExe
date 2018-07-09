@@ -691,7 +691,7 @@ public class LMController implements Initializable{
 	 */
 	private static void refresh_eachClubList(){
 		
-		String maxRecordTime = DBUtil.getMaxRecordTime();//最新一天的战绩记录（也可能是昨天的，是否要做个标记）
+		String maxRecordTime = DBUtil.getMaxGameRecordTime();//最新一天的战绩记录（也可能是昨天的，是否要做个标记）
 		if(!StringUtil.isBlank(maxRecordTime)) {
 			List<GameRecord> list = DBUtil.getGameRecordsByMaxTime(maxRecordTime);
 			//处理从数据库返回的结果为Map
@@ -727,7 +727,7 @@ public class LMController implements Initializable{
 	 */
 	public  static void checkOverEdu(String LMType){
 		try {
-			String maxRecordTime = DBUtil.getMaxRecordTime();//最新一天的战绩记录（也可能是昨天的，是否要做个标记）
+			String maxRecordTime = DBUtil.getMaxGameRecordTime();//最新一天的战绩记录（也可能是昨天的，是否要做个标记）
 			if(!StringUtil.isBlank(maxRecordTime)) {
 //				List<Record> list = DBUtil.getRecordsByMaxTime(maxRecordTime);
 				List<GameRecord> list = DBUtil.getGameRecordsByMaxTime(maxRecordTime);

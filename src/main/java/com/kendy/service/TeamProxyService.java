@@ -304,7 +304,7 @@ public class TeamProxyService {
 	 * @param list
 	 * @return
 	 */
-	public static String getTeamFWF_GD(String teamId, List<Record> list) {
+	public static String getTeamFWF_GD(String teamId, List<GameRecord> list) {
 		if(StringUtil.isBlank(teamId)) return "0";
 		Huishui hs = DataConstans.huishuiMap.get(teamId);
 		if(hs == null) {
@@ -314,9 +314,9 @@ public class TeamProxyService {
 		
 		//备注：之前是该团队的所有历史数据都参与计算，现在改为该团队的每天服务费相加
 		double sumTeamFWF = 0.0;
-		Map<String, List<Record>> teamMap = list.stream().collect(Collectors.groupingBy(Record::getDay));
-		for(Map.Entry<String, List<Record>> entry : teamMap.entrySet()) {
-			List<Record> teamEveryDayList = entry.getValue();
+		Map<String, List<GameRecord>> teamMap = list.stream().collect(Collectors.groupingBy(GameRecord::getSoftDate));
+		for(Map.Entry<String, List<GameRecord>> entry : teamMap.entrySet()) {
+			List<GameRecord> teamEveryDayList = entry.getValue();
 			String teamFWF_GD_EveryDay = getTeamFWF_GD_EveryDay(teamId, teamEveryDayList, hs);
 			sumTeamFWF += NumUtil.getNum(teamFWF_GD_EveryDay);
 		}
@@ -333,15 +333,15 @@ public class TeamProxyService {
 	 * @param list
 	 * @return
 	 */
-	private static String getTeamFWF_GD_EveryDay(String teamId, List<Record> teamEveryDayList, Huishui hs) {
+	private static String getTeamFWF_GD_EveryDay(String teamId, List<GameRecord> teamEveryDayList, Huishui hs) {
 		
 		//加载数据{teamId={}}
 		double sumHS = 0d;
 		double sumHB = 0d;
-		for(Record info : teamEveryDayList) {
-			String yszj = info.getScore();
-			String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);//NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
-			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getInsuranceEach(),teamId));
+		for(GameRecord info : teamEveryDayList) {
+			String yszj = info.getYszj();
+			String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);
+			String baohui = NumUtil.digit1(MoneyService.getHuiBao(info.getSinegleInsurance(), teamId));
 			sumHS += (NumUtil.getNum(chuHuishui))*(-1);
 			sumHB += NumUtil.getNum(baohui);
 		}
