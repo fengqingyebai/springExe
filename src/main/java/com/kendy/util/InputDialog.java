@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import application.Main;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -32,12 +33,8 @@ public class InputDialog {
 	
 	
 	
-	/**
-	 * 
-	 */
 	public InputDialog() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 	/**
 	 * 两个输入文字的对话框
@@ -309,6 +306,7 @@ public class InputDialog {
 		textDialog.setTitle(title);
 		textDialog.setHeaderText(null);
 		textDialog.setContentText(keyText);
+		//textDialog.initOwner(Main.primaryStage0);
 	}
 	
 	public Optional<Pair<String, String>>  getResult() {

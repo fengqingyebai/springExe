@@ -1,7 +1,6 @@
 package com.kendy.service;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,7 +12,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import com.kendy.db.DBUtil;
@@ -51,7 +51,7 @@ import javafx.scene.layout.HBox;
  */
 public class TeamProxyService {
 
-	private static Logger log = Logger.getLogger(TeamProxyService.class);
+	private  static Logger log = LoggerFactory.getLogger(TeamProxyService.class);
 
 	public static DecimalFormat df = new DecimalFormat("#.00");
 	
@@ -109,7 +109,6 @@ public class TeamProxyService {
 			options.add(teamId);
 		});
 		teamIDCombox.setItems(options);
-		//teamIDCombox.getSelectionModel().select(0); // [0, options.size())
 		}
 	}
 	
@@ -129,7 +128,6 @@ public class TeamProxyService {
 	public static void initTeamSelectAction(ComboBox<String> teamIDCombox,CheckBox isZjManage,
 			TableView<ProxyTeamInfo> tableProxyTeam,HBox proxySumHBox) {
 			teamIDCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @SuppressWarnings("rawtypes")
 			@Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
             	refresh_TableTeamProxy_TableProxySum(newValue);
@@ -228,7 +226,6 @@ public class TeamProxyService {
         double sumHB = 0d;
         double sumBX = 0d;
         int sumRC = 0;
-        //Map<String,List<GameRecord>> teamMap = DataConstans.Total_Team_Huishui_Map;//锁定就保留信息，不减
         Map<String,List<GameRecord>> teamMap = getTotalTeamHuishuiMap();
         if(teamMap != null && teamMap.size() == 0) {
         	log.error("----------------");//这个有问题，后期再看
@@ -277,8 +274,8 @@ public class TeamProxyService {
         proxyHBRate.setText(hs.getProxyHBRate());
         proxyFWF.setText(hs.getProxyFWF());
         
-        double HSRate = getNumByPercent(hs.getProxyHSRate());
-        double HBRate = getNumByPercent(hs.getProxyHBRate());
+        double HSRate = NumUtil.getNumByPercent(hs.getProxyHSRate());
+        double HBRate = NumUtil.getNumByPercent(hs.getProxyHBRate());
         double FWFValid = NumUtil.getNum(hs.getProxyFWF());//服务费有效值
         //计算服务费
         double proxyFWFVal = calculateProxSumFWF(sumHS,HSRate,sumHB,HBRate,FWFValid);
@@ -348,8 +345,8 @@ public class TeamProxyService {
 			sumHS += (NumUtil.getNum(chuHuishui))*(-1);
 			sumHB += NumUtil.getNum(baohui);
 		}
-		double HSRate = getNumByPercent(hs.getProxyHSRate());
-		double HBRate = getNumByPercent(hs.getProxyHBRate());
+		double HSRate = NumUtil.getNumByPercent(hs.getProxyHSRate());
+		double HBRate = NumUtil.getNumByPercent(hs.getProxyHBRate());
 		double FWFValid = NumUtil.getNum(hs.getProxyFWF());//服务费有效值
 		//计算服务费
 		double proxyFWFVal = calculateProxSumFWF(sumHS,HSRate,sumHB,HBRate,FWFValid);
@@ -493,35 +490,10 @@ public class TeamProxyService {
 	 */
 	public static Double calculateProxSumFWF(String sumOfHS,String HSRate,String sumOfHB,String HBRate) {
 		Double _sumOfHS = NumUtil.getNum(sumOfHS);
-		Double _HSRate  = getNumByPercent(HSRate);
-		Double _HBRate  = getNumByPercent(HBRate);
+		Double _HSRate  = NumUtil.getNumByPercent(HSRate);
+		Double _HBRate  = NumUtil.getNumByPercent(HBRate);
 		Double res = _sumOfHS * _HSRate + _HSRate * _HBRate;
 		return res;
-	}
-	/**
-	 * 把百分比转成小数
-	 * @param percentStr
-	 * @return
-	 */
-	public static Double getNumByPercent(String percentStr) {
-		if(!StringUtil.isBlank(percentStr) && percentStr.contains("%")) {
-			 return new Double(percentStr.substring(0, percentStr.indexOf("%"))) / 100;
-		}
-		return 0d;
-	}
-	
-	/**
-	 * 根据小数转成百分比
-	 * @param number
-	 * @return
-	 */
-	public static String getPercentStr(Double number) {
-    	NumberFormat num = NumberFormat.getPercentInstance(); 
-    	num.setMaximumIntegerDigits(3); 
-    	num.setMaximumFractionDigits(2); 
-    	//double csdn = 0.31; 
-    	String percentString = num.format(number);
-    	return percentString;
 	}
 	
 	/**
@@ -673,7 +645,6 @@ public class TeamProxyService {
 		String title = teamId + "-"+sdf.format(new Date());
 		log.info(title);
 		
-//		String[] rowsName = new String[]{"玩家ID","玩家名称","原始战绩","战绩","保险","回水","回保","场次"};
 		String[] rowsName = new String[]{"玩家ID","玩家名称","原始战绩","战绩","回水","场次"};
 		List<Object[]>  dataList = new ArrayList<Object[]>();
 		Object[] objs = null;
@@ -683,10 +654,8 @@ public class TeamProxyService {
 			objs[1] = info.getProxyPlayerName();
 			objs[2] = info.getProxyYSZJ();
 			objs[3] = info.getProxyZJ();
-//			objs[4] = info.getProxyBaoxian();
-			objs[5-1] = info.getProxyHuishui();
-//			objs[6] = info.getProxyHuiBao();
-			objs[7-2] = info.getProxyTableId();
+			objs[4] = info.getProxyHuishui();
+			objs[5] = info.getProxyTableId();
 			dataList.add(objs);
 		}
 		
@@ -729,7 +698,7 @@ public class TeamProxyService {
 		//循环遍历每一个有数据的团队并导出
 		ObservableList<String> obList = teamIDCombox.getItems();
 		if(!CollectUtil.isHaveValue(obList)) {
-			ShowUtil.show("小林提示：没有团队数据！不导出Excel哦！",2);
+			ShowUtil.show("小林提示：没有团队数据！不导出Excel！",2);
 			return;
 		}else {
 			//1 删除今日文件夹

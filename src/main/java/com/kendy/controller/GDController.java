@@ -444,17 +444,11 @@ public class GDController implements Initializable{
 		String teamId = getTeamIdWithUperCase(playerId);
 		String zhanji = record.getScore();
 		String baoxian = record.getInsuranceEach();
-		String shishou = MoneyService.getShiShou(record.getScore());
-//		String chuHuishui = NumUtil.digit1(MoneyService.getChuhuishui(zhanji, teamId));
 		String chuHuishui = MyController.getHuishuiByYSZJ(zhanji, teamId, 1);
-		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
-//		String shouHuishui = NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*(1-Constants.HS_RATE)+"");
+		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.CURRENT_HS_RATE+"");
 		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
 		String baohui = NumUtil.digit1(MoneyService.getHuiBao(baoxian,teamId));
 		String heLirun = NumUtil.digit2(MoneyService.getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
-//		if("公司".equals(teamId)) {
-//			log.info(String.format("战绩：%s, 出回水：%s, 收回水：%s, 水后险：%s, 保回：%s, 合利润：%s", zhanji, chuHuishui, shouHuishui, shuihouxian,baohui,heLirun));
-//		}
 		return  NumUtil.getNum(heLirun);
 	}
 	
@@ -474,12 +468,10 @@ public class GDController implements Initializable{
 		String teamId = getTeamIdWithUperCase(playerId);
 		String zhanji = record.getScore();
 		String baoxian = record.getInsuranceEach();
-		String shishou = MoneyService.getShiShou(record.getScore());
 		String chuHuishui = MyController.getHuishuiByYSZJ(zhanji, teamId, 1);
-		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
+		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.CURRENT_HS_RATE+"");
 		String shouHuishui = MyController.getHuishuiByYSZJ(zhanji, "", 2);
 		String baohui = NumUtil.digit1(MoneyService.getHuiBao(baoxian,teamId));
-//		Double personProfit = NumUtil.getNum(NumUtil.getSum(shouHuishui , chuHuishui , shuihouxian )) - Math.abs(NumUtil.getNum(baohui));
 		Double personProfit = NumUtil.getNum(NumUtil.getSum(shouHuishui , chuHuishui , shuihouxian )) - (NumUtil.getNum(baohui));
 		return  personProfit;
 	}

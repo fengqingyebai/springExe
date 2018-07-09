@@ -18,14 +18,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubZhuofei;
-import com.kendy.entity.HistoryRecord;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JifenInfo;
 import com.kendy.entity.KaixiaoInfo;
@@ -57,7 +57,7 @@ import application.DataConstans;
  * @time 2018年1月1日 下午10:54:17
  */
 public class DBUtil {
-	private static Logger log = Logger.getLogger(DBUtil.class);
+	private  static Logger loger = LoggerFactory.getLogger(DBUtil.class);
 	
 	private static Connection con = null;
 	private static PreparedStatement ps = null;
@@ -84,15 +84,11 @@ public class DBUtil {
 					"				) / ? " + 
 					"			) AS jifenValue " + 
 					"		FROM " + 
-					"			( " + 
-					"				SELECT " + 
-					"					* " + 
-					"				FROM " + 
-					"					historyrecord " + 
+					"			( " + GAME_RECORD_SQL + 
 					"				WHERE " + 
-					"					teamId = ? " + 
-					"				AND updateTime >= ? " + 
-					"				AND updateTIme <= ? " + 
+					"					m.teamId = ? " + 
+					"				AND finished_time >= ? " + 
+					"				AND finished_time <= ? " + 
 					"			) h " + 
 					"		GROUP BY " + 
 					"			playerId " + 
@@ -128,7 +124,8 @@ public class DBUtil {
 	public static String getTotalZJByPId(String playerId) {
 		try {
 			con = DBConnection.getConnection();
-			String sql = "SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from historyrecord hr where hr.playerId = ?";
+			String sql = "SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (" + GAME_RECORD_SQL 
+					+ ") hr where hr.playerId = ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, playerId);
 			ResultSet rs = ps.executeQuery();
@@ -146,35 +143,6 @@ public class DBUtil {
 		return "0.0";
 	}
 	
-	
-	/**
-	 * 保存导入的战绩表，供会员和积分查询
-	 * @param list
-	 */
-	public static void saveHistoryRecord(final List<HistoryRecord> list) {
-		try {
-			con = DBConnection.getConnection();
-			String sql = "";
-			for(HistoryRecord hr : list) {
-				sql = "insert into historyrecord values(?,?,?,?,?,?,?,?)";
-				ps = con.prepareStatement(sql);
-				ps.setString(1, hr.getPlayerId());
-				ps.setString(2, hr.getPlayerName());
-				ps.setString(3, hr.getTeamId().toUpperCase());
-				ps.setString(4, hr.getYszj());
-				ps.setString(5, hr.getShishou());
-				ps.setString(6, hr.getChuHuishui());
-				ps.setString(7, hr.getShouHuishui());
-//				ps.setDate(8,  new Date(hr.getUpdateTime().getTime()));
-				ps.setString(8,  hr.getUpdateTime().toString());
-				ps.execute();
-			}
-		}catch(Exception e) {
-			ErrorUtil.err("保存导入的战绩表失败", e);
-		}finally {
-			close(con,ps);
-		}
-	}
 	
 	
 	//删除一条人员名单---未测试
@@ -273,7 +241,6 @@ public class DBUtil {
 			ps = con.prepareStatement(sql);
 			ps.setString(1,playerId);
 			ResultSet rs = ps.executeQuery();
-			String res = "";
 			while(rs.next()){
 				player.setGameId(playerId);
 				player.setPlayerName(rs.getString(2));
@@ -282,7 +249,7 @@ public class DBUtil {
 				player.setEdu(rs.getString(5));
 				break;
 			}
-			log.info("================根据玩家ID("+playerId+")查询玩家信息，获得玩家是否为空："+StringUtil.isBlank(player.getgameId()));
+			loger.error("玩家ID("+playerId+")不存在！");
 			return player;
 		}catch (SQLException e) {
 			ErrorUtil.err("根据玩家ID查询玩家信息失败", e);
@@ -352,7 +319,7 @@ public class DBUtil {
 			ps.setString(5, player.getgameId());
 //			ps.setString(6, "0");//是否是父类
 			ps.executeUpdate();
-			log.info("================修改人员...finishes");
+			loger.info("================修改人员...finishes");
 		}catch (SQLException e) {
 			ErrorUtil.err("修改人员名单失败", e);
 		}finally{
@@ -406,7 +373,7 @@ public class DBUtil {
 				ps.executeBatch();
 				ps.clearBatch();
 				long end = System.currentTimeMillis();
-				log.info("导入人员名单完成，耗时："+(end - start)+"毫秒");
+				loger.info("导入人员名单完成，耗时："+(end - start)+"毫秒");
 			}catch (SQLException e) {
 				ErrorUtil.err(incorrectPlayerName+"=导入人员名单进数据库失败", e);
 			}finally{
@@ -447,7 +414,7 @@ public class DBUtil {
 			ps.setString(1, dataTime);
 			ps.setString(2, preData);
 			ps.execute();
-			log.info("================昨日留底插入进数据库...finishes");
+			loger.info("================昨日留底插入进数据库...finishes");
 		}catch (SQLException e) {
 			ErrorUtil.err("昨日留底插入失败",e);
 		}finally{
@@ -471,7 +438,7 @@ public class DBUtil {
 			ResultSet rs = ps.executeQuery();
 			String res = "";
 			while(rs.next()){
-				log.info("加载的昨日留底时间是："+rs.getString(1));
+				loger.info("加载的昨日留底时间是："+rs.getString(1));
 				Load_Date = rs.getString(1);
 				res = rs.getString(2);
 				break;
@@ -488,7 +455,7 @@ public class DBUtil {
 //			Map<String,String> presentPayoutMap = _map.get("实时开销");
 //			//时实金额
 //			Map<String,String> presentMoneyMap = _map.get("时实金额");
-//			log.info(JSON.toJSONString(presentMoneyMap));
+//			loger.info(JSON.toJSONString(presentMoneyMap));
 //			//昨日利润
 //			Map<String,String> yesterdayProfitMap = _map.get("昨日利润");
 //			//联盟对帐
@@ -517,7 +484,7 @@ public class DBUtil {
 			ResultSet rs = ps.executeQuery();
 			String res = "";
 			while(rs.next()){
-				log.info("中途加载的最大局是："+rs.getString(1));
+				loger.info("中途加载的最大局是："+rs.getString(1));
 				res = rs.getString(2);
 				break;
 			}
@@ -537,8 +504,8 @@ public class DBUtil {
 					locked_data_detail_map.put(rs.getString(1), JSON.parseObject(rs.getString(2), new TypeReference<Map<String,String>>(){}));
 				}
 				map.put("All_Locked_Data_Map", JSON.toJSONString(locked_data_detail_map));
-				log.info("中途加载当天详细锁定数据,总局数："+locked_data_detail_map.size());
-			}catch(Exception e) {log.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());}
+				loger.info("中途加载当天详细锁定数据,总局数："+locked_data_detail_map.size());
+			}catch(Exception e) {loger.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());}
 			//======================================================
 //			//资金
 //			Map<String,String> zijinMap = _map.get("资金");
@@ -546,7 +513,7 @@ public class DBUtil {
 //			Map<String,String> presentPayoutMap = _map.get("实时开销");
 //			//时实金额
 //			Map<String,String> presentMoneyMap = _map.get("时实金额");
-//			log.info(JSON.toJSONString(presentMoneyMap));
+//			loger.info(JSON.toJSONString(presentMoneyMap));
 //			//昨日利润
 //			Map<String,String> yesterdayProfitMap = _map.get("昨日利润");
 //			//联盟对帐
@@ -764,7 +731,7 @@ public class DBUtil {
 			ps.setString(13, hs.getTeamAvailabel());
 			ps.setString(14, hs.getTeamId().toUpperCase());
 			ps.execute();
-			log.info("团队回水修改");
+			loger.info("团队回水修改");
 		}catch (SQLException e) {
 			ErrorUtil.err("团队回水修改失败",e);
 		}finally{
@@ -789,7 +756,7 @@ public class DBUtil {
 				
 				Huishui hs ;
 				String sql;
-				log.info("团队回水进数据库开始...");
+				loger.info("团队回水进数据库开始...");
 				for(Map.Entry<String, Huishui> entry : map.entrySet()) {
 					hs = entry.getValue();
 					sql = "insert into teamhs values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";//10列
@@ -810,7 +777,7 @@ public class DBUtil {
 					ps.setString(14, hs.getTeamAvailabel());
 					ps.execute();
 				}
-				log.info("团队回水进数据库结束！size:"+map.size());
+				loger.info("团队回水进数据库结束！size:"+map.size());
 			}catch (SQLException e) {
 				ErrorUtil.err("批量团队回水进数据库失败",e);
 			}finally{
@@ -830,13 +797,8 @@ public class DBUtil {
 		String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
 		int ju_size = DataConstans.Index_Table_Id_Map.size();
 		try {
-			log.info("================插入锁定数据进数据库...开始");
+			loger.info("================插入锁定数据进数据库...开始");
 			con = DBConnection.getConnection();
-			
-			//删除原先数据
-//			String sql = "DELETE from last_locked_data";
-//			ps = con.prepareStatement(sql);
-//			ps.execute();
 			
 			//插入最新锁定数据
 			long start = System.currentTimeMillis();
@@ -846,7 +808,7 @@ public class DBUtil {
 			ps.setString(2, json_all_locked_data);
 			ps.execute();
 			long end = System.currentTimeMillis();
-			log.info("================插入锁定数据进数据库...结束...局数："+ju_size+ "，耗时："+( end - start) + "毫秒");
+			loger.info("================插入锁定数据进数据库...结束...局数："+ju_size+ "，耗时："+( end - start) + "毫秒");
 			
 			//删除原先数据
 			String sql = "DELETE from last_locked_data where ju < "+(ju_size);//ju_size-2
@@ -874,11 +836,10 @@ public class DBUtil {
 	 * 锁定时保存最后一场的详细数据
 	 * @time 2018年4月30日
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	private static void saveLastLockedDataDetail() {
 		try {
 			int ju_size =  DataConstans.Paiju_Index.get()-1;
-			log.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
+			loger.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
 	        Map<String, String> lastDataDetailMap = DataConstans.All_Locked_Data_Map.get(ju_size+"");
 			String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
 			sql = "replace into last_locked_data_detail values(?,?)";
@@ -1478,7 +1439,7 @@ public class DBUtil {
 				}
 			}
 		}catch(Exception e) {
-			log.error(id+"查询俱乐部是否存在失败",e);
+			loger.error(id+"查询俱乐部是否存在失败",e);
 			throw e;
 		}finally{
 			close(con,ps);
@@ -1541,21 +1502,21 @@ public class DBUtil {
 	 * 更改团队
 	 * 备注：这个功能其实可以做成关联人员表，而不必这么麻烦
 	 */
-	public static void updateRecordTeamId(final String playerId, final String teamId) {
-		try {
-			con = DBConnection.getConnection();
-			String sql;
-			if(!StringUtil.isBlank(playerId)) {
-				sql = "update record r set r.teamId = '"+teamId+"' where r.playerId = '"+playerId+"'";
-				ps = con.prepareStatement(sql);
-				ps.execute();
-			}
-		}catch (SQLException e) {
-			ErrorUtil.err("更改玩家团队失败", e);
-		}finally{
-			close(con,ps);
-		}
-	}
+//	public static void updateRecordTeamId(final String playerId, final String teamId) {
+//		try {
+//			con = DBConnection.getConnection();
+//			String sql;
+//			if(!StringUtil.isBlank(playerId)) {
+//				sql = "update record r set r.teamId = '"+teamId+"' where r.playerId = '"+playerId+"'";
+//				ps = con.prepareStatement(sql);
+//				ps.execute();
+//			}
+//		}catch (SQLException e) {
+//			ErrorUtil.err("更改玩家团队失败", e);
+//		}finally{
+//			close(con,ps);
+//		}
+//	}
 //	
 //	/**
 //	 * 删除某一天的战绩记录
@@ -1679,7 +1640,7 @@ public class DBUtil {
 				ps.executeBatch();
 				ps.clearBatch();
 				long end = System.currentTimeMillis();
-				log.info(recordList.get(0).getTableId()+"联盟对帐批量插入战绩记录完成，耗时："+(end - start)+"毫秒");
+				loger.info(recordList.get(0).getTableId()+"联盟对帐批量插入战绩记录完成，耗时："+(end - start)+"毫秒");
 			}catch (SQLException e) {
 				ErrorUtil.err(incorrectPlayerId+",联盟对帐批量插入战绩记录进数据库失败", e);
 			}finally{
@@ -1869,23 +1830,23 @@ public class DBUtil {
 	 * @param clubId
 	 * @param newClubName
 	 */
-	public static boolean batchUpdateRecordByClubId(String clubId, String newClubName) {
-		boolean isOK = true;
-		try {
-			con = DBConnection.getConnection();
-			String sql = "update record r set r.clubName = ? where r.clubId = ?";
-			ps = con.prepareStatement(sql);
-			ps.setString(1, newClubName);
-			ps.setString(2, clubId);
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			isOK = false;
-			ErrorUtil.err("更新俱乐部名称失败",e);
-		}finally{
-			close(con,ps);
-		}
-		return isOK;
-	}
+//	public static boolean batchUpdateRecordByClubId(String clubId, String newClubName) {
+//		boolean isOK = true;
+//		try {
+//			con = DBConnection.getConnection();
+//			String sql = "update record r set r.clubName = ? where r.clubId = ?";
+//			ps = con.prepareStatement(sql);
+//			ps.setString(1, newClubName);
+//			ps.setString(2, clubId);
+//			ps.executeUpdate();
+//		} catch (SQLException e) {
+//			isOK = false;
+//			ErrorUtil.err("更新俱乐部名称失败",e);
+//		}finally{
+//			close(con,ps);
+//		}
+//		return isOK;
+//	}
 	
 	/**
 	 * 清空所有俱乐部桌费和已结算
@@ -1900,7 +1861,7 @@ public class DBUtil {
 			sql = "update club set zhuoFei='0',zhuoFei2='0',zhuoFei3='0',yiJieSuan='0',yiJieSuan2='0',yiJieSuan3='0'";
 			ps = con.prepareStatement(sql);
 			ps.executeUpdate();
-			log.info("数据库：清空所有俱乐部桌费和已结算OK！");
+			loger.info("数据库：清空所有俱乐部桌费和已结算OK！");
 		}catch (SQLException e) {
 			ErrorUtil.err("清空所有俱乐部桌费和已结算失败", e);
 		}finally{
@@ -3118,58 +3079,40 @@ public class DBUtil {
     /************************************************************************************************
      * 
      * 							    GameRecord表
+     * 注意： 1、本表不保存teamId和clubName, 查询时自动去关联members表和club表，
+     * 		 2、但是缓存中是有这两个数据的，更新玩家名称、俱乐部名称和团队时请更新相应数据表和缓存，不修改本表
      * 
      ***********************************************************************************************/
-    /**
-	 * 更改团队
-	 * 备注：这个功能其实可以做成关联人员表，而不必这么麻烦
-	 */
-	public static void updateGameRecordTeamId(final String playerId, final String teamId) {
-		try {
-			con = DBConnection.getConnection();
-			String sql;
-			if(!StringUtil.isBlank(playerId)) {
-				sql = "update record r set r.teamId = '"+teamId+"' where r.playerId = '"+playerId+"'";
-				ps = con.prepareStatement(sql);
-				ps.execute();
-			}
-		}catch (SQLException e) {
-			ErrorUtil.err("更改玩家团队失败", e);
-		}finally{
-			close(con,ps);
-		}
-	}
-	
+    
+    private static final String GAME_RECORD_SQL = "select r.*, m.playerName, m.teamId, c.name from  game_record r left join members m on r.playerId = m.playerId left join club c on r.clubId = c.clubId ";
 	/**
-	 * 添加战绩记录
-	 * @time 2017年11月22日
-	 * @param record
+	 * 插入记录
+	 * 注意：批量插入有性能问题，需要后期优化
+	 * 不插入团队ID, 玩家名称， 和俱乐部名称，需要时自动去关联查询
 	 */
 	public static void addGameRecord(final GameRecord record) {
 		try {
 			con = DBConnection.getConnection();
 			String sql;
-			sql = "insert into record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			sql = "insert into record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, record.getSoftDate());
 			ps.setString(2, record.getClubId());
 			ps.setString(3, record.getTableId());
-			ps.setString(4, record.getTeamId());
-			ps.setString(5, record.getPlayerId());
-			ps.setString(6, record.getClubName());
-			ps.setString(7, record.getYszj());
-			ps.setString(8, record.getSinegleInsurance());
-			ps.setString(9, record.getClubInsurance());
-			ps.setString(10, record.getCurrentTableInsurance());
-			ps.setString(11, record.getShishou());
-			ps.setString(12, record.getChuHuishui());
-			ps.setString(13, record.getShouHuishui());
-			ps.setString(14, record.getShuihouxian());
-			ps.setString(15, record.getHuiBao());
-			ps.setString(16, record.getHeLirun());
-			ps.setString(17, record.getLmType());
-			ps.setString(18, record.getFinisedTime());
-			ps.setString(19, record.getIsJiesuaned());
+			ps.setString(4, record.getPlayerId());
+			ps.setString(5, record.getYszj());
+			ps.setString(6, record.getSinegleInsurance());
+			ps.setString(7, record.getClubInsurance());
+			ps.setString(8, record.getCurrentTableInsurance());
+			ps.setString(9, record.getShishou());
+			ps.setString(10, record.getChuHuishui());
+			ps.setString(11, record.getShouHuishui());
+			ps.setString(12, record.getShuihouxian());
+			ps.setString(13, record.getHuiBao());
+			ps.setString(14, record.getHeLirun());
+			ps.setString(15, record.getLmType());
+			ps.setString(16, record.getFinisedTime());
+			ps.setString(17, record.getIsJiesuaned());
 			ps.execute();
 		}catch (SQLException e) {
 			ErrorUtil.err("添加战绩记录失败", e);
@@ -3186,9 +3129,12 @@ public class DBUtil {
 	 */
 	public static void addGameRecordList(final List<GameRecord> recordList) {
 		if(CollectUtil.isHaveValue(recordList)) {
+			long start = System.currentTimeMillis();
 			for(GameRecord record : recordList) {
 				addGameRecord(record);
 			}
+			long end = System.currentTimeMillis();
+			loger.info("导入{}条记录进数据库，耗时：{}毫秒", recordList.size(), (end - start));
 		}
 	}
 	
@@ -3225,7 +3171,7 @@ public class DBUtil {
 		List<GameRecord> list = new ArrayList<>();
 		try {
 			con = DBConnection.getConnection();
-			String sql = "select * from  game_record where soft_time =  ?";
+			String sql = GAME_RECORD_SQL + " where soft_time =  ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, maxRecordTime);
 			ResultSet rs = ps.executeQuery();
@@ -3245,22 +3191,24 @@ public class DBUtil {
 			record.setSoftDate(rs.getString(1));
 			record.setClubId(rs.getString(2));
 			record.setTableId(rs.getString(3));
-			record.setTeamId(rs.getString(4));
-			record.setPlayerId(rs.getString(5));
-			record.setClubName(rs.getString(6));
-			record.setYszj(rs.getString(7));
-			record.setSinegleInsurance(rs.getString(8));
-			record.setClubInsurance(rs.getString(9));
-			record.setCurrentTableInsurance(rs.getString(10));
-			record.setShishou(rs.getString(11));
-			record.setChuHuishui(rs.getString(12));
-			record.setShouHuishui(rs.getString(13));
-			record.setShuihouxian(rs.getString(14));
-			record.setHuiBao(rs.getString(15));
-			record.setHeLirun(rs.getString(16));
-			record.setLmType(rs.getString(17));
-			record.setFinisedTime(rs.getString(18));
-			record.setIsJiesuaned(rs.getString(19));
+			record.setPlayerId(rs.getString(4));
+			record.setYszj(rs.getString(5));
+			record.setSinegleInsurance(rs.getString(6));
+			record.setClubInsurance(rs.getString(7));
+			record.setCurrentTableInsurance(rs.getString(8));
+			record.setShishou(rs.getString(9));
+			record.setChuHuishui(rs.getString(10));
+			record.setShouHuishui(rs.getString(11));
+			record.setShuihouxian(rs.getString(12));
+			record.setHuiBao(rs.getString(13));
+			record.setHeLirun(rs.getString(14));
+			record.setLmType(rs.getString(15));
+			record.setFinisedTime(rs.getString(16));
+			record.setIsJiesuaned(rs.getString(17));
+			//单独设置团队ID和俱乐部名称
+			record.setPlayerName(rs.getString(18));
+			record.setTeamId(rs.getString(19));
+			record.setClubName(rs.getString(20));
 			list.add(record);
 		}
 		return list;
@@ -3277,7 +3225,7 @@ public class DBUtil {
 		List<GameRecord> list = new ArrayList<>();
 		try {
 			con = DBConnection.getConnection();
-			String sql = "select * from  game_record where soft_time =  ? and clubId = ?";
+			String sql = GAME_RECORD_SQL + " where soft_time =  ? and clubId = ? ";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, maxRecordTime);
 			ps.setString(2, clubId);
@@ -3301,7 +3249,7 @@ public class DBUtil {
 		List<GameRecord> list = new ArrayList<>();
 		try {
 			con = DBConnection.getConnection();
-			String sql = "select r.*,c.teamId as temp_team_id from  game_record r  left join  members c on r.playerId = c.playerId where  r.clubId = ?";
+			String sql = GAME_RECORD_SQL + " where  r.clubId = ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, clubId);
 			ResultSet rs = ps.executeQuery();
@@ -3326,7 +3274,7 @@ public class DBUtil {
 		List<GameRecord> list = new ArrayList<>();
 		try {
 			con = DBConnection.getConnection();
-			String sql = "select * from  game_record";
+			String sql = GAME_RECORD_SQL + "where 1=1";
 			ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			list = getGameRecordResult(rs);
@@ -3338,30 +3286,6 @@ public class DBUtil {
 		return list;
 	}
 	
-	/**
-	 * 客户更新俱乐部名称后，自动更新历史记录中含有俱乐部名称字段的记录
-	 * 
-	 * @time 2018年5月31日
-	 * @param clubId
-	 * @param newClubName
-	 */
-	public static boolean batchUpdateGameRecordByClubId(String clubId, String newClubName) {
-		boolean isOK = true;
-		try {
-			con = DBConnection.getConnection();
-			String sql = "update game_record r set r.clubName = ? where r.clubId = ?";
-			ps = con.prepareStatement(sql);
-			ps.setString(1, newClubName);
-			ps.setString(2, clubId);
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			isOK = false;
-			ErrorUtil.err("更新俱乐部名称失败",e);
-		}finally{
-			close(con,ps);
-		}
-		return isOK;
-	}
 
 	
 	

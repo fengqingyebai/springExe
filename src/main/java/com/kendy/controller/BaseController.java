@@ -45,15 +45,6 @@ public abstract class BaseController {
             Mycolumn myColumn = field.getAnnotation(Mycolumn.class);
             try {
               boolean noNeedRedColumn = myColumn.noNeedRedColumn();
-//                headers.add(new ExcelHeader(
-//                        er.title(),
-//                        er.order(),
-//                        er.writeConverter().newInstance(),
-//                        er.readConverter().newInstance(),
-//                        field.getName(),
-//                        field.getType(),
-//                        er.colWidth()
-//                ));
             } catch (Exception e) {
                 //throw new BindColumnException();
             }

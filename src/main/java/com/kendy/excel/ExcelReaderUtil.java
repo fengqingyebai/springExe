@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -310,6 +311,7 @@ public class ExcelReaderUtil {
 	 */
 	public static List<GameRecord> readZJRecord_NewVersion(String excelFilePath, String userClubId, String LMType) throws Exception{//新增了联盟类型
 		
+		//获取所有记录
 		List<GameRecord> gameRecords = ExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
 		String tableId = FileUtil.getTableId(excelFilePath);
 		//补全每条记录的值
@@ -320,10 +322,13 @@ public class ExcelReaderUtil {
 		// TODO 添加所有记录到联盟对帐表final?
 		LMController.currentRecordList = gameRecords;
 		
-		// 存储数据  {场次=infoList...}
-		DataConstans.zjMap.put(tableId, gameRecords);
+		//只返回当前俱乐部的记录
+		List<GameRecord> _gameRecords = gameRecords.stream().filter(e->e.getClubId().equals(userClubId)).collect(Collectors.toList());
 		
-		return gameRecords;
+		// 存储数据  {场次=infoList...}
+		DataConstans.zjMap.put(tableId, _gameRecords);
+		
+		return _gameRecords;
 	}
 	
 	

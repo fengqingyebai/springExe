@@ -489,8 +489,8 @@ public class LMController implements Initializable{
 			}
 			Record sumRecord = new Record();
 			sumRecord.setTableId(entry.getKey());
-			sumRecord.setScore(NumUtil.digit0(""+((sumOfEachClubZJ+sumOfEachClubInsure) * Constants.HS_RATE)));
-			sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.HS_RATE )));
+			sumRecord.setScore(NumUtil.digit0(""+((sumOfEachClubZJ+sumOfEachClubInsure) * Constants.CURRENT_HS_RATE)));
+			sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.CURRENT_HS_RATE )));
 			sumRecord.setPersonCount(sumOfEachClubPersonCount+"");
 			//添加到最后的总和列表中
 			sumList.add(sumRecord);
@@ -905,7 +905,7 @@ public class LMController implements Initializable{
     		
     		//同步到数据库
     		DBUtil.updateClub(club);
-    		DBUtil.batchUpdateRecordByClubId(clubId, newClubName);
+    		//DBUtil.batchUpdateRecordByClubId(clubId, newClubName); 泽涛注释：只修改club表
     		
     		//重新刷新俱乐部列表
     		refreshClubList();

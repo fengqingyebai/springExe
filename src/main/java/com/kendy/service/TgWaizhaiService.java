@@ -75,7 +75,7 @@ public class TgWaizhaiService {
 				tgTeamSet = Stream.of(tgTeamsStr.split("#")).collect(Collectors.toSet());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			ErrorUtil.err("获取托管团队ID失败", e);
 		}
 		log.info("托管团队：" + tgTeamSet);
 		return tgTeamSet;

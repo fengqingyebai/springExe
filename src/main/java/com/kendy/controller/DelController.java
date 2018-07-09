@@ -394,7 +394,7 @@ public class DelController implements Initializable{
     			//4，同步实时上码中的数据(实时金额不用)
     			
     			//5 add 2018-3-4 修改贡献值中的teamID
-    			DBUtil.updateRecordTeamId(playerId, newTeam);
+    			//DBUtil.updateRecordTeamId(playerId, newTeam); 泽涛说明，自动关联用户表
     			
     			ShowUtil.show("修改成功",2);
     			

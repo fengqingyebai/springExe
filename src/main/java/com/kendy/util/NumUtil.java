@@ -119,7 +119,6 @@ public class NumUtil {
     	NumberFormat num = NumberFormat.getPercentInstance(); 
     	num.setMaximumIntegerDigits(3); 
     	num.setMaximumFractionDigits(2); 
-    	//double csdn = 0.31; 
     	String percentString = num.format(number);
     	return percentString;
 	}

@@ -766,10 +766,10 @@ public class MyController implements Initializable{
 					Toggle toggle, Toggle new_toggle) {
 				String rate =  (String)group.getSelectedToggle().getUserData();
 				if("0.975".equals(rate)) {
-					Constants.HS_RATE = 0.975;
+					Constants.CURRENT_HS_RATE = 0.975;
 					log.info("当前全局比例修改为0.975");
 				}else {
-					Constants.HS_RATE = 0.95;
+					Constants.CURRENT_HS_RATE = 0.95;
 					log.info("当前全局比例修改为0.95");
 				}
 			}
@@ -1040,12 +1040,15 @@ public class MyController implements Initializable{
 	/**
 	 * 导入战绩文件
 	 */
-	@SuppressWarnings("unchecked")
 	public void importZJExcelAction(ActionEvent even){
 		String excelFilePath = excelDir.getText();
 		String userClubId = lable_currentClubId.getText();
 		String tableId = FileUtil.getTableId(excelFilePath);
 		if(!StringUtil.isBlank(excelFilePath)){
+			if (StringUtil.isAnyBlank(DataConstans.Date_Str, dateLabel.getText())) {
+				ShowUtil.show("检测到您当前未设置软件时间！请开始新的一天");
+				return;
+			}
 			if(!NumUtil.isNumeric(tableId.replace("第", "").replaceAll("局", ""))) {
 				ErrorUtil.err(excelFilePath+"不是一个合法的Excel文件名称，请检查！");
 				return;
@@ -1057,7 +1060,7 @@ public class MyController implements Initializable{
 				selectLM();
 				if(StringUtil.isBlank(selected_LM_type)) {
 					String msg = "导入战绩时没有选择对应的联盟，场次："+tableId+" Excel不准导入！";
-					ErrorUtil.err(msg);
+					ShowUtil.show(msg);
 					return;
 				}
 			}
@@ -1073,8 +1076,9 @@ public class MyController implements Initializable{
 				indexLabel.setText(tableId);
 				importExcelData(tableId, gameRecords);
 				
-				importZJBtn.setDisable(true);//导入不可用
+				importZJBtn.setDisable(true); // 导入按钮设置为不可用
 				ShowUtil.show("导入战绩文件成功", 2);
+				
 			} catch (Exception e) {
 				ErrorUtil.err("战绩导入失败", e);
 			}
@@ -1128,7 +1132,6 @@ public class MyController implements Initializable{
      	cancleLink.setPrefWidth(100);
      	cancleLink.setOnAction(event -> {
      		selected_LM_type = "";
-     		System.out.println("selected_LM_type:"+selected_LM_type);
      		dialog.close();
      	});
      	hbox.getChildren().addAll(cancleLink);
@@ -1952,9 +1955,11 @@ public class MyController implements Initializable{
 				);
 				
 				//联盟对帐：保存当场所有战绩到数据库
-				setLMRecords();
+//				setLMRecords();  泽涛说明：由于所有的记录都统一使用GameRecord,故此记录统一去记录表查找
 //				DBUtil.addRecordList(LMController.currentRecordList);//是否反回结果？？
-				DBUtil.addGameRecordList(LMController.currentRecordList);//是否反回结果？？
+				
+				//保存当前Excel记录到数据库
+				DBUtil.addGameRecordList(LMController.currentRecordList);
 				LMController.refreshClubList();
 				LMController.checkOverEdu(final_selected_LM_type);//检查俱乐部额度
 				
@@ -2004,16 +2009,16 @@ public class MyController implements Initializable{
 	 * 锁定时设置导入的Excel到对应的联盟中
 	 * @time 2017年12月13日
 	 */
-	private void setLMRecords() {
-		if(StringUtil.isBlank(selected_LM_type)) {
-			ErrorUtil.err("锁定时没有选择所属联盟！");
-			return;
-		}
-		LMController.currentRecordList.forEach(record -> {
-			record.setLmType(selected_LM_type);
-		});
-		selected_LM_type = "";
-	}
+//	private void setLMRecords() {
+//		if(StringUtil.isBlank(selected_LM_type)) {
+//			ErrorUtil.err("锁定时没有选择所属联盟！");
+//			return;
+//		}
+//		LMController.currentRecordList.forEach(record -> {
+//			record.setLmType(selected_LM_type);
+//		});
+//		selected_LM_type = "";
+//	}
 	
 	/**
 	 * 保存当前导入的战绩表，用于会员查询和积分查询
@@ -2660,6 +2665,33 @@ public class MyController implements Initializable{
 		}
 	}
 	
+	
+	private boolean handleNewDayTimeOK() {
+		TextInputDialog textDialog = new TextInputDialog("");
+		textDialog.setTitle("新一天,如：" + LocalDate.now());
+		textDialog.setHeaderText(null);
+		textDialog.setContentText("请输入新一天时间:");
+		Optional<String> timeOpt = textDialog.showAndWait();
+		timeOpt.ifPresent(time -> {
+    		try {
+				time = LocalDate.parse(StringUtil.nvl(time,"")).toString();
+				// TODO 判断时间范围
+				
+				DataConstans.Date_Str = time;
+			} catch (Exception e) {
+				log.error("输入新的一天时间格式错误:" + time , e);
+			}
+    	});
+		if (StringUtil.isBlank(DataConstans.Date_Str)) {
+			ShowUtil.show("时间不准确！！");
+			return Boolean.FALSE;
+		}else {
+			dateLabel.setText(DataConstans.Date_Str);
+			log.info("客户输入新一天的时间是：" + DataConstans.Date_Str);
+		}
+		return Boolean.TRUE;
+	}
+	
     /**
      * 开始新一天的统计
      */
@@ -2675,10 +2707,15 @@ public class MyController implements Initializable{
 				ShowUtil.show("开始新一天的统计条件不满足，请点击中途继续按钮！");
 				return;
 			}
+			//处理输入时间
+			if (!handleNewDayTimeOK()) {
+				return;
+			}
 			
 			
 			//清空所有缓存数据
 			DataConstans.clearAllData();
+			DataConstans.Date_Str = dateLabel.getText();//此行代码不能删，因为上行代码已将其时间删除
 			//加载必要的原始数据（人员和回水）
 			DataConstans.initMetaData();
 			//加载昨日数据
@@ -3344,7 +3381,7 @@ public class MyController implements Initializable{
 	 */
 	public static String getHuishuiByYSZJ(String yszj, String teamId, int type) {
 		try {
-			if(Constants.HS_RATE_FINAL == Constants.HS_RATE) {
+			if(Constants.FINAL_HS_RATE_0975 == Constants.CURRENT_HS_RATE) {
 				//0.975版本
 				return getByYSZJ(yszj, teamId, type);
 				
@@ -3365,6 +3402,7 @@ public class MyController implements Initializable{
 	
 	/**
 	 * 根据原始战绩获取回水  (共用)
+	 * 
 	 * @time 2018年5月19日
 	 * @param yszj
 	 * @param teamId
@@ -3376,7 +3414,7 @@ public class MyController implements Initializable{
 		if(type == 1) {
 			return NumUtil.digit1(MoneyService.getChuhuishui(yszj, teamId));
 		}else {
-			return NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*(1-Constants.HS_RATE)+"");
+			return NumUtil.digit1(Math.abs(Double.valueOf(zhanji))*(1-Constants.CURRENT_HS_RATE)+"");
 		}
 	}
 	

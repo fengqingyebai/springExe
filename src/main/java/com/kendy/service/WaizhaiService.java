@@ -470,8 +470,8 @@ public class WaizhaiService {
 	    					ite.remove();
 	    				}
 	    				if(superInfo !=null && NumUtil.getNum(superInfo.getCmSuperIdSum()) < 0 ) {
-							log.info(String.format("外债：修改父节点%s的实时金额从%s到%s",getPlayerName(superId),
-									superInfo.getShishiJine(),superInfo.getCmSuperIdSum()));
+//							log.info(String.format("外债：修改父节点%s的实时金额从%s到%s",getPlayerName(superId),
+//									superInfo.getShishiJine(),superInfo.getCmSuperIdSum()));
 	    					superInfo.setShishiJine(superInfo.getCmSuperIdSum());//核心
 	    					tempSuperInfoMap.put(superId, superInfo);
 	    				}

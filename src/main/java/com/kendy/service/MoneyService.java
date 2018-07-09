@@ -16,8 +16,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -64,7 +66,7 @@ import javafx.scene.control.TextInputDialog;
  */
 public class MoneyService {
 	
-	private static Logger log = Logger.getLogger(MoneyService.class);
+	private static Logger log = LoggerFactory.getLogger(MoneyService.class);
 
 	//{玩家ID=CurrentMoneyInfo}
 	public static Map<String,CurrentMoneyInfo>  Table_CMI_Map = new HashMap<>();
@@ -81,9 +83,14 @@ public class MoneyService {
 	 * 自动填充玩家信息表、牌局表、团队表以及当局
 	 * 备注：这些表数据在当局范围内是固定不变的
 	 * 
-	 * @param table 玩家信息表
-	 * @param tablePaiju 牌局表
-	 * @param userInfoList 导入的玩家战绩列表
+	 * @time 2018年7月9日
+	 * @param table
+	 * @param tablePaiju
+	 * @param tableDangju
+	 * @param tableJiaoshou
+	 * @param tableTeam
+	 * @param gameRecords 符合当前俱乐部ID的记录
+	 * @param tableId
 	 */
 	public static void fillTablerAfterImportZJ(TableView<TotalInfo> table,
 			TableView<WanjiaInfo> tablePaiju,
@@ -98,7 +105,6 @@ public class MoneyService {
 		ObservableList<TotalInfo> tableTotalInfoList = FXCollections.observableArrayList();
 		ObservableList<WanjiaInfo> tableWanjiaInfoList = FXCollections.observableArrayList();
 		TotalInfo info = null;
-		Player player ;
 		WanjiaInfo wanjia;
 		List<GameRecord>  teamHuishuiList = null;//用于缓存和计算团累计团队回水
 		Set<String> relatedTeamIdSet = new HashSet<>();//用于只展示本次战绩的团队信息
@@ -108,16 +114,16 @@ public class MoneyService {
 			/*************************************************** 填充信息表 *****************/
 			info = new TotalInfo();
 			String playerId = r.getPlayerId();
-			String teamId = getTeamId(playerId);
+			String teamId = r.getTeamId();
 			String yszj = r.getYszj();
 			String playerName = r.getPlayerName();
 			String baoxian = r.getSinegleInsurance();
-			String shishou = getShiShou(yszj);
-			String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);
-			String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
-			String shouHuishui = MyController.getHuishuiByYSZJ(yszj, "", 2);
-			String baohui = NumUtil.digit1(getHuiBao(baoxian,teamId));
-			String heLirun = NumUtil.digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
+			String shishou = r.getShishou();
+			String chuHuishui = r.getChuHuishui();
+			String shuihouxian = r.getShuihouxian();
+			String shouHuishui = r.getShouHuishui();
+			String baohui = r.getHuiBao();
+			String heLirun = r.getHeLirun();
 
 			//团(团ID)
 			info.setTuan(teamId);
@@ -157,7 +163,7 @@ public class MoneyService {
 			
 			/*************************************************** 缓存各团队回水记录 *****************/
 			teamId = teamId.toUpperCase();
-			if(!StringUtil.isBlank(teamId)) {
+			if (!StringUtil.isBlank(teamId)) {
 				//缓存到当局团队战绩信息中
 				DataConstans.Dangju_Team_Huishui_List.add(r);
 				
@@ -171,7 +177,7 @@ public class MoneyService {
 				}
 				teamHuishuiList.add(r);
 				DataConstans.Team_Huishui_Map.put(teamId,teamHuishuiList);
-			}else {
+			} else {
 				log.debug("检测到团队ID是空或为公司，玩家是：" + playerName);
 			}
 
@@ -220,10 +226,10 @@ public class MoneyService {
 		String baoxian = r.getSinegleInsurance();
 		String shishou = getShiShou(yszj);
 		String chuHuishui = MyController.getHuishuiByYSZJ(yszj, teamId, 1);
-		String shuihouxian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.HS_RATE+"");
+		String shuihouxian = getShuihouxian(baoxian);
 		String shouHuishui = MyController.getHuishuiByYSZJ(yszj, "", 2);
-		String baohui = NumUtil.digit1(getHuiBao(baoxian,teamId));
-		String heLirun = NumUtil.digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,baohui));
+		String huiBao = NumUtil.digit1(getHuiBao(baoxian,teamId));
+		String heLirun = NumUtil.digit2(getHeLirun(shouHuishui,chuHuishui,shuihouxian,huiBao));
 		
 		// 获取软件时间
 		r.setSoftDate(DataConstans.Date_Str); 
@@ -236,13 +242,96 @@ public class MoneyService {
 		// 出回水
 		r.setChuHuishui(chuHuishui);
 		// 回保
-		r.setHuiBao(baohui);
+		r.setHuiBao(huiBao);
 		// 水后险
 		r.setShuihouxian(shuihouxian);
 		// 收回水
 		r.setShouHuishui(shouHuishui);
 		// 合利润
 		r.setHeLirun(heLirun);
+		
+		log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
+	}
+	
+	
+	/**
+	 * 计算回保
+	 * 不要参考Excel上的公式！！
+	 * 新公式：保险 * 团队保险比例 * (-1)
+	 */
+	public static String getHuiBao(String baoxian,String teamId) {
+		if(StringUtil.isBlank(baoxian) || "0".equals(baoxian))
+			return "0";
+		Huishui hs = DataConstans.huishuiMap.get(teamId);
+		if(hs == null) {
+			return "0";
+		}else {
+			String insuranceRate = hs.getInsuranceRate();
+			insuranceRate = !StringUtil.isBlank(insuranceRate) ? insuranceRate : "0";
+			return Double.valueOf(baoxian) * Double.valueOf(insuranceRate)*(-1)+"";
+		}
+	}
+	
+	/**
+	 * 计算水后险
+	 * @time 2018年7月9日
+	 * @param baoxian
+	 * @return
+	 */
+	public static String getShuihouxian(String baoxian) {
+		String shuiHouXian = NumUtil.digit1((-1)*Double.valueOf(baoxian)*Constants.CURRENT_HS_RATE+"");
+		if("-0.0".equals(shuiHouXian)) {
+			shuiHouXian = "0";
+		}
+		return shuiHouXian;
+	}
+	
+	/**
+	 * 计算实收
+	 * 公式：战绩>0,则乘以0.95，若小于0，则直接返回原战绩
+	 * 若是12.63则直接取整数
+	 */
+	public static String getShiShou(String zhanji){
+		Double zj = Double.valueOf(zhanji);
+		if(zj > 0){
+			String shishou = zj * Constants.CURRENT_HS_RATE +"";
+			if(shishou.contains(".")) {
+				shishou = shishou.substring(0, shishou.lastIndexOf("."));
+			}
+			return shishou;
+		}else{
+			return zhanji;
+		}
+	}
+	
+	/**
+	 * 计算出回水
+	 * 公式：相应团的回水比例 乘以|原始战绩|，若回水比例为无（如公司），则直接返回
+	 * 
+	 */
+	public static String getChuhuishui(String zhanji,String teamId){
+		Huishui hs = DataConstans.huishuiMap.get(teamId);
+		if(hs == null){
+			return "";
+		}else{
+			Double hsRate = Double.valueOf(hs.getHuishuiRate());
+			Double zj = Double.valueOf(zhanji);
+			return Math.abs(zj * hsRate )*(-1) + "";
+		}
+	}
+	
+	/**
+	 * 计算合利润
+	 * 公式：IF(收回水>0,收回水+出回水+回保+水后检,0)
+	 * 
+	 */
+	public static String getHeLirun(String shouHuishui,String chuHuishui,String baohui,String shuihouxian){
+		double _shouHushui = NumUtil.getNum(shouHuishui);
+		if(_shouHushui >= 0){
+			return _shouHushui + NumUtil.getNum(chuHuishui) + NumUtil.getNum(baohui) + NumUtil.getNum(shuihouxian) + "";
+		}else{
+			return "0";
+		}
 	}
 	
 	/**
@@ -489,71 +578,7 @@ public class MoneyService {
 		}
 		return Double.valueOf(df.format(sum));
 	}
-	/**
-	 * 计算回保
-	 * 不要参考Excel上的公式！！
-	 * 新公式：保险 * 团队保险比例 * (-1)
-	 */
-	public static String getHuiBao(String baoxian,String teamId) {
-		if(StringUtil.isBlank(baoxian) || "0".equals(baoxian))
-			return "0";
-		Huishui hs = DataConstans.huishuiMap.get(teamId);
-		if(hs == null) {
-			return "0";
-		}else {
-			String insuranceRate = hs.getInsuranceRate();
-			insuranceRate = !StringUtil.isBlank(insuranceRate) ? insuranceRate : "0";
-			return Double.valueOf(baoxian) * Double.valueOf(insuranceRate)*(-1)+"";
-		}
-	}
 	
-	/**
-	 * 计算实收
-	 * 公式：战绩>0,则乘以0.95，若小于0，则直接返回原战绩
-	 * 若是12.63则直接取整数
-	 */
-	public static String getShiShou(String zhanji){
-		Double zj = Double.valueOf(zhanji);
-		if(zj > 0){
-			String shishou = zj * Constants.HS_RATE +"";
-			if(shishou.contains(".")) {
-				shishou = shishou.substring(0, shishou.lastIndexOf("."));
-			}
-			return shishou;
-		}else{
-			return zhanji;
-		}
-	}
-	
-	/**
-	 * 计算出回水
-	 * 公式：相应团的回水比例 乘以|原始战绩|，若回水比例为无（如公司），则直接返回
-	 * 
-	 */
-	public static String getChuhuishui(String zhanji,String teamId){
-		Huishui hs = DataConstans.huishuiMap.get(teamId);
-		if(hs == null){
-			return "";
-		}else{
-			Double hsRate = Double.valueOf(hs.getHuishuiRate());
-			Double zj = Double.valueOf(zhanji);
-			return Math.abs(zj * hsRate )*-1 + "";
-		}
-	}
-	
-	/**
-	 * 计算合利润
-	 * 公式：IF(收回水>0,收回水+出回水+保回+水后检,0)
-	 * 
-	 */
-	public static String getHeLirun(String shouHuishui,String chuHuishui,String baohui,String shuihouxian){
-		double _shouHushui = NumUtil.getNum(shouHuishui);
-		if(_shouHushui >= 0){
-			return _shouHushui + NumUtil.getNum(chuHuishui) + NumUtil.getNum(baohui) + NumUtil.getNum(shuihouxian) + "";
-		}else{
-			return "0";
-		}
-	}
 	
 	/**
 	 * 获取实时金额表中的已存积分（根据玩家ID)

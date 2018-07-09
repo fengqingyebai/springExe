@@ -790,18 +790,16 @@ public class TGController implements Initializable{
 				String percent25Str = getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 1);
 				tgTeam.setTgZJ25(percent25Str);
 				//设置战绩未知%
-//				String teamUnknowStr = NumUtil.digit2(Math.abs(NumUtil.getNumTimes(info.getProxyYSZJ(), teamUnknowValue)) + "");
 				String teamUnknowStr = getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 2);
 				tgTeam.setTgZJUnknow(teamUnknowStr);
 				//设置回保
-				String teamHuibaoRateStr =  NumUtil.digit2((-1) * Constants.HS_RATE * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
+				String teamHuibaoRateStr =  NumUtil.digit2((-1) * Constants.CURRENT_HS_RATE * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
 				if(tgTeam.getTgBaoxian().equals("0")) {
 					teamHuibaoRateStr = "0";
 				}
 				tgTeam.setTgHuiBao(teamHuibaoRateStr);
 				
 				//设置利润
-//				String profit = getRecordProfit(tgTeam);
 				String profit = getLirunByYSZJ_TG(yszj, teamUnknowValue, tgTeam, 3);
 				tgTeam.setTgProfit(profit);
 				
@@ -826,7 +824,7 @@ public class TGController implements Initializable{
 		String baoxian = info.getTgBaoxian();
 		String huibao = info.getTgHuiBao();
 		Double recordProfit = NumUtil.getNum(teamRate25) - NumUtil.getNum(teamRateUnknow) 
-		 + ( NumUtil.getNum(baoxian) * (-Constants.HS_RATE)  - NumUtil.getNum(huibao) ); 
+		 + ( NumUtil.getNum(baoxian) * (-Constants.CURRENT_HS_RATE)  - NumUtil.getNum(huibao) ); 
 		return NumUtil.digit2(recordProfit + "");
 	}
 	
@@ -1035,7 +1033,7 @@ public class TGController implements Initializable{
 		// 3 保险
 		double zjBaoxianSum = items.stream()
 				.mapToDouble(info-> NumUtil.getNum(info.getTgBaoxian()))
-				.sum() * (-Constants.HS_RATE);
+				.sum() * (-Constants.CURRENT_HS_RATE);
 		
 		// 4 回保
 		double zjHuibaoSum = items.stream()
@@ -1453,7 +1451,7 @@ public class TGController implements Initializable{
 	 */
 	public  String getLirunByYSZJ_TG(String yszj, String teamUnknowValue, TGTeamInfo tgTeam, int type) {
 		try {
-			if(Constants.HS_RATE_FINAL == Constants.HS_RATE) {
+			if(Constants.FINAL_HS_RATE_0975 == Constants.CURRENT_HS_RATE) {
 				//0.975版本
 				return getByYSZJ_TG(yszj, teamUnknowValue, tgTeam, type);
 				
@@ -1483,7 +1481,7 @@ public class TGController implements Initializable{
 	 */
 	private  String getByYSZJ_TG(String yszj, String teamUnknowValue, TGTeamInfo tgTeam, int type) {
 		if(type == 1) {
-			return NumUtil.digit2(Math.abs(NumUtil.getNum(yszj)) * (1-Constants.HS_RATE) + "");
+			return NumUtil.digit2(Math.abs(NumUtil.getNum(yszj)) * (1-Constants.CURRENT_HS_RATE) + "");
 		} else if (type == 2) {
 			return NumUtil.digit2(Math.abs(NumUtil.getNumTimes(yszj, teamUnknowValue)) + "");
 		} else if (type == 3) {
