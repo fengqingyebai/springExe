@@ -3227,7 +3227,7 @@ public class DBUtil {
 		List<GameRecord> list = new ArrayList<>();
 		try {
 			con = DBConnection.getConnection();
-			String sql = GAME_RECORD_SQL + " where soft_time =  ? and clubId = ? ";
+			String sql = GAME_RECORD_SQL + " where r.soft_time =  ? and r.clubId = ? ";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, maxRecordTime);
 			ps.setString(2, clubId);
