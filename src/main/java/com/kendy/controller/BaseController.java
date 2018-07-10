@@ -1,19 +1,15 @@
 package com.kendy.controller;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.kendy.annotation.Mycolumn;
-import com.kendy.excel.excel4j.handler.ExcelHeader;
-import com.kendy.exception.BindColumnException;
-import com.kendy.interfaces.Entity;
-import javafx.collections.ObservableList;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.util.Callback;
 
 /**
  * 基础控制类
@@ -21,49 +17,55 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * @author linzt
  * @time 2018年7月6日 
  */
-public abstract class BaseController {
+public abstract class BaseController<T> {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
+  
+  // T指代表实体
+  private T entity;
   
   //提示：子类应该在自己的构造方法中自动去实现各个表格的初始化，而不是显示调用
   
   /**
-   * 绑定多个表格的列
-   * @param tables
+   * 绑定多个表格的列,由子实例完成后自动触发
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> void bindCellValueByTables2(TableView<T>... tables) {
-    Class<?> clz = getSubClass();
-    List<ExcelHeader> headers = new ArrayList<>();
-    List<Field> fields = new ArrayList<>();
-    for (Class<?> clazz = clz; clazz != Object.class; clazz = clazz.getSuperclass()) {
-        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-    }
-    for (Field field : fields) {
-        // 是否使用自定义注解
-        if (field.isAnnotationPresent(Mycolumn.class)) {
-            Mycolumn myColumn = field.getAnnotation(Mycolumn.class);
-            try {
-              boolean noNeedRedColumn = myColumn.noNeedRedColumn();
-            } catch (Exception e) {
-                //throw new BindColumnException();
-            }
-        }
-    }
-    try {
-      for(TableView<T> table : tables) {
-        ObservableList<TableColumn<T, ?>> columns =  table.getColumns();
-        for(TableColumn<T, ?> column : columns) {
-          String fxId = column.getId();
-          column.setCellValueFactory( new PropertyValueFactory(fxId));
-          column.setStyle("-fx-alignment: CENTER;");
-          column.setSortable(false);//禁止排序
-        }
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("小林：绑定列值失败");
-    }
-  }
+//  public void bindTableColumnValue() {
+//    logger.info("正在初始化父类bindTableColumnValue方法....");
+//    Class<?> clz = getSubClass();
+//    List<Field> fields = new ArrayList<>();
+//    for (Class<?> clazz = clz; clazz != Object.class; clazz = clazz.getSuperclass()) {
+//      fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+//    }
+//    logger.info("开始>>>------------------------------------------------");
+//    logger.info("正在获取子类{}属性....", clz.getName());
+//    for (Field field : fields) {
+//        // 是否使用自定义注解
+//      if (field.isAnnotationPresent(javafx.fxml.FXML.class)) {
+//        Class<?> fieldType = field.getType();
+//        if(fieldType == TableView.class) {
+//          String name = field.getName();
+//          logger.info("检测到表格"+name);
+//          //获取实例，根据实例的field进行相关操作
+//          Object subClassInstance = getSubClassInstance();
+//          if (subClassInstance instanceof MyController) {
+//            subClassInstance = (MyController)subClassInstance;
+//            String text = ((MyController) subClassInstance).sysCode.getText();
+//            logger.info("sysCode:" + text);
+//          }
+//          //bindCellValueByTables(field.);
+//        }
+////        if (field.isAnnotationPresent(Mycolumn.class)) {
+////            Mycolumn myColumn = field.getAnnotation(Mycolumn.class);
+////            try {
+////              boolean noNeedRedColumn = myColumn.noNeedRedColumn();
+////              
+////            } catch (Exception e) {
+////            }
+////        }
+//      }
+//    }
+//    logger.info("------------------------------------------------<<<结束");
+//  }
   
   
   
@@ -71,17 +73,12 @@ public abstract class BaseController {
    * 绑定多个表格的列
    * @param tables
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T> void bindCellValueByTables(TableView<T>... tables) {
+  @SuppressWarnings({"unchecked"})
+  public void bindCellValueByTables(TableView<T>... tables) {
     try {
       for(TableView<T> table : tables) {
-        ObservableList<TableColumn<T, ?>> columns =  table.getColumns();
-        for(TableColumn<T, ?> column : columns) {
-          String fxId = column.getId();
-          column.setCellValueFactory( new PropertyValueFactory(fxId));
-          column.setStyle("-fx-alignment: CENTER;");
-          column.setSortable(false);//禁止排序
-        }
+        List<TableColumn<T, ?>> columns =  table.getColumns();
+        bindCellValues(columns);
       }
     } catch (Exception e) {
       throw new RuntimeException("小林：绑定列值失败");
@@ -93,27 +90,82 @@ public abstract class BaseController {
    * @param colums TableColumn 可变参数
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public  void bindCellValue(TableColumn<? extends Entity,String>... colums){
-      try {
-          for(TableColumn column : colums){
-              String fxId = column.getId();
-              column.setCellValueFactory(
-                      new PropertyValueFactory<Entity,String>(fxId)
-                      );
-              column.setStyle("-fx-alignment: CENTER;");
-              column.setSortable(false);//禁止排序
-          }
-      } catch (Exception e) {
-          throw new RuntimeException("小林：绑定列值失败");
+  public  void bindCellValue(TableColumn<T,?>... colums){
+      for(TableColumn column : colums){
+        bindSingleCellValues(column);
       }
   }
   
-  /**
-   * 父类获取子类
-   * 
-   * @return
-   */
-  abstract Class<?> getSubClass();
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public void bindCellValues(List<TableColumn<T,?>> colums){
+      for(TableColumn column : colums){
+        bindSingleCellValues(column);
+      }
+  }
+  
+  public  void bindSingleCellValues(TableColumn<T, String> column) {
+    String fxId = column.getId();
+    column.setCellValueFactory( new PropertyValueFactory<T,String>(fxId));
+    column.setStyle("-fx-alignment: CENTER;");
+    column.setSortable(false);//禁止排序
+    column.setCellFactory(getColorCellFactory(entity));
+  }
+  
+  
+  public  <E> Callback<TableColumn<T,String>, TableCell<T,String>> getColorCellFactory(T t){
+    return new Callback<TableColumn<T,String>, TableCell<T,String>>() {  
+        public TableCell<T,String> call(TableColumn<T,String> param) {  
+            TableCell<T,String> cell = new TableCell<T,String>() {  
+                @Override  
+                public void updateItem(String item, boolean empty) {  
+                    super.updateItem(item, empty);  
+                    this.setTextFill(null); 
+                    if (!isEmpty() && item != null) {  
+                         if(item.contains("-")) {
+                             this.setTextFill(Color.RED);  
+                         }else {
+                             this.setTextFill(Color.BLACK);  
+                         }
+                        setText(item);  
+                    }  
+                }  
+            }; 
+            cell.setEditable(false);//不让其可编辑
+            cell.setOnMouseClicked((MouseEvent t) -> {  
+                //鼠标双击事件
+                // if (t.getClickCount() == 2 && cell.getIndex() < myTable.getItems().size()) {
+                // log.debug("鼠标双击事件"+atomic.getAndIncrement());
+                // //双击执行的代码
+                // TABLEDATA INFO = MYTABLE.GETITEMS().GET(CELL.GETINDEX());
+                // OPENADDDIAG(INFO);
+                // MYTABLE.REFRESH();
+                // }
+            }); 
+            return cell;
+        }
+    };  
+}
+
+  public T getEntity() {
+    return entity;
+  }
+
+  public void setEntity(T entity) {
+    this.entity = entity;
+  }
+  
+//  /**
+//   * 父类获取子类Class
+//   * @author linzt
+//   */
+//  public abstract Class<?> getSubClass();
+//  
+//  /**
+//   * 父类获取子类的实例对象
+//   * T是泛型，返回子类对应的类型
+//   * @author linzt
+//   */
+//  public abstract <T> T getSubClassInstance();
   
   
   
