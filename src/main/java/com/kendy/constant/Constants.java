@@ -31,4 +31,5 @@ public class Constants {
 	public static double CURRENT_HS_RATE = 0.95;//默认的回水比例，会根据选择而变化
 	
 	
+	
 }

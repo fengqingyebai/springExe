@@ -19,6 +19,7 @@ import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
+import com.kendy.enums.KeyEnum;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ShowUtil;
@@ -102,7 +103,11 @@ public class DataConstans {
 	
 	//初始化股东列表
 	public static void initGudong() {
-		String gudongs = PropertiesUtil.readProperty("gudong");
+		//String gudongs = PropertiesUtil.readProperty("gudong");
+		String gudongs = DBUtil.getValueByKeyWithoutJson(KeyEnum.GU_DONG.getKeyName());
+		if(StringUtil.isBlank(gudongs)) {
+		  gudongs = "B,C,Q,银河";
+		}
 		if(!StringUtil.isBlank(gudongs)){
 			for(String gudong : gudongs.split(",")){
 				gudongList.add(gudong);

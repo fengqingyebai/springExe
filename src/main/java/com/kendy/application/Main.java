@@ -49,7 +49,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			//检查是否需要注册
-//			String mac = PropertiesUtil.readProperty("mac");
+//			String mac = 请自己去数据库读mac地址
 //			String mac2 = IPUtil.getLocalMac();
 //			if(StringUtil.isBlank(mac)) {
 //

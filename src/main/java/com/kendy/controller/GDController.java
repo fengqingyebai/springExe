@@ -164,7 +164,6 @@ public class GDController implements Initializable{
 	 * @time 2018年1月18日
 	 */
 	private static void initDataList() {
-		//String currentClubId = PropertiesUtil.readProperty("clubId");
 		String currentClubId = MyController.currentClubId.getText();
 		log.info("GDController's clubId:"+currentClubId);
 		if(!StringUtil.isAnyBlank(currentClubId)) {

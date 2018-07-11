@@ -32,7 +32,6 @@ public class PropertiesUtil {
         String value = "";
         InputStream is = null;
         try {
-//            is = PropertiesUtil.class.getClassLoader().getResourceAsStream(properiesName);
             is = PropertiesUtil.class.getResourceAsStream(properiesName);  
             Properties p = new Properties();
             p.load(is);
