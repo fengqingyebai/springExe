@@ -668,7 +668,7 @@ public class MyController implements Initializable{
 	private Object addSubTab(String tabName, String frameName) {
 		try {
 	    	FXMLLoader loader = new FXMLLoader();
-	    	Parent root = loader.load(getClass().getResource("/com/kendy/dialog/" + frameName).openStream());
+	    	Parent root = loader.load(getClass().getResource("/dialog/" + frameName).openStream());
 	    	Tab subTab = new Tab();
 	    	subTab.setText(tabName);
 	    	subTab.setClosable(false);
@@ -1366,7 +1366,7 @@ public class MyController implements Initializable{
     	try {
     		if(DataConstans.framesNameMap.get(windowName) == null){
     			//打开新对话框
-    			String filePath = "/com/kendy/dialog/"+path;
+    			String filePath = "/dialog/"+path;
 	    		Parent root = FXMLLoader.load(getClass().getResource(filePath));
 	    		Stage addNewPlayerWindow=new Stage();  
 	    		Scene scene=new Scene(root);  
