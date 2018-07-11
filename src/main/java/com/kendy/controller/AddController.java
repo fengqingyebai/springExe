@@ -1,13 +1,12 @@
 package com.kendy.controller;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
-
 import org.apache.log4j.Logger;
-
+import com.kendy.application.Main;
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
@@ -21,11 +20,6 @@ import com.kendy.util.ConsUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.Constants;
-import application.DataConstans;
-import application.Main;
-import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

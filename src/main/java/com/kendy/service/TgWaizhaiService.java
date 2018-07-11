@@ -5,17 +5,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.log4j.Logger;
-
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.MyController;
 import com.kendy.controller.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -23,17 +21,11 @@ import com.kendy.entity.Player;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TypeValueInfo;
-import com.kendy.entity.ZonghuiInfo;
-import com.kendy.entity.zhaiwuInfo;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
-import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.DataConstans;
-import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;

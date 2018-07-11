@@ -1,9 +1,9 @@
-package application;
+package com.kendy.application;
 	
 import org.apache.log4j.Logger;
-
+import com.kendy.constant.Constants;
+import com.kendy.controller.MyController;
 import com.kendy.controller.TeamProxyController;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -115,7 +115,7 @@ public class Main extends Application {
 //			Parent root = FXMLLoader.load(getClass().getResource("MainStage4.fxml"));
 
 			FXMLLoader fxmlLoader = new FXMLLoader();
-			Parent root = fxmlLoader.load(getClass().getResource("MainStageees2.fxml").openStream());
+			Parent root = fxmlLoader.load(getClass().getResource("/com/kendy/dialog/MainStageees2.fxml").openStream());
 //			Pane p = fxmlLoader.load(getClass().getResource("MainStage4.fxml").openStream());
 //			Parent root = p.getParent()
 			MyController mc = (MyController) fxmlLoader.getController();

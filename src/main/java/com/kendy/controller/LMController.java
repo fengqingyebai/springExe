@@ -13,18 +13,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
-
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubQuota;
 import com.kendy.entity.ClubZhuofei;
 import com.kendy.entity.LMDetailInfo;
 import com.kendy.entity.LMSumInfo;
-import com.kendy.entity.Record;
 import com.kendy.excel.ExportAllLMExcel;
 import com.kendy.excel.ExportLMExcel;
 import com.kendy.interfaces.Entity;
@@ -36,10 +35,6 @@ import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.Constants;
-import application.DataConstans;
-import application.MyController;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

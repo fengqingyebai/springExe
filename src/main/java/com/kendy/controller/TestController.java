@@ -2,24 +2,12 @@ package com.kendy.controller;
 
 
 import java.io.IOException;
-import java.time.LocalDate;
 import org.apache.log4j.Logger;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXButton.ButtonType;
-import com.kendy.util.ShowUtil;
-import application.Constants;
-import application.Main;
-import application.MyController;
-import com.jfoenix.controls.JFXNodesList;
+import com.kendy.constant.Constants;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 

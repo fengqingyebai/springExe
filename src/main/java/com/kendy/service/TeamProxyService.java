@@ -9,18 +9,17 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
-import com.kendy.entity.Record;
 import com.kendy.excel.ExportExcel;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
@@ -28,9 +27,6 @@ import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.DataConstans;
-import application.MyController;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

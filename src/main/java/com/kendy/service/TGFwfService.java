@@ -10,7 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import com.kendy.constant.Constants;
+import com.kendy.controller.MyController;
 import com.kendy.controller.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxyTeamInfo;
@@ -23,9 +24,6 @@ import com.kendy.util.CollectUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.Constants;
-import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;

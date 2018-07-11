@@ -1,4 +1,4 @@
-package application;
+package com.kendy.constant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.PropertiesUtil;
+import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
@@ -23,7 +23,6 @@ import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
 import javafx.stage.Stage;
 
 /**

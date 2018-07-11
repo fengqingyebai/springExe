@@ -2,28 +2,16 @@ package com.kendy.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.swing.filechooser.FileSystemView;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-
-import com.alibaba.fastjson.JSON;
+import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
-
-import application.MyController;
 
 /**
  * 自动下载服务类

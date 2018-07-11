@@ -9,9 +9,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
-
+import com.kendy.application.Main;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
 import com.kendy.enums.BankEnum;
@@ -21,9 +20,6 @@ import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.Main;
-import application.MyController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

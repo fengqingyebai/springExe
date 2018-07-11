@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import application.Main;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;

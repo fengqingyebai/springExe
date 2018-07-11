@@ -1,4 +1,4 @@
-package application;
+package com.kendy.controller;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -21,18 +21,13 @@ import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
-
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.controller.BankFlowController;
-import com.kendy.controller.CombineIDController;
-import com.kendy.controller.GDController;
-import com.kendy.controller.LMController;
-import com.kendy.controller.QuotaController;
-import com.kendy.controller.SMAutoController;
-import com.kendy.controller.TGController;
+import com.kendy.PropertiesUtil;
+import com.kendy.application.Main;
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
 import com.kendy.db.DBConnection;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -81,7 +76,6 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.Text2ImageUtil;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

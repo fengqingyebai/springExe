@@ -12,9 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
-
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankInfo;
@@ -22,7 +20,6 @@ import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubQuota;
 import com.kendy.entity.LMSumInfo;
 import com.kendy.entity.QuotaMoneyInfo;
-import com.kendy.entity.Record;
 import com.kendy.excel.ExportQuotaPayExcel;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecord;
@@ -33,8 +30,6 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
-
-import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

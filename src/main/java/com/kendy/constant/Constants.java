@@ -1,4 +1,4 @@
-package application;
+package com.kendy.constant;
 /**
  * 配置一些常量
  * 

@@ -2,27 +2,8 @@ package com.kendy.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-
 import org.apache.log4j.Logger;
-
-import com.kendy.entity.ProxySumInfo;
-import com.kendy.entity.ProxyTeamInfo;
-import com.kendy.interfaces.Entity;
-import com.kendy.service.ShangmaService;
-import com.kendy.service.TeamProxyService;
-
-import application.MyController;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 
 /**
  * 团队代理查询控制类

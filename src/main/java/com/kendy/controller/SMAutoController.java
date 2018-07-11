@@ -23,14 +23,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
 import javax.swing.filechooser.FileSystemView;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
@@ -55,9 +53,6 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
-
-import application.DataConstans;
-import application.MyController;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

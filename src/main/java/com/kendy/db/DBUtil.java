@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.DataConstans;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubZhuofei;
@@ -43,7 +44,6 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
-import application.DataConstans;
 
 
 
@@ -3205,7 +3205,7 @@ public class DBUtil {
 			record.setIsJiesuaned(rs.getString(17));
 			//单独设置团队ID和俱乐部名称
 			record.setPlayerName(rs.getString(18));
-			record.setTeamId(rs.getString(19));
+			record.setTeamId(StringUtil.nvl(rs.getString(19), "")); //可能关联不到该人员
 			record.setClubName(rs.getString(20));
 			list.add(record);
 		}

@@ -1,4 +1,4 @@
-package application;
+package com.kendy;
 
 
 import java.io.FileInputStream;

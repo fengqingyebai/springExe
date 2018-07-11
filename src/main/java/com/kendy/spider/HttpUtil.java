@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeoutException;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -25,11 +23,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
+import com.kendy.controller.MyController;
 import com.kendy.util.StringUtil;
-
-import application.MyController;
 
 // 爬取网站后台接口数据
 public class HttpUtil {

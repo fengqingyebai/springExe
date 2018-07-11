@@ -9,23 +9,18 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.apache.log4j.Logger;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Player;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
-import com.kendy.entity.TGKaixiaoInfo;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-
-import application.DataConstans;
-import application.MyController;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

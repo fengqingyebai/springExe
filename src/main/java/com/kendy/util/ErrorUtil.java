@@ -2,8 +2,6 @@ package com.kendy.util;
 
 import org.apache.log4j.Logger;
 
-import application.DataConstans;
-
 /**
  * 操作错误工具类
  * 
