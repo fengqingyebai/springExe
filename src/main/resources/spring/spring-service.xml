@@ -41,8 +41,9 @@
         http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">  
       
      
-       <context:component-scan base-package="com.kendy.*"/>     
-       <context:component-scan base-package="application.*"/>     
+       <context:component-scan base-package="com.kendy.controller.*" />     
+       <context:component-scan base-package="com.kendy.service.*" />     
+       <context:component-scan base-package="application.MyController"/>     
        
       
       <context:property-placeholder location="classpath:properties/log4j.properties" />  

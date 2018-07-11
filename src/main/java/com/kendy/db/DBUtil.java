@@ -17,10 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.entity.Club;
@@ -45,7 +43,6 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
-
 import application.DataConstans;
 
 
@@ -1103,7 +1100,6 @@ public class DBUtil {
 			String sql = "select parentId,subIdJson,update_time from combine_ids";
 			ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
-			int count = 0;
 			String parentId = "";
 			String subIdJson = "";
 			while(rs.next()){
