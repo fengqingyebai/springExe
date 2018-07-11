@@ -58,11 +58,11 @@ public class ShowUtil {
 	  * @param message
 	  */
 	  public static void show(String message){
-		  Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("提示");
-			alert.setHeaderText(null);
-			alert.setContentText("\r\n"+message);
-			alert.showAndWait();
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("提示");
+		alert.setHeaderText(null);
+		alert.setContentText("\r\n"+message);
+		alert.showAndWait();
 			
 	  }
 	  /**

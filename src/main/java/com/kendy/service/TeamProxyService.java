@@ -363,7 +363,6 @@ public class TeamProxyService {
 		if(DataConstans.Dangju_Team_Huishui_List.size() > 0) {
 			for(GameRecord info : DataConstans.Dangju_Team_Huishui_List) {
 				String teamId = info.getTeamId();
-				System.out.println(teamId);
 				List<GameRecord> teamHuishuiList = teamMap.get(teamId);
 				if( teamHuishuiList == null ) {
 					teamHuishuiList = new ArrayList<>();
@@ -563,7 +562,6 @@ public class TeamProxyService {
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
   	    String title = teamId + "-"+sdf.format(new Date());
-  	    log.info(title);
   	  
 	      String[] rowsName = new String[]{"玩家ID","玩家名称","原始战绩","战绩","保险","回水","回保","场次"};
 	      List<Object[]>  dataList = new ArrayList<Object[]>();
@@ -639,7 +637,6 @@ public class TeamProxyService {
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String title = teamId + "-"+sdf.format(new Date());
-		log.info(title);
 		
 		String[] rowsName = new String[]{"玩家ID","玩家名称","原始战绩","战绩","回水","场次"};
 		List<Object[]>  dataList = new ArrayList<Object[]>();

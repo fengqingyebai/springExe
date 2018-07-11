@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.PropertiesUtil;
 import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
@@ -101,12 +100,15 @@ public class DataConstans {
 	//缓存日期
 	public static String Date_Str = "";
 	
+	
+	private static final String KEY_GU_DONG =  KeyEnum.GU_DONG.getKeyName();
+	
 	//初始化股东列表
 	public static void initGudong() {
-		//String gudongs = PropertiesUtil.readProperty("gudong");
-		String gudongs = DBUtil.getValueByKeyWithoutJson(KeyEnum.GU_DONG.getKeyName());
+		String gudongs = DBUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
 		if(StringUtil.isBlank(gudongs)) {
-		  gudongs = "B,C,Q,银河";
+		  gudongs = "B,C,Q,银河"; // 如果客户删除这四个，想用其它的，这里的值就不对了
+		  DBUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
 		}
 		if(!StringUtil.isBlank(gudongs)){
 			for(String gudong : gudongs.split(",")){

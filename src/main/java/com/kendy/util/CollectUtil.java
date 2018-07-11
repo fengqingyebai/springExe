@@ -1,7 +1,6 @@
 package com.kendy.util;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * collection简单的工具类

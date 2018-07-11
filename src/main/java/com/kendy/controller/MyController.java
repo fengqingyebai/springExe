@@ -21,10 +21,13 @@ import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.PropertiesUtil;
 import com.kendy.application.Main;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
@@ -52,6 +55,7 @@ import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
 import com.kendy.entity.ZonghuiInfo;
 import com.kendy.entity.ZonghuiKaixiaoInfo;
+import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecord;
@@ -76,6 +80,7 @@ import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.Text2ImageUtil;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -87,7 +92,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -381,6 +385,9 @@ public class MyController implements Initializable{
 	@FXML private TextField jifenInput;//团队积分值
 	@FXML private TextField jifenRankLimit;//前50名
 	
+	//保存到other数据表的key
+	private static final String KEY_GU_DONG =  KeyEnum.GU_DONG.getKeyName();
+	private static final String KEY_CLUB_ID =  KeyEnum.CLUB_ID.getKeyName();
 	
 	public static LMController lmController;
 	public static TableView<ProfitInfo> table_Profit;
@@ -419,13 +426,13 @@ public class MyController implements Initializable{
 		
 		table_Profit = this.tableProfit;
 		//第一次打开主窗口时设置当前俱乐部ID值
-		String clubIdValue = PropertiesUtil.readProperty("clubId");
+		String clubIdValue = DBUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
 		currentClubId = lable_currentClubId;
 		if(clubIdValue != null)
 			lable_currentClubId.setText(clubIdValue);
 		
 		//第一次打开主窗口时显示所有股东
-		String gudongs = PropertiesUtil.readProperty("gudong");
+		String gudongs = DBUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
 		DataConstans.gudongList = new ArrayList<>();
 		if(!StringUtil.isBlank(gudongs)){
 			for(String gudong : gudongs.split(",")){
@@ -1236,58 +1243,15 @@ public class MyController implements Initializable{
      * 修改当前俱乐部ID
      */
     public void configCurrentClueIdAction(ActionEvent event){
-		Dialog<Pair<String, String>> dialog = new Dialog<>();
-		dialog.setTitle("修改");
-		dialog.setHeaderText(null);
-		// Set the button types.
-		ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-		// Create the username and password labels and fields.
-		GridPane grid = new GridPane();
-		grid.setHgap(10);
-		grid.setVgap(10);
-		grid.setPadding(new Insets(20, 20,20, 20));
-
-		TextField shangmaJu = new TextField();
-		TextField shangmaVal = new TextField();
-
-		grid.add(new Label("新俱乐部ID:"), 0, 0);
-		grid.add(shangmaJu, 1, 0);
-
-		// Enable/Disable login button depending on whether a username was entered.
-		Node loginButton = dialog.getDialogPane().lookupButton(loginButtonType);
-		loginButton.setDisable(true);
-
-		// Do some validation (using the Java 8 lambda syntax).
-		shangmaJu.textProperty().addListener((observable, oldValue, newValue) -> {
-		    loginButton.setDisable(newValue.trim().isEmpty());
-		});
-
-		dialog.getDialogPane().setContent(grid);
-
-		// Request focus on the username field by default.
-		Platform.runLater(() -> shangmaJu.requestFocus());
-
-		// Convert the result to a username-password-pair when the login button is clicked.
-		dialog.setResultConverter(dialogButton -> {
-		    if (dialogButton == loginButtonType) {
-		        return new Pair<>(shangmaJu.getText(), shangmaVal.getText());
-		    }
-		    return null;
-		});
-
-		Optional<Pair<String, String>> result = dialog.showAndWait();
-
-		result.ifPresent(shangmaJuAndVal -> {
-			String newClubId = shangmaJuAndVal.getKey();
-	    	if(newClubId != null && !"".equals(newClubId)){
-	    		String oddClubId = PropertiesUtil.readProperty("clubId");
-	    		PropertiesUtil.writeProperty("clubId", newClubId);
-	    		log.info("修改当前俱乐部ID：旧值"+oddClubId + "  新值"+newClubId);
+    	new InputDialog("修改", "新俱乐部ID:").getTextResult().ifPresent(newClubId -> {
+			String currentClubId = DBUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
+	    	if(!StringUtils.equals(newClubId, currentClubId) && StringUtil.isNotBlank(newClubId)){
 	    		lable_currentClubId.setText(newClubId);
-	    		ShowUtil.show("俱乐部ID修改成功！", 2);
+	    		DBUtil.saveOrUpdateOthers(KEY_CLUB_ID, newClubId);
+	    		ShowUtil.show("软件的当前俱乐部为" + newClubId, 2);
 	    	}
 		});
+    	
     }
     
     /**
@@ -1295,21 +1259,16 @@ public class MyController implements Initializable{
      */
 	public void addGudongAction(ActionEvent event){
     	String newGudongName = gudongInput.getText();
-    	if(!StringUtil.isBlank(newGudongName)){
+    	if(StringUtil.isNotBlank(newGudongName)){
     		if(!gudongListView.getItems().contains(newGudongName)){
     			gudongListView.getItems().add(newGudongName);
-    			DataConstans.gudongList.add(newGudongName);
     			gudongInput.setText("");
+    			// 修改缓存
+    			DataConstans.gudongList.add(newGudongName);
     			
-    			//持久化
-    			final String GD = Constants.GU_DONG;
-    			String gudongs = PropertiesUtil.readProperty(GD);
-    			if(!StringUtil.isBlank(gudongs)){
-    				PropertiesUtil.writeProperty(GD, gudongs+","+newGudongName);
-    				log.debug(PropertiesUtil.readProperty(GD));
-    			}else{
-    				PropertiesUtil.writeProperty(GD, newGudongName);
-    			}
+    			// 更新数据库
+    			String gudongs = DataConstans.gudongList.stream().collect(Collectors.joining(","));
+    			DBUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
     		}
     	}
     }
@@ -1321,24 +1280,13 @@ public class MyController implements Initializable{
     	String selectedGudongName = (String) gudongListView.getFocusModel().getFocusedItem(); 	
     	if(!StringUtil.isBlank(selectedGudongName)){
     		gudongListView.getItems().remove(selectedGudongName);
-    		DataConstans.gudongList.remove(selectedGudongName);
+    		List<String> cacheGudongs = DataConstans.gudongList;
+    		cacheGudongs.remove(selectedGudongName);
     		
     		//持久化
-			String gudongs = PropertiesUtil.readProperty("gudong");
-			if(!StringUtil.isBlank(gudongs)){
-				if(gudongs.contains(","+selectedGudongName)) {
-					PropertiesUtil.writeProperty("gudong", gudongs.replace(","+selectedGudongName, ""));
-				}else if(gudongs.contains(selectedGudongName+",")){
-					PropertiesUtil.writeProperty("gudong", gudongs.replace(selectedGudongName+",", ""));
-				}else {
-					PropertiesUtil.writeProperty("gudong", "");
-				}
-				log.info(PropertiesUtil.readProperty("gudong"));
-			}else{
-//				PropertiesUtil.writeProperty("gudong", newGudongName);
-			}
+    		String gudongs = cacheGudongs.stream().collect(Collectors.joining(","));
+			DBUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
     	}
-
     }
     
     /**
@@ -1347,12 +1295,7 @@ public class MyController implements Initializable{
      * @return
      */
 	public static ObservableList<String>  getGudongList(){
-    	ObservableList<String> gudongItems = Main.myController.gudongListView.getItems();
-    	if(CollectUtil.isHaveValue(gudongItems)) {
-    		return gudongItems;
-    	}else {
-    		return FXCollections.observableArrayList();
-    	}
+    	return FXCollections.observableArrayList(DataConstans.gudongList);
     }
     
     
@@ -1542,7 +1485,6 @@ public class MyController implements Initializable{
 					} else {
 						btn.setOnAction(event -> {
 							WanjiaInfo wanjiaInfo = getTableView().getItems().get(getIndex());
-//							log.debug(wanjiaInfo.toString());
 							try {
 								clip2QQ(wanjiaInfo);
 								log.debug("已经复制到剪切板");
@@ -1597,7 +1539,6 @@ public class MyController implements Initializable{
 		                	TeamInfo teamInfo = getTableView().getItems().get(getIndex());
 		                    if(getTableRow() != null && teamInfo != null && "0".equals(teamInfo.getHasJiesuaned())){  
 		                    	TeamInfo tempTeamInfo = copyTeamInfo(teamInfo);
-//		                    	log.debug(teamInfo.toString());
 		                    	btn.setText("已结算");
 		                    	String rowTeamSum = teamInfo.getTeamSum();
 		                    	teamInfo.setHasJiesuaned("1");
@@ -1677,15 +1618,11 @@ public class MyController implements Initializable{
 					}
 					//并刷新表
 					MoneyService.refreshRecord();
-					//利润表修改总团队服务费(累积该团队的服务费)
-					//add2AllTeamFWF_from_tableProfit(tableProfit,teamFWF);//由于改用current_Jiesuaned_team_fwf_sum，故此方法不调用
 					//自动平帐按钮
 					refreshBtn.fire();//这个是为了让当局的团队总服务费能累加到利润表中的总团队服务费中
 				}
 			}	
 		);
-		
-		
 	}
 	
 	
@@ -1705,10 +1642,6 @@ public class MyController implements Initializable{
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-    
     
     /**
      * 右下表：次日上码详情表添加双击名称事件
@@ -1718,7 +1651,6 @@ public class MyController implements Initializable{
     	    @Override  
     	    public TableCell<ShangmaDetailInfo, String> call(TableColumn<ShangmaDetailInfo, String> param) {  
     	        TextFieldTableCell<ShangmaDetailInfo, String> cell = new TextFieldTableCell<>();  
-//    	        cell.setTextFill(Color.RED);
     	        cell.setEditable(false);//不让其可编辑
     	        cell.setOnMouseClicked((MouseEvent t) -> {  
     	        	//鼠标双击事件
@@ -1739,7 +1671,6 @@ public class MyController implements Initializable{
     	@Override  
     	public TableCell<ShangmaDetailInfo, String> call(TableColumn<ShangmaDetailInfo, String> param) {  
     		TextFieldTableCell<ShangmaDetailInfo, String> cell = new TextFieldTableCell<>();  
-//    	        cell.setTextFill(Color.RED);
     		cell.setEditable(false);//不让其可编辑
     		cell.setOnMouseClicked((MouseEvent t) -> {  
     			//鼠标双击事件
@@ -1769,7 +1700,6 @@ public class MyController implements Initializable{
     						&& index < tableView.getItems().size()
     						) {  
     					//双击执行的代码  
-//        				ShangmaInfo smInfo =  tableShangma.getItems().get(cell.getIndex());
     					ShangmaInfo smInfo =  tableShangma.getItems().get(index);
         				ShangmaService.openNewShangSMDiag(smInfo);
     				}  
@@ -1891,7 +1821,7 @@ public class MyController implements Initializable{
 				if(!"0.00".equals(LMLabel.getText())) {
 					LMLabel.setText(getNewLMVal(sumOfJS*(-1)+""));
 				}else {
-					LMLabel.setText(MoneyService.digit0(sumOfJS*(-1))+"");
+					LMLabel.setText(NumUtil.digit0(sumOfJS*(-1))+"");
 				}
 				// 锁定并缓存十个表数据
 				Map<String, String> mapOf10Tables;
@@ -1899,8 +1829,7 @@ public class MyController implements Initializable{
 					mapOf10Tables = MoneyService.lock10Tables(tableTotalInfo,tablePaiju,tableTeam,
 							tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit,tableDangju,tableJiaoshou,tablePingzhang,LMLabel);
 				} catch (Exception e) {
-					ShowUtil.show("锁定失败\r\n相关表数据不能为空");
-					log.debug("锁定失败============相关表数据不能为空");
+					ErrorUtil.err("锁定失败\r\n相关表数据不能为空");
 					return;
 				}
 				
@@ -1932,25 +1861,13 @@ public class MyController implements Initializable{
 				//锁定当局备份上码表的个人详情
 				ConsUtil.lock_SM_Detail_Map();
 				
-				
-				//插入当前导入的战绩表  泽涛说明：由于所有的记录都统一使用GameRecord,故此记录统一去记录表查找
-//				try {
-//					saveHistoryRecord();
-//				} catch (Exception e) {
-//					ErrorUtil.err("保存历史数据失败",e);
-//				}
 				DataConstans.Dangju_Team_Huishui_List = new LinkedList<>();
 				
 				//保存所有缓存数据进数据库(与上面的数据顺序不要变换），不然会中途加载时想查看以前的数据会报请撤销或锁定数据
-				//DBUtil.saveLastLockedData();//IO耗时长
 				Platform.runLater(() -> {
 						DBUtil.saveLastLockedData();//IO耗时长
 					}
 				);
-				
-				//联盟对帐：保存当场所有战绩到数据库
-//				setLMRecords();  泽涛说明：由于所有的记录都统一使用GameRecord,故此记录统一去记录表查找
-//				DBUtil.addRecordList(LMController.currentRecordList);//是否反回结果？？
 				
 				//保存当前Excel记录到数据库
 				try {
@@ -2125,9 +2042,7 @@ public class MyController implements Initializable{
 		String page = pageInput.getText();
 		int pageIndex = getPageIndex(page,true);
 		pageInput.setText(pageIndex+"");
-//		//调用
-//		getResultByPage(pageIndex);
-//		
+
 		//调用
 		if(DataConstans.Index_Table_Id_Map.size() > 0 && pageIndex >= 1) {
 			getResultByPage(pageIndex);
@@ -2627,7 +2542,12 @@ public class MyController implements Initializable{
 		timeOpt.ifPresent(time -> {
     		try {
 				time = LocalDate.parse(StringUtil.nvl(time,"")).toString();
-				// TODO 判断时间范围
+				// 判断时间范围
+				String maxGameRecordTimeStr = DBUtil.getMaxGameRecordTime();
+				if (time.compareTo(maxGameRecordTimeStr) <= 0) {
+					ErrorUtil.err("输入的时间不能小于" + maxGameRecordTimeStr);
+					return;
+				}
 				
 				DataConstans.Date_Str = time;
 			} catch (Exception e) {
@@ -2921,11 +2841,7 @@ public class MyController implements Initializable{
     	                super.updateItem(item, empty);  
     	                this.setTextFill(null); 
     	                if (!isEmpty() && item != null) {  
-    	                	 //ObservableValue<?> ov = getTableColumn().getCellObservableValue(getIndex()); 
-    	                     //log.debug(ov.getValue());  
     	                     if(item.contains("-")) {
-    	                    	 //this.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;");
- 	                             //this.setTextFill(Color.web("#CD3700"));
     	                    	 this.setTextFill(Color.RED);  
     	                     }else {
     	                    	 this.setTextFill(Color.BLACK);  
@@ -2935,16 +2851,6 @@ public class MyController implements Initializable{
     	            }  
     	        }; 
     	        cell.setEditable(false);//不让其可编辑
-    	        cell.setOnMouseClicked((MouseEvent t) -> {  
-    	        	//鼠标双击事件
-					// if (t.getClickCount() == 2 && cell.getIndex() < myTable.getItems().size()) {
-					// log.debug("鼠标双击事件"+atomic.getAndIncrement());
-					// //双击执行的代码
-					// TABLEDATA INFO = MYTABLE.GETITEMS().GET(CELL.GETINDEX());
-					// OPENADDDIAG(INFO);
-					// MYTABLE.REFRESH();
-					// }
-    	        }); 
     	        return cell;
     	    }
         };  
@@ -3033,7 +2939,6 @@ public class MyController implements Initializable{
 		dialog.setTitle("注册");
 		dialog.setHeaderText(null);
 		dialog.setContentText("删除团队ID:");
-		//dialog.getDialogPane().getButtonTypes().removeAll(ButtonType.CANCEL);
 		Optional<String> result = dialog.showAndWait();
 
 		result.ifPresent(_teamId -> {

@@ -110,7 +110,7 @@ public class HttpUtil {
 			String charsetName = MyController.smAutoController.sysCodeField.getText();
 			String ResString = org.apache.commons.io.IOUtils.toString(urlStream, Charset.forName(charsetName));
 			log.info("后台的玩家列表: "+ResString);
-			if(StringUtil.isNotBlank(ResString)) {
+			if(StringUtil.isNotBlank(ResString) && !ResString.contains("Authentication")) {
 				wanjiaListResult = JSON.parseObject(ResString, WanjiaListResult.class);
 			}
 		} catch (MalformedURLException e) {

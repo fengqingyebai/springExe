@@ -291,6 +291,7 @@ public class BankFlowController implements Initializable{
 	 * @time 2018年7月1日
 	 * @param event
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@FXML
 	public void seeHistoryStaticAction(ActionEvent event) {
 		if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {

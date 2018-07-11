@@ -75,7 +75,8 @@ public class MailUtils {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    @SuppressWarnings("static-access")
+	public static void main(String[] args) throws Exception {
         
         /**
          * 设置smtp服务器以及邮箱的帐号和密码

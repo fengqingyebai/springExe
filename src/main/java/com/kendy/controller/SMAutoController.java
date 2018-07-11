@@ -35,6 +35,7 @@ import com.kendy.entity.Player;
 import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.ShangmaNextday;
+import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.model.SMResultModel;
 import com.kendy.service.AutoDownloadZJExcelService;
@@ -136,8 +137,8 @@ public class SMAutoController implements Initializable {
     public TextField downExcelPierodField;//每隔多久去刷新
     
     
-    private static final String SM_AOTO_NEXT_DAY_DB_KEY = "sm_aoto_next_day_db_key"; // 保存到数据库的key
-    private static final String SM_AOTO_TOKEN_DB_KEY = "sm_aoto_token_db_key"; // 保存到数据库的key
+    private static final String SM_AOTO_NEXT_DAY_DB_KEY = KeyEnum.SM_AOTO_NEXT_DAY_DB_KEY.getKeyName(); // 保存到数据库的key
+    private static final String SM_AOTO_TOKEN_DB_KEY = KeyEnum.SM_AOTO_TOKEN_DB_KEY.getKeyName(); // 保存到数据库的key
 
     private static final String CONNECT_FAIL = "连接失败,失败码：";
 
@@ -181,22 +182,11 @@ public class SMAutoController implements Initializable {
         MyController.bindCellValue(smAutoDate, smAutoPlayerId, smAutoPlayerName, smAutoPaiju, smAutoApplyAccount,
                 smAutoIsTeamAvailabel, smAutoIsCurrentDay, smAutoIsNextDay, smAutoIsAgree, smAutoIsAgreeSuccess,
                 smAutoAvailabel, smAutoTeamTotalAvailabel);
-        // bindColorColumns(new TGLirunInfo(),tgLirunTotalProfit,
-        // tgLirunTotalKaixiao, tgLirunATMCompany, tgLirunTGCompany,
-        // tgLirunTeamProfit, tgLirunRestHeji, tgLirunHeji);
         // 初始化次日上码范围
         initNextDayRange();
         
         loadTokenAction(new ActionEvent());
         
-        
-        datePicker.setOnAction(e->{
-        	log.info("datePicker: " + getSelectedDate().toString());
-        	// TODO 判断时间是否合理范围
-        	
-        	// TODO 设置当前软件时间
-        	
-        });
     }
 
     /**
@@ -608,16 +598,6 @@ public class SMAutoController implements Initializable {
         }
         return available;
     }
-
-//    /**
-//     * 则只取团队可上码
-//     * 
-//     * @time 2018年3月27日
-//     * @return
-//     */
-//    private String getTeamAvailable() {
-//        return StringUtil.nvl(ShangmaService.teamShangmaAvailable.getText(), "0");
-//    }
 
     /**
      * 联合额度
@@ -1033,8 +1013,6 @@ public class SMAutoController implements Initializable {
     private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
     	originalRoomName = originalRoomName.replace("/", "-").replace("%20", "-");
     	originalRoomName =  FilterUtf8mb4.filterUtf8mb4(originalRoomName);
-    	//String date =  DateTimeFormatter.ofPattern("MM月dd号-战绩导出-").format(getSelectedDate());
-    	//return finishedTime +"-" +date + originalRoomName + ".xls";
     	return "战绩导出-" + originalRoomName + ".xls";
     }
     

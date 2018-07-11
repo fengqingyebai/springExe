@@ -97,7 +97,7 @@ public class Main extends Application {
 //				    }else {
 //				    	//6C-4B-90-1C-F0-2F  00-50-56-C0-00-08
 //				    	ShowUtil.show("恭喜注册成功!",2);
-//				    	PropertiesUtil.writeProperty("mac", mac2);
+//				    	writeProperty("mac", mac2); TODO
 //				    }
 //				}
 //			}else {
@@ -106,18 +106,13 @@ public class Main extends Application {
 //					exit();
 //				}
 //			}
-//			if(StringUtil.isBlank(PropertiesUtil.readProperty("mac"))) {
+//			if(StringUtil.isBlank(readProperty("mac"))) { TODO
 //				exit();
 //			}
 			
-			
-			
-//			Parent root = FXMLLoader.load(getClass().getResource("MainStage4.fxml"));
 
 			FXMLLoader fxmlLoader = new FXMLLoader();
 			Parent root = fxmlLoader.load(getClass().getResource("/dialog/MainStageees2.fxml").openStream());
-//			Pane p = fxmlLoader.load(getClass().getResource("MainStage4.fxml").openStream());
-//			Parent root = p.getParent()
 			MyController mc = (MyController) fxmlLoader.getController();
 			
 			

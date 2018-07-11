@@ -165,7 +165,6 @@ public class GDController implements Initializable{
 	 */
 	private static void initDataList() {
 		String currentClubId = MyController.currentClubId.getText();
-		log.info("GDController's clubId:"+currentClubId);
 		if(!StringUtil.isAnyBlank(currentClubId)) {
 			List<GameRecord> list = DBUtil.getGameRecordsByClubId(currentClubId);
 			if(CollectUtil.isHaveValue(list)) {

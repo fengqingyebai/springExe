@@ -51,10 +51,10 @@ public class CombineIDController implements Initializable{
 	private TextField parentIdField; 
 	
 	@FXML
-	private ListView leftPlayerListView; 
+	private ListView<String> leftPlayerListView; 
 	
 	@FXML
-	private ListView rightPlayerListView; 
+	private ListView<String> rightPlayerListView; 
     
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {

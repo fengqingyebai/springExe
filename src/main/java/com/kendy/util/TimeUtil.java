@@ -84,7 +84,6 @@ public class TimeUtil {
 	 * @return
 	 */
 	public static long[] getTimeRange() {
-		DateTimeFormatter sf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		LocalDate now = LocalDate.now();
         LocalDateTime atStartOfDay = now.atStartOfDay();
         
