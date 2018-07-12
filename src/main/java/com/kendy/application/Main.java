@@ -1,9 +1,14 @@
 package com.kendy.application;
 	
-import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kendy.constant.Constants;
 import com.kendy.controller.MyController;
-import com.kendy.controller.TeamProxyController;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.ShowUtil;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -19,24 +24,18 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 	
-	private static Logger log = Logger.getLogger(Main.class);
-	
-//	public static TeamProxyController teamProxyController  = new TeamProxyController();
-	
 	static {
-//		try {
-//			//生产环境可用
-//			String logName = "log4j.properties";
-//			PropertyConfigurator.configure(
-//					Main.class.getClassLoader().getResourceAsStream(logName));
-//			log.info("日志组件初始化成功");
-//		} catch (Exception e) {
-//			ErrorUtil.err("日志组件初始化失败");
-//		}
-		
-//		teamProxyController  = new TeamProxyController();
-		System.out.println("Main static");
+		try {
+			//生产环境可用
+			String logName = "log4j/log4j.properties";
+			PropertyConfigurator.configure(
+					Main.class.getClassLoader().getResourceAsStream(logName));
+		} catch (Exception e) {
+			ErrorUtil.err("日志组件初始化失败");
+		}
 	}
+	
+	private  Logger log = LoggerFactory.getLogger(Main.class);
 	
 	
 	//共用窗口（kendy
