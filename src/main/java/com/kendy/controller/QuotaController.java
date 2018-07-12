@@ -47,7 +47,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-public class QuotaController implements Initializable{
+public class QuotaController extends BaseController implements Initializable{
 	
 	
 	private static Logger log = Logger.getLogger(QuotaController.class);
@@ -514,7 +514,7 @@ public class QuotaController implements Initializable{
 	private void bindRedColor(TableColumn<? extends Entity,String>... colums){
 		try {
 			for(TableColumn column : colums){
-				column.setCellFactory(MyController.getColorCellFactory(new ClubQuota()));
+				column.setCellFactory(getColorCellFactory(new ClubQuota()));
 			}
 		} catch (Exception e) {
 			String errMsg = "小林：绑定列值红色属性失败";

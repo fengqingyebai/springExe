@@ -30,7 +30,7 @@ import javafx.scene.control.TextField;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
-public class TGAddCompanyController implements Initializable{
+public class TGAddCompanyController extends BaseController implements Initializable{
 	
 	private static Logger log = Logger.getLogger(TGAddCompanyController.class);
 	

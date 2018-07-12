@@ -142,7 +142,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:48
  */
-public class MyController implements Initializable{
+public class MyController extends BaseController implements Initializable{
     
 	static Logger log = Logger.getLogger(MyController.class);
 	
@@ -2832,29 +2832,29 @@ public class MyController implements Initializable{
      * @param t 列实体
      * @return
      */
-    public static <T> Callback<TableColumn<T,String>, TableCell<T,String>> getColorCellFactory(T t){
-    	return new Callback<TableColumn<T,String>, TableCell<T,String>>() {  
-    	    public TableCell<T,String> call(TableColumn<T,String> param) {  
-    	    	TableCell<T,String> cell = new TableCell<T,String>() {  
-    	            @Override  
-    	            public void updateItem(String item, boolean empty) {  
-    	                super.updateItem(item, empty);  
-    	                this.setTextFill(null); 
-    	                if (!isEmpty() && item != null) {  
-    	                     if(item.contains("-")) {
-    	                    	 this.setTextFill(Color.RED);  
-    	                     }else {
-    	                    	 this.setTextFill(Color.BLACK);  
-    	                     }
-    	                    setText(item);  
-    	                }  
-    	            }  
-    	        }; 
-    	        cell.setEditable(false);//不让其可编辑
-    	        return cell;
-    	    }
-        };  
-    }
+//    public static <T> Callback<TableColumn<T,String>, TableCell<T,String>> getColorCellFactory(T t){
+//    	return new Callback<TableColumn<T,String>, TableCell<T,String>>() {  
+//    	    public TableCell<T,String> call(TableColumn<T,String> param) {  
+//    	    	TableCell<T,String> cell = new TableCell<T,String>() {  
+//    	            @Override  
+//    	            public void updateItem(String item, boolean empty) {  
+//    	                super.updateItem(item, empty);  
+//    	                this.setTextFill(null); 
+//    	                if (!isEmpty() && item != null) {  
+//    	                     if(item.contains("-")) {
+//    	                    	 this.setTextFill(Color.RED);  
+//    	                     }else {
+//    	                    	 this.setTextFill(Color.BLACK);  
+//    	                     }
+//    	                    setText(item);  
+//    	                }  
+//    	            }  
+//    	        }; 
+//    	        cell.setEditable(false);//不让其可编辑
+//    	        return cell;
+//    	    }
+//        };  
+//    }
     
     /**
      * 导出实时金额表

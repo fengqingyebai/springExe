@@ -60,7 +60,7 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @time 2018年1月14日 下午6:12:15
  */
-public class GDController implements Initializable{
+public class GDController extends BaseController implements Initializable{
 
 	private static Logger log = Logger.getLogger(GDController.class);
 	
@@ -493,7 +493,7 @@ public class GDController implements Initializable{
 		//主表
 		KF_gudongName.setEditable(true);
 		MyController.bindCellValue(gudongName, gudongProfit);
-		gudongProfit.setCellFactory(MyController.getColorCellFactory(new GudongRateInfo()));
+		gudongProfit.setCellFactory(getColorCellFactory(new GudongRateInfo()));
 		
 		//绑定数据（股东原始股表\股东奖励股表\客服占股表）
 		bind3TableColumns();
@@ -619,7 +619,7 @@ public class GDController implements Initializable{
 	        lastNameCol.setPrefWidth(92);
 	        lastNameCol.setCellValueFactory(
 	        		new PropertyValueFactory<GudongRateInfo, String>("gudongProfit"));
-	        lastNameCol.setCellFactory(MyController.getColorCellFactory(new GudongRateInfo()));
+	        lastNameCol.setCellFactory(getColorCellFactory(new GudongRateInfo()));
 	        table.setPrefWidth(210);
 	        
 	        TableColumn tempValCol = new TableColumn("0");
@@ -627,7 +627,7 @@ public class GDController implements Initializable{
 	        tempValCol.setPrefWidth(60);
 	        tempValCol.setCellValueFactory(
 	                new PropertyValueFactory<GudongRateInfo, String>("description"));
-	        tempValCol.setCellFactory(MyController.getColorCellFactory(new GudongRateInfo()));
+	        tempValCol.setCellFactory(getColorCellFactory(new GudongRateInfo()));
 	        table.setPrefWidth(210+60);
 	        
 	        table.getColumns().addAll(firstNameCol, lastNameCol,tempValCol);

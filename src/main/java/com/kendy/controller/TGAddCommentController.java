@@ -36,7 +36,7 @@ import javafx.scene.control.TextInputDialog;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
-public class TGAddCommentController implements Initializable{
+public class TGAddCommentController extends BaseController implements Initializable{
 	
 	private static Logger log = Logger.getLogger(TGAddCommentController.class);
 	

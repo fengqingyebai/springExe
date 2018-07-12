@@ -17,12 +17,12 @@ import javafx.util.Callback;
  * @author linzt
  * @time 2018年7月6日 
  */
-public abstract class BaseController<T> {
+public abstract class BaseController {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
   
-  // T指代表实体
-  private T entity;
+//  // T指代表实体
+//  private T entity;
   
   //提示：子类应该在自己的构造方法中自动去实现各个表格的初始化，而不是显示调用
   
@@ -74,11 +74,11 @@ public abstract class BaseController<T> {
    * @param tables
    */
   @SuppressWarnings({"unchecked"})
-  public void bindCellValueByTables(TableView<T>... tables) {
+  public <T> void bindCellValueByTables(T entity, TableView<T>... tables) {
     try {
       for(TableView<T> table : tables) {
         List<TableColumn<T, ?>> columns =  table.getColumns();
-        bindCellValues(columns);
+        bindCellValues(entity, columns);
       }
     } catch (Exception e) {
       throw new RuntimeException("小林：绑定列值失败");
@@ -90,29 +90,31 @@ public abstract class BaseController<T> {
    * @param colums TableColumn 可变参数
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public  void bindCellValue(TableColumn<T,?>... colums){
+  public <T>  void bindCellValue(T entity, TableColumn<T,?>... colums){
       for(TableColumn column : colums){
-        bindSingleCellValues(column);
+        bindSingleCellValues(entity, column);
       }
   }
   
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void bindCellValues(List<TableColumn<T,?>> colums){
+  public <T> void bindCellValues(T entity, List<TableColumn<T,?>> colums){
       for(TableColumn column : colums){
-        bindSingleCellValues(column);
+        bindSingleCellValues(entity, column);
       }
   }
   
-  public  void bindSingleCellValues(TableColumn<T, String> column) {
+  public  <T> void bindSingleCellValues(T entity, TableColumn<T, String> column) {
     String fxId = column.getId();
     column.setCellValueFactory( new PropertyValueFactory<T,String>(fxId));
     column.setStyle("-fx-alignment: CENTER;");
     column.setSortable(false);//禁止排序
-    column.setCellFactory(getColorCellFactory(entity));
+    if (entity != null) {
+      column.setCellFactory(getColorCellFactory(entity));
+    }
   }
   
   
-  public  <E> Callback<TableColumn<T,String>, TableCell<T,String>> getColorCellFactory(T t){
+  public  static <T> Callback<TableColumn<T,String>, TableCell<T,String>> getColorCellFactory(T t){
     return new Callback<TableColumn<T,String>, TableCell<T,String>>() {  
         public TableCell<T,String> call(TableColumn<T,String> param) {  
             TableCell<T,String> cell = new TableCell<T,String>() {  
@@ -131,28 +133,18 @@ public abstract class BaseController<T> {
                 }  
             }; 
             cell.setEditable(false);//不让其可编辑
-            cell.setOnMouseClicked((MouseEvent t) -> {  
-                //鼠标双击事件
-                // if (t.getClickCount() == 2 && cell.getIndex() < myTable.getItems().size()) {
-                // log.debug("鼠标双击事件"+atomic.getAndIncrement());
-                // //双击执行的代码
-                // TABLEDATA INFO = MYTABLE.GETITEMS().GET(CELL.GETINDEX());
-                // OPENADDDIAG(INFO);
-                // MYTABLE.REFRESH();
-                // }
-            }); 
             return cell;
         }
     };  
 }
-
-  public T getEntity() {
-    return entity;
-  }
-
-  public void setEntity(T entity) {
-    this.entity = entity;
-  }
+//
+//  public T getEntity() {
+//    return entity;
+//  }
+//
+//  public void setEntity(T entity) {
+//    this.entity = entity;
+//  }
   
 //  /**
 //   * 父类获取子类Class

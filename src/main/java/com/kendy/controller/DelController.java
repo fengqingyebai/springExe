@@ -34,7 +34,7 @@ import javafx.scene.input.KeyEvent;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:02
  */
-public class DelController implements Initializable{
+public class DelController extends BaseController implements Initializable{
 
 	private static Logger log = Logger.getLogger(CombineIDController.class);
 	
@@ -46,10 +46,10 @@ public class DelController implements Initializable{
 	private TextField memberId; 
 	
 	@FXML
-	private ListView delMemberListView; 
+	private ListView<String> delMemberListView; 
 	
 	@FXML
-	private ListView detailListView; 
+	private ListView<String> detailListView; 
 	
 	
 	@FXML
@@ -66,7 +66,8 @@ public class DelController implements Initializable{
     //=====================================================================对话框
     
     
-	@Override
+	@SuppressWarnings({"unchecked", "rawtypes"})
+    @Override
 	public void initialize(URL location, ResourceBundle resources) {
 		//ListView变化时自动更新右边的信息
 		delMemberListView.getSelectionModel().selectedItemProperty().addListener(
@@ -101,7 +102,7 @@ public class DelController implements Initializable{
 	
 
 	
-	public void queryDelMember() {
+  public void queryDelMember() {
     	String name = memberName.getText();
     	String id = memberId.getText();
 		Set<Player> set = new HashSet<>();

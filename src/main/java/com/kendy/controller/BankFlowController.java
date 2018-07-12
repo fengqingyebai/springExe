@@ -48,7 +48,7 @@ import javafx.scene.layout.VBox;
  * @author linzt
  * @time 2018年6月27日
  */
-public class BankFlowController implements Initializable{
+public class BankFlowController extends BaseController implements Initializable{
 	
 	
 	private static Logger log = Logger.getLogger(BankFlowController.class);
@@ -269,7 +269,7 @@ public class BankFlowController implements Initializable{
 		col.setStyle(CENTER_CSS);
 		col.setPrefWidth(COL_WIDTH);
 		col.setCellValueFactory(new PropertyValueFactory<BankFlowInfo, String>(colVal));
-		col.setCellFactory(MyController.getColorCellFactory(new BankFlowInfo()));
+		col.setCellFactory(getColorCellFactory(new BankFlowInfo()));
 		col.setSortable(false);
 		return col;
 	}

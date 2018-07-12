@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.TGController;
 import com.kendy.db.DBUtil;
@@ -127,7 +128,7 @@ public class TgWaizhaiService {
 	        lastNameCol.setPrefWidth(65);
 	        lastNameCol.setCellValueFactory(
 	                new PropertyValueFactory<CurrentMoneyInfo, String>("shishiJine"));
-	        lastNameCol.setCellFactory(MyController.getColorCellFactory(new CurrentMoneyInfo()));
+	        lastNameCol.setCellFactory(BaseController.getColorCellFactory(new CurrentMoneyInfo()));
 	        table.setPrefWidth(150);
 	        table.getColumns().addAll(firstNameCol, lastNameCol);
 	 

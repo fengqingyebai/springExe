@@ -78,7 +78,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-public class TGController implements Initializable{
+public class TGController extends BaseController implements Initializable{
 	
 	
 	private static Logger log = Logger.getLogger(TGController.class);
@@ -235,14 +235,14 @@ public class TGController implements Initializable{
 	 * 
 	 * @time 2018年3月21日
 	 */
-	private void initTeamProxyAction() {
-		teamProxyCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-	        public void changed(ObservableValue<? extends Boolean> ov,
-	            Boolean old_val, Boolean new_val) {
-	        	ShowUtil.show(new_val + "", 1);
-	        }
-	    });
-	}
+//	private void initTeamProxyAction() {
+//		teamProxyCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+//	        public void changed(ObservableValue<? extends Boolean> ov,
+//	            Boolean old_val, Boolean new_val) {
+//	        	ShowUtil.show(new_val + "", 1);
+//	        }
+//	    });
+//	}
 	
 	private <T>  void   binCellValueDiff(TableColumn<T, String> column, String bindName) {
         try {
@@ -261,9 +261,10 @@ public class TGController implements Initializable{
 	 * @param entity
 	 * @param columns
 	 */
-	private  void bindColorColumns(Entity entity,TableColumn<? extends Entity, String>... columns) {
+	@SuppressWarnings({"unchecked", "rawtypes"})
+  private  void bindColorColumns(Entity entity,TableColumn<? extends Entity, String>... columns) {
 		for(TableColumn column  : columns)
-			column.setCellFactory(MyController.getColorCellFactory(entity));
+			column.setCellFactory(getColorCellFactory(entity));
 	}
 	
 	
@@ -271,7 +272,6 @@ public class TGController implements Initializable{
 	 * tabs切换事件
 	 * 
 	 */
-	@SuppressWarnings("unchecked")
 	private void tabsAction() {
 		tabs.getSelectionModel().selectedItemProperty().addListener(info-> {
 			//Tab tab = (Tab)info;
@@ -329,7 +329,7 @@ public class TGController implements Initializable{
     	try {
     		if(DataConstans.framesNameMap.get(windowName) == null){
     			//打开新对话框
-    			String filePath = "/com/kendy/dialog/"+path;
+    			String filePath = "/dialog/"+path;
 	    		Parent root = FXMLLoader.load(getClass().getResource(filePath));
 	    		Stage addNewPlayerWindow=new Stage();  
 	    		Scene scene=new Scene(root);  
@@ -500,7 +500,6 @@ public class TGController implements Initializable{
 			Map<String, List<TGCommentInfo>> typeMap = tgCommentList.stream().collect(Collectors.groupingBy(TGCommentInfo::getTgCommentType));
 			List<String> sumList = new ArrayList<>();
 			typeMap.forEach((name,list) -> {sumList.add(name + ": " + list.size() 
-				   //+ "	" + list.stream().mapToInt(info -> NumUtil.getNum(info.getTgKaixiaoMoney()).intValue()).sum()
 					);
 			});
 			// 添加为0的情况
@@ -518,13 +517,6 @@ public class TGController implements Initializable{
 		
 	}
 	
-	
-	/**
-	 * 清空界面数据
-	 */
-	private void clearUIData() {
-		
-	}
 	
 	/**
 	 * 加载最新的数据
@@ -875,22 +867,6 @@ public class TGController implements Initializable{
 		  return r+g+b;  
 	 }
 	
-	/**
-	 * 获取团队比例映射
-	 * 使用getTgTeamModelMap方法代替
-	 * 
-	 * @time 2018年3月7日
-	 * @return
-	 */
-	@Deprecated
-	public Map<String,Double> getTgTeamRateMap(){
-		List<TypeValueInfo> tableTGTeams = getTableTGTeams();
-		//toMap方法，当key相同时会报错
-		Map<String,Double> map = tableTGTeams.stream().distinct()
-				.collect(Collectors.toMap(TypeValueInfo::getType, info -> 
-						NumUtil.getNumByPercent(info.getValue())));
-		return map == null ? new HashMap<>() : map;
-	}
 	
 	/**
 	 * 获取托管团队的托管回水比例和回保比例

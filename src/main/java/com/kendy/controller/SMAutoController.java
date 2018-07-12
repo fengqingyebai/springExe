@@ -83,7 +83,7 @@ import javafx.scene.layout.VBox;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-public class SMAutoController implements Initializable {
+public class SMAutoController extends BaseController implements Initializable {
 
     private static Logger log = Logger.getLogger(SMAutoController.class);
 

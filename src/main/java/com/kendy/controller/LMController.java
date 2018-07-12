@@ -69,7 +69,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-public class LMController implements Initializable{
+public class LMController extends BaseController implements Initializable{
 	
 	
 
@@ -561,13 +561,13 @@ public class LMController implements Initializable{
 		
 		//绑定代理查询中的合计表
 		bindCellValue(lmDetailTableId,lmDetailZJ,lmDetailInsure,lmDetailPersonCount);
-		lmDetailZJ.setCellFactory(MyController.getColorCellFactory(new LMDetailInfo()));//红色注释
-		lmDetailInsure.setCellFactory(MyController.getColorCellFactory(new LMDetailInfo()));
+		lmDetailZJ.setCellFactory(getColorCellFactory(new LMDetailInfo()));//红色注释
+		lmDetailInsure.setCellFactory(getColorCellFactory(new LMDetailInfo()));
 		
 		//绑定代理查询中的合计表
 		tableLMSum.setEditable(true);
 		bindCellValue(lmSumName,lmSumZJ,lmSumInsure,lmSumPersonCount);
-		lmSumInsure.setCellFactory(MyController.getColorCellFactory(new LMSumInfo()));//红色注释
+		lmSumInsure.setCellFactory(getColorCellFactory(new LMSumInfo()));//红色注释
 		lmSumZJ.setCellFactory(TextFieldTableCell.forTableColumn());
 //		shishiJine.setCellFactory(redAndEditCellFactory);
 		lmSumZJ.setOnEditCommit(
@@ -1258,7 +1258,7 @@ public class LMController implements Initializable{
         	col2.setPrefWidth(With2);
         	col2.setCellValueFactory(
 	                new PropertyValueFactory<LMSumInfo, String>("lmSumZJ"));
-        	col2.setCellFactory(MyController.getColorCellFactory(new LMSumInfo()));//红色注释
+        	col2.setCellFactory(getColorCellFactory(new LMSumInfo()));//红色注释
         	
         	TableColumn col3 = new TableColumn("总保险");
         	col3.setSortable(false);
@@ -1266,7 +1266,7 @@ public class LMController implements Initializable{
         	col3.setPrefWidth(With3);
         	col3.setCellValueFactory(
 	                new PropertyValueFactory<LMSumInfo, String>("lmSumInsure"));
-        	col3.setCellFactory(MyController.getColorCellFactory(new LMSumInfo()));//红色注释
+        	col3.setCellFactory(getColorCellFactory(new LMSumInfo()));//红色注释
         	
         	TableColumn col4 = new TableColumn("总人数");
         	col4.setSortable(false);

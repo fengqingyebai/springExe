@@ -36,7 +36,7 @@ import javafx.scene.control.TextInputDialog;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
-public class TGAddKaixiaoController implements Initializable{
+public class TGAddKaixiaoController extends BaseController implements Initializable{
 	
 	private static Logger log = Logger.getLogger(TGAddKaixiaoController.class);
 	

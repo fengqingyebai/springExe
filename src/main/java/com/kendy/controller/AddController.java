@@ -36,7 +36,7 @@ import javafx.stage.Stage;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:46
  */
-public class AddController implements Initializable{
+public class AddController extends BaseController implements Initializable{
 	
 	private static Logger log = Logger.getLogger(AddController.class);
 

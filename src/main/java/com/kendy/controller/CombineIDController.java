@@ -37,7 +37,7 @@ import javafx.scene.input.KeyEvent;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:54
  */
-public class CombineIDController implements Initializable{
+public class CombineIDController extends BaseController implements Initializable{
 
 	private static Logger log = Logger.getLogger(CombineIDController.class);
 	

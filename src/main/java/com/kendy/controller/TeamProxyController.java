@@ -12,7 +12,7 @@ import javafx.fxml.Initializable;
  * @author linzt
  * @time 2018年2月14日 上午9:32:23
  */
-public class TeamProxyController implements Initializable{
+public class TeamProxyController extends BaseController implements Initializable{
 
 	Logger log = Logger.getLogger(TeamProxyController.class);
 	
