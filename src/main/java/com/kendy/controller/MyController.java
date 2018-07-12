@@ -2749,7 +2749,8 @@ public class MyController extends BaseController implements Initializable {
         time = LocalDate.parse(StringUtil.nvl(time, "")).toString();
         // 判断时间范围
         String maxGameRecordTimeStr = DBUtil.getMaxGameRecordTime();
-        if (time.compareTo(maxGameRecordTimeStr) <= 0) {
+        if (StringUtil.isNotBlank(maxGameRecordTimeStr)
+            && time.compareTo(maxGameRecordTimeStr) <= 0) {
           ErrorUtil.err("输入的时间不能小于" + maxGameRecordTimeStr);
           return;
         }
