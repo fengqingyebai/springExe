@@ -10,12 +10,12 @@ import java.util.Map;
  */
 public class MapUtil {
 
-	
-	public static boolean isNullOrEmpty(Map<?,?> map) {
-		return map == null || map.isEmpty();
-	}
-	
-	public static boolean isHavaValue(Map<?,?> map) {
-		return !isNullOrEmpty(map);
-	}
+
+  public static boolean isNullOrEmpty(Map<?, ?> map) {
+    return map == null || map.isEmpty();
+  }
+
+  public static boolean isHavaValue(Map<?, ?> map) {
+    return !isNullOrEmpty(map);
+  }
 }

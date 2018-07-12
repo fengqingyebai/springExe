@@ -20,86 +20,90 @@ import com.kendy.controller.SMAutoController;
  * @time 2018年7月6日 下午9:40:36
  */
 public class AutoDownloadZJExcelService {
-	
-	private static Logger log = Logger.getLogger(AutoDownloadZJExcelService.class);
-    
-    private static final String DOWN_LOAD_EXCEL_URL = "http://cms.pokermanager.club/cms-api/game/exportGame";
-    
-    public static void autoDown(String fileName, String rooId, String token) throws Exception{
-    	
-    	SMAutoController smAutoController = MyController.smAutoController;
-    	
-    	String urlString = String.format("%s?roomId=%s&token=%s", DOWN_LOAD_EXCEL_URL,rooId, token) ;
-    	
-    	String path = getUserDeskPath() + smAutoController.getSelectedDate().toString() + "\\" + fileName;
-    	
-    	File dir = new File(getUserDeskPath() + smAutoController.getSelectedDate().toString() );
-    	
-    	if(!dir.exists()) {
-    		dir.mkdir();
-    	}
-    	download(urlString, path);
+
+  private static Logger log = Logger.getLogger(AutoDownloadZJExcelService.class);
+
+  private static final String DOWN_LOAD_EXCEL_URL =
+      "http://cms.pokermanager.club/cms-api/game/exportGame";
+
+  public static void autoDown(String fileName, String rooId, String token) throws Exception {
+
+    SMAutoController smAutoController = MyController.smAutoController;
+
+    String urlString = String.format("%s?roomId=%s&token=%s", DOWN_LOAD_EXCEL_URL, rooId, token);
+
+    String path =
+        getUserDeskPath() + smAutoController.getSelectedDate().toString() + "\\" + fileName;
+
+    File dir = new File(getUserDeskPath() + smAutoController.getSelectedDate().toString());
+
+    if (!dir.exists()) {
+      dir.mkdir();
     }
-    
-    public static String getUserDeskPath() {
-    	String absolutePath = FileSystemView.getFileSystemView() .getHomeDirectory().getAbsolutePath();
-    	return absolutePath + "\\";
+    download(urlString, path);
+  }
+
+  public static String getUserDeskPath() {
+    String absolutePath = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
+    return absolutePath + "\\";
+  }
+
+  /**
+   * 下载网络文件
+   * 
+   * @time 2018年4月10日
+   * @param url
+   * @param path
+   * @throws IOException
+   * @throws Exception
+   */
+  @SuppressWarnings("resource")
+  public static void download(String url, String path) throws IOException {
+
+    File file = null;
+    HttpURLConnection httpCon = null;
+    URLConnection con = null;
+    URL urlObj = null;
+    file = new File(path);
+    if (!file.exists()) {
+      file.createNewFile();
     }
-    
-    /**
-     * 下载网络文件
-     * @time 2018年4月10日
-     * @param url
-     * @param path
-     * @throws IOException 
-     * @throws Exception
-     */
-    @SuppressWarnings("resource")
-	public static void download(String url,String path) throws IOException  {  
-    	
-        File file= null;  
-        HttpURLConnection httpCon = null;  
-        URLConnection  con = null;  
-        URL urlObj=null;  
-        file = new File(path); 
-        if(!file.exists()) {
-        	file.createNewFile();
-        }
-        urlObj = new URL(url);  
-        con = urlObj.openConnection();  
-        httpCon =(HttpURLConnection) con;
-        httpCon.setConnectTimeout(5 * 1000);
-        httpCon.setReadTimeout(5 * 1000);
-        
-        InputStream in = httpCon.getInputStream();
-    	FileOutputStream fos = new FileOutputStream(file);
-        int responseCode = httpCon.getResponseCode();
-        if(responseCode != 200) {
-        	throw new IOException("自动下载返回码："+responseCode);
-        }
-        //获取自己数组  
-        byte[] getData = readInputStream(in); 
-        fos.write(getData); 
-    }  
-    
-    
-    /** 
-     * 从输入流中获取字节数组 
-     * @param inputStream 
-     * @return 
-     * @throws IOException 
-     */  
-    public static  byte[] readInputStream(InputStream inputStream) throws IOException {    
-        byte[] buffer = new byte[1024 * 4];    
-        int len = 0;    
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();    
-        while((len = inputStream.read(buffer)) != -1) {    
-            bos.write(buffer, 0, len);    
-        }    
-        bos.close();    
-        return bos.toByteArray();    
+    urlObj = new URL(url);
+    con = urlObj.openConnection();
+    httpCon = (HttpURLConnection) con;
+    httpCon.setConnectTimeout(5 * 1000);
+    httpCon.setReadTimeout(5 * 1000);
+
+    InputStream in = httpCon.getInputStream();
+    FileOutputStream fos = new FileOutputStream(file);
+    int responseCode = httpCon.getResponseCode();
+    if (responseCode != 200) {
+      throw new IOException("自动下载返回码：" + responseCode);
     }
-    
+    // 获取自己数组
+    byte[] getData = readInputStream(in);
+    fos.write(getData);
+  }
+
+
+  /**
+   * 从输入流中获取字节数组
+   * 
+   * @param inputStream
+   * @return
+   * @throws IOException
+   */
+  public static byte[] readInputStream(InputStream inputStream) throws IOException {
+    byte[] buffer = new byte[1024 * 4];
+    int len = 0;
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    while ((len = inputStream.read(buffer)) != -1) {
+      bos.write(buffer, 0, len);
+    }
+    bos.close();
+    return bos.toByteArray();
+  }
+
 
 
 }

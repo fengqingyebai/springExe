@@ -8,6 +8,6 @@ import java.io.Serializable;
  * @author 林泽涛
  * @time 2017年11月5日 下午1:21:13
  */
-public interface Entity{
+public interface Entity {
 
 }

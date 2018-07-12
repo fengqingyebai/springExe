@@ -2,7 +2,6 @@ package com.kendy.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.kendy.entity.ShangmaInfo;
 
 /**
@@ -12,12 +11,12 @@ import com.kendy.entity.ShangmaInfo;
  * @time 2018年6月28日
  */
 public class BankFlowModel {
-	
+
   private String bankName;
   private int money;
   private String updateTime;
   private String softTime;
-  
+
   public BankFlowModel() {
     super();
   }
@@ -67,5 +66,5 @@ public class BankFlowModel {
     return "BankFlowModel [bankName=" + bankName + ", money=" + money + ", updateTime=" + updateTime
         + ", softTime=" + softTime + "]";
   }
-  
+
 }

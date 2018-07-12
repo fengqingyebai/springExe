@@ -4,27 +4,26 @@ import java.util.List;
 
 public class WanjiaListResult {
 
-	private List<WanjiaApplyInfo> result;
-	
-	private Integer iErrCode;
+  private List<WanjiaApplyInfo> result;
 
-	public List<WanjiaApplyInfo> getResult() {
-		return result;
-	}
+  private Integer iErrCode;
 
-	public void setResult(List<WanjiaApplyInfo> result) {
-		this.result = result;
-	}
+  public List<WanjiaApplyInfo> getResult() {
+    return result;
+  }
 
-	public Integer getiErrCode() {
-		return iErrCode;
-	}
+  public void setResult(List<WanjiaApplyInfo> result) {
+    this.result = result;
+  }
 
-	public void setiErrCode(Integer iErrCode) {
-		this.iErrCode = iErrCode;
-	}
-	
-	
-	
-	
+  public Integer getiErrCode() {
+    return iErrCode;
+  }
+
+  public void setiErrCode(Integer iErrCode) {
+    this.iErrCode = iErrCode;
+  }
+
+
+
 }
