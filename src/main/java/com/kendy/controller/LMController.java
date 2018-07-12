@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
@@ -69,6 +70,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
+@Controller
 public class LMController extends BaseController implements Initializable {
 
 

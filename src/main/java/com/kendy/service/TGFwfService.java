@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.stereotype.Service;
 import com.kendy.constant.Constants;
 import com.kendy.controller.MyController;
 import com.kendy.controller.TGController;
@@ -35,6 +36,7 @@ import javafx.scene.control.TableView;
  * @author 林泽涛
  * @time 2018年3月13日 下午6:58:18
  */
+@Service
 public class TGFwfService {
 
   public void setFwfDetail(String tgCompany, TableView<TGFwfinfo> tableTGFwf,

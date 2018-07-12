@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -34,6 +35,7 @@ import javafx.scene.input.KeyEvent;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:02
  */
+@Controller
 public class DelController extends BaseController implements Initializable {
 
   private static Logger log = Logger.getLogger(CombineIDController.class);

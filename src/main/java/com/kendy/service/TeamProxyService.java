@@ -14,6 +14,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
@@ -45,6 +46,7 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:49:57
  */
+@Service
 public class TeamProxyService {
 
   private static Logger log = LoggerFactory.getLogger(TeamProxyService.class);

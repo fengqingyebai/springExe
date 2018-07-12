@@ -3,6 +3,7 @@ package com.kendy.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import javafx.fxml.Initializable;
 
 /**
@@ -11,6 +12,7 @@ import javafx.fxml.Initializable;
  * @author linzt
  * @time 2018年2月14日 上午9:32:23
  */
+@Controller
 public class TeamProxyController extends BaseController implements Initializable {
 
   Logger log = Logger.getLogger(TeamProxyController.class);

@@ -3,6 +3,7 @@ package com.kendy.controller;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 import com.kendy.interfaces.Entity;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -17,6 +18,7 @@ import javafx.util.Callback;
  * @author linzt
  * @time 2018年7月6日
  */
+@Controller
 public abstract class BaseController {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());

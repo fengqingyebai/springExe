@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.kendy.application.Main;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
@@ -48,6 +49,7 @@ import javafx.scene.layout.VBox;
  * @author linzt
  * @time 2018年6月27日
  */
+@Controller
 public class BankFlowController extends BaseController implements Initializable {
 
 

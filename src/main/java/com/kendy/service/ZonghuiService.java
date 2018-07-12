@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
@@ -28,6 +29,7 @@ import javafx.scene.control.TableView;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:50:55
  */
+@Service
 public class ZonghuiService {
 
   private static Logger log = Logger.getLogger(ZonghuiService.class);
@@ -140,7 +142,10 @@ public class ZonghuiService {
   }
 
   /**
-   * 设置今天的总团队服务费 昨日留底总团队服务费与所有总团队服务费的差 = 当天汇总中的总团队服务费
+   * 设置今天的总团队服务费
+   * <P>
+   * 昨日留底总团队服务费与所有总团队服务费的差 = 当天汇总中的总团队服务费
+   * </P>
    * 
    * @time 2018年2月7日
    */

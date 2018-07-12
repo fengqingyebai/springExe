@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
@@ -26,6 +27,7 @@ import javafx.scene.control.TextField;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:51:39
  */
+@Service
 public class MemberService {
 
   private static Logger log = Logger.getLogger(MemberService.class);

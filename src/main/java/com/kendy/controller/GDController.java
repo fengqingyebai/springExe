@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.application.Main;
@@ -59,6 +60,7 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @time 2018年1月14日 下午6:12:15
  */
+@Controller
 public class GDController extends BaseController implements Initializable {
 
   private static Logger log = Logger.getLogger(GDController.class);

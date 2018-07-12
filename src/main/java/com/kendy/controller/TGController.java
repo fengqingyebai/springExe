@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.application.Main;
@@ -78,6 +79,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
+@Controller
 public class TGController extends BaseController implements Initializable {
 
 

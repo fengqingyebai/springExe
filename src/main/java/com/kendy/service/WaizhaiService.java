@@ -10,8 +10,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -19,8 +21,6 @@ import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.WaizhaiInfo;
-import com.kendy.entity.ZonghuiInfo;
-import com.kendy.entity.zhaiwuInfo;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.MapUtil;
@@ -42,23 +42,13 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @version 1.0
  */
+@Service
 public class WaizhaiService {
 
 
   private static Logger log = Logger.getLogger(WaizhaiService.class);
 
   public static DecimalFormat df = new DecimalFormat("#.00");
-
-  /**
-   * 刷新汇总信息表
-   */
-  public static void refreWaizhaiTable(TableView<WaizhaiInfo> tableWaizhai,
-      TableView<zhaiwuInfo> tableZhaiwu) {
-    Map<String, Map<String, String>> lockedMap = DataConstans.All_Locked_Data_Map;
-    ZonghuiInfo zonghuiInfo = new ZonghuiInfo();
-    ObservableList<ZonghuiInfo> obList = FXCollections.observableArrayList();
-  }
-
 
   /**
    * 自动生成外债信息表
@@ -106,7 +96,7 @@ public class WaizhaiService {
           .setCellValueFactory(new PropertyValueFactory<CurrentMoneyInfo, String>("mingzi"));
 
       TableColumn lastNameCol = new TableColumn(sumMap.get(gudongName));
-      lastNameCol.setStyle("-fx-alignment: CENTER;");
+      lastNameCol.setStyle(Constants.CSS_CENTER);
       lastNameCol.setPrefWidth(95);
       lastNameCol
           .setCellValueFactory(new PropertyValueFactory<CurrentMoneyInfo, String>("shishiJine"));
@@ -234,11 +224,6 @@ public class WaizhaiService {
           continue;
         }
       }
-      // if(StringUtil.isBlank(infos.getShishiJine())
-      // || "0".equals(infos.getShishiJine())
-      // || !infos.getShishiJine().contains("-")) {
-      // continue;
-      // }
       playerId = infos.getWanjiaId();
       if (!StringUtil.isBlank(playerId)) {
         player = DataConstans.membersMap.get(playerId);
@@ -251,16 +236,12 @@ public class WaizhaiService {
             if (gudong.equals(player.getGudong())) {
               if (gudongMap.get(gudong) == null) {
                 eachGudongList = new ArrayList<>();
-                // eachGudongList.add(infos);
 
               } else {
                 eachGudongList = gudongMap.get(gudong);
-                // eachGudongList.add(infos);
               }
-              /***** 2018-01-01 add ****/
               CurrentMoneyInfo tempInfo = copyCurrentMoneyInfo(infos);
               eachGudongList.add(tempInfo);
-              /*********/
               gudongMap.put(gudong, eachGudongList);
               break;
             }

@@ -24,6 +24,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.application.Main;
@@ -139,6 +140,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:48
  */
+@Controller
 public class MyController extends BaseController implements Initializable {
 
   static Logger log = Logger.getLogger(MyController.class);

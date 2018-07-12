@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
 
@@ -19,6 +20,7 @@ import com.kendy.controller.SMAutoController;
  * @author 林泽涛
  * @time 2018年7月6日 下午9:40:36
  */
+@Service
 public class AutoDownloadZJExcelService {
 
   private static Logger log = Logger.getLogger(AutoDownloadZJExcelService.class);

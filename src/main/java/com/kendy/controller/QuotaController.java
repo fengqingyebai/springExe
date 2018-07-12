@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankInfo;
@@ -47,6 +48,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
+@Controller
 public class QuotaController extends BaseController implements Initializable {
 
 

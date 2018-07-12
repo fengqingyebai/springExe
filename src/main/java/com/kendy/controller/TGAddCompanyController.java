@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.TGCompanyModel;
@@ -30,6 +31,7 @@ import javafx.scene.control.TextField;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
+@Controller
 public class TGAddCompanyController extends BaseController implements Initializable {
 
   private static Logger log = Logger.getLogger(TGAddCompanyController.class);

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.JifenInfo;
@@ -22,6 +23,7 @@ import javafx.scene.control.TextField;
  * @author 林泽涛
  * @time 2017年11月12日 上午3:07:21
  */
+@Service
 public class JifenService {
 
   private static Logger log = Logger.getLogger(JifenService.class);

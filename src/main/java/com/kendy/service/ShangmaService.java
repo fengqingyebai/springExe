@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.kendy.application.Main;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
@@ -63,6 +64,7 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年10月28日 下午5:22:28
  */
+@Service
 public class ShangmaService {
 
   private static Logger log = Logger.getLogger(ShangmaService.class);

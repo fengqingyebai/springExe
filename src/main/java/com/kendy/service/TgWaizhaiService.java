@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
@@ -43,6 +44,7 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @time 2018年3月8日 下午8:49:07
  */
+@Service
 public class TgWaizhaiService {
 
 
