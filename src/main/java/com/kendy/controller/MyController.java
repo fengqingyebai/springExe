@@ -22,6 +22,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -2093,7 +2094,8 @@ public class MyController extends BaseController implements Initializable {
     String targetFilePath =
         PathUtil.getUserDeskPath() + "\\" + softDate + "已锁定" + "\\" + "已锁定-" + fileName;
     try {
-      FileUtil.moveFile(resourceFilePath, targetFilePath);
+      FileUtils.copyFile(new File(resourceFilePath), new File(targetFilePath));
+      FileUtils.deleteQuietly(new File(resourceFilePath));
     } catch (FileNotFoundException e) {
       log.info("锁定后转移Excel失败,原因：FileNotFoundException，源地址是：" + resourceFilePath);
     } catch (IOException e) {

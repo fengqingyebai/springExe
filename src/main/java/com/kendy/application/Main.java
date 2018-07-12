@@ -115,7 +115,7 @@ public class Main extends Application {
 
 
       try {
-        primaryStage.getIcons().add(new Image("file:resources/icon.png"));
+        primaryStage.getIcons().add(new Image("file:src/main/resources/images/icon.png"));
       } catch (Exception e) {
         log.error("找不到icon图标！");
       }
