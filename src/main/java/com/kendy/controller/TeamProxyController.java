@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import javafx.fxml.Initializable;
 
 /**
- * 团队代理查询控制类
+ * 团队代理查询控制类 TODO
  * 单独出来，原先是在MyController中
  * 
  * @author linzt

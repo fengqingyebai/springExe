@@ -21,7 +21,7 @@ public class Main extends Application {
 	
 	private static Logger log = Logger.getLogger(Main.class);
 	
-	public static TeamProxyController teamProxyController  = new TeamProxyController();
+//	public static TeamProxyController teamProxyController  = new TeamProxyController();
 	
 	static {
 //		try {
@@ -34,7 +34,7 @@ public class Main extends Application {
 //			ErrorUtil.err("日志组件初始化失败");
 //		}
 		
-		teamProxyController  = new TeamProxyController();
+//		teamProxyController  = new TeamProxyController();
 		System.out.println("Main static");
 	}
 	

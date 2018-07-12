@@ -439,119 +439,61 @@ public class MyController extends BaseController implements Initializable{
 				DataConstans.gudongList.add(gudong);
 			}
 		}
-		for(String gd : DataConstans.gudongList)
+		for(String gd : DataConstans.gudongList) {
 			gudongListView.getItems().add(gd);
+		}
 		
 		//模拟初始化第一个tableView
-		//kendy:绑定数据域
-		pay.setCellFactory(cellFactory);//支付按钮
 		//绑定玩家信息表
-		bindCellValue(tuan,wanjiaId,wanjia,jifen,shishou,baoxian,
-				chuHuishui,baohui,shuihouxian,heLirun,shouHuishui);
-		jifen.setCellFactory(getColorCellFactory(new TotalInfo()));
-		shishou.setCellFactory(getColorCellFactory(new TotalInfo()));
-		baoxian.setCellFactory(getColorCellFactory(new TotalInfo()));
-		shuihouxian.setCellFactory(getColorCellFactory(new TotalInfo()));
-		chuHuishui.setCellFactory(getColorCellFactory(new TotalInfo()));
+		bindCellValueByTable(new TotalInfo(), tableTotalInfo);
+		
 		//绑定牌局表
-		bindCellValue(paiju,wanjiaName,zhangji,yicunJifen,heji);
+		bindCellValueByTable(new WanjiaInfo(), tablePaiju);
 		pay.setCellFactory(cellFactory);//支付按钮：单独出来 
-		pay.setStyle("-fx-alignment: CENTER;");
 		copy.setCellFactory(cellFactoryCopy);//复制按钮：单独出来 
-		copy.setStyle("-fx-alignment: CENTER;");
-		zhangji.setCellFactory(getColorCellFactory(new WanjiaInfo()));
-		yicunJifen.setCellFactory(getColorCellFactory(new WanjiaInfo()));
-		heji.setCellFactory(getColorCellFactory(new WanjiaInfo()));
-
+		setColumnCenter(pay, copy);
+		
 		//绑定实时金额表
 		tableCurrentMoneyInfo.setEditable(true);
 		bindCellValue(cmSuperIdSum,mingzi,shishiJine,cmiEdu);
-		cmSuperIdSum.setStyle("-fx-alignment: CENTER;-fx-font-weight: bold;");
-                        
+		cmSuperIdSum.setStyle(Constants.CSS_CENTER_BOLD);
 		shishiJine.setCellFactory(TextFieldTableCell.forTableColumn());
-		shishiJine.setOnEditCommit(
-				new EventHandler<CellEditEvent<CurrentMoneyInfo, String>>() {
-					@Override
-					public void handle(CellEditEvent<CurrentMoneyInfo, String> t) {
-						//String oldValue = t.getOldValue();
-						//修改原值
-						CurrentMoneyInfo cmInfo = (CurrentMoneyInfo) t.getTableView().getItems().get(
-								t.getTablePosition().getRow());
-						
-						if(cmInfo != null && !StringUtil.isBlank(cmInfo.getMingzi())){
-							//更新到已存积分
-							boolean isChangedOK = MoneyService.changeYicunJifen(tablePaiju,cmInfo.getMingzi(),t.getNewValue());
-							if(isChangedOK) {
-								cmInfo.setShishiJine(t.getNewValue());
-							}else {
-								cmInfo.setShishiJine(t.getOldValue());
-								tableCurrentMoneyInfo.refresh();
-							}
-							MoneyService.flush_SSJE_table();//最后刷新实时金额表
-						}else if(cmInfo != null) {
-							cmInfo.setShishiJine(null);
-							ShowUtil.show("空行不能输入", 1);
-							tableCurrentMoneyInfo.refresh();
-						}
-					}
-					
-				}
-		);
+		setSSJEEditOnCommit();
 		
 		//绑定资金表
 		tableZijin.setEditable(true);
-		bindCellValue(zijinType,zijinAccount);
+		bindCellValueByTable(new ZijinInfo(), tableZijin);
 		zijinType.setCellFactory(zijinCellFactory);
-		zijinAccount.setCellFactory(getColorCellFactory(new ZijinInfo()));
 		
 		//绑定利润表
-		bindCellValue(profitType,profitAccount);
-		profitAccount.setCellFactory(getColorCellFactory(new ProfitInfo()));
+		bindCellValueByTable(new ProfitInfo(), tableProfit);
 		//绑定实时开销表
-		bindCellValue(kaixiaoType,kaixiaoMoney);
-		kaixiaoMoney.setCellFactory(getColorCellFactory(new KaixiaoInfo()));
+		bindCellValueByTable(new KaixiaoInfo(), tableKaixiao);
 		//绑定实时当局表
-		bindCellValue(type,money);
-		money.setCellFactory(getColorCellFactory(new DangjuInfo()));
+		bindCellValueByTable(new DangjuInfo(), tableDangju);
 		//绑定交收表
-		bindCellValue(jiaoshouType,jiaoshouMoney);
-		jiaoshouMoney.setCellFactory(getColorCellFactory(new JiaoshouInfo()));
+		bindCellValueByTable(new JiaoshouInfo(), tableJiaoshou);
 		//绑定平帐表
-		bindCellValue(pingzhangType,pingzhangMoney);
-		pingzhangMoney.setCellFactory(getColorCellFactory(new PingzhangInfo()));
-		//绑定团队表
-		bindCellValue(teamID,teamZJ,teamHS,teamBS,teamSum);
-		teamJiesuan.setCellFactory(cellFactoryJiesuan);
-		teamJiesuan.setStyle("-fx-alignment: CENTER;");
-		teamZJ.setCellFactory(getColorCellFactory(new TeamInfo()));
-		teamBS.setCellFactory(getColorCellFactory(new TeamInfo()));
-		teamHS.setCellFactory(getColorCellFactory(new TeamInfo()));
-		teamSum.setCellFactory(getColorCellFactory(new TeamInfo()));
-		//绑定代理查询表（团队当天查询）
-		bindCellValue(proxyPlayerId,proxyPlayerName,proxyYSZJ,proxyZJ,proxyBaoxian,proxyHuishui,proxyHuiBao,proxyTableId);
-		proxyYSZJ.setCellFactory(getColorCellFactory(new ProxyTeamInfo()));
-		proxyZJ.setCellFactory(getColorCellFactory(new ProxyTeamInfo()));
-		proxyBaoxian.setCellFactory(getColorCellFactory(new ProxyTeamInfo()));
+		bindCellValueByTable(new PingzhangInfo(), tablePingzhang);
 		
+		//绑定团队表
+		bindCellValueByTable(new TeamInfo(), tableTeam);
+		teamJiesuan.setCellFactory(cellFactoryJiesuan);
+		teamJiesuan.setStyle(Constants.CSS_CENTER);
+		//绑定代理查询表（团队当天查询）
+		bindCellValueByTable(new ProxyTeamInfo(), tableProxyTeam);
 		//绑定代理查询中的合计表
-		bindCellValue(proxySumType,proxySum);
-		proxySum.setCellFactory(getColorCellFactory(new ProxySumInfo()));
+		bindCellValueByTable(new ProxySumInfo(), tableProxySum);
 		//绑定汇总信息表（当天每一局的团队汇总查询）
-		bindCellValue(zonghuiTabelId,zonghuiFuwufei,zonghuiBaoxian,zonghuiHuishui,zonghuiHuiBao);
-		zonghuiBaoxian.setCellFactory(getColorCellFactory(new ZonghuiInfo()));
-		zonghuiHuishui.setCellFactory(getColorCellFactory(new ZonghuiInfo()));
-		zonghuiHuiBao.setCellFactory(getColorCellFactory(new ZonghuiInfo()));
+		bindCellValueByTable(new ZonghuiInfo(), tableZonghui);
 		//绑定汇总查询中的当天汇总表
-		bindCellValue(huizongType,huizongMoney);
-		huizongMoney.setCellFactory(getColorCellFactory(new DangtianHuizongInfo()));
+		bindCellValueByTable(new DangtianHuizongInfo(), tableDangtianHuizong);
 		//绑定汇总查询中的开销表表
-		bindCellValue(zonghuiKaixiaoType,zonghuiKaixiaoMoney);
-		zonghuiKaixiaoMoney.setCellFactory(getColorCellFactory(new ZonghuiKaixiaoInfo()));
+		bindCellValueByTable(new ZonghuiKaixiaoInfo(), tableZonghuiKaixiao);
 		//绑定会员查询中的会员当天战绩表
-		bindCellValue(memberJu,memberZJ);
-		memberZJ.setCellFactory(getColorCellFactory(new MemberZJInfo()));
+		bindCellValueByTable(new MemberZJInfo(), tableMemberZJ);
 		//绑定实时上码表
-		bindCellValue(shangmaLianheEdu,shangmaName,shangmaEdu,shangmaAvailableEdu,shangmaYCJF,shangmaYiSM,shangmaSumOfZJ,shangmaPlayerId);//,shangmaShishou,shangmaJu
+		bindCellValueByTable(new ShangmaInfo(), tableShangma);
 		tableShangma.setRowFactory(new Callback<TableView<ShangmaInfo>, TableRow<ShangmaInfo>>() {  
 			@Override  
             public TableRow<ShangmaInfo> call(TableView<ShangmaInfo> param) {  
@@ -559,15 +501,8 @@ public class MyController extends BaseController implements Initializable{
             }  
         });  
 		
-		shangmaLianheEdu.setCellFactory(getColorCellFactory(new ShangmaInfo()));
-		shangmaAvailableEdu.setCellFactory(getColorCellFactory(new ShangmaInfo()));//red_NotEdit_CellFactory
-		shangmaYCJF.setCellFactory(getColorCellFactory(new ShangmaInfo()));
-		
 		//绑定外债信息表
-		bindCellValue(waizhaiType,waizhaiMoney);
-		waizhaiMoney.setCellFactory(getColorCellFactory(new WaizhaiInfo()));
-		
-		
+		bindCellValueByTable(new WaizhaiInfo(), tableWaizhai);
 		//绑定上码个人信息表
 		tableShangmaDetail.setEditable(true);
 		bindCellValue(shangmaDetailName,shangmaJu,shangmaSM,shangmaShishou);
@@ -575,37 +510,20 @@ public class MyController extends BaseController implements Initializable{
 		shangmaJu.setCellFactory(ShangmaNameCellFactory);
 		shangmaSM.setCellFactory(ShangmaNameCellFactory);
 		shangmaShishou.setCellFactory(ShangmaNameCellFactory);
-		tableShangma.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {    
-					@Override    
-			        public void changed(ObservableValue observable,Object oldValue, Object newValue) {
-			        	ShangmaInfo smInfo = (ShangmaInfo)newValue;
-			        	//加载右边的个人详情
-			        	if(smInfo != null) {
-			        		String playerId = smInfo.getShangmaPlayerId();
-			        		if(!StringUtil.isBlank(playerId)) {
-			        			ShangmaService.loadSMDetailTable(playerId);
-			        			ShangmaService.loadSMNextDayTable(playerId);
-			        		}
-			        	}
-			        	else
-			        		tableShangmaDetail.setItems(null);
-			        }    
-			}); 
+		setTableShangmaSelect();
 		
 		//绑定次日信息表
 		shangmaNextDayName.setCellValueFactory(new PropertyValueFactory<ShangmaDetailInfo,String>("shangmaDetailName"));
 		shangmaNextDayName.setCellFactory(ShangmaNameNextdayCellFactory);
-		shangmaNextDayName.setStyle("-fx-alignment: CENTER;");
 		shangmaNextDayJu.setCellValueFactory(new PropertyValueFactory<ShangmaDetailInfo,String>("shangmaJu"));
 		shangmaNextDayJu.setCellFactory(ShangmaNameNextdayCellFactory);
-		shangmaNextDayJu.setStyle("-fx-alignment: CENTER;");
 		shangmaNextDaySM.setCellValueFactory(new PropertyValueFactory<ShangmaDetailInfo,String>("shangmaSM"));
 		shangmaNextDaySM.setCellFactory(ShangmaNameNextdayCellFactory);
-		shangmaNextDaySM.setStyle("-fx-alignment: CENTER;");
+		setColumnCenter(shangmaNextDayName, shangmaNextDayJu, shangmaNextDaySM);
 
 		
 		//绑定积查询表
-		bindCellValue(jfRank,jfPlayerName,jfValue);
+		bindCellValueByTable(new JifenInfo(), tableJifen);
 		
 		
 		//初始化实时金额表
@@ -649,8 +567,75 @@ public class MyController extends BaseController implements Initializable{
 		//加载各个tab页面
 		loadSubTabs();
 	    
-	    
 	}
+	
+	/**
+	 * 单击上码记录
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+    private void setTableShangmaSelect() {
+      tableShangma.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+        @Override
+        public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+          ShangmaInfo smInfo = (ShangmaInfo) newValue;
+          // 加载右边的个人详情
+          if (smInfo != null) {
+            String playerId = smInfo.getShangmaPlayerId();
+            if (!StringUtil.isBlank(playerId)) {
+              ShangmaService.loadSMDetailTable(playerId);
+              ShangmaService.loadSMNextDayTable(playerId);
+            }
+          } else
+            tableShangmaDetail.setItems(null);
+        }
+      });
+	}
+	
+	/**
+	 * 实时金额修改
+	 */
+  private void setSSJEEditOnCommit() {
+    shishiJine.setOnEditCommit(new EventHandler<CellEditEvent<CurrentMoneyInfo, String>>() {
+      @Override
+      public void handle(CellEditEvent<CurrentMoneyInfo, String> t) {
+        // String oldValue = t.getOldValue();
+        // 修改原值
+        CurrentMoneyInfo cmInfo =
+            (CurrentMoneyInfo) t.getTableView().getItems().get(t.getTablePosition().getRow());
+
+        if (cmInfo != null && !StringUtil.isBlank(cmInfo.getMingzi())) {
+          // 更新到已存积分
+          boolean isChangedOK =
+              MoneyService.changeYicunJifen(tablePaiju, cmInfo.getMingzi(), t.getNewValue());
+          if (isChangedOK) {
+            cmInfo.setShishiJine(t.getNewValue());
+          } else {
+            cmInfo.setShishiJine(t.getOldValue());
+            tableCurrentMoneyInfo.refresh();
+          }
+          MoneyService.flush_SSJE_table();// 最后刷新实时金额表
+        } else if (cmInfo != null) {
+          cmInfo.setShishiJine(null);
+          ShowUtil.show("空行不能输入", 1);
+          tableCurrentMoneyInfo.refresh();
+        }
+      }
+
+    });
+  }
+	
+	
+	
+	  /**
+	   * 单独设置列居中
+	   * @param colums
+	   */
+	  @SuppressWarnings("unchecked")
+	  public <T extends Entity>  void setColumnCenter(TableColumn<T,?>... colums){
+	    for(TableColumn<T,?> column : colums){
+	      column.setStyle(Constants.CSS_CENTER);
+	    }
+	  }
 	
 
 	/**
@@ -2827,34 +2812,6 @@ public class MyController extends BaseController implements Initializable{
 		MoneyService.exportCombineIDAction();
 	}
 	
-    /**
-     * 小林：解决红色列的问题
-     * @param t 列实体
-     * @return
-     */
-//    public static <T> Callback<TableColumn<T,String>, TableCell<T,String>> getColorCellFactory(T t){
-//    	return new Callback<TableColumn<T,String>, TableCell<T,String>>() {  
-//    	    public TableCell<T,String> call(TableColumn<T,String> param) {  
-//    	    	TableCell<T,String> cell = new TableCell<T,String>() {  
-//    	            @Override  
-//    	            public void updateItem(String item, boolean empty) {  
-//    	                super.updateItem(item, empty);  
-//    	                this.setTextFill(null); 
-//    	                if (!isEmpty() && item != null) {  
-//    	                     if(item.contains("-")) {
-//    	                    	 this.setTextFill(Color.RED);  
-//    	                     }else {
-//    	                    	 this.setTextFill(Color.BLACK);  
-//    	                     }
-//    	                    setText(item);  
-//    	                }  
-//    	            }  
-//    	        }; 
-//    	        cell.setEditable(false);//不让其可编辑
-//    	        return cell;
-//    	    }
-//        };  
-//    }
     
     /**
      * 导出实时金额表

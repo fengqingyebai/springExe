@@ -23,6 +23,9 @@ public class Constants {
 	
 	public static final String GU_DONG = "gudong";
 	
+	public static final String CSS_CENTER_BOLD = "-fx-alignment: CENTER;-fx-font-weight: bold;";
+	public static final String CSS_CENTER = "-fx-alignment: CENTER;";
+	
 	
 	public static final String ZERO = "0";
 	

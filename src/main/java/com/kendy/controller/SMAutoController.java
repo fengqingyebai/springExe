@@ -172,16 +172,16 @@ public class SMAutoController extends BaseController implements Initializable {
     /**
      * DOM加载完后的事件
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         // 换行
         tokenArea.setWrapText(true);
         // 绑定列值属性
-        MyController.bindCellValue(smAutoDate, smAutoPlayerId, smAutoPlayerName, smAutoPaiju, smAutoApplyAccount,
-                smAutoIsTeamAvailabel, smAutoIsCurrentDay, smAutoIsNextDay, smAutoIsAgree, smAutoIsAgreeSuccess,
-                smAutoAvailabel, smAutoTeamTotalAvailabel);
+        bindCellValueByTable(new SMAutoInfo(), tableSMAuto);   // 泽涛 自动上码待观察
+//        MyController.bindCellValue(smAutoDate, smAutoPlayerId, smAutoPlayerName, smAutoPaiju, smAutoApplyAccount,
+//                smAutoIsTeamAvailabel, smAutoIsCurrentDay, smAutoIsNextDay, smAutoIsAgree, smAutoIsAgreeSuccess,
+//                smAutoAvailabel, smAutoTeamTotalAvailabel);
         // 初始化次日上码范围
         initNextDayRange();
         

@@ -115,6 +115,114 @@ public class LMController extends BaseController implements Initializable{
 	
 	public static final String[] LM = new String[] {"联盟1","联盟2","联盟3"};
 	
+	
+	/**
+     * FXML DOM节点加载完毕后的初始化
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        log.info("联盟对帐页面加载数据开始...");
+        
+        //绑定代理查询中的合计表
+        bindCellValue(lmDetailTableId,lmDetailZJ,lmDetailInsure,lmDetailPersonCount);
+        lmDetailZJ.setCellFactory(getColorCellFactory(new LMDetailInfo()));//红色注释
+        lmDetailInsure.setCellFactory(getColorCellFactory(new LMDetailInfo()));
+        
+        //绑定代理查询中的合计表
+        tableLMSum.setEditable(true);
+        bindCellValue(lmSumName,lmSumZJ,lmSumInsure,lmSumPersonCount);
+        lmSumInsure.setCellFactory(getColorCellFactory(new LMSumInfo()));//红色注释
+        lmSumZJ.setCellFactory(TextFieldTableCell.forTableColumn());
+        setOnEditCommit();
+        
+        //设置俱乐部的ListView监听
+        initSingClubListen();
+        
+        //软件一打开就从从数据库中获取所有俱乐部信息
+        allClubMap = DBUtil.getAllClub();
+        _clubListView = clubListView;
+        refreshClubList();
+        
+        //同步所有俱乐部信息总列表
+        refresh_eachClubList();
+        
+        //设置合计桌费（这个没多大影响）
+        setNewSumOfZF();
+        log.info("联盟对帐页面加载数据完成！");
+    }
+    
+    
+    private void setOnEditCommit() {
+      lmSumZJ.setOnEditCommit(
+          new EventHandler<CellEditEvent<LMSumInfo, String>>() {
+              @Override
+              public void handle(CellEditEvent<LMSumInfo, String> t) {
+                  String oldValue = t.getOldValue();
+                  String newValue = t.getNewValue();
+                  //修改原值
+                  LMSumInfo sumInfo = (LMSumInfo) t.getTableView().getItems().get(
+                          t.getTablePosition().getRow());
+                  List<String> noAllowList = Arrays.asList("结余","当天总帐");
+                  
+                  if(sumInfo == null || noAllowList.contains(sumInfo.getLmSumName())) {
+                      ShowUtil.show("此行不能编辑！");
+                      sumInfo.setLmSumZJ(oldValue);
+                      tableLMSum.refresh();
+                      return;
+                  }
+                  if(sumInfo != null && "桌费".equals(sumInfo.getLmSumName()) 
+                          && !("0".equals(newValue)) && !(newValue.contains("-"))) {
+                      ShowUtil.show("桌费只能填写负数！");
+                      sumInfo.setLmSumZJ(oldValue);
+                      tableLMSum.refresh();
+                      return;
+                  }
+                  //String zf_or_yiJieSuan = sumInfo.getLmSumZJ();//因为桌费和已结算在战绩那列
+                  try {
+                      if(!StringUtil.isBlank(newValue))
+                          Double.valueOf(newValue);
+                  }catch(Exception e) {
+                      ShowUtil.show(newValue+"是非法数据！！");
+                      sumInfo.setLmSumZJ(oldValue);
+                      tableLMSum.refresh();
+                      return;
+                  }
+                  //新旧两值相等，应该不操作
+                  
+                  
+                  //总和表赋新值
+                  sumInfo.setLmSumZJ(newValue);
+                  //缓存赋新值（桌费或已结算）
+                  Club club = getSelectedClub();
+                  int lmType = getCurrentLMType();
+                  if("桌费".equals(sumInfo.getLmSumName())) {
+                      //将新桌费设置到不同联盟当中
+                      set_LM_Zhuofei(club,lmType,newValue);
+                      //add 2018-2-11 添加到历史联盟桌费
+                      String date = StringUtil.isBlank(DataConstans.Date_Str) ? "2017-01-01" : DataConstans.Date_Str;
+                      ClubZhuofei clubZhuofei = new ClubZhuofei(date,  club.getClubId(),  newValue,  "联盟"+lmType);
+                      DBUtil.saveOrUpdate_club_zhuofei(clubZhuofei);
+                      
+                  }else if("已结算".equals(sumInfo.getLmSumName())) {
+                      //club.setYiJieSuan(newValue);
+                      //将新桌费设置到不同联盟当中
+                      set_LM_YiJiesuan(club,lmType,newValue);
+                  }
+                  //更新结余
+                  updateTableLMSumOnly();
+                  //同步到数据库
+                  DBUtil.updateClub(club);
+                  
+                  //设置合计桌费（这个没多大影响）
+                  setNewSumOfZF();
+                  
+              }
+              
+          }
+  );
+    }
+	
 	//同步俱乐部信息（缓存与数据库）
 	public static void refreshClubList() {
 		
@@ -551,112 +659,7 @@ public class LMController extends BaseController implements Initializable{
 	}
 	
 	
-    /**
-     * FXML DOM节点加载完毕后的初始化
-     */
-	@SuppressWarnings("unchecked")
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		log.info("联盟对帐页面加载数据开始...");
-		
-		//绑定代理查询中的合计表
-		bindCellValue(lmDetailTableId,lmDetailZJ,lmDetailInsure,lmDetailPersonCount);
-		lmDetailZJ.setCellFactory(getColorCellFactory(new LMDetailInfo()));//红色注释
-		lmDetailInsure.setCellFactory(getColorCellFactory(new LMDetailInfo()));
-		
-		//绑定代理查询中的合计表
-		tableLMSum.setEditable(true);
-		bindCellValue(lmSumName,lmSumZJ,lmSumInsure,lmSumPersonCount);
-		lmSumInsure.setCellFactory(getColorCellFactory(new LMSumInfo()));//红色注释
-		lmSumZJ.setCellFactory(TextFieldTableCell.forTableColumn());
-//		shishiJine.setCellFactory(redAndEditCellFactory);
-		lmSumZJ.setOnEditCommit(
-				new EventHandler<CellEditEvent<LMSumInfo, String>>() {
-					@Override
-					public void handle(CellEditEvent<LMSumInfo, String> t) {
-						String oldValue = t.getOldValue();
-						String newValue = t.getNewValue();
-						//修改原值
-						LMSumInfo sumInfo = (LMSumInfo) t.getTableView().getItems().get(
-								t.getTablePosition().getRow());
-						List<String> noAllowList = Arrays.asList("结余","当天总帐");
-						
-						if(sumInfo == null || noAllowList.contains(sumInfo.getLmSumName())) {
-							ShowUtil.show("此行不能编辑！");
-							sumInfo.setLmSumZJ(oldValue);
-							tableLMSum.refresh();
-							return;
-						}
-						if(sumInfo != null && "桌费".equals(sumInfo.getLmSumName()) 
-								&& !("0".equals(newValue)) && !(newValue.contains("-"))) {
-							ShowUtil.show("桌费只能填写负数！");
-							sumInfo.setLmSumZJ(oldValue);
-							tableLMSum.refresh();
-							return;
-						}
-						//String zf_or_yiJieSuan = sumInfo.getLmSumZJ();//因为桌费和已结算在战绩那列
-						try {
-							if(!StringUtil.isBlank(newValue))
-								Double.valueOf(newValue);
-						}catch(Exception e) {
-							ShowUtil.show(newValue+"是非法数据！！");
-							sumInfo.setLmSumZJ(oldValue);
-							tableLMSum.refresh();
-							return;
-						}
-						//新旧两值相等，应该不操作
-						
-						
-						//总和表赋新值
-						sumInfo.setLmSumZJ(newValue);
-						//缓存赋新值（桌费或已结算）
-						Club club = getSelectedClub();
-						int lmType = getCurrentLMType();
-						if("桌费".equals(sumInfo.getLmSumName())) {
-//							club.setZhuoFei(newValue);
-							//将新桌费设置到不同联盟当中
-							set_LM_Zhuofei(club,lmType,newValue);
-							//add 2018-2-11 添加到历史联盟桌费
-							String date = StringUtil.isBlank(DataConstans.Date_Str) ? "2017-01-01" : DataConstans.Date_Str;
-							ClubZhuofei clubZhuofei = new ClubZhuofei(date,  club.getClubId(),  newValue,  "联盟"+lmType);
-							DBUtil.saveOrUpdate_club_zhuofei(clubZhuofei);
-							
-						}else if("已结算".equals(sumInfo.getLmSumName())) {
-							//club.setYiJieSuan(newValue);
-							//将新桌费设置到不同联盟当中
-							set_LM_YiJiesuan(club,lmType,newValue);
-						}
-						//更新结余
-						updateTableLMSumOnly();
-						//同步到数据库
-						DBUtil.updateClub(club);
-						
-						//设置合计桌费（这个没多大影响）
-						setNewSumOfZF();
-						
-					}
-					
-				}
-		);
-		
-		
-		
-		
-		//设置俱乐部的ListView监听
-		initSingClubListen();
-		
-		//软件一打开就从从数据库中获取所有俱乐部信息
-		allClubMap = DBUtil.getAllClub();
-		_clubListView = clubListView;
-		refreshClubList();
-		
-		//同步所有俱乐部信息总列表
-		refresh_eachClubList();
-		
-		//设置合计桌费（这个没多大影响）
-		setNewSumOfZF();
-		log.info("联盟对帐页面加载数据完成！");
-	}
+    
 
 	/**
 	 * 修改桌费和已结算之后自动更新主表（指单个俱乐部的统计之和）

@@ -3,11 +3,11 @@ package com.kendy.controller;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.kendy.interfaces.Entity;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 
@@ -73,13 +73,10 @@ public abstract class BaseController {
    * 绑定多个表格的列
    * @param tables
    */
-  @SuppressWarnings({"unchecked"})
-  public <T> void bindCellValueByTables(T entity, TableView<T>... tables) {
+  public <T> void bindCellValueByTable(T entity, TableView<T> table) {
     try {
-      for(TableView<T> table : tables) {
-        List<TableColumn<T, ?>> columns =  table.getColumns();
-        bindCellValues(entity, columns);
-      }
+      List<TableColumn<T, ?>> columns =  table.getColumns();
+      bindCellValues(entity, columns);
     } catch (Exception e) {
       throw new RuntimeException("小林：绑定列值失败");
     }
@@ -90,7 +87,7 @@ public abstract class BaseController {
    * @param colums TableColumn 可变参数
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public <T>  void bindCellValue(T entity, TableColumn<T,?>... colums){
+  public <T extends Entity>  void bindCellValue(T entity, TableColumn<T,?>... colums){
       for(TableColumn column : colums){
         bindSingleCellValues(entity, column);
       }
@@ -135,8 +132,13 @@ public abstract class BaseController {
             cell.setEditable(false);//不让其可编辑
             return cell;
         }
-    };  
-}
+    }; 
+  }
+  
+  
+
+  
+  
 //
 //  public T getEntity() {
 //    return entity;

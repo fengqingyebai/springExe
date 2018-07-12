@@ -139,19 +139,17 @@ public class QuotaController extends BaseController implements Initializable{
 	/**
 	 * DOM加载完后的事件
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
 		_LM_Btn1 = LM_Btn1;
 		lmController = MyController.lmController;
 		
-		//绑定列值属性
-		bindCellValue(quotaClubName,quotaJieyu,quotaRest,quotaHedgeFirst,quotaHedgeSecond,quotaHedgeThree,quotaHedgeFour,quotaHedgeFive);
-		bindCellValue(quotaMoneyPaytor,quotaMoney,quotaMoneyGather);
-		bindCellValue(clubName,mobilePayType,personName,phoneNumber,bankType,bankAccountInfo);
+		//绑定列值属性及颜色
+		bindCellValueByTable(new ClubQuota(), tableQuota);
+		bindCellValueByTable(new QuotaMoneyInfo(), tableQuotaPay);
+		bindCellValueByTable(new ClubBankInfo(), tableQuotaBank);
 		//绑定列值红色属性
-		bindRedColor(quotaJieyu,quotaRest,quotaHedgeFirst,quotaHedgeSecond,quotaHedgeThree,quotaHedgeFour,quotaHedgeFive);
 		quotaJieyu.setStyle("-fx-font-weight: bold;-fx-alignment: CENTER;");
 		
 
@@ -233,9 +231,6 @@ public class QuotaController extends BaseController implements Initializable{
 		autoSetBankData();
 	}
 	
-	public void setTableQuota() {
-		
-	}
 	
 	/**
 	 * 点击不同联盟时清空之前的表视图数据
@@ -483,46 +478,6 @@ public class QuotaController extends BaseController implements Initializable{
     	return index;
     }
     
-	/**
-	 * kendy:绑定数据域
-	 * @param colums TableColumn 可变参数
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void bindCellValue(TableColumn<? extends Entity,String>... colums){
-		try {
-			for(TableColumn column : colums){
-				String fxId = column.getId();
-				column.setCellValueFactory(
-						new PropertyValueFactory<Entity,String>(fxId)
-						);
-				column.setStyle("-fx-alignment: CENTER;");
-				column.setSortable(false);//禁止排序
-			}
-		} catch (Exception e) {
-			String errMsg = "小林：绑定列值失败";
-			log.error(errMsg);
-			throw new RuntimeException(errMsg);
-		}
-	}
-	
-	/**
-	 * kendy:绑定列为红色
-	 * @time 2017年12月18日
-	 * @param colums
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void bindRedColor(TableColumn<? extends Entity,String>... colums){
-		try {
-			for(TableColumn column : colums){
-				column.setCellFactory(getColorCellFactory(new ClubQuota()));
-			}
-		} catch (Exception e) {
-			String errMsg = "小林：绑定列值红色属性失败";
-			log.error(errMsg);
-			throw new RuntimeException(errMsg);
-		}
-	}
-	
 	/**
 	 * 添加一个俱乐部银行卡记录
 	 * 
