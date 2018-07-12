@@ -220,9 +220,9 @@
                                 <mainClass>${main.path}</mainClass>  
                                 <preCp>anything</preCp>  
                             </classPath>  
-                            <icon>resources/0.ico</icon> 
+                            <icon>src/main/resources/images/financial.ico</icon> 
                             <jre>  
-                                <minVersion>1.8.0</minVersion>  
+                                <minVersion>1.8.0</minVersion>
                                 <jdkPreference>preferJre</jdkPreference>  
                             </jre>  
                             <versionInfo>  

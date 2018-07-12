@@ -12,12 +12,12 @@
     Excel能做的，财务软件也要能做：如总汇、个人当天结算、团队回水、前后表的衔接。
 ## 部分效果
 ![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/4.png)
-![](https://github.com/greatkendy123/springExe/raw/master/resources/images/7.png)
-![](https://github.com/greatkendy123/springExe/raw/master/resources/images/1.png)
-![](https://github.com/greatkendy123/springExe/raw/master/resources/images/2.png)
-![](https://github.com/greatkendy123/springExe/raw/master/resources/images/5.png)
-![](https://github.com/greatkendy123/springExe/raw/master/resources/images/6.png)
-![](https://github.com/greatkendy123/springExe/raw/master/resources/images/3.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/7.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/1.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/2.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/5.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/6.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/3.png)
 
 ## 代码示例（自动配额）
 	/**
