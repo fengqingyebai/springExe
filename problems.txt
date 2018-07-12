@@ -1,8 +1,9 @@
 1 新建maven项目没有Resources文件夹（已解决）
 2 log4j.properties一直没有引进来，目前是放在src/main/java这里，估计是classpath的原因
 3 网络请求时间限止问题待解决
-4 PropertiesUtil.java将移除
-5 把application模块统一到com.kendy包下
+4 PropertiesUtil.java将移除（已解决）
+5 把application模块统一到com.kendy包下 （已解决）
 6 获取实例实例问题，是否采用spring 或springBoot
 7 数据库考虑引进ORM框架
 8 将根目录下的resources文件夹统一到src/main/resources中
+9 重构spider中的内容
