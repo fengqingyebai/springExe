@@ -26,7 +26,6 @@ import com.kendy.entity.GudongRateInfo;
 import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
-import com.kendy.entity.Record;
 import com.kendy.model.GameRecord;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
@@ -738,7 +737,7 @@ public class GDController extends BaseController implements Initializable{
 	 * @param teamMap 用于计算生活中的人次
 	 */
 	@SuppressWarnings("unused")
-	private void setGudongRenci(TableView<GudongRateInfo> table,Map<String,List<Record>> teamMap) {
+	private void setGudongRenci(TableView<GudongRateInfo> table,Map<String, List<GameRecord>> teamMap) {
 		//整个股东的所有人次（生活）
 		Long gudongRenciCount = teamMap.values().stream().collect(Collectors.summarizingInt(l->l.size())).getSum();
 		Double teamRenci = gudongRenciCount * NumUtil.getNum(getRenci());
