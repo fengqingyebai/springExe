@@ -10,7 +10,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="539.0" prefWidth="447.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.TGAddCompanyController">
+<AnchorPane prefHeight="539.0" prefWidth="447.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.tgController.TGAddCompanyController">
    <children>
     <VBox layoutX="59.0" layoutY="99.0" maxHeight="+Infinity" maxWidth="+Infinity" minHeight="-Infinity" prefHeight="255.0" prefWidth="357.0" spacing="7.0">
       <children>

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
-import com.kendy.controller.TGController;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Player;

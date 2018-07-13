@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import com.kendy.constant.Constants;
 import com.kendy.controller.MyController;
-import com.kendy.controller.TGController;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.TGCompanyModel;

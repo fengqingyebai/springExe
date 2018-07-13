@@ -1,4 +1,4 @@
-package com.kendy.controller;
+package com.kendy.controller.tgController;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -9,6 +9,8 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import com.kendy.controller.BaseController;
+import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.TGCompanyModel;

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.TGController">
+<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.tgController.TGController">
    <children>
       <VBox fx:id="TG_Company_VBox" alignment="TOP_CENTER" layoutX="44.0" layoutY="126.0" prefHeight="182.0" prefWidth="120.0" style="-fx-border-style: solid, segments(2, 2);">
          <padding>

@@ -31,6 +31,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.application.Main;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBConnection;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;

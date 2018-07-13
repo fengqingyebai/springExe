@@ -1,4 +1,4 @@
-package com.kendy.controller;
+package com.kendy.controller.tgController;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -20,6 +20,8 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.application.Main;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.BaseController;
+import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.TGCommentInfo;
@@ -43,8 +45,6 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
