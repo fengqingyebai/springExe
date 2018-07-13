@@ -43,10 +43,9 @@
      
        <context:component-scan base-package="com.kendy.controller.*" />     
        <context:component-scan base-package="com.kendy.service.*" />     
-       <context:component-scan base-package="application.MyController"/>     
        
       
-      <context:property-placeholder location="classpath:properties/log4j.properties" />  
+      <context:property-placeholder location="classpath:log4j/log4j.properties" />  
 		
 
 </beans>
