@@ -324,7 +324,7 @@ public class GDController extends BaseController implements Initializable {
 
 
   /**
-   * ' 准备所有数据
+   * 准备所有数据
    * 
    * @time 2018年1月20日
    */

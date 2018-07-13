@@ -154,364 +154,209 @@ public class MyController extends BaseController implements Initializable {
   // 自动导入下一场战绩Excel的缓存队列
   private static Queue<File> excelQueue = new ArrayBlockingQueue<>(1000);
 
-  @FXML
-  public TextField sysCode; // 系统编码
-  @FXML
-  private TextField membersDir; // 人员名单Excel路径
-  @FXML
-  private TextField huishuiDir; // 回水Excel路径
-  @FXML
-  private TextField preDataDir; // 回水Excel路径
-  @FXML
-  private TextField excelDir; // excel文件夹路径
-  @FXML
-  private Label lable_currentClubId; // 当前俱乐部ID
-  @FXML
-  public static Label currentClubId; // 当前俱乐部ID
-  @FXML
-  private TextField teamIdField; // 新增团队ID
-  @FXML
-  private TextField teamNameField; // 新增团队名称
-  @FXML
-  private TextField huishui; // 新增团队回水
-  @FXML
-  private TextField insuranceRate; // 新增保险比例
-  @FXML
-  private TextField gudongInput; // 新增股东名称
-  @FXML
-  private ListView<String> gudongListView; // 所有股东名称
-  @FXML
-  private Label indexLabel;// 第几局
-  @FXML
-  private Label dbConnectionState;// 数据库连接状态
-  @FXML
-  private TextField searchText;//
-  @FXML
-  private Button importHuishuiBtn;
-  @FXML
-  private Button importMembersBtn;
-  @FXML
-  private Button importPreDataBtn;
-  @FXML
-  private Hyperlink delCurrentMoneyBtn;
-  @FXML
-  private TextField combineIdDir;
-  @FXML
-  private RadioButton whiteVersionOld;
-  @FXML
-  private RadioButton whiteVersionNew;
-  @FXML
-  private RadioButton radio_autoTest_yes;
-  @FXML
-  private RadioButton radio_autoTest_no;
-  @FXML
-  private RadioButton radio_rate_0975;
-  @FXML
-  private RadioButton radio_rate_095;
-  @FXML
-  private HBox hbox_autoTestMode;
+  @FXML public TextField sysCode; // 系统编码
+  @FXML private TextField membersDir; // 人员名单Excel路径
+  @FXML private TextField huishuiDir; // 回水Excel路径
+  @FXML private TextField preDataDir; // 回水Excel路径
+  @FXML private TextField excelDir; // excel文件夹路径
+  @FXML private Label lable_currentClubId; // 当前俱乐部ID
+  @FXML public static Label currentClubId; // 当前俱乐部ID
+  @FXML private TextField teamIdField; // 新增团队ID
+  @FXML private TextField teamNameField; // 新增团队名称
+  @FXML private TextField huishui; // 新增团队回水
+  @FXML private TextField insuranceRate; // 新增保险比例
+  @FXML private TextField gudongInput; // 新增股东名称
+  @FXML private ListView<String> gudongListView; // 所有股东名称
+  @FXML private Label indexLabel;// 第几局
+  @FXML private Label dbConnectionState;// 数据库连接状态
+  @FXML private TextField searchText;//
+  @FXML private Button importHuishuiBtn;
+  @FXML private Button importMembersBtn;
+  @FXML private Button importPreDataBtn;
+  @FXML private Hyperlink delCurrentMoneyBtn;
+  @FXML private TextField combineIdDir;
+  @FXML private RadioButton whiteVersionOld;
+  @FXML private RadioButton whiteVersionNew;
+  @FXML private RadioButton radio_autoTest_yes;
+  @FXML private RadioButton radio_autoTest_no;
+  @FXML private RadioButton radio_rate_0975;
+  @FXML private RadioButton radio_rate_095;
+  @FXML private HBox hbox_autoTestMode;
 
 
   // =================================================TabPane
-  @FXML
-  private TabPane tabs;
+  @FXML private TabPane tabs;
 
   // =================================================第一个tableView
-  @FXML
-  private TableView<TotalInfo> tableTotalInfo;
+  @FXML private TableView<TotalInfo> tableTotalInfo;
 
-  @FXML
-  private TableColumn<TotalInfo, String> tuan;// 团
-  @FXML
-  private TableColumn<TotalInfo, String> wanjiaId;// ID
-  @FXML
-  private TableColumn<TotalInfo, String> wanjia;// 玩家
-  @FXML
-  private TableColumn<TotalInfo, String> jifen;// 计分
-  @FXML
-  private TableColumn<TotalInfo, String> shishou;// 实收
-  @FXML
-  private TableColumn<TotalInfo, String> baoxian;// 保险
-  @FXML
-  private TableColumn<TotalInfo, String> chuHuishui;// 出回水
-  @FXML
-  private TableColumn<TotalInfo, String> baohui;// 保回
+  @FXML private TableColumn<TotalInfo, String> tuan;// 团
+  @FXML private TableColumn<TotalInfo, String> wanjiaId;// ID
+  @FXML private TableColumn<TotalInfo, String> wanjia;// 玩家
+  @FXML private TableColumn<TotalInfo, String> jifen;// 计分
+  @FXML private TableColumn<TotalInfo, String> shishou;// 实收
+  @FXML private TableColumn<TotalInfo, String> baoxian;// 保险
+  @FXML private TableColumn<TotalInfo, String> chuHuishui;// 出回水
+  @FXML private TableColumn<TotalInfo, String> baohui;// 保回
 
-  @FXML
-  private TableColumn<TotalInfo, String> shuihouxian;// 水后险
-  @FXML
-  private TableColumn<TotalInfo, String> shouHuishui;// 收回水
-  @FXML
-  private TableColumn<TotalInfo, String> heLirun;// 合利润
+  @FXML private TableColumn<TotalInfo, String> shuihouxian;// 水后险
+  @FXML private TableColumn<TotalInfo, String> shouHuishui;// 收回水
+  @FXML private TableColumn<TotalInfo, String> heLirun;// 合利润
 
   // =================================================实时金额表tableView
-  @FXML
-  public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
+  @FXML public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
 
-  @FXML
-  private TableColumn<CurrentMoneyInfo, String> cmSuperIdSum;// 总和
-  @FXML
-  private TableColumn<CurrentMoneyInfo, String> mingzi;// 名字
-  @FXML
-  private TableColumn<CurrentMoneyInfo, String> shishiJine;// 实时金额
-  @FXML
-  private TableColumn<CurrentMoneyInfo, String> cmiEdu;// 实时金额
+  @FXML private TableColumn<CurrentMoneyInfo, String> cmSuperIdSum;// 总和
+  @FXML private TableColumn<CurrentMoneyInfo, String> mingzi;// 名字
+  @FXML private TableColumn<CurrentMoneyInfo, String> shishiJine;// 实时金额
+  @FXML private TableColumn<CurrentMoneyInfo, String> cmiEdu;// 实时金额
 
   // =================================================资金表tableView
-  @FXML
-  private TableView<ZijinInfo> tableZijin;
+  @FXML private TableView<ZijinInfo> tableZijin;
 
-  @FXML
-  private TableColumn<ZijinInfo, String> zijinType;
-  @FXML
-  private TableColumn<ZijinInfo, String> zijinAccount;
+  @FXML private TableColumn<ZijinInfo, String> zijinType;
+  @FXML private TableColumn<ZijinInfo, String> zijinAccount;
   // =================================================利润表tableView
-  @FXML
-  public TableView<ProfitInfo> tableProfit;
+  @FXML public TableView<ProfitInfo> tableProfit;
 
-  @FXML
-  private TableColumn<ProfitInfo, String> profitType;
-  @FXML
-  private TableColumn<ProfitInfo, String> profitAccount;
+  @FXML private TableColumn<ProfitInfo, String> profitType;
+  @FXML private TableColumn<ProfitInfo, String> profitAccount;
   // =================================================开销表tableView
-  @FXML
-  private TableView<KaixiaoInfo> tableKaixiao;
+  @FXML private TableView<KaixiaoInfo> tableKaixiao;
 
-  @FXML
-  private TableColumn<KaixiaoInfo, String> kaixiaoType;
-  @FXML
-  private TableColumn<KaixiaoInfo, String> kaixiaoMoney;
+  @FXML private TableColumn<KaixiaoInfo, String> kaixiaoType;
+  @FXML private TableColumn<KaixiaoInfo, String> kaixiaoMoney;
   // =================================================当局表tableView
-  @FXML
-  private TableView<DangjuInfo> tableDangju;
+  @FXML private TableView<DangjuInfo> tableDangju;
 
-  @FXML
-  private TableColumn<DangjuInfo, String> type;
-  @FXML
-  private TableColumn<DangjuInfo, String> money;
+  @FXML private TableColumn<DangjuInfo, String> type;
+  @FXML private TableColumn<DangjuInfo, String> money;
   // =================================================交收表tableView
-  @FXML
-  private TableView<JiaoshouInfo> tableJiaoshou;
+  @FXML private TableView<JiaoshouInfo> tableJiaoshou;
 
-  @FXML
-  private TableColumn<JiaoshouInfo, String> jiaoshouType;
-  @FXML
-  private TableColumn<JiaoshouInfo, String> jiaoshouMoney;
+  @FXML private TableColumn<JiaoshouInfo, String> jiaoshouType;
+  @FXML private TableColumn<JiaoshouInfo, String> jiaoshouMoney;
   // =================================================交收表tableView
-  @FXML
-  private TableView<PingzhangInfo> tablePingzhang;
+  @FXML private TableView<PingzhangInfo> tablePingzhang;
 
-  @FXML
-  private TableColumn<PingzhangInfo, String> pingzhangType;
-  @FXML
-  private TableColumn<PingzhangInfo, String> pingzhangMoney;
+  @FXML private TableColumn<PingzhangInfo, String> pingzhangType;
+  @FXML private TableColumn<PingzhangInfo, String> pingzhangMoney;
 
   // =================================================牌局表tableView
-  @FXML
-  private TableView<WanjiaInfo> tablePaiju;
+  @FXML private TableView<WanjiaInfo> tablePaiju;
 
-  @FXML
-  private TableColumn<WanjiaInfo, String> paiju;// 名字
-  @FXML
-  private TableColumn<WanjiaInfo, String> wanjiaName;// 实时金额
-  @FXML
-  private TableColumn<WanjiaInfo, String> zhangji;// 实时金额
-  @FXML
-  private TableColumn<WanjiaInfo, String> yicunJifen;// 实时金额
-  @FXML
-  private TableColumn<WanjiaInfo, String> heji;// 实时金额
-  @FXML
-  private TableColumn<WanjiaInfo, String> pay;// 支付
-  @FXML
-  private TableColumn<WanjiaInfo, String> copy;// 复制
+  @FXML private TableColumn<WanjiaInfo, String> paiju;// 名字
+  @FXML private TableColumn<WanjiaInfo, String> wanjiaName;// 实时金额
+  @FXML private TableColumn<WanjiaInfo, String> zhangji;// 实时金额
+  @FXML private TableColumn<WanjiaInfo, String> yicunJifen;// 实时金额
+  @FXML private TableColumn<WanjiaInfo, String> heji;// 实时金额
+  @FXML private TableColumn<WanjiaInfo, String> pay;// 支付
+  @FXML private TableColumn<WanjiaInfo, String> copy;// 复制
 
   // =================================================牌局表tableView
-  @FXML
-  public TableView<TeamInfo> tableTeam;
+  @FXML public TableView<TeamInfo> tableTeam;
 
-  @FXML
-  private TableColumn<TeamInfo, String> teamID;// 团ID
-  @FXML
-  private TableColumn<TeamInfo, String> teamZJ;// 团战绩
-  @FXML
-  private TableColumn<TeamInfo, String> teamHS;// 团回水
-  @FXML
-  private TableColumn<TeamInfo, String> teamBS;// 团保险
-  @FXML
-  private TableColumn<TeamInfo, String> teamSum;// 行总和
-  @FXML
-  private TableColumn<TeamInfo, String> teamJiesuan;// 结算按钮
+  @FXML private TableColumn<TeamInfo, String> teamID;// 团ID
+  @FXML private TableColumn<TeamInfo, String> teamZJ;// 团战绩
+  @FXML private TableColumn<TeamInfo, String> teamHS;// 团回水
+  @FXML private TableColumn<TeamInfo, String> teamBS;// 团保险
+  @FXML private TableColumn<TeamInfo, String> teamSum;// 行总和
+  @FXML private TableColumn<TeamInfo, String> teamJiesuan;// 结算按钮
 
 
   // ===========================================联盟对帐
-  @FXML
-  private Button lianmengBtn;
-  @FXML
-  private Label LMLabel;
+  @FXML private Button lianmengBtn;
+  @FXML private Label LMLabel;
 
   // ===========================================分页控件
-  @FXML
-  private TextField pageInput;
+  @FXML private TextField pageInput;
 
-  @FXML
-  private Button refreshBtn;
-  @FXML
-  private Button lockDangjuBtn;
-  @FXML
-  private Button openKaixiaoDialogBtn;
-  @FXML
-  private Button importZJBtn;
-  @FXML
-  private Button delKaixiaoBtn;
-  @FXML
-  private HBox importZJHBox;
+  @FXML private Button refreshBtn;
+  @FXML private Button lockDangjuBtn;
+  @FXML private Button openKaixiaoDialogBtn;
+  @FXML private Button importZJBtn;
+  @FXML private Button delKaixiaoBtn;
+  @FXML private HBox importZJHBox;
 
-  @FXML
-  private Hyperlink addCurrentMoneyLink;
-  @FXML
-  private Hyperlink delCurrentMoneyLink;
-  @FXML
-  private Label lockedLabel;
-  @FXML
-  public Label dateLabel;
+  @FXML private Hyperlink addCurrentMoneyLink;
+  @FXML private Hyperlink delCurrentMoneyLink;
+  @FXML private Label lockedLabel;
+  @FXML public Label dateLabel;
   // ===============================================================汇总Tab
-  @FXML
-  private TableView<ZonghuiInfo> tableZonghui;
-  @FXML
-  private TableColumn<ZonghuiInfo, String> zonghuiTabelId;
-  @FXML
-  private TableColumn<ZonghuiInfo, String> zonghuiFuwufei;
-  @FXML
-  private TableColumn<ZonghuiInfo, String> zonghuiBaoxian;
-  @FXML
-  private TableColumn<ZonghuiInfo, String> zonghuiHuishui;
-  @FXML
-  private TableColumn<ZonghuiInfo, String> zonghuiHuiBao;
-  @FXML
-  private ListView<String> juTypeListView;// 局类型ListView
+  @FXML private TableView<ZonghuiInfo> tableZonghui;
+  @FXML private TableColumn<ZonghuiInfo, String> zonghuiTabelId;
+  @FXML private TableColumn<ZonghuiInfo, String> zonghuiFuwufei;
+  @FXML private TableColumn<ZonghuiInfo, String> zonghuiBaoxian;
+  @FXML private TableColumn<ZonghuiInfo, String> zonghuiHuishui;
+  @FXML private TableColumn<ZonghuiInfo, String> zonghuiHuiBao;
+  @FXML private ListView<String> juTypeListView;// 局类型ListView
 
-  @FXML
-  private TableView<DangtianHuizongInfo> tableDangtianHuizong;
-  @FXML
-  private TableColumn<DangtianHuizongInfo, String> huizongType;
-  @FXML
-  private TableColumn<DangtianHuizongInfo, String> huizongMoney;
+  @FXML private TableView<DangtianHuizongInfo> tableDangtianHuizong;
+  @FXML private TableColumn<DangtianHuizongInfo, String> huizongType;
+  @FXML private TableColumn<DangtianHuizongInfo, String> huizongMoney;
 
-  @FXML
-  private TableView<ZonghuiKaixiaoInfo> tableZonghuiKaixiao;
-  @FXML
-  private TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoType;
-  @FXML
-  private TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoMoney;
+  @FXML private TableView<ZonghuiKaixiaoInfo> tableZonghuiKaixiao;
+  @FXML private TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoType;
+  @FXML private TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoMoney;
   // ===============================================================会员查询Tab
-  @FXML
-  private TableView<MemberZJInfo> tableMemberZJ;
-  @FXML
-  private TableColumn<MemberZJInfo, String> memberJu;
-  @FXML
-  private TableColumn<MemberZJInfo, String> memberZJ;
-  @FXML
-  private Label memberDateStr;// 会员当天战绩的时间
-  @FXML
-  private Label memberPlayerId;// 会员当天战绩的会员ID
-  @FXML
-  private Label memberPlayerName;// 会员当天战绩的会员名称
-  @FXML
-  private Label memberSumOfZJ;// 会员当天战绩的战绩总和
-  @FXML
-  private Label memberTotalZJ;// 会员历史战绩的战绩总和
-  @FXML
-  private TextField memberSearchName;// 会员名称
-  @FXML
-  private ListView<String> memberListView;// 模糊搜索的人名列表
+  @FXML private TableView<MemberZJInfo> tableMemberZJ;
+  @FXML private TableColumn<MemberZJInfo, String> memberJu;
+  @FXML private TableColumn<MemberZJInfo, String> memberZJ;
+  @FXML private Label memberDateStr;// 会员当天战绩的时间
+  @FXML private Label memberPlayerId;// 会员当天战绩的会员ID
+  @FXML private Label memberPlayerName;// 会员当天战绩的会员名称
+  @FXML private Label memberSumOfZJ;// 会员当天战绩的战绩总和
+  @FXML private Label memberTotalZJ;// 会员历史战绩的战绩总和
+  @FXML private TextField memberSearchName;// 会员名称
+  @FXML private ListView<String> memberListView;// 模糊搜索的人名列表
 
   // ===============================================================上码查询Tab
-  @FXML
-  private TableView<ShangmaInfo> tableShangma;
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaName;
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaEdu;
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaAvailableEdu;
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaYCJF;// 已存积分=实时金额
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaYiSM;// 已上码
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaSumOfZJ;
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaPlayerId;
-  @FXML
-  private TableColumn<ShangmaInfo, String> shangmaLianheEdu;
-  @FXML
-  private VBox shangmaVBox;// 用于初始化团队ID按钮
-  @FXML
-  public Label shangmaTeamId;// 显示栏上的团队ID
-  @FXML
-  private Label shangmaZSM;// 团队总上码
-  @FXML
-  private Label shangmaZZJ;// 团队总战绩
-  @FXML
-  private TextField shangmaSearch;// 上码的输入框
+  @FXML private TableView<ShangmaInfo> tableShangma;
+  @FXML private TableColumn<ShangmaInfo, String> shangmaName;
+  @FXML private TableColumn<ShangmaInfo, String> shangmaEdu;
+  @FXML private TableColumn<ShangmaInfo, String> shangmaAvailableEdu;
+  @FXML private TableColumn<ShangmaInfo, String> shangmaYCJF;// 已存积分=实时金额
+  @FXML private TableColumn<ShangmaInfo, String> shangmaYiSM;// 已上码
+  @FXML private TableColumn<ShangmaInfo, String> shangmaSumOfZJ;
+  @FXML private TableColumn<ShangmaInfo, String> shangmaPlayerId;
+  @FXML private TableColumn<ShangmaInfo, String> shangmaLianheEdu;
+  @FXML private VBox shangmaVBox;// 用于初始化团队ID按钮
+  @FXML public Label shangmaTeamId;// 显示栏上的团队ID
+  @FXML private Label shangmaZSM;// 团队总上码
+  @FXML private Label shangmaZZJ;// 团队总战绩
+  @FXML  private TextField shangmaSearch;// 上码的输入框
 
-  @FXML
-  private TextField teamYajin;// 团队押金
-  @FXML
-  private TextField teamEdu;// 团队额度
-  @FXML
-  private Label teamShangmaAvailable;// 团队可上码
-  @FXML
-  public CheckBox smTeamShangmaCheckBox;// 团队可上码CheckBox
+  @FXML private TextField teamYajin;// 团队押金
+  @FXML private TextField teamEdu;// 团队额度
+  @FXML private Label teamShangmaAvailable;// 团队可上码
+  @FXML public CheckBox smTeamShangmaCheckBox;// 团队可上码CheckBox
 
-  @FXML
-  private TableView<ShangmaDetailInfo> tableShangmaDetail;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaDetailName;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaJu;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaSM;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaShishou;
+  @FXML private TableView<ShangmaDetailInfo> tableShangmaDetail;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaDetailName;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaJu;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaSM;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaShishou;
 
-  @FXML
-  private TableView<ShangmaDetailInfo> tableShangmaNextDay;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaNextDayName;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaNextDayJu;
-  @FXML
-  private TableColumn<ShangmaDetailInfo, String> shangmaNextDaySM;
+  @FXML private TableView<ShangmaDetailInfo> tableShangmaNextDay;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaNextDayName;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaNextDayJu;
+  @FXML private TableColumn<ShangmaDetailInfo, String> shangmaNextDaySM;
 
   // ===============================================================外债
-  @FXML
-  private TableView<WaizhaiInfo> tableWaizhai;
-  @FXML
-  private TableColumn<WaizhaiInfo, String> waizhaiType;
-  @FXML
-  private TableColumn<WaizhaiInfo, String> waizhaiMoney;
-  @FXML
-  private HBox waizhaiHBox;// 里面包含多个表
+  @FXML private TableView<WaizhaiInfo> tableWaizhai;
+  @FXML private TableColumn<WaizhaiInfo, String> waizhaiType;
+  @FXML private TableColumn<WaizhaiInfo, String> waizhaiMoney;
+  @FXML private HBox waizhaiHBox;// 里面包含多个表
   // ============================================================================积分查询
-  @FXML
-  private TableView<JifenInfo> tableJifen;
-  @FXML
-  private TableColumn<JifenInfo, String> jfRank;
-  @FXML
-  private TableColumn<JifenInfo, String> jfPlayerName;
-  @FXML
-  private TableColumn<JifenInfo, String> jfValue;
-  @FXML
-  private DatePicker jfStartTime;
-  @FXML
-  private DatePicker jfEndTime;
-  @FXML
-  private ComboBox<String> jfTeamIDCombox;// 团队ID下拉框
-  @FXML
-  private TextField jifenInput;// 团队积分值
-  @FXML
-  private TextField jifenRankLimit;// 前50名
+  @FXML private TableView<JifenInfo> tableJifen;
+  @FXML private TableColumn<JifenInfo, String> jfRank;
+  @FXML private TableColumn<JifenInfo, String> jfPlayerName;
+  @FXML private TableColumn<JifenInfo, String> jfValue;
+  @FXML private DatePicker jfStartTime;
+  @FXML private DatePicker jfEndTime;
+  @FXML private ComboBox<String> jfTeamIDCombox;// 团队ID下拉框
+  @FXML private TextField jifenInput;// 团队积分值
+  @FXML private TextField jifenRankLimit;// 前50名
 
   // 保存到other数据表的key
   private static final String KEY_GU_DONG = KeyEnum.GU_DONG.getKeyName();
