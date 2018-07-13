@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.MenuItem?>
 
-<Pane prefHeight='465.0' prefWidth='660.0' xmlns:fx='http://javafx.com/fxml' fx:controller='be.error.javafx.controller.FileMenuController'>
+<Pane prefHeight='465.0' prefWidth='660.0' xmlns:fx='http://javafx.com/fxml' fx:controller='com.kendy.test.FileMenuController'>
  <children>
   <MenuBar layoutX='0.0' layoutY='0.0'>
    <menus>

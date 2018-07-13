@@ -8,13 +8,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
  
-<StackPane id="StackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="be.error.javafx.controller.SearchController">
+<StackPane id="StackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="com.kendy.test.SearchController">
   <children>
     <SplitPane dividerPositions="0.39195979899497485" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
       <items>
         <GridPane fx:id="grid" prefHeight="91.0" prefWidth="598.0">
           <children>
-     <fx:include source="/menu.fxml"/>
+<!--      <fx:include source="menu.fxml"/> -->
             <GridPane prefHeight="47.0" prefWidth="486.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
               <children>
                 <Button fx:id="clear" cancelButton="true" mnemonicParsing="false" onAction="#clear" text="Clear" GridPane.columnIndex="1" GridPane.rowIndex="1" />

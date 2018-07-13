@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import com.kendy.controller.tgController.TGController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -12,9 +13,17 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 public class SearchController implements Initializable {
+  
+  public SearchController(){
+    System.out.println(" 执行SearchController 构造方法");
+  }
 
  @Autowired
  private OrderService orderService;
+ 
+ @Autowired
+ private TGController tgController;
+ 
  @FXML
  private Button search;
  @FXML
@@ -29,6 +38,12 @@ public class SearchController implements Initializable {
  @Override
  public void initialize(URL location, ResourceBundle resources) {
   table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+  if(orderService !=null) {
+    System.out.println("orderService is not null !");
+  }
+  if(tgController !=null) {
+    System.out.println("tgController is not null !");
+  }
  }
 
  public void search() {

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.kendy.constant.Constants;
 import com.kendy.controller.MyController;
+import com.kendy.test.SpringFxmlLoader;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.ShowUtil;
 import javafx.application.Application;
@@ -21,7 +22,7 @@ import javafx.stage.Stage;
  * @time 2017年10月21日 下午10:01:39
  */
 public class Main extends Application {
-
+  
   static {
     try {
       // 生产环境可用
@@ -39,7 +40,6 @@ public class Main extends Application {
   public static Stage primaryStage0;
 
   public static MyController myController;
-  public static FXMLLoader _fxmlLoader;
 
   @Override
   public void start(Stage primaryStage) {
@@ -127,7 +127,6 @@ public class Main extends Application {
 
       primaryStage0 = primaryStage;// add by kendy
       myController = mc;
-      _fxmlLoader = fxmlLoader;
 
       primaryStage.setOnCloseRequest(e -> {
         exit();
