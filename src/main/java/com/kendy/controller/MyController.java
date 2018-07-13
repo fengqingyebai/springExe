@@ -194,15 +194,12 @@ public class MyController extends BaseController implements Initializable {
   private Button importPreDataBtn;
   @FXML
   private Hyperlink delCurrentMoneyBtn;
-
   @FXML
   private TextField combineIdDir;
-
   @FXML
   private RadioButton whiteVersionOld;
   @FXML
   private RadioButton whiteVersionNew;
-
   @FXML
   private RadioButton radio_autoTest_yes;
   @FXML
@@ -377,51 +374,6 @@ public class MyController extends BaseController implements Initializable {
   private Label lockedLabel;
   @FXML
   public Label dateLabel;
-  // ===============================================================代理查询Tab
-  @FXML
-  private TableView<ProxyTeamInfo> tableProxyTeam;
-  @FXML
-  private HBox proxySumHBox;// 每列上的总和
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyTeamId;// 团ID
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyPlayerId;// 玩家ID
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyPlayerName;// 玩家名称
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyYSZJ;// 原始战绩
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyZJ;// 战绩
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyBaoxian;// 保险
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyHuishui;// 回水
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyHuiBao;// 回保
-  @FXML
-  private TableColumn<ProxyTeamInfo, String> proxyTableId;// 场次
-
-  @FXML
-  private ComboBox<String> teamIDCombox;// 团队ID下拉框
-  @FXML
-  private CheckBox isZjManage;// 团对应的战绩是否被管理
-  @FXML
-  private CheckBox hasTeamBaoxian;// 导出是否团队无保险
-  @FXML
-  private Label proxyDateLabel;
-
-  @FXML
-  private TableView<ProxySumInfo> tableProxySum;
-  @FXML
-  private TableColumn<ProxySumInfo, String> proxySumType;
-  @FXML
-  private TableColumn<ProxySumInfo, String> proxySum;
-  @FXML
-  private TextField proxyHSRate;// 回水比例
-  @FXML
-  private TextField proxyHBRate;// 回保比例
-  @FXML
-  private TextField proxyFWF;// 服务费大于多少有效
   // ===============================================================汇总Tab
   @FXML
   private TableView<ZonghuiInfo> tableZonghui;
@@ -568,6 +520,7 @@ public class MyController extends BaseController implements Initializable {
   public static LMController lmController;
   public static TableView<ProfitInfo> table_Profit;
 
+  public static TeamProxyController teamProxyController; // 代理控制类
   public static TGController tgController; // 托管控制类
   public static SMAutoController smAutoController; // 托管控制类
   public static BankFlowController bankFlowController; // 银行流水控制类
@@ -652,10 +605,7 @@ public class MyController extends BaseController implements Initializable {
     bindCellValueByTable(new TeamInfo(), tableTeam);
     teamJiesuan.setCellFactory(cellFactoryJiesuan);
     teamJiesuan.setStyle(Constants.CSS_CENTER);
-    // 绑定代理查询表（团队当天查询）
-    bindCellValueByTable(new ProxyTeamInfo(), tableProxyTeam);
-    // 绑定代理查询中的合计表
-    bindCellValueByTable(new ProxySumInfo(), tableProxySum);
+
     // 绑定汇总信息表（当天每一局的团队汇总查询）
     bindCellValueByTable(new ZonghuiInfo(), tableZonghui);
     // 绑定汇总查询中的当天汇总表
@@ -710,12 +660,6 @@ public class MyController extends BaseController implements Initializable {
     LMLabel.setTextFill(Color.web("#CD3700"));
     indexLabel.setTextFill(Color.web("#0076a3"));// 设置Label 的文本颜色。
     indexLabel.setFont(new Font("Arial", 30));
-
-    // 代理查询中的团队回水选择
-    TeamProxyService.initTeamProxy(tableProxyTeam, proxySumHBox, teamIDCombox, isZjManage,
-        proxyDateLabel, tableProxySum, proxyHSRate, proxyHBRate, proxyFWF, hasTeamBaoxian);
-    // 代理查询中的团队回水选择
-    TeamProxyService.initTeamSelectAction(teamIDCombox, isZjManage, tableProxyTeam, proxySumHBox);
 
     // 会员服务类
     MemberService.initMemberQuery(memberListView, tableMemberZJ, memberDateStr, memberPlayerId,
@@ -774,7 +718,6 @@ public class MyController extends BaseController implements Initializable {
     shishiJine.setOnEditCommit(new EventHandler<CellEditEvent<CurrentMoneyInfo, String>>() {
       @Override
       public void handle(CellEditEvent<CurrentMoneyInfo, String> t) {
-        // String oldValue = t.getOldValue();
         // 修改原值
         CurrentMoneyInfo cmInfo =
             (CurrentMoneyInfo) t.getTableView().getItems().get(t.getTablePosition().getRow());
@@ -800,8 +743,6 @@ public class MyController extends BaseController implements Initializable {
     });
   }
 
-
-
   /**
    * 单独设置列居中
    * 
@@ -819,6 +760,7 @@ public class MyController extends BaseController implements Initializable {
    * 加载各个tab页面
    */
   private void loadSubTabs() {
+    teamProxyController = (TeamProxyController) addSubTab("代理查询", "team_proxy_tab_frame.fxml");
     lmController = (LMController) addSubTab("联盟对账", "LM_Tab_Fram.fxml");
     quotaController = (QuotaController) addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
     gdController = (GDController) addSubTab("股东贡献值", "gudong_contribution.fxml");
@@ -955,12 +897,12 @@ public class MyController extends BaseController implements Initializable {
           MoneyService.update_Table_CMI_Map();// 更新{玩家ID=CurrentMoneyInfo},感觉没什么用
         }
         if ("代理查询".equals(tab.getText())) {
-          String dateStr = DataConstans.Date_Str;
+          String dateStr = Main.myController.dateLabel.getText();
           if (!StringUtil.isBlank(dateStr)) {
-            proxyDateLabel.setText(dateStr);
+            teamProxyController.proxyDateLabel.setText(dateStr);
           }
           // 查询最新数据
-          String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
+          String teamId = teamProxyController.teamIDCombox.getSelectionModel().getSelectedItem();
           if (!StringUtil.isBlank(teamId))
             TeamProxyService.refresh_TableTeamProxy_TableProxySum(teamId);
 
@@ -1058,8 +1000,7 @@ public class MyController extends BaseController implements Initializable {
 
 
 
-  // ======================= 打开文件选择 Excel
-  // ==============================================================
+  // ======================= 打开文件选择 Excel  =======================
   /**
    * 导入excel文件选择器
    * 
@@ -1095,28 +1036,24 @@ public class MyController extends BaseController implements Initializable {
   public void openMembersExcelAction(ActionEvent event) {
     openBasicExcelDialog(membersDir, "选择人员名单Excel");
   }
-
   /**
    * 打开战绩excel
    */
   public void openZJExcelAction(ActionEvent event) {
     openBasicExcelDialog(excelDir, "请选择战绩Excel");
   }
-
   /**
    * 打开回水比例excel
    */
   public void openHuishuiExcelAction(ActionEvent event) {
     openBasicExcelDialog(huishuiDir, "请选择回水比例Excel");
   }
-
   /**
    * 打开昨日留底excel
    */
   public void openPreDataExcelAction(ActionEvent event) {
     openBasicExcelDialog(preDataDir, "请选择回水比例Excel");
   }
-
   /**
    * 打开合并ID的模板xcel
    */
@@ -1124,11 +1061,9 @@ public class MyController extends BaseController implements Initializable {
     openBasicExcelDialog(combineIdDir, "请选择合并ID的模板xcel");
   }
 
-
-  // ======================= 导入 Excel ==============================================================
+  // ======================= 导入 Excel =============================
   /**
    * 导入人员名单文件
-   * 
    */
   public void importMembersExcelAction(ActionEvent even) {
     String membersFilePath = membersDir.getText();
@@ -1166,7 +1101,7 @@ public class MyController extends BaseController implements Initializable {
         DBUtil.insertTeamHS((Map<String, Huishui>) wrap.obj);
         ShowUtil.show("导入回水比例成功", 2);
         // 代理查询初始化团队ID
-        TeamProxyService.initTeamSelectAndZjManage(teamIDCombox);
+        TeamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
         // 积分查询初始化团队ID
         JifenService.init_Jifen_TeamIdCombox();
         // 上码系统中的团队ID按钮
@@ -1518,130 +1453,124 @@ public class MyController extends BaseController implements Initializable {
   public void openNewPlayerDialogAction(ActionEvent event) {
     openBasedDialog("add_new_player_frame.fxml", "新增人员名单", Constants.ADD_NEWPALYER_FRAME);
   }
-
   /**
    * 打开增加团队回水对话框
    */
   public void addHuishuiAction(ActionEvent event) {
     openBasedDialog("add_huishui_frame.fxml", "新增团队回水", Constants.ADD_TEAM_HUISHUI_FRAME);
   }
-
   /**
    * 打开增加实时开销对话框
    */
   public void openKaixiaoDialogAction(ActionEvent event) {
     openBasedDialog("add_kaixiao_fram.fxml", "新增开销", Constants.ADD_KAIXIAO_FRAME);
   }
-
   /**
    * 打开删除人员对话框
    */
   public void openDelMemberDialogAction(ActionEvent event) {
     openBasedDialog("del_member_framesss.fxml", "人员删除或修改", Constants.DEL_MEMBER_FRAME);
   }
-
   /**
    * 打开新增实时金额对话框
    */
   public void openAddCurrentMoneyAction(ActionEvent event) {
     openBasedDialog("add_current_money_frame4.fxml", "新增实时金额", Constants.ADD_CURRENT_MONEY_FRAME);
   }
-
   /**
    * 打开新增合并ID对话框
    */
   public void opentCombineIDDialogAction(ActionEvent event) {
     openBasedDialog("combine_player_id_framess.fxml", "合并ID", Constants.COMBINE_ID_FRAME);
   }
-
   /**
    * 打开会员战绩查询对话框(没用到)
    */
   public void openMemberZJQueryAction(ActionEvent event) {}
-
   /**
    * 牌局表列中添加支付按钮
    */
   Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>> cellFactory = //
-      new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
-        @SuppressWarnings("rawtypes")
+  new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
+    @SuppressWarnings("rawtypes")
+    @Override
+    public TableCell call(final TableColumn<WanjiaInfo, String> param) {
+      final TableCell<WanjiaInfo, String> cell = new TableCell<WanjiaInfo, String>() {
+
+        final Button btn = new Button("支付");
+
         @Override
-        public TableCell call(final TableColumn<WanjiaInfo, String> param) {
-          final TableCell<WanjiaInfo, String> cell = new TableCell<WanjiaInfo, String>() {
-
-            final Button btn = new Button("支付");
-
-            @Override
-            public void updateItem(String item, boolean empty) {
-              super.updateItem(item, empty);
-              if (empty) {
-                setGraphic(null);
-                setText(null);
-              } else {
-                btn.setOnAction(event -> {
-                  WanjiaInfo wanjiaInfo = getTableView().getItems().get(getIndex());
-                  if ("1".equals(wanjiaInfo.getHasPayed())) {
-                    ShowUtil.show("抱歉，已支付过！！");
-                    return;
-                  }
-                  if (getTableRow() != null) {
-                    try {
-                      // //支付时修改玩家实时金额 或 添加 实时金额
-                      MoneyService.updateOrAdd_SSJE_after_Pay(wanjiaInfo);
-                      btn.setText("已支付");
-                      wanjiaInfo.setHasPayed("1");
-                      ShowUtil.show(
-                          "已将" + wanjiaInfo.getWanjiaName() + "的实时金额修改为   " + wanjiaInfo.getHeji(),
-                          2);
-                      // moneyInfo.setShishiJine(wj.getHeji());//设置新的实时金额的值
-                      MoneyService.flush_SSJE_table();// 刷新实时金额表
-
-                      // 点击支付时更改SM_Detail_Map中的支付状态
-                      ShangmaService.update_SM_Detail_Map_byPlayerIdAndPaiju(
-                          wanjiaInfo.getWanjiaId(), indexLabel.getText());
-                    } catch (Exception e) {
-                      ErrorUtil.err("支付失败", e);
-                    }
-                  }
-                });
-                WanjiaInfo wj = getTableView().getItems().get(getIndex());
-                // 解决不时本应支付确显示成已支付的bug
-                if (!"1".equals(wj.getHasPayed())) {
-                  btn.setText("支付");
-                } else {
-                  btn.setText("已支付");
-                }
-                setGraphic(btn);// 小林：这一行解决了支付按钮消失的问题
-                // 在此处增加是否要显示该按钮(如果玩家从属于某个非空或非公司的团队，则无需显示按钮)
-                String tempTeamId = wj.getHasPayed();// 这个tempTeamId是hasPayed的内容,这里没有公司的人
-                if (!StringUtil.isBlank(tempTeamId) && !"0".equals(tempTeamId)) {
-                  // 获取团队信息
-                  Huishui hs = DataConstans.huishuiMap.get(tempTeamId);
-                  // 情况一：有从属团队的玩家，再分两种情况
-                  if (hs != null) {
-                    // A:若团队战绩要管理，需要显示支付按钮
-                    if ("是".equals(hs.getZjManaged())) {
-                      // log.debug("====teamId为不为空，要显示，要战绩管理：是");
-                      setGraphic(btn);
-                      // B:若团队战绩不要管理，无须显示支付按钮
-                    } else {
-                      // log.debug("hsPayed:====================hs为空："+hs.getZjManaged());
-                      setGraphic(null);
-                    }
-                  }
-                } else {
-                  // log.debug("====teamId为空或为0，要显示+"+DataConstans.membersMap.get(wj.getWanjiaId()).getTeamName());
-                  // 情况二：对于没有从从属的团队的玩家或者团队是公司的玩家，一定需要需要显示支付按钮
-                  setGraphic(btn);
-                }
-                // setGraphic(btn);
-                setText(null);
+        public void updateItem(String item, boolean empty) {
+          super.updateItem(item, empty);
+          if (empty) {
+            setGraphic(null);
+            setText(null);
+          } else {
+            btn.setOnAction(event -> {
+              WanjiaInfo wanjiaInfo = getTableView().getItems().get(getIndex());
+              if ("1".equals(wanjiaInfo.getHasPayed())) {
+                ShowUtil.show("抱歉，已支付过！！");
+                return;
               }
+              if (getTableRow() != null) {
+                try {
+                  // //支付时修改玩家实时金额 或 添加 实时金额
+                  MoneyService.updateOrAdd_SSJE_after_Pay(wanjiaInfo);
+                  btn.setText("已支付");
+                  wanjiaInfo.setHasPayed("1");
+                  ShowUtil.show(
+                      "已将" + wanjiaInfo.getWanjiaName() + "的实时金额修改为   " + wanjiaInfo.getHeji(),
+                      2);
+                  // moneyInfo.setShishiJine(wj.getHeji());//设置新的实时金额的值
+                  MoneyService.flush_SSJE_table();// 刷新实时金额表
+
+                  // 点击支付时更改SM_Detail_Map中的支付状态
+                  ShangmaService.update_SM_Detail_Map_byPlayerIdAndPaiju(
+                      wanjiaInfo.getWanjiaId(), indexLabel.getText());
+                } catch (Exception e) {
+                  ErrorUtil.err("支付失败", e);
+                }
+              }
+            });
+            WanjiaInfo wj = getTableView().getItems().get(getIndex());
+            // 解决不时本应支付确显示成已支付的bug
+            if (!"1".equals(wj.getHasPayed())) {
+              btn.setText("支付");
+            } else {
+              btn.setText("已支付");
             }
-          };
-          return cell;
+            setGraphic(btn);// 小林：这一行解决了支付按钮消失的问题
+            // 在此处增加是否要显示该按钮(如果玩家从属于某个非空或非公司的团队，则无需显示按钮)
+            String tempTeamId = wj.getHasPayed();// 这个tempTeamId是hasPayed的内容,这里没有公司的人
+            if (!StringUtil.isBlank(tempTeamId) && !"0".equals(tempTeamId)) {
+              // 获取团队信息
+              Huishui hs = DataConstans.huishuiMap.get(tempTeamId);
+              // 情况一：有从属团队的玩家，再分两种情况
+              if (hs != null) {
+                // A:若团队战绩要管理，需要显示支付按钮
+                if ("是".equals(hs.getZjManaged())) {
+                  // log.debug("====teamId为不为空，要显示，要战绩管理：是");
+                  setGraphic(btn);
+                  // B:若团队战绩不要管理，无须显示支付按钮
+                } else {
+                  // log.debug("hsPayed:====================hs为空："+hs.getZjManaged());
+                  setGraphic(null);
+                }
+              }
+            } else {
+              // log.debug("====teamId为空或为0，要显示+"+DataConstans.membersMap.get(wj.getWanjiaId()).getTeamName());
+              // 情况二：对于没有从从属的团队的玩家或者团队是公司的玩家，一定需要需要显示支付按钮
+              setGraphic(btn);
+            }
+            // setGraphic(btn);
+            setText(null);
+          }
         }
       };
+      return cell;
+    }
+  };
+  
   /**
    * 在列中添加按钮
    */
@@ -1848,6 +1777,7 @@ public class MyController extends BaseController implements Initializable {
           return cell;
         }
       };
+      
   /**
    * 上码详情表添加双击名称事件
    */
@@ -2188,10 +2118,6 @@ public class MyController extends BaseController implements Initializable {
     clearDataConstansCache();
   }
 
-
-  public void teamIDSelectedAction(ActionEvent event) {
-
-  }
 
   /********************************************************** 自定义 分页控件代码 开始 *********/
   // 每一场锁定时添加一个页
@@ -2572,37 +2498,28 @@ public class MyController extends BaseController implements Initializable {
   }
 
   // unused
-  public void recoverySumMap() {
-    // 恢复上一场的团队累计 getLockedInfo
-    int currentPage = Integer.parseInt(pageInput.getText());
-    int size = DataConstans.Index_Table_Id_Map.size();
-    if (currentPage - size == 1) {
-      // 此情况下要从上一场加载==团队回水总和
-      DataConstans.SumMap = new HashMap<String, Double>();
-      String sumOfTeam = MoneyService.getLockedInfo(size + "", "团队回水总和");
-      String shangchangKaixiao = MoneyService.getLockedInfo(size + "", "实时开销总和");
-      if ("".equals(sumOfTeam)) {
-        log.debug("从上一场加载==团队回水总和失败！！！！");
-      } else {
-        DataConstans.SumMap.put("团队回水及保险总和", Double.valueOf(sumOfTeam));
-        DataConstans.SumMap.put("上场开销", Double.valueOf(shangchangKaixiao));// add 9-1
-      }
-    }
-  }
+//  public void recoverySumMap() {
+//    // 恢复上一场的团队累计 getLockedInfo
+//    int currentPage = Integer.parseInt(pageInput.getText());
+//    int size = DataConstans.Index_Table_Id_Map.size();
+//    if (currentPage - size == 1) {
+//      // 此情况下要从上一场加载==团队回水总和
+//      DataConstans.SumMap = new HashMap<String, Double>();
+//      String sumOfTeam = MoneyService.getLockedInfo(size + "", "团队回水总和");
+//      String shangchangKaixiao = MoneyService.getLockedInfo(size + "", "实时开销总和");
+//      if ("".equals(sumOfTeam)) {
+//        log.debug("从上一场加载==团队回水总和失败！！！！");
+//      } else {
+//        DataConstans.SumMap.put("团队回水及保险总和", Double.valueOf(sumOfTeam));
+//        DataConstans.SumMap.put("上场开销", Double.valueOf(shangchangKaixiao));// add 9-1
+//      }
+//    }
+//  }
 
   public int getCurrentPage() {
     return Integer.parseInt(pageInput.getText());
   }
 
-  /**
-   * 隐藏今日无数据的团队
-   * 
-   * @time 2018年1月1日
-   * @param event
-   */
-  public void proxyHideNoDataTeamAction(ActionEvent event) {
-    TeamProxyService.proxyHideNoDataTeam();
-  }
 
   /**
    * 总汇刷新按钮
@@ -2658,33 +2575,11 @@ public class MyController extends BaseController implements Initializable {
   }
 
   /**
-   * 代理查询导出为Excel
-   */
-  public void exportExcelAction(ActionEvent event) {
-    TeamProxyService.exportExcel();
-  }
-
-  /**
-   * 代理查询一键导出为Excel
-   */
-  public void exportExcelBatchAction(ActionEvent event) {
-    TeamProxyService.exportTeamHasDataOneKey();
-  }
-
-  /**
    * 实时上码导出为Excel
    */
   public void exportSMExcelAction(ActionEvent event) {
     // ShowUtil.show("未开发",2);
     ShangmaService.exportShangmaExcel();
-  }
-
-
-  /**
-   * 代理查询刷新按钮
-   */
-  public void proxyRefreshAction(ActionEvent event) {
-    TeamProxyService.proxyRefresh();
   }
 
   /**
@@ -2814,7 +2709,7 @@ public class MyController extends BaseController implements Initializable {
       list.forEach(hs -> {
         DataConstans.huishuiMap.put(hs.getTeamId(), hs);
       });
-      TeamProxyService.initTeamSelectAndZjManage(teamIDCombox);
+      TeamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
 
       // 积分查询初始化团队ID
       JifenService.init_Jifen_TeamIdCombox();
@@ -2878,7 +2773,7 @@ public class MyController extends BaseController implements Initializable {
       DataConstans.recoveryAllCache();
       DataConstans.initMetaData();
       // add 2017-10-21 代理类初始化团队ID
-      TeamProxyService.initTeamSelectAndZjManage(teamIDCombox);
+      TeamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
       // add 2017-10-21 代理类初始化团队ID
       JifenService.init_Jifen_TeamIdCombox();
 
@@ -3155,10 +3050,10 @@ public class MyController extends BaseController implements Initializable {
 
         // 以下清除代码
         // A 清空代理查询中的团队下拉框
-        String selected_team = teamIDCombox.getSelectionModel().getSelectedItem();
-        teamIDCombox.getItems().remove(teamId);
-        if (teamId.equals(selected_team) && teamIDCombox.getItems().size() > 0) {
-          teamIDCombox.getSelectionModel().select(0);
+        String selected_team = teamProxyController.teamIDCombox.getSelectionModel().getSelectedItem();
+        teamProxyController.teamIDCombox.getItems().remove(teamId);
+        if (teamId.equals(selected_team) && teamProxyController.teamIDCombox.getItems().size() > 0) {
+          teamProxyController.teamIDCombox.getSelectionModel().select(0);
         }
         // B 积分查询中的团队下拉框
         String selected_jifen = jfTeamIDCombox.getSelectionModel().getSelectedItem();
