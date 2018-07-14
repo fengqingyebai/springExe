@@ -1,9 +1,15 @@
 package com.kendy.controller;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import com.kendy.annotation.Mycolumn;
+import com.kendy.application.SpringFxmlLoader;
 import com.kendy.interfaces.Entity;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -18,11 +24,19 @@ import javafx.util.Callback;
  * @author linzt
  * @time 2018年7月6日
  */
-@Controller
-public abstract class BaseController {
+@Component
+public class BaseController{
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
-
+  
+  public void setInitialize(Object... baseControllers) {
+    for(Object controller : baseControllers) {
+      controller = SpringFxmlLoader.getContext().getBean(controller.getClass());
+    }
+  }
+  
+  
+  
   // // T指代表实体
   // private T entity;
 
@@ -31,45 +45,42 @@ public abstract class BaseController {
   /**
    * 绑定多个表格的列,由子实例完成后自动触发
    */
-  // public void bindTableColumnValue() {
-  // logger.info("正在初始化父类bindTableColumnValue方法....");
-  // Class<?> clz = getSubClass();
-  // List<Field> fields = new ArrayList<>();
-  // for (Class<?> clazz = clz; clazz != Object.class; clazz = clazz.getSuperclass()) {
-  // fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-  // }
-  // logger.info("开始>>>------------------------------------------------");
-  // logger.info("正在获取子类{}属性....", clz.getName());
-  // for (Field field : fields) {
-  // // 是否使用自定义注解
-  // if (field.isAnnotationPresent(javafx.fxml.FXML.class)) {
-  // Class<?> fieldType = field.getType();
-  // if(fieldType == TableView.class) {
-  // String name = field.getName();
-  // logger.info("检测到表格"+name);
-  // //获取实例，根据实例的field进行相关操作
-  // Object subClassInstance = getSubClassInstance();
-  // if (subClassInstance instanceof MyController) {
-  // subClassInstance = (MyController)subClassInstance;
-  // String text = ((MyController) subClassInstance).sysCode.getText();
-  // logger.info("sysCode:" + text);
-  // }
-  // //bindCellValueByTables(field.);
-  // }
-  //// if (field.isAnnotationPresent(Mycolumn.class)) {
-  //// Mycolumn myColumn = field.getAnnotation(Mycolumn.class);
-  //// try {
-  //// boolean noNeedRedColumn = myColumn.noNeedRedColumn();
-  ////
-  //// } catch (Exception e) {
-  //// }
-  //// }
-  // }
-  // }
-  // logger.info("------------------------------------------------<<<结束");
-  // }
+   public BaseController() {
+     logger.info("正在初始化父类bindTableColumnValue方法....");
+     Class<?> clz = getSubClass();
+     if(clz != null) {
+       logger.info("子类:"+clz.getName());
+       List<Field> fields = new ArrayList<>();
+       for (Class<?> clazz = clz; clazz != Object.class; clazz = clazz.getSuperclass()) {
+         fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+       }
+       logger.info("开始>>>------------------------------------------------");
+       logger.info("正在获取子类{}属性....", clz.getName());
+       for (Field field : fields) {
+         // 是否使用自定义注解
+         if (field.isAnnotationPresent(Autowired.class)) {
+           Class<?> fieldType = field.getType();
+           logger.info("检测:"+fieldType.getName());
+           if(fieldType == TableView.class) {
+           String name = field.getName();
+           logger.info("检测到表格"+name);
+           }
+         }
+       }
+       logger.info("------------------------------------------------<<<结束");
+     }
+   }
 
 
+
+//  private static int count = 1;
+//  /**
+//   * 
+//   */
+//  public BaseController() {
+//    super();
+//    logger.info(" BaseController构造方法。。。"+ count++);
+//  }
 
   /**
    * 绑定多个表格的列
@@ -115,7 +126,7 @@ public abstract class BaseController {
   }
 
 
-  public static <T> Callback<TableColumn<T, String>, TableCell<T, String>> getColorCellFactory(
+  public <T> Callback<TableColumn<T, String>, TableCell<T, String>> getColorCellFactory(
       T t) {
     return new Callback<TableColumn<T, String>, TableCell<T, String>>() {
       public TableCell<T, String> call(TableColumn<T, String> param) {
@@ -151,11 +162,11 @@ public abstract class BaseController {
   // this.entity = entity;
   // }
 
-  // /**
-  // * 父类获取子类Class
-  // * @author linzt
-  // */
-  // public abstract Class<?> getSubClass();
+   /**
+   * 父类获取子类Class
+   * @author linzt
+   */
+   public Class<?> getSubClass(){ return null;};
   //
   // /**
   // * 父类获取子类的实例对象

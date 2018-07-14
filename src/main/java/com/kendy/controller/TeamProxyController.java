@@ -2,8 +2,12 @@ package com.kendy.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.service.TeamProxyService;
@@ -29,8 +33,13 @@ import javafx.scene.layout.HBox;
  * @author linzt
  * @time 2018年2月14日 上午9:32:23
  */
-@Controller
+@Component
 public class TeamProxyController extends BaseController implements Initializable {
+  
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public TeamProxyService teamProxyService; // 配帐控制类
 
   // ===============================================================代理查询Tab
   @FXML public TableView<ProxyTeamInfo> tableProxyTeam;
@@ -55,40 +64,47 @@ public class TeamProxyController extends BaseController implements Initializable
   @FXML public TextField proxyHBRate;// 回保比例
   @FXML public TextField proxyFWF;// 服务费大于多少有效
 
+  @PostConstruct
+  public void inits() {
+    logger.info("@PostConstruct加载中的TeamProxyController" + System.currentTimeMillis());
+    
+  }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    
+    logger.info("xml加载后的TeamProxyController" + + System.currentTimeMillis());
     // 绑定代理查询表（团队当天查询）
     bindCellValueByTable(new ProxyTeamInfo(), tableProxyTeam);
     // 绑定代理查询中的合计表
     bindCellValueByTable(new ProxySumInfo(), tableProxySum);
 
     // 代理查询中的团队回水选择
-    TeamProxyService.initTeamProxy(tableProxyTeam, proxySumHBox, teamIDCombox, isZjManage,
+    teamProxyService.initTeamProxy(tableProxyTeam, proxySumHBox, teamIDCombox, isZjManage,
         proxyDateLabel, tableProxySum, proxyHSRate, proxyHBRate, proxyFWF, hasTeamBaoxian);
     // 代理查询中的团队回水选择
-    TeamProxyService.initTeamSelectAction(teamIDCombox, isZjManage, tableProxyTeam, proxySumHBox);
+    teamProxyService.initTeamSelectAction(teamIDCombox, isZjManage, tableProxyTeam, proxySumHBox);
   }
 
   /**
    * 代理查询导出为Excel
    */
   public void exportExcelAction(ActionEvent e) {
-    TeamProxyService.exportExcel();
+    teamProxyService.exportExcel();
   }
 
   /**
    * 代理查询一键导出为Excel
    */
   @FXML public void exportExcelBatchAction(Event e) {
-    TeamProxyService.exportExcel();
+    teamProxyService.exportExcel();
   }
 
   /**
    * 代理查询刷新按钮
    */
   @FXML public void proxyRefreshAction(Event e) {
-    TeamProxyService.proxyRefresh();
+    teamProxyService.proxyRefresh();
   }
 
   public void teamIDSelectedAction(Event e) {
@@ -102,7 +118,12 @@ public class TeamProxyController extends BaseController implements Initializable
    * @param event
    */
   @FXML public void proxyHideNoDataTeamAction() {
-    TeamProxyService.proxyHideNoDataTeam();
+    teamProxyService.proxyHideNoDataTeam();
+  }
+  
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
   }
 
 

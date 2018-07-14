@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
@@ -40,7 +41,13 @@ import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.model.SMResultModel;
 import com.kendy.service.AutoDownloadZJExcelService;
+import com.kendy.service.JifenService;
+import com.kendy.service.MemberService;
+import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
+import com.kendy.service.TGExportExcelService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
 import com.kendy.spider.GameRoomModel;
 import com.kendy.spider.HttpUtil;
 import com.kendy.spider.RespResult;
@@ -84,10 +91,40 @@ import javafx.scene.layout.VBox;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-@Controller
+@Component
 public class SMAutoController extends BaseController implements Initializable {
 
-  private static Logger log = Logger.getLogger(SMAutoController.class);
+  private Logger log = Logger.getLogger(SMAutoController.class);
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public CombineIDController combineIDController ;
+  @Autowired
+  public BaseController baseController; // 基本控制类
+  @Autowired
+  public JifenService jifenService; // 积分控制类
+  @Autowired
+  public MemberService memberService; // 配帐控制类
+  @Autowired
+  public ShangmaService shangmaService; // 上码控制类
+  @Autowired
+  public TeamProxyService teamProxyService; // 配帐控制类
+  @Autowired
+  public TGExportExcelService tGExportExcelService; // 配帐控制类
+  @Autowired
+  public AutoDownloadZJExcelService autoDownloadZJExcelService; // 配帐控制类
+  @Autowired
+  public TgWaizhaiService tgWaizhaiService; // 配帐控制类
+  @Autowired
+  public MoneyService moneyService; // 配帐控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+
+  
+  @Autowired
+  HttpUtil httpUtil;
 
   @FXML
   public TextField smNextDayRangeFieldd; // 次日上码配置
@@ -139,26 +176,26 @@ public class SMAutoController extends BaseController implements Initializable {
   public TextField downExcelPierodField;// 每隔多久去刷新
 
 
-  private static final String SM_AOTO_NEXT_DAY_DB_KEY =
+  private final String SM_AOTO_NEXT_DAY_DB_KEY =
       KeyEnum.SM_AOTO_NEXT_DAY_DB_KEY.getKeyName(); // 保存到数据库的key
-  private static final String SM_AOTO_TOKEN_DB_KEY = KeyEnum.SM_AOTO_TOKEN_DB_KEY.getKeyName(); // 保存到数据库的key
+  private final String SM_AOTO_TOKEN_DB_KEY = KeyEnum.SM_AOTO_TOKEN_DB_KEY.getKeyName(); // 保存到数据库的key
 
-  private static final String CONNECT_FAIL = "连接失败,失败码：";
+  private final String CONNECT_FAIL = "连接失败,失败码：";
 
   private Object lock = new Object();
 
-  public static Map<String, Boolean> downloadCache = new ConcurrentHashMap<>();
+  public Map<String, Boolean> downloadCache = new ConcurrentHashMap<>();
 
   private Timer timer;
 
   private Timer excelTimer;
 
-  static {
+  {
     log.info("软件新开启：加载自动下载数据");
     loadDownLoadCache();
   }
 
-  public static void loadDownLoadCache() {
+  public void loadDownLoadCache() {
     File downLoadFileFolder =
         new File(FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath() + "\\"
             + LocalDate.now().toString());
@@ -201,7 +238,7 @@ public class SMAutoController extends BaseController implements Initializable {
    * @time 2018年3月28日
    */
   private void initNextDayRange() {
-    String range = DBUtil.getValueByKeyWithoutJson(SM_AOTO_NEXT_DAY_DB_KEY);
+    String range = dbUtil.getValueByKeyWithoutJson(SM_AOTO_NEXT_DAY_DB_KEY);
     if (StringUtil.isNotBlank(range)) {
       smNextDayRangeFieldd.setText(range);
     } else {
@@ -229,7 +266,7 @@ public class SMAutoController extends BaseController implements Initializable {
   public void saveTokenAction(ActionEvent event) {
     String token = tokenArea.getText();
     if (StringUtil.isNotBlank(token)) {
-      DBUtil.saveOrUpdateOthers(SM_AOTO_TOKEN_DB_KEY, token.trim());
+      dbUtil.saveOrUpdateOthers(SM_AOTO_TOKEN_DB_KEY, token.trim());
       ShowUtil.show("保存OK", 1);
     } else {
       ShowUtil.show("别逗，token啥都没写，你就要保存?", 1);
@@ -243,7 +280,7 @@ public class SMAutoController extends BaseController implements Initializable {
    * @param event
    */
   public void loadTokenAction(ActionEvent event) {
-    String token = DBUtil.getValueByKeyWithoutJson(SM_AOTO_TOKEN_DB_KEY);
+    String token = dbUtil.getValueByKeyWithoutJson(SM_AOTO_TOKEN_DB_KEY);
     if (StringUtil.isNotBlank(token)) {
       tokenArea.setText(token);
       ShowUtil.show("加载完成", 1);
@@ -266,7 +303,7 @@ public class SMAutoController extends BaseController implements Initializable {
       logInfo(message);
       return;
     }
-    WanjiaListResult wanjiaListResult = HttpUtil.getWanjiaListResult(token);
+    WanjiaListResult wanjiaListResult = httpUtil.getWanjiaListResult(token);
     if (wanjiaListResult == null) {
       setTokenStatusFail("接口无返回");
       return;
@@ -343,7 +380,7 @@ public class SMAutoController extends BaseController implements Initializable {
   public void saveNextDayConfigAction(ActionEvent evet) {
     String smNextDayRange = smNextDayRangeFieldd.getText();
     if (StringUtil.isNotBlank(smNextDayRange)) {
-      DBUtil.saveOrUpdateOthers(SM_AOTO_NEXT_DAY_DB_KEY, smNextDayRange);
+      dbUtil.saveOrUpdateOthers(SM_AOTO_NEXT_DAY_DB_KEY, smNextDayRange);
       ShowUtil.show("保存OK", 1);
     } else {
       ShowUtil.show("别逗，啥都没写，你就要保存?", 1);
@@ -409,7 +446,7 @@ public class SMAutoController extends BaseController implements Initializable {
     logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
     try {
       // 调用接口
-      List<WanjiaApplyInfo> buyinList = HttpUtil.getBuyinList(getToken());
+      List<WanjiaApplyInfo> buyinList = httpUtil.getBuyinList(getToken());
       // 处理数据
       if (buyinList == null) {
         logInfo("获取到玩家为空!!!");
@@ -459,17 +496,17 @@ public class SMAutoController extends BaseController implements Initializable {
       String playerId = wanjiaApplyInfo.getShowId();
       String playerName = wanjiaApplyInfo.getStrNick();
 
-      Player player = DataConstans.membersMap.get(playerId);
+      Player player = dataConstants.membersMap.get(playerId);
       if (player == null) {
         logInfo("玩家（" + playerName + ")未录入到系统中！！！");
         continue;
       }
       String teamId = player.getTeamName();
-      Huishui huishui = DataConstans.huishuiMap.get(teamId);
+      Huishui huishui = dataConstants.huishuiMap.get(teamId);
       String selectTeamAvailabel = huishui.getTeamAvailabel(); // 是否勾选了团队上码：1是 0否
 
       logInfo(playerName + "正在模拟更新实时上码...");
-      SMResultModel resultModel = ShangmaService.getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
+      SMResultModel resultModel = shangmaService.getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
       ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
       if (selectedSMInfo == null) {
         logInfo("玩家（" + playerName + ")在上码系统中不存在！！");
@@ -530,22 +567,22 @@ public class SMAutoController extends BaseController implements Initializable {
       String playerName, String paijuString, String buyStack, Long userUuid, Long roomId) {
     boolean addOK = false;
     try {
-      boolean acceptBuyOK = HttpUtil.acceptBuy(userUuid, roomId, getToken()); // 后台申请买入
+      boolean acceptBuyOK = httpUtil.acceptBuy(userUuid, roomId, getToken()); // 后台申请买入
       if (acceptBuyOK) {
         if (isTodaySM) {
-          ShangmaService.addNewShangma2DetailTable_HT(resultModel,
-              ShangmaService.getShangmaPaiju(paijuString), buyStack);
+          shangmaService.addNewShangma2DetailTable_HT(resultModel,
+              shangmaService.getShangmaPaiju(paijuString), buyStack);
 
         } else {
           ShangmaNextday nextday = new ShangmaNextday();
           nextday.setPlayerId(playerId);
           nextday.setPlayerName(playerName);
-          nextday.setChangci(ShangmaService.getShangmaPaiju(paijuString));
+          nextday.setChangci(shangmaService.getShangmaPaiju(paijuString));
           nextday.setShangma(buyStack);
           nextday.setTime(TimeUtil.getDateTime2());
 
           // 新增玩家的次日数据
-          ShangmaService.addNewRecord_nextday_HT(resultModel, nextday);
+          shangmaService.addNewRecord_nextday_HT(resultModel, nextday);
         }
         addOK = true;
         log.info(String.format("%s[%s]第%s局买入%s,网络买入结果是[成功]，计入上码", playerName, playerId, paijuString,
@@ -621,8 +658,8 @@ public class SMAutoController extends BaseController implements Initializable {
    * @return
    */
   public String getLianheAvailabel(List<ShangmaInfo> smList, String playerId) {
-    String superId = DataConstans.Combine_Super_Id_Map.containsKey(playerId) ? playerId
-        : DataConstans.Combine_Sub_Id_Map.get(playerId);
+    String superId = dataConstants.Combine_Super_Id_Map.containsKey(playerId) ? playerId
+        : dataConstants.Combine_Sub_Id_Map.get(playerId);
 
     if (StringUtil.isBlank(superId)) {
       log.error(playerId + "非父非子！");
@@ -701,9 +738,9 @@ public class SMAutoController extends BaseController implements Initializable {
    * @param playerId
    * @return
    */
-  private static boolean not_supter_not_sub(String playerId) {
-    boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(playerId);
-    boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(playerId);
+  private boolean not_supter_not_sub(String playerId) {
+    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(playerId);
+    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(playerId);
     return !isSuperId && !isSubId;
   }
 
@@ -795,7 +832,7 @@ public class SMAutoController extends BaseController implements Initializable {
         .setText("2162968366##2162813955##2162971465##2162864256##2162932597##2162892097");
   }
 
-  public static String getTimeString() {
+  public String getTimeString() {
     SimpleDateFormat format = new SimpleDateFormat("HH : mm : ss");
     String timeStr = format.format(new Date());
     return timeStr;
@@ -809,18 +846,18 @@ public class SMAutoController extends BaseController implements Initializable {
    * 
    *************************************************************************************************/
   @FXML
-  private DatePicker datePicker; // dateLabel.setText(DataConstans.Date_Str);
+  private DatePicker datePicker; // dateLabel.setText(dataConstants.Date_Str);
   @FXML
   private TextField firstDayStartTimeField;
   @FXML
   private TextField secondDayEndTimeField;
 
-  private static final String EN_MH = ":";
-  private static final String CN_MH = "：";
-  private static final String PU_TONG = "1";
-  private static final String AO_MA_HA = "2";
-  private static final String DA_BO_LUO = "6";
-  private static final int DOWN_LIMIT = 6; // 每次下载5个，总共一次性下载 6 * 3 = 18
+  private final String EN_MH = ":";
+  private final String CN_MH = "：";
+  private final String PU_TONG = "1";
+  private final String AO_MA_HA = "2";
+  private final String DA_BO_LUO = "6";
+  private final int DOWN_LIMIT = 6; // 每次下载5个，总共一次性下载 6 * 3 = 18
 
   public LocalDate getSelectedDate() {
     return datePicker.getValue();
@@ -927,7 +964,7 @@ public class SMAutoController extends BaseController implements Initializable {
     try {
       excelInfo("正在获取" + houtai + "房间列表..." + TimeUtil.getTimeString());
       Map<String, String> params = getParams(DownType);
-      String respString = HttpUtil.sendPost(
+      String respString = httpUtil.sendPost(
           "http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
       if (StringUtil.isNotBlank(respString)) {
         if (log.isDebugEnabled()) {
@@ -982,7 +1019,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
           long start = System.currentTimeMillis();
 
-          AutoDownloadZJExcelService.autoDown(fileName, roomId, token);
+          autoDownloadZJExcelService.autoDown(fileName, roomId, token);
 
           long end = System.currentTimeMillis();
           String message = "已下载" + fileName + ",耗时：" + (end - start) + "毫秒";
@@ -1047,7 +1084,7 @@ public class SMAutoController extends BaseController implements Initializable {
    * @return
    */
   private Map<String, String> getParams(String downType) {
-    String clubId = MyController.currentClubId.getText();
+    String clubId = myController.currentClubId.getText();
     // long[] timeRange = TimeUtil.getTimeRange();
     String[] timeRange = getTimeRange();
     String startTime = timeRange[0];
@@ -1280,5 +1317,9 @@ public class SMAutoController extends BaseController implements Initializable {
     excelInfo("停止下载后台Excel数据!!!");
   }
 
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
+  }
 
 }

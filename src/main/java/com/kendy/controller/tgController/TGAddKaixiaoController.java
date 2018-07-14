@@ -10,16 +10,35 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.BankFlowController;
 import com.kendy.controller.BaseController;
+import com.kendy.controller.CombineIDController;
+import com.kendy.controller.GDController;
+import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
+import com.kendy.controller.QuotaController;
+import com.kendy.controller.SMAutoController;
+import com.kendy.controller.TeamProxyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Player;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TGKaixiaoInfo;
+import com.kendy.service.AutoDownloadZJExcelService;
+import com.kendy.service.JifenService;
+import com.kendy.service.MemberService;
+import com.kendy.service.MoneyService;
+import com.kendy.service.ShangmaService;
+import com.kendy.service.TGExportExcelService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
+import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.ShowUtil;
@@ -39,11 +58,17 @@ import javafx.scene.control.TextInputDialog;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
-@Controller
+@Component
 public class TGAddKaixiaoController extends BaseController implements Initializable {
 
-  private static Logger log = Logger.getLogger(TGAddKaixiaoController.class);
-
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public TGController tgController; // 托管控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
   @FXML
   private TextField searchField; // 玩家名称(模糊搜索)
 
@@ -95,7 +120,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initPlayers() {
-    Map<String, Player> membersMap = DataConstans.membersMap;
+    Map<String, Player> membersMap = dataConstants.membersMap;
     if (MapUtil.isHavaValue(membersMap)) {
       players = new ArrayList<>(membersMap.values());
     }
@@ -135,7 +160,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initPayItemChoice() {
-    String payItemsJson = DBUtil.getValueByKey(PAY_ITEMS_DB_KEY);
+    String payItemsJson = dbUtil.getValueByKey(PAY_ITEMS_DB_KEY);
     if (StringUtil.isNotBlank(payItemsJson) && !"{}".equals(payItemsJson)) {
       payItems = JSON.parseObject(payItemsJson, new TypeReference<List<String>>() {});
     } else {
@@ -154,7 +179,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    */
   private void initTGCompanyChoice() {
     List<TGCompanyModel> tgCompanys =
-        DBUtil.get_all_tg_company_By_clubId(MyController.currentClubId.getText());
+        dbUtil.get_all_tg_company_By_clubId(myController.currentClubId.getText());
     List<String> nameList = new ArrayList<>();
     if (CollectUtil.isHaveValue(tgCompanys)) {
       nameList =
@@ -202,7 +227,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    */
   private void savePayItem() {
     String payItemsJson = JSON.toJSONString(payItems);
-    DBUtil.saveOrUpdateOthers(PAY_ITEMS_DB_KEY, payItemsJson);
+    dbUtil.saveOrUpdateOthers(PAY_ITEMS_DB_KEY, payItemsJson);
   }
 
   /**
@@ -228,7 +253,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
     String tgCompany = tgCompanyChoice.getSelectionModel().getSelectedItem();
 
     TGKaixiaoInfo TGKaixiaoEntity =
-        new TGKaixiaoInfo(UUID.randomUUID().toString(), MyController.tgController.getDateString(),
+        new TGKaixiaoInfo(UUID.randomUUID().toString(), tgController.getDateString(),
             FinalPlaerNameField.getText(), payItemsChoice.getSelectionModel().getSelectedItem(),
             kaixiaoMoneyField.getText(), tgCompany);
     return TGKaixiaoEntity;
@@ -250,9 +275,9 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
     }
     // 传递给主控制类处理逻辑 TODO
     TGKaixiaoInfo TGKaixiaoEntity = getSubmitData();
-    TGController tgController = MyController.tgController;
+    //TGController tgController = MyController.tgController;
     // 保存到数据库
-    DBUtil.saveOrUpdate_tg_kaixiao(TGKaixiaoEntity);
+    dbUtil.saveOrUpdate_tg_kaixiao(TGKaixiaoEntity);
     // 刷新界面
     if (equalsCurrentCompany())
       tgController.refreshTableTGKaixiao();
@@ -267,10 +292,16 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    * @return
    */
   private boolean equalsCurrentCompany() {
-    TGController tgController = MyController.tgController;
+    //TGController tgController = MyController.tgController;
     String tgCompany = tgController.getCurrentTGCompany();
     String selectedCompany = tgCompanyChoice.getSelectionModel().getSelectedItem();
     return tgCompany.equals(selectedCompany);
+  }
+  
+  
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
   }
 
 

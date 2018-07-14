@@ -3,8 +3,10 @@ package com.kendy.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
@@ -27,13 +29,16 @@ import javafx.scene.control.TextField;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:51:39
  */
-@Service
-public class MemberService {
-
-  private static Logger log = Logger.getLogger(MemberService.class);
+@Component
+public class MemberService extends InstancePool{
+  
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void initMemberQuery(ListView<String> memberListView,
+  public void initMemberQuery(ListView<String> memberListView,
       TableView<MemberZJInfo> tableMemberZJ, Label memberDateStr, Label memberPlayerId,
       Label memberPlayerName, Label memberSumOfZJ, Label memberTotalZJ) {
     // ListView变化时自动更新右边的信息
@@ -47,8 +52,8 @@ public class MemberService {
         memberPlayerName.setText("");
         memberSumOfZJ.setText("");
         tableMemberZJ.setItems(null);
-        if (!StringUtil.isBlank(DataConstans.Date_Str)) {
-          memberDateStr.setText(DataConstans.Date_Str);
+        if (!StringUtil.isBlank(dataConstants.Date_Str)) {
+          memberDateStr.setText(dataConstants.Date_Str);
         }
         String newVal = (String) newValue;
         if (!StringUtil.isBlank(newVal)) {
@@ -61,7 +66,7 @@ public class MemberService {
         }
 
         /**** 会员历史战绩区域赋值 ***/
-        String totalZJ = DBUtil.getTotalZJByPId(memberPlayerId.getText());
+        String totalZJ = dbUtil.getTotalZJByPId(memberPlayerId.getText());
         memberTotalZJ.setText(totalZJ);
       }
     });
@@ -73,12 +78,12 @@ public class MemberService {
    * 
    * @param nameAndId 名称和ID 传过来肯定是不为空的，固不作空判断
    */
-  public static String getIdFromStr(String nameAndId) {
+  public String getIdFromStr(String nameAndId) {
     String[] arr = nameAndId.split(" ");
     return arr[arr.length - 1];
   }
 
-  public static String getNameFromStr(String nameAndId) {
+  public String getNameFromStr(String nameAndId) {
     return nameAndId.substring(0, nameAndId.lastIndexOf(" "));
   }
 
@@ -90,10 +95,10 @@ public class MemberService {
    * @param wanjiaId
    * @param memberSumOfZJ
    */
-  public static void updateMemberTable(TableView<MemberZJInfo> tableMemberZJ, String wanjiaId,
+  public void updateMemberTable(TableView<MemberZJInfo> tableMemberZJ, String wanjiaId,
       Label memberSumOfZJ) {
     // 根据名称获取团队ID
-    Player wanjia = DataConstans.membersMap.get(wanjiaId);
+    Player wanjia = dataConstants.membersMap.get(wanjiaId);
     String teamId = "";
     if (wanjia != null && !StringUtil.isBlank(wanjia.getTeamName())) {
       teamId = wanjia.getTeamName();
@@ -101,8 +106,8 @@ public class MemberService {
     ObservableList<MemberZJInfo> obList = FXCollections.observableArrayList();
     String zj = "";// 战绩
     Double sumOfZJ = 0d;// 战绩总和
-    if (DataConstans.Total_Team_Huishui_Map.size() != 0) {
-      List<GameRecord> list = DataConstans.Total_Team_Huishui_Map.get(teamId);
+    if (dataConstants.Total_Team_Huishui_Map.size() != 0) {
+      List<GameRecord> list = dataConstants.Total_Team_Huishui_Map.get(teamId);
       if (list != null) {
         for (GameRecord info : list) {
           if (info.getPlayerId().equals(wanjiaId)) {
@@ -114,7 +119,7 @@ public class MemberService {
       }
     }
     // 赋值总和
-    memberSumOfZJ.setText(MoneyService.digit0(sumOfZJ));
+    memberSumOfZJ.setText(NumUtil.digit0(sumOfZJ));
     // 刷新表
     tableMemberZJ.setItems(obList);
     tableMemberZJ.refresh();
@@ -122,12 +127,12 @@ public class MemberService {
 
   }
 
-  public static void setResult2ListView(TextField memberNameField,
+  public void setResult2ListView(TextField memberNameField,
       ListView<String> memberListView) {
     String name = memberNameField.getText();
     Set<Player> set = new HashSet<>();
     if (!StringUtil.isBlank(name)) {
-      DataConstans.membersMap.forEach((mId, mPlayer) -> {
+      dataConstants.membersMap.forEach((mId, mPlayer) -> {
         if (mPlayer.getPlayerName().contains(name)) {
           set.add(mPlayer);
         }

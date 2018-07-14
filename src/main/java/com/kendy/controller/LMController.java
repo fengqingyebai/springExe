@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubQuota;
@@ -29,6 +32,10 @@ import com.kendy.excel.ExportAllLMExcel;
 import com.kendy.excel.ExportLMExcel;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecord;
+import com.kendy.service.MoneyService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
@@ -70,10 +77,15 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-@Controller
+@Component
 public class LMController extends BaseController implements Initializable {
 
-
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================
   @FXML
@@ -111,25 +123,25 @@ public class LMController extends BaseController implements Initializable {
   private TableColumn<LMDetailInfo, String> lmDetailPersonCount;
 
 
-  private static Logger log = Logger.getLogger(LMController.class);
+  private Logger log = Logger.getLogger(LMController.class);
 
-  private static final String FLOW_PANE_ID = "flowPane";
+  private final String FLOW_PANE_ID = "flowPane";
 
   // 导入每场战绩时的所有俱乐部记录
-  public static List<GameRecord> currentRecordList = new ArrayList<>();
+  public List<GameRecord> currentRecordList = new ArrayList<>();
 
   // {俱乐部ID : 俱乐部信息}
-  public static Map<String, Club> allClubMap = new HashMap<>();
+  public Map<String, Club> allClubMap = new HashMap<>();
 
   // {俱乐部ID : 俱乐部每一场信息}
-  public static Map<String, List<GameRecord>> eachClubList = new HashMap<>();
+  public Map<String, List<GameRecord>> eachClubList = new HashMap<>();
 
   // 缓存三个联盟的信息
-  public static List<Map<String, List<GameRecord>>> LMTotalList = new ArrayList<>();
+  public List<Map<String, List<GameRecord>>> LMTotalList = new ArrayList<>();
 
-  public static ListView<String> _clubListView = new ListView<>();
+  public ListView<String> _clubListView = new ListView<>();
 
-  public static final String[] LM = new String[] {"联盟1", "联盟2", "联盟3"};
+  public final String[] LM = new String[] {"联盟1", "联盟2", "联盟3"};
 
 
   /**
@@ -156,7 +168,7 @@ public class LMController extends BaseController implements Initializable {
     initSingClubListen();
 
     // 软件一打开就从从数据库中获取所有俱乐部信息
-    allClubMap = DBUtil.getAllClub();
+    allClubMap = dbUtil.getAllClub();
     _clubListView = clubListView;
     refreshClubList();
 
@@ -216,10 +228,10 @@ public class LMController extends BaseController implements Initializable {
           set_LM_Zhuofei(club, lmType, newValue);
           // add 2018-2-11 添加到历史联盟桌费
           String date =
-              StringUtil.isBlank(DataConstans.Date_Str) ? "2017-01-01" : DataConstans.Date_Str;
+              StringUtil.isBlank(dataConstants.Date_Str) ? "2017-01-01" : dataConstants.Date_Str;
           ClubZhuofei clubZhuofei =
               new ClubZhuofei(date, club.getClubId(), newValue, "联盟" + lmType);
-          DBUtil.saveOrUpdate_club_zhuofei(clubZhuofei);
+          dbUtil.saveOrUpdate_club_zhuofei(clubZhuofei);
 
         } else if ("已结算".equals(sumInfo.getLmSumName())) {
           // club.setYiJieSuan(newValue);
@@ -229,7 +241,7 @@ public class LMController extends BaseController implements Initializable {
         // 更新结余
         updateTableLMSumOnly();
         // 同步到数据库
-        DBUtil.updateClub(club);
+        dbUtil.updateClub(club);
 
         // 设置合计桌费（这个没多大影响）
         setNewSumOfZF();
@@ -240,7 +252,7 @@ public class LMController extends BaseController implements Initializable {
   }
 
   // 同步俱乐部信息（缓存与数据库）
-  public static void refreshClubList() {
+  public void refreshClubList() {
 
     // 这里如果allClubMap这个缓存没有数据，尝试从数据库获取（或者在中途中就加载，或者初始化就加载）
 
@@ -262,8 +274,8 @@ public class LMController extends BaseController implements Initializable {
       return;
     allClubMap.values().forEach(club -> {
       try {
-        if (!DBUtil.isHasClub(club.getClubId())) {
-          DBUtil.addClub(club);
+        if (!dbUtil.isHasClub(club.getClubId())) {
+          dbUtil.addClub(club);
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -283,8 +295,8 @@ public class LMController extends BaseController implements Initializable {
    * 
    * @time 2018年5月30日
    */
-  private static void refreshAllClubMap() {
-    Map<String, Club> DBClubs = DBUtil.getAllClub();
+  private void refreshAllClubMap() {
+    Map<String, Club> DBClubs = dbUtil.getAllClub();
     if (MapUtil.isHavaValue(DBClubs) && MapUtil.isHavaValue(allClubMap)) {
       allClubMap.forEach((clubId, club) -> {
         Club dbClub = DBClubs.get(clubId);
@@ -308,7 +320,7 @@ public class LMController extends BaseController implements Initializable {
    * @time 2017年12月14日
    * @param index 1：联盟1（依此类推） index 取 [1,2,3]
    */
-  public static void refreshClubListView(int index) {
+  public void refreshClubListView(int index) {
 
     // 这里更新俱乐部列表（静态访问）
     _clubListView.setItems(null);
@@ -586,7 +598,7 @@ public class LMController extends BaseController implements Initializable {
    * @time 2017年11月25日
    * @param list 某个俱乐部的所有场次信息，具体到每一条战绩记录
    */
-  private static List<GameRecord> computSumList(List<GameRecord> list, boolean isNeedSort) {
+  private List<GameRecord> computSumList(List<GameRecord> list, boolean isNeedSort) {
     List<GameRecord> sumList = new ArrayList<>();
     Map<String, List<GameRecord>> map = new HashMap<>();// key是tableId
     String tableId = "";// 以tableId进行分类求和
@@ -717,11 +729,11 @@ public class LMController extends BaseController implements Initializable {
    * @param list 数据库返回的结果，估计最大会为30*200=6000条数据
    * @return
    */
-  private static void refresh_eachClubList() {
+  private void refresh_eachClubList() {
 
-    String maxRecordTime = DBUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
+    String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
     if (!StringUtil.isBlank(maxRecordTime)) {
-      List<GameRecord> list = DBUtil.getGameRecordsByMaxTime(maxRecordTime);
+      List<GameRecord> list = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
       // 处理从数据库返回的结果为Map
       // 即把List<Record>转为Map<String,List<Record>>
       Map<String, List<GameRecord>> map = new HashMap<>();
@@ -752,12 +764,12 @@ public class LMController extends BaseController implements Initializable {
    * 
    * @time 2017年11月30日
    */
-  public static void checkOverEdu(String LMType) {
+  public void checkOverEdu(String LMType) {
     try {
-      String maxRecordTime = DBUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
+      String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
       if (!StringUtil.isBlank(maxRecordTime)) {
         // List<Record> list = DBUtil.getRecordsByMaxTime(maxRecordTime);
-        List<GameRecord> list = DBUtil.getGameRecordsByMaxTime(maxRecordTime);
+        List<GameRecord> list = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
 
         // 2018-01-01 add 大概个联盟分别报额度是否超出
         if (!CollectionUtils.isEmpty(list)) {
@@ -875,7 +887,7 @@ public class LMController extends BaseController implements Initializable {
       // 正式进入新增的编码
       Club club = new Club(clubId, clubName, "0");
       try {
-        DBUtil.saveOrUpdateClub(club);// 保存到数据库
+        dbUtil.saveOrUpdateClub(club);// 保存到数据库
         allClubMap.put(clubId, club);// 刷新到刷新
         refreshClubList();// 刷新表
         ShowUtil.show("新增成功", 2);
@@ -936,7 +948,7 @@ public class LMController extends BaseController implements Initializable {
       club.setName(newClubName);
 
       // 同步到数据库
-      DBUtil.updateClub(club);
+      dbUtil.updateClub(club);
       // DBUtil.batchUpdateRecordByClubId(clubId, newClubName); 泽涛注释：只修改club表
 
       // 重新刷新俱乐部列表
@@ -982,7 +994,7 @@ public class LMController extends BaseController implements Initializable {
       refreshClubListView(this.getCurrentLMType());
 
       // 同步到数据库
-      DBUtil.updateClub(club);
+      dbUtil.updateClub(club);
 
       // 更新俱乐部（额度）操作
       ShowUtil.show("更新俱乐部（额度）操作成功", 2);
@@ -997,7 +1009,7 @@ public class LMController extends BaseController implements Initializable {
    * @param lmType
    * @return
    */
-  public static String get_LM_Zhuofei(final Club club, int lmType) {
+  public String get_LM_Zhuofei(final Club club, int lmType) {
     String zhuoFei = "0";
     if (1 == lmType) {
       zhuoFei = club.getZhuoFei();
@@ -1009,7 +1021,7 @@ public class LMController extends BaseController implements Initializable {
     return zhuoFei;
   }
 
-  public static String get_LM_YiJiesuan(final Club club, int lmType) {
+  public String get_LM_YiJiesuan(final Club club, int lmType) {
     String yiJiesuan = "0";
     if (1 == lmType) {
       yiJiesuan = club.getYiJieSuan();
@@ -1021,7 +1033,7 @@ public class LMController extends BaseController implements Initializable {
     return yiJiesuan;
   }
 
-  public static String get_LM_edu(final Club club, int lmType) {
+  public String get_LM_edu(final Club club, int lmType) {
     String edu = "0";
     if (1 == lmType) {
       edu = club.getEdu();
@@ -1093,7 +1105,7 @@ public class LMController extends BaseController implements Initializable {
    * @param lmType
    * @return
    */
-  public static void set_LM_Zhuofei(final Club club, int lmType, String zf) {
+  public void set_LM_Zhuofei(final Club club, int lmType, String zf) {
     if (1 == lmType) {
       club.setZhuoFei(zf);
     } else if (2 == lmType) {
@@ -1103,7 +1115,7 @@ public class LMController extends BaseController implements Initializable {
     }
   }
 
-  public static void set_LM_YiJiesuan(final Club club, int lmType, String yiJiesuan) {
+  public void set_LM_YiJiesuan(final Club club, int lmType, String yiJiesuan) {
     if (1 == lmType) {
       club.setYiJieSuan(yiJiesuan);
     } else if (2 == lmType) {
@@ -1113,7 +1125,7 @@ public class LMController extends BaseController implements Initializable {
     }
   }
 
-  public static void set_LM_edu(final Club club, int lmType, String edu) {
+  public void set_LM_edu(final Club club, int lmType, String edu) {
     if (1 == lmType) {
       club.setEdu(edu);
     } else if (2 == lmType) {
@@ -1138,7 +1150,7 @@ public class LMController extends BaseController implements Initializable {
     Optional<ButtonType> result = alert.showAndWait();
     if (result.get() == ButtonType.OK) {
       // 从数据库中删除相应信息
-      DBUtil.del_all_record();
+      dbUtil.del_all_record();
 
       /**************** 前端展示的相应信息都置空 ****************/
 
@@ -1187,7 +1199,7 @@ public class LMController extends BaseController implements Initializable {
     Optional<ButtonType> result = alert.showAndWait();
     if (result.get() == ButtonType.OK) {
       // 先去更新数据库
-      DBUtil.clearAllClub_ZF_YiJiSuan();
+      dbUtil.clearAllClub_ZF_YiJiSuan();
       // 更新缓存
       if (allClubMap != null && allClubMap.size() > 0) {
         allClubMap.values().forEach(club -> {
@@ -1228,7 +1240,7 @@ public class LMController extends BaseController implements Initializable {
         ShowUtil.show("股东不能为空，修改失败！", 2);
       } else {
         club.setGudong(newGudong.trim().toUpperCase());
-        DBUtil.updateClub(club);
+        dbUtil.updateClub(club);
         ShowUtil.show("修改成功！", 2);
       }
     }
@@ -1469,7 +1481,7 @@ public class LMController extends BaseController implements Initializable {
     }
     String clubName = club.getName();
 
-    String time = DataConstans.Date_Str;
+    String time = dataConstants.Date_Str;
     if (StringUtil.isBlank(time)) {
       // ShowUtil.show("导出失败! 您今天还没导入01场次的战绩，无法确认时间!!");
       // return;
@@ -1596,7 +1608,7 @@ public class LMController extends BaseController implements Initializable {
    * 
    * @time 2017年12月13日
    */
-  public static void compute3LM() {
+  public void compute3LM() {
 
     // 数据结构：[{LMType,List<LM_Record>}]
     List<Map<String, List<GameRecord>>> tempTotalList = new ArrayList<>();
@@ -1644,28 +1656,10 @@ public class LMController extends BaseController implements Initializable {
    * @time 2018年1月20日
    * @return
    */
-  public static Double getLM1TotalZhuofei(String gudong) {
+  public Double getLM1TotalZhuofei(String gudong) {
     Optional<Double> totalZhuofei =
         allClubMap.values().stream().filter(info -> gudong.equals(info.getGudong()))
             .map(Club::getZhuoFei).map(NumUtil::getNum).reduce(Double::sum);
-    totalZhuofei.orElse(0d);
-    if (totalZhuofei.isPresent()) {
-      return totalZhuofei.get();
-    } else {
-      return 0d;
-    }
-  }
-
-  /**
-   * 获取联盟1的所有桌费 此方法已经由GDController.getLM1TotalZhuofei方法代替
-   * 
-   * @time 2018年1月20日
-   * @return
-   */
-  @Deprecated
-  public static Double getLM1TotalZhuofei() {
-    Optional<Double> totalZhuofei =
-        allClubMap.values().stream().map(Club::getZhuoFei).map(NumUtil::getNum).reduce(Double::sum);
     totalZhuofei.orElse(0d);
     if (totalZhuofei.isPresent()) {
       return totalZhuofei.get();
@@ -1722,5 +1716,10 @@ public class LMController extends BaseController implements Initializable {
     int index =
         StringUtil.isBlank(currentType) ? 1 : Integer.valueOf(currentType.replaceAll("联盟", ""));
     return index;
+  }
+  
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
   }
 }

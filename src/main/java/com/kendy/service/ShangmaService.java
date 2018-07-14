@@ -16,8 +16,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import com.kendy.application.Main;
+import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
@@ -31,7 +33,6 @@ import com.kendy.entity.WanjiaInfo;
 import com.kendy.excel.ExportShangmaExcel;
 import com.kendy.model.SMResultModel;
 import com.kendy.util.CollectUtil;
-import com.kendy.util.ConsUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -64,36 +65,43 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年10月28日 下午5:22:28
  */
-@Service
-public class ShangmaService {
+@Component
+public class ShangmaService extends InstancePool{
 
-  private static Logger log = Logger.getLogger(ShangmaService.class);
+  private Logger log = Logger.getLogger(ShangmaService.class);
+  
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+  @Autowired
+  public MyController myController ;
 
-  public static TableView<ShangmaInfo> tableSM;
-  public static TableView<ShangmaDetailInfo> tableSMD;
-  public static TableView<ShangmaDetailInfo> tableND;// tableNextDay
-  public static TableView<WanjiaInfo> tablePJ;
-  public static Map<String, CurrentMoneyInfo> cmiMap;// {玩家ID={}}
-  public static Label labelZSM;
-  public static Label labelZZJ;
-  public static VBox shangmaVBox;
-  public static Label shangmaTeamIdLabel;
+  public TableView<ShangmaInfo> tableSM;
+  public TableView<ShangmaDetailInfo> tableSMD;
+  public TableView<ShangmaDetailInfo> tableND;// tableNextDay
+  public TableView<WanjiaInfo> tablePJ;
+  public Map<String, CurrentMoneyInfo> cmiMap;// {玩家ID={}}
+  public Label labelZSM;
+  public Label labelZZJ;
+  public VBox shangmaVBox;
+  public Label shangmaTeamIdLabel;
 
-  public static Label teamShangmaAvailable;
-  public static TextField teamYajin;
-  public static TextField teamEdu;
+  public Label teamShangmaAvailable;
+  public TextField teamYajin;
+  public TextField teamEdu;
 
-  public static CheckBox smTeamShangmaCheckBox;// 自动上码用：团队可上码
+  public CheckBox smTeamShangmaCheckBox;// 自动上码用：团队可上码
 
   // 玩家ID=上码次日列表 ShangmaDetailInfo 存到数据库时对应ShangmaNextday
-  public static Map<String, List<ShangmaDetailInfo>> SM_NextDay_Map = new HashMap<>();
+  public Map<String, List<ShangmaDetailInfo>> SM_NextDay_Map = new HashMap<>();
 
-  public static Map<String, List<String>> teamIdAndPlayerIdMap = new HashMap<>();
+  public Map<String, List<String>> teamIdAndPlayerIdMap = new HashMap<>();
 
   /**
    * 初始化上码相关配置
    */
-  public static void initShangma(VBox shangmaVBox0, final TableView<ShangmaInfo> tableShangma,
+  public void initShangma(VBox shangmaVBox0, final TableView<ShangmaInfo> tableShangma,
       final Label shangmaTeamIdLabel0, TableView<ShangmaDetailInfo> tableShangmaDetail,
       Label shangmaZSM, Label shangmaZZJ, TableView<WanjiaInfo> tablePaiju,
       TableView<ShangmaDetailInfo> tableShangmaNextDay, Label teamShangmaAvailable0,
@@ -124,7 +132,7 @@ public class ShangmaService {
   /**
    * 重置团队押金与团队额度，包括团可上码
    */
-  private static void resetTeamYajinAndEdu() {
+  private void resetTeamYajinAndEdu() {
     // 置零
     teamShangmaAvailable.setText("0");
     teamYajin.setText("0");
@@ -132,7 +140,7 @@ public class ShangmaService {
     // 赋新值
     // 获取团队信息
     String teamId = shangmaTeamIdLabel.getText();
-    Huishui hs = DataConstans.huishuiMap.get(teamId);
+    Huishui hs = dataConstants.huishuiMap.get(teamId);
     if (hs != null) {
       String _teamYajin = hs.getTeamYajin();
       String _teamEdu = hs.getTeamEdu();
@@ -155,8 +163,8 @@ public class ShangmaService {
    * 
    * @time 2018年2月5日
    */
-  public static void init_SM_NextDay_Map() {
-    List<ShangmaNextday> allSM_nextday = DBUtil.getAllSM_nextday();
+  public void init_SM_NextDay_Map() {
+    List<ShangmaNextday> allSM_nextday = dbUtil.getAllSM_nextday();
     if (!allSM_nextday.isEmpty()) {
       SM_NextDay_Map = allSM_nextday.stream().map(nextday -> {
         String playerId = nextday.getPlayerId();
@@ -175,15 +183,15 @@ public class ShangmaService {
    * 
    * @time 2017年10月23日
    */
-  public static void initShangmaButton() {
+  public void initShangmaButton() {
 
-    if (DataConstans.huishuiMap == null)
+    if (dataConstants.huishuiMap == null)
       return;
 
     // 先删除所有按钮
     shangmaVBox.getChildren().clear();
 
-    Set<String> teamIdSet = DataConstans.huishuiMap.keySet();
+    Set<String> teamIdSet = dataConstants.huishuiMap.keySet();
     if (teamIdSet != null && teamIdSet.size() > 0) {
       List<String> list = new ArrayList<>();
       teamIdSet.forEach(teamId -> {
@@ -212,8 +220,8 @@ public class ShangmaService {
    * @time 2018年3月26日
    * @param teamId
    */
-  public static void setTeamAvailabe(String teamId) {
-    Huishui huishui = DataConstans.huishuiMap.get(teamId);
+  public void setTeamAvailabe(String teamId) {
+    Huishui huishui = dataConstants.huishuiMap.get(teamId);
     String teamAvailabel = huishui.getTeamAvailabel();
     if (StringUtil.isBlank(teamAvailabel) || "0".equals(teamAvailabel)) {
       smTeamShangmaCheckBox.setSelected(false);
@@ -223,8 +231,8 @@ public class ShangmaService {
   }
 
   // 获取最新的团队ID与玩家ID列表的映射
-  public static void refreshTeamIdAndPlayerId() {
-    final Map<String, Player> memberMap = DataConstans.membersMap;
+  public void refreshTeamIdAndPlayerId() {
+    final Map<String, Player> memberMap = dataConstants.membersMap;
     Map<String, List<String>> teamWanjiaMap = new HashMap<>();
     if (memberMap != null && memberMap.size() > 0) {
       List<String> list = null;
@@ -249,7 +257,7 @@ public class ShangmaService {
    * @param teamId
    * @param tableShangma
    */
-  public static void loadShangmaTable(String teamId, TableView<ShangmaInfo> tableShangma) {
+  public void loadShangmaTable(String teamId, TableView<ShangmaInfo> tableShangma) {
     double teamSumYiSM, teamSumZJ;
     try {
       ObservableList<ShangmaInfo> obList = FXCollections.observableArrayList();
@@ -265,7 +273,7 @@ public class ShangmaService {
           // 根据玩家ID找名称和额度和已存积分
           CurrentMoneyInfo cmiInfo = cmiMap.get(playerId);
           if (cmiInfo == null) {
-            Player player = DataConstans.membersMap.get(playerId);
+            Player player = dataConstants.membersMap.get(playerId);
             playerName = player.getPlayerName();
             edu = player.getEdu();
             yicunJifen = "";// 最关键的区别
@@ -277,9 +285,9 @@ public class ShangmaService {
           }
           // 根据玩家ID找个人详情
           Double[] sumArr = getSumDetail(playerId, edu, yicunJifen);
-          sumAvailableEdu = MoneyService.digit0(sumArr[0]);
-          sumYiSM = MoneyService.digit0(sumArr[1]);
-          sumZJ = MoneyService.digit0(sumArr[2]);
+          sumAvailableEdu = NumUtil.digit0(sumArr[0]);
+          sumYiSM = NumUtil.digit0(sumArr[1]);
+          sumZJ = NumUtil.digit0(sumArr[2]);
           // 组装实体
           smInfo = new ShangmaInfo(playerName, edu, sumAvailableEdu, sumYiSM, sumZJ, playerId,
               yicunJifen, "");
@@ -297,8 +305,8 @@ public class ShangmaService {
       render_Shangma_info_talbe_0();
 
       // 设置团队总和
-      labelZSM.setText(MoneyService.digit0(teamSumYiSM));
-      labelZZJ.setText(MoneyService.digit0(teamSumZJ));
+      labelZSM.setText(NumUtil.digit0(teamSumYiSM));
+      labelZZJ.setText(NumUtil.digit0(teamSumZJ));
 
       // add 2018-2-19 设置团队押金与团队额度
       resetTeamYajinAndEdu();
@@ -317,7 +325,7 @@ public class ShangmaService {
    * @param srcList
    * @throws Exception
    */
-  public static LinkedList<ShangmaInfo> getCombineSMDataList(List<ShangmaInfo> list)
+  public LinkedList<ShangmaInfo> getCombineSMDataList(List<ShangmaInfo> list)
       throws Exception {
     LinkedList<ShangmaInfo> srcList = new LinkedList<>();
     for (ShangmaInfo info : list)
@@ -338,15 +346,15 @@ public class ShangmaService {
       }
       // 删除父ID
       playerId = item.getShangmaPlayerId();
-      if (DataConstans.Combine_Super_Id_Map.get(playerId) != null) {
+      if (dataConstants.Combine_Super_Id_Map.get(playerId) != null) {
         superIdInfoMap.put(playerId, item);
         it.remove();
         continue;
       }
       // 删除子ID
-      if (DataConstans.Combine_Sub_Id_Map.get(playerId) != null) {
+      if (dataConstants.Combine_Sub_Id_Map.get(playerId) != null) {
         // 是子ID节点
-        String parentID = DataConstans.Combine_Sub_Id_Map.get(playerId);
+        String parentID = dataConstants.Combine_Sub_Id_Map.get(playerId);
         List<ShangmaInfo> childList = superIdSubListMap.get(parentID);
         if (childList == null) {
           childList = new ArrayList<>();
@@ -440,7 +448,7 @@ public class ShangmaService {
    * @param srcList
    * @throws Exception
    */
-  public static void render_Shangma_info_talbe_0() throws Exception {
+  public void render_Shangma_info_talbe_0() throws Exception {
 
     LinkedList<ShangmaInfo> srcList = new LinkedList<>();
     if (tableSM == null || tableSM.getItems() == null || tableSM.getItems().size() == 0) {
@@ -468,17 +476,17 @@ public class ShangmaService {
    * @param yicunJifen
    * @return
    */
-  public static Double[] getSumDetail(String playerId, String edu, String yicunJifen) {
+  public Double[] getSumDetail(String playerId, String edu, String yicunJifen) {
     Double[] sumDetail = {0d, 0d, 0d, 0d};
-    // List<ShangmaDetailInfo> detailList = DataConstans.SM_Detail_Map.get(playerId);
+    // List<ShangmaDetailInfo> detailList = dataConstants.SM_Detail_Map.get(playerId);
     // add 2018-2-5 新增次日
     List<ShangmaDetailInfo> detailList = new ArrayList<>();
-    List<ShangmaDetailInfo> _detailList = DataConstans.SM_Detail_Map.get(playerId);
+    List<ShangmaDetailInfo> _detailList = dataConstants.SM_Detail_Map.get(playerId);
     if (_detailList == null) {
-      Player player = DataConstans.membersMap.get(playerId);
+      Player player = dataConstants.membersMap.get(playerId);
       if (player != null) {
-        ConsUtil.refresh_SM_Detail_Map();
-        _detailList = DataConstans.SM_Detail_Map.get(playerId);
+        dataConstants.refresh_SM_Detail_Map();
+        _detailList = dataConstants.SM_Detail_Map.get(playerId);
       }
     }
     detailList.addAll(_detailList);
@@ -508,7 +516,7 @@ public class ShangmaService {
    * 可上码额度=额度-已上码+实收+已存积分。 但是如果那一场结束，已存积分已经包含实收这个数值
    * 
    */
-  public static Double getSumAvailableEdu(String edu, String sumZJ, String sumYiSM, String playerId,
+  public Double getSumAvailableEdu(String edu, String sumZJ, String sumYiSM, String playerId,
       String yicunJifen) {
     Double sumAvailableEdu = 0d;
     // boolean hasPayed = isHasPayedByPlayerId(playerId);
@@ -525,8 +533,8 @@ public class ShangmaService {
    * @param playerId
    * @param paiju
    */
-  public static void update_SM_Detail_Map_byPlayerIdAndPaiju(String playerId, String paiju) {
-    List<ShangmaDetailInfo> detailList = DataConstans.SM_Detail_Map.get(playerId);
+  public void update_SM_Detail_Map_byPlayerIdAndPaiju(String playerId, String paiju) {
+    List<ShangmaDetailInfo> detailList = dataConstants.SM_Detail_Map.get(playerId);
     if (detailList != null) {
       for (ShangmaDetailInfo info : detailList) {
         String dangjuIndex = info.getShangmaJu();
@@ -538,7 +546,7 @@ public class ShangmaService {
     }
   }
 
-  public static void scrollByPlayerId(String playerId, TableView<ShangmaInfo> tableShangma) {
+  public void scrollByPlayerId(String playerId, TableView<ShangmaInfo> tableShangma) {
     if (!StringUtil.isBlank(playerId)) {
       ObservableList<ShangmaInfo> list = tableShangma.getItems();
       boolean isExist = false;// 检查该玩家是否存在
@@ -573,7 +581,7 @@ public class ShangmaService {
    * @param keyWord
    * @param shangmaTeamId
    */
-  public static void shangmaSearch(String keyWord, Label shangmaTeamId) {
+  public void shangmaSearch(String keyWord, Label shangmaTeamId) {
     // 1根据模糊人名匹配到人员信息获取玩家ID
     // Player player = getPlayerIdByName(keyWord);
     Player player = getNextSelectedPlayer(keyWord);
@@ -587,11 +595,11 @@ public class ShangmaService {
     // 3加载数据
     setTeamAvailabe(teamId);// 勾选团队
     shangmaTeamId.setText(teamId);
-    ShangmaService.loadShangmaTable(teamId, tableSM);
+    this.loadShangmaTable(teamId, tableSM);
     // 4匹配人名（ID）后置为选中样式
-    ShangmaService.scrollByPlayerId(playerId, tableSM);
+    this.scrollByPlayerId(playerId, tableSM);
     // 根据个人ID加载个人信息
-    ShangmaService.loadSMDetailTable(playerId);
+    this.loadSMDetailTable(playerId);
   }
 
 
@@ -601,7 +609,7 @@ public class ShangmaService {
    * @param searchText
    * @return
    */
-  public static Player getNextSelectedPlayer(String searchText) {
+  public Player getNextSelectedPlayer(String searchText) {
     TableView<ShangmaInfo> table = tableSM;
     if (!StringUtil.isBlank(searchText)) {
       if (table == null || table.getItems() == null) {
@@ -616,7 +624,7 @@ public class ShangmaService {
       List<String> idList = new LinkedList<>();
 
       final Map<String, Player> tempMap = new LinkedHashMap<>();
-      DataConstans.membersMap.forEach((playerId, player) -> {
+      dataConstants.membersMap.forEach((playerId, player) -> {
         tempMap.put(playerId, player);
       });
 
@@ -662,13 +670,13 @@ public class ShangmaService {
    * 
    * @param playerId
    */
-  public static void loadSMDetailTable(String playerId) {
-    Map<String, List<ShangmaDetailInfo>> detailMap = DataConstans.SM_Detail_Map;
+  public void loadSMDetailTable(String playerId) {
+    Map<String, List<ShangmaDetailInfo>> detailMap = dataConstants.SM_Detail_Map;
     final ObservableList<ShangmaDetailInfo> obList = FXCollections.observableArrayList();
     List<ShangmaDetailInfo> list = detailMap.get(playerId);
     if (list == null) {
       list = new ArrayList<>();
-      String playerName = DataConstans.membersMap.get(playerId).getPlayerName();
+      String playerName = dataConstants.membersMap.get(playerId).getPlayerName();
       if (StringUtil.isBlank(playerName)) {
         ShowUtil.show("ID:" + playerId + "找不到对应的玩家名称", 1);
       }
@@ -687,13 +695,13 @@ public class ShangmaService {
    * 
    * @param playerId
    */
-  public static void loadSMNextDayTable(String playerId) {
+  public void loadSMNextDayTable(String playerId) {
     Map<String, List<ShangmaDetailInfo>> detailMap = SM_NextDay_Map;
     final ObservableList<ShangmaDetailInfo> obList = FXCollections.observableArrayList();
     List<ShangmaDetailInfo> list = detailMap.get(playerId);
     if (list == null) {
       list = new ArrayList<>();
-      String playerName = DataConstans.membersMap.get(playerId).getPlayerName();
+      String playerName = dataConstants.membersMap.get(playerId).getPlayerName();
       if (StringUtil.isBlank(playerName)) {
         ShowUtil.show("ID:" + playerId + "找不到对应的玩家名称", 1);
       }
@@ -712,9 +720,9 @@ public class ShangmaService {
    * 
    * @param playerId
    */
-  public static void saveSMDetail(String playerId) {
+  public void saveSMDetail(String playerId) {
     ObservableList<ShangmaDetailInfo> obList = tableSMD.getItems();
-    Map<String, List<ShangmaDetailInfo>> detailMap = DataConstans.SM_Detail_Map;
+    Map<String, List<ShangmaDetailInfo>> detailMap = dataConstants.SM_Detail_Map;
     List<ShangmaDetailInfo> list = new ArrayList<>();
     obList.forEach(detail -> {
       list.add(detail);
@@ -730,7 +738,7 @@ public class ShangmaService {
    * @time 2018年2月9日
    * @param detail
    */
-  public static void openAddNextdayShangSMDiag(ShangmaDetailInfo detail) {
+  public void openAddNextdayShangSMDiag(ShangmaDetailInfo detail) {
     if (detail != null && detail.getShangmaDetailName() != null) {
       TextInputDialog dialog = new TextInputDialog();
       dialog.setTitle("添加");
@@ -751,10 +759,10 @@ public class ShangmaService {
    * @param detail
    * @param nextDayShangmaVal
    */
-  public static void resetNextDayDetailInfo(ShangmaDetailInfo detail, String nextDayShangmaVal) {
+  public void resetNextDayDetailInfo(ShangmaDetailInfo detail, String nextDayShangmaVal) {
     String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
     detail.setShangmaSM(
-        MoneyService.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(nextDayShangmaVal)));
+        NumUtil.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(nextDayShangmaVal)));
 
     String playerId = detail.getShangmaPlayerId();
     String changci = detail.getShangmaJu();
@@ -765,7 +773,7 @@ public class ShangmaService {
     nextday.setPlayerName(detail.getShangmaDetailName());
     nextday.setChangci(detail.getShangmaJu());
     nextday.setShangma(detail.getShangmaSM());
-    DBUtil.saveOrUpdate_SM_nextday(nextday);
+    dbUtil.saveOrUpdate_SM_nextday(nextday);
 
     // 2保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =
@@ -787,7 +795,7 @@ public class ShangmaService {
 
 
   // 右表：名称鼠标双击事件：打开对话框增加上码值
-  public static void openAddShangSMDiag(ShangmaDetailInfo detail) {
+  public void openAddShangSMDiag(ShangmaDetailInfo detail) {
     if (detail != null && detail.getShangmaDetailName() != null) {
       TextInputDialog dialog = new TextInputDialog();
       dialog.setTitle("添加");
@@ -808,10 +816,10 @@ public class ShangmaService {
    * @param detail
    * @param addMoney
    */
-  private static void addDuplicateSM(ShangmaDetailInfo detail, String addMoney) {
+  private void addDuplicateSM(ShangmaDetailInfo detail, String addMoney) {
     String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
     addMoney = StringUtil.nvl(addMoney);
-    detail.setShangmaSM(MoneyService.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(addMoney)));
+    detail.setShangmaSM(NumUtil.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(addMoney)));
     tableSMD.refresh();
     String playerId = detail.getShangmaPlayerId();
     // save
@@ -827,7 +835,7 @@ public class ShangmaService {
   /**
    * 左表：名称鼠标双击事件：打开对话框增加第X局上码值
    */
-  public static void openNewShangSMDiag(ShangmaInfo smInfo) {
+  public void openNewShangSMDiag(ShangmaInfo smInfo) {
     if (smInfo != null && smInfo.getShangmaName() != null) {
       Dialog<Pair<String, String>> dialog = new Dialog<>();
       dialog.setTitle(smInfo.getShangmaName());
@@ -890,7 +898,7 @@ public class ShangmaService {
    * @param shangmaJu 第几局
    * @param shangmaVal 上码值
    */
-  public static void addNewShangma2DetailTable(ShangmaInfo smInfo, String shangmaJu,
+  public void addNewShangma2DetailTable(ShangmaInfo smInfo, String shangmaJu,
       String shangmaVal) {
     // 判断是否重复
     String playerId = smInfo.getShangmaPlayerId();
@@ -905,7 +913,7 @@ public class ShangmaService {
       return;
     }
     // 根据ID加载个人详细数据
-    ShangmaService.loadSMDetailTable(playerId);
+    this.loadSMDetailTable(playerId);
     // 添加表记录
     shangmaJu = getShangmaPaiju(shangmaJu);
     if (tableSMD.getItems() == null) {
@@ -926,7 +934,7 @@ public class ShangmaService {
   }
 
   // 输入1，获取第01局
-  public static String getShangmaPaiju(String shangmaJu) {
+  public String getShangmaPaiju(String shangmaJu) {
     if (shangmaJu.startsWith("第")) {
       return shangmaJu;
     }
@@ -944,9 +952,9 @@ public class ShangmaService {
   }
 
   // 判断加入的新牌局是否跟之前的有重复
-  private static boolean checkIfDuplicate(String playerId, String ju) {
+  private boolean checkIfDuplicate(String playerId, String ju) {
     boolean ifDuplicate = false;
-    List<ShangmaDetailInfo> list = DataConstans.SM_Detail_Map.get(playerId);
+    List<ShangmaDetailInfo> list = dataConstants.SM_Detail_Map.get(playerId);
     if (list != null && list.size() > 0) {
       for (ShangmaDetailInfo info : list) {
         if (info.getShangmaJu() != null && info.getShangmaJu().equals(getShangmaPaiju(ju))) {
@@ -957,8 +965,8 @@ public class ShangmaService {
     return ifDuplicate;
   }
 
-  private static ShangmaDetailInfo updateDuplicateDetailInfo(String playerId, String ju) {
-    List<ShangmaDetailInfo> list = DataConstans.SM_Detail_Map.get(playerId);
+  private ShangmaDetailInfo updateDuplicateDetailInfo(String playerId, String ju) {
+    List<ShangmaDetailInfo> list = dataConstants.SM_Detail_Map.get(playerId);
     if (list != null && list.size() > 0) {
       for (ShangmaDetailInfo info : list) {
         if (info.getShangmaJu() != null && info.getShangmaJu().equals(getShangmaPaiju(ju))) {
@@ -975,7 +983,7 @@ public class ShangmaService {
    * @param playerId
    * @param addedYiShangmaVal
    */
-  public static void updateRowByPlayerId(String playerId, String addedYiShangmaVal) {
+  public void updateRowByPlayerId(String playerId, String addedYiShangmaVal) {
     if (StringUtil.isBlank(playerId)) {
       ShowUtil.show("修改上码表后更新行失败，原因：程序错误，玩家ID没有检测到。");
       return;
@@ -1008,9 +1016,9 @@ public class ShangmaService {
   /**
    * 导入战绩时更新上码系统的个人信息
    */
-  public static void updateShangDetailMap(TableView<WanjiaInfo> table) {
+  public void updateShangDetailMap(TableView<WanjiaInfo> table) {
     ObservableList<WanjiaInfo> obList = table.getItems();
-    Map<String, List<ShangmaDetailInfo>> detailMap = DataConstans.SM_Detail_Map;
+    Map<String, List<ShangmaDetailInfo>> detailMap = dataConstants.SM_Detail_Map;
     List<ShangmaDetailInfo> detailList = null;
     String playerId = "", preYSM, tableId, ju;
     if (obList != null && obList.size() > 0) {
@@ -1032,7 +1040,7 @@ public class ShangmaService {
               // 设置实收
               sdi.setShangmaShishou(info.getZhangji());
               // add2017-09-24 加载主表
-              loadShangmaTable(DataConstans.membersMap.get(playerId).getTeamName(), tableSM);
+              loadShangmaTable(dataConstants.membersMap.get(playerId).getTeamName(), tableSM);
               break;
             }
           }
@@ -1042,7 +1050,7 @@ public class ShangmaService {
     }
   }
 
-  public static String getRealTableId(String tableIdStr) {
+  public String getRealTableId(String tableIdStr) {
     String tableId = "";
     if (!StringUtil.isBlank(tableIdStr)) {
       tableId = tableIdStr.trim().replace("第", "").replaceAll("局", "").trim();
@@ -1058,15 +1066,11 @@ public class ShangmaService {
    * 
    * @time 2017年12月4日
    */
-  public static void refresh_cmiMap_if_null() {
-    MyController mc = Main.myController;
-    if (mc == null) {
-      ErrorUtil.err("获取MyCtroller为空");
-      return;
-    }
+  public void refresh_cmiMap_if_null() {
+    
     // 获取最新的实时金额Map {玩家ID={}}
     Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();;
-    ObservableList<CurrentMoneyInfo> obList = mc.tableCurrentMoneyInfo.getItems();
+    ObservableList<CurrentMoneyInfo> obList = myController.tableCurrentMoneyInfo.getItems();
     if (obList != null) {
       String pId = "";
       for (CurrentMoneyInfo cmiInfo : obList) {
@@ -1076,7 +1080,7 @@ public class ShangmaService {
         }
       }
     }
-    ShangmaService.cmiMap = lastCMIMap;
+    this.cmiMap = lastCMIMap;
   }
 
 
@@ -1085,7 +1089,7 @@ public class ShangmaService {
    * 导出Excel
    * 
    ***********************************************************************************/
-  public static void exportShangmaExcel() {
+  public void exportShangmaExcel() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     // 标题
     String title = shangmaTeamIdLabel.getText() + "团队实时上码-" + sdf.format(new Date());
@@ -1129,7 +1133,7 @@ public class ShangmaService {
    * @time 2017年12月19日
    * @return
    */
-  public static ShangmaInfo getSelectShangma() {
+  public ShangmaInfo getSelectShangma() {
     if (tableSM.getItems() != null)
       return tableSM.getSelectionModel().getSelectedItem();
     return null;
@@ -1140,21 +1144,21 @@ public class ShangmaService {
    * 
    * @time 2018年2月4日
    */
-  public static void loadNextDayDataAction() {
+  public void loadNextDayDataAction() {
     Alert alert = new Alert(AlertType.CONFIRMATION);
     alert.setTitle("提示");
     alert.setHeaderText(null);
     alert.setContentText("\r\n只有开始新一天的统计才可以加载次日数据哦");
     Optional<ButtonType> result = alert.showAndWait();
     if (result.get() == ButtonType.OK) {
-      Map<String, List<ShangmaDetailInfo>> detailMap = DataConstans.SM_Detail_Map;
+      Map<String, List<ShangmaDetailInfo>> detailMap = dataConstants.SM_Detail_Map;
       boolean isHasValue = detailMap.values().stream().anyMatch(list -> list.size() > 0);
       if (isHasValue) {
         ShowUtil.show("中途不能加载次日数据！！！");
         return;
       } else {
         int playerCount = SM_NextDay_Map.size();
-        // 将次日数据的值复制给DataConstans.SM_Detail_Map
+        // 将次日数据的值复制给dataConstants.SM_Detail_Map
         SM_NextDay_Map.forEach((playerId, nextdayList) -> {
           List<ShangmaDetailInfo> detailList = new ArrayList<>();
           for (ShangmaDetailInfo nextday : nextdayList) {
@@ -1164,7 +1168,7 @@ public class ShangmaService {
         });
 
         // 将数据表中的删除
-        DBUtil.setNextDayLoaded();
+        dbUtil.setNextDayLoaded();
 
         // 清空SM_NextDay_Map
         SM_NextDay_Map.clear();
@@ -1188,7 +1192,7 @@ public class ShangmaService {
    * @param source
    * @return
    */
-  private static ShangmaDetailInfo copyShangmaDetailInfo(ShangmaDetailInfo source) {
+  private ShangmaDetailInfo copyShangmaDetailInfo(ShangmaDetailInfo source) {
     ShangmaDetailInfo target = new ShangmaDetailInfo();
     target.setShangmaDetailName(source.getShangmaDetailName());
     target.setShangmaSM(source.getShangmaSM());
@@ -1204,7 +1208,7 @@ public class ShangmaService {
    * 
    * @time 2018年2月4日
    */
-  public static void addNextDaySMDetailAction() {
+  public void addNextDaySMDetailAction() {
     ShangmaInfo smInfo = getSelectShangma();
     if (smInfo == null) {
       ShowUtil.show("请先选择要增加次日的玩家记录！");
@@ -1282,7 +1286,7 @@ public class ShangmaService {
    * @param table
    * @param nextday
    */
-  public static void addNewRecord_nextday(TableView<ShangmaDetailInfo> table,
+  public void addNewRecord_nextday(TableView<ShangmaDetailInfo> table,
       ShangmaNextday nextday) {
     String playerId = nextday.getPlayerId();
     String playerName = nextday.getPlayerName();
@@ -1302,7 +1306,7 @@ public class ShangmaService {
     }
 
     // 1 保存到数据库
-    DBUtil.saveOrUpdate_SM_nextday(nextday);
+    dbUtil.saveOrUpdate_SM_nextday(nextday);
 
     // 2 保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =
@@ -1327,7 +1331,7 @@ public class ShangmaService {
    * @param changci
    * @return
    */
-  private static boolean checkIfDuplicateInNextday(String playerId, String changci) {
+  private boolean checkIfDuplicateInNextday(String playerId, String changci) {
     if (StringUtil.isBlank(playerId)) {
       return false;
     } else {
@@ -1344,7 +1348,7 @@ public class ShangmaService {
    * @param changci
    * @return
    */
-  private static ShangmaDetailInfo getDuplicateDetail(String playerId, String changci) {
+  private ShangmaDetailInfo getDuplicateDetail(String playerId, String changci) {
     if (StringUtil.isBlank(playerId)) {
       return null;
     } else {
@@ -1365,7 +1369,7 @@ public class ShangmaService {
    * 
    * @time 2018年2月6日
    */
-  private static void refreshTableSM() {
+  private void refreshTableSM() {
     // String teamId = shangmaTeamIdLabel.getText();
     // //tableSM.setItems(null);
     // loadShangmaTable(teamId,tableSM);
@@ -1373,29 +1377,29 @@ public class ShangmaService {
 
     String shangmaTeamIdValue = shangmaTeamIdLabel.getText();
     if (!StringUtil.isBlank(shangmaTeamIdValue)) {
-      // ShangmaService.loadShangmaTable(shangmaTeamIdValue,tableShangma);
+      // this.loadShangmaTable(shangmaTeamIdValue,tableShangma);
     } else {
-      if (DataConstans.huishuiMap.containsKey("公司")) {
+      if (dataConstants.huishuiMap.containsKey("公司")) {
         shangmaTeamIdValue = "公司";
       } else {
         shangmaTeamIdValue = ((Button) shangmaVBox.getChildren().get(0)).getText();
       }
     }
-    ShangmaService.loadShangmaTable(shangmaTeamIdValue, tableSM);
+    this.loadShangmaTable(shangmaTeamIdValue, tableSM);
   }
 
   /**
    * 保存实时上码中的团队押金与团队额度修改, 包括团队可上码（打勾）
    */
-  public static void updateTeamYajinAndEdu() {
+  public void updateTeamYajinAndEdu() {
     String teamId = shangmaTeamIdLabel.getText();
     if (StringUtil.isNotBlank(teamId)) {
       String teamAvailableValue = smTeamShangmaCheckBox.isSelected() ? "1" : "0";
-      boolean updateOK = DBUtil.updateTeamYajinAndEdu(teamId, teamYajin.getText(),
+      boolean updateOK = dbUtil.updateTeamYajinAndEdu(teamId, teamYajin.getText(),
           teamEdu.getText(), teamAvailableValue);
       if (updateOK) {
         // 更新缓存
-        Huishui team = DataConstans.huishuiMap.get(teamId);
+        Huishui team = dataConstants.huishuiMap.get(teamId);
         if (team != null) {
           team.setTeamYajin(teamYajin.getText());
           team.setTeamEdu(teamEdu.getText());
@@ -1429,7 +1433,7 @@ public class ShangmaService {
    * @param teamId
    * @param tableShangma
    */
-  public static SMResultModel getDataAfterloadShangmaTable(String teamId, String playerID) {
+  public SMResultModel getDataAfterloadShangmaTable(String teamId, String playerID) {
     SMResultModel resultModel = new SMResultModel();
     double teamSumYiSM, teamSumZJ;
     try {
@@ -1446,7 +1450,7 @@ public class ShangmaService {
           // 根据玩家ID找名称和额度和已存积分
           CurrentMoneyInfo cmiInfo = cmiMap.get(playerId);
           if (cmiInfo == null) {
-            Player player = DataConstans.membersMap.get(playerId);
+            Player player = dataConstants.membersMap.get(playerId);
             playerName = player.getPlayerName();
             edu = player.getEdu();
             yicunJifen = "";// 最关键的区别
@@ -1458,9 +1462,9 @@ public class ShangmaService {
           }
           // 根据玩家ID找个人详情
           Double[] sumArr = getSumDetail(playerId, edu, yicunJifen);
-          sumAvailableEdu = MoneyService.digit0(sumArr[0]);
-          sumYiSM = MoneyService.digit0(sumArr[1]);
-          sumZJ = MoneyService.digit0(sumArr[2]);
+          sumAvailableEdu = NumUtil.digit0(sumArr[0]);
+          sumYiSM = NumUtil.digit0(sumArr[1]);
+          sumZJ = NumUtil.digit0(sumArr[2]);
           // 组装实体
           smInfo = new ShangmaInfo(playerName, edu, sumAvailableEdu, sumYiSM, sumZJ, playerId,
               yicunJifen, "");
@@ -1480,7 +1484,7 @@ public class ShangmaService {
 
       // 赋新值
       // 获取团队信息
-      Huishui hs = DataConstans.huishuiMap.get(teamId);
+      Huishui hs = dataConstants.huishuiMap.get(teamId);
       if (hs != null) {
         String _teamYajin = hs.getTeamYajin();
         String _teamEdu = hs.getTeamEdu();
@@ -1488,8 +1492,8 @@ public class ShangmaService {
         // 计算团队可上码
         // 计算公式： 团队可上码= 押金 + 额度 + 团队战绩 - 团队已上码
         Double teamSMAvailable =
-            NumUtil.getNum(NumUtil.getSum(_teamYajin, _teamEdu, MoneyService.digit0(teamSumZJ)))
-                - NumUtil.getNum(MoneyService.digit0(teamSumYiSM));
+            NumUtil.getNum(NumUtil.getSum(_teamYajin, _teamEdu, NumUtil.digit0(teamSumZJ)))
+                - NumUtil.getNum(NumUtil.digit0(teamSumYiSM));
 
         resultModel.setTeamTotalAvailabel(teamSMAvailable.intValue() + "");
       }
@@ -1508,7 +1512,7 @@ public class ShangmaService {
    * @param playerId
    * @param smList
    */
-  private static void setSelectedSMInfo(SMResultModel model, String playerId,
+  private void setSelectedSMInfo(SMResultModel model, String playerId,
       List<ShangmaInfo> smList) {
     if (CollectUtil.isHaveValue(smList)) {
       Optional<ShangmaInfo> selectedSMInfoOpt =
@@ -1527,7 +1531,7 @@ public class ShangmaService {
    * @param shangmaJu 第几局
    * @param shangmaVal 上码值
    */
-  public static void addNewShangma2DetailTable_HT(SMResultModel model, String shangmaJu,
+  public void addNewShangma2DetailTable_HT(SMResultModel model, String shangmaJu,
       String shangmaVal) {
     // 判断是否重复
     ShangmaInfo selectedSMInfo = model.getSelectedSMInfo();
@@ -1544,9 +1548,9 @@ public class ShangmaService {
     // 以下不重复
     // save SM_Detail_Map
     List<ShangmaDetailInfo> SMDlist =
-        DataConstans.SM_Detail_Map.getOrDefault(playerId, new ArrayList<>());
+        dataConstants.SM_Detail_Map.getOrDefault(playerId, new ArrayList<>());
     SMDlist.add(new ShangmaDetailInfo(palyerName, shangmaVal, "", playerId, shangmaJu, "", "否"));
-    DataConstans.SM_Detail_Map.put(playerId, SMDlist);
+    dataConstants.SM_Detail_Map.put(playerId, SMDlist);
 
     // 刷新左表对应记录
     updateRowByPlayerId_HT(selectedSMInfo, shangmaVal);
@@ -1560,7 +1564,7 @@ public class ShangmaService {
    * @param detail
    * @param addMoney
    */
-  private static void addDuplicateSM_HT(ShangmaInfo selectedSMInfo, ShangmaDetailInfo detail,
+  private void addDuplicateSM_HT(ShangmaInfo selectedSMInfo, ShangmaDetailInfo detail,
       String addMoney) {
     String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
     addMoney = StringUtil.nvl(addMoney);
@@ -1570,7 +1574,7 @@ public class ShangmaService {
     updateRowByPlayerId_HT(selectedSMInfo, addMoney);
   }
 
-  private static void updateRowByPlayerId_HT(ShangmaInfo selectedSMInfo, String addedYiShangmaVal) {
+  private void updateRowByPlayerId_HT(ShangmaInfo selectedSMInfo, String addedYiShangmaVal) {
     double addedYSMVal = NumUtil.getNum(addedYiShangmaVal);
     String old_YSM_val = selectedSMInfo.getShangmaYiSM();
     String old_available_edu_val = selectedSMInfo.getShangmaAvailableEdu();
@@ -1589,7 +1593,7 @@ public class ShangmaService {
    * @param table
    * @param nextday
    */
-  public static void addNewRecord_nextday_HT(SMResultModel model, ShangmaNextday nextday) {
+  public void addNewRecord_nextday_HT(SMResultModel model, ShangmaNextday nextday) {
     ShangmaInfo selectedSMInfo = model.getSelectedSMInfo();
     String playerId = nextday.getPlayerId();
     String playerName = nextday.getPlayerName();
@@ -1607,7 +1611,7 @@ public class ShangmaService {
 
     // 以下为不重复项
     // 1 保存到数据库
-    DBUtil.saveOrUpdate_SM_nextday(nextday);
+    dbUtil.saveOrUpdate_SM_nextday(nextday);
 
     // 2 保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =
@@ -1627,7 +1631,7 @@ public class ShangmaService {
    * @param changci
    * @return
    */
-  private static ShangmaDetailInfo checkIfDuplicateInNextday_HT(String playerId, String changci) {
+  private ShangmaDetailInfo checkIfDuplicateInNextday_HT(String playerId, String changci) {
     List<ShangmaDetailInfo> nextDayList = SM_NextDay_Map.getOrDefault(playerId, new ArrayList<>());
     Optional<ShangmaDetailInfo> nextDayInfoOpt = nextDayList.stream().filter(
         info -> playerId.equals(info.getShangmaPlayerId()) && changci.equals(info.getShangmaJu()))
@@ -1647,7 +1651,7 @@ public class ShangmaService {
    * @param detail
    * @param nextDayShangmaVal
    */
-  public static void resetNextDayDetailInfo_HT(ShangmaInfo selectedSMInfo, ShangmaDetailInfo detail,
+  public void resetNextDayDetailInfo_HT(ShangmaInfo selectedSMInfo, ShangmaDetailInfo detail,
       String nextDayShangmaVal) {
     String oddSM = StringUtil.isBlank(detail.getShangmaSM()) ? "0" : detail.getShangmaSM();
     detail.setShangmaSM(NumUtil.digit0(NumUtil.getNum(oddSM) + NumUtil.getNum(nextDayShangmaVal)));
@@ -1661,7 +1665,7 @@ public class ShangmaService {
     nextday.setPlayerName(detail.getShangmaDetailName());
     nextday.setChangci(detail.getShangmaJu());
     nextday.setShangma(detail.getShangmaSM());
-    DBUtil.saveOrUpdate_SM_nextday(nextday);
+    dbUtil.saveOrUpdate_SM_nextday(nextday);
 
     // 2保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =

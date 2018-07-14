@@ -10,6 +10,8 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import com.kendy.application.Main;
 import com.kendy.db.DBUtil;
@@ -49,11 +51,14 @@ import javafx.scene.layout.VBox;
  * @author linzt
  * @time 2018年6月27日
  */
-@Controller
+@Component
 public class BankFlowController extends BaseController implements Initializable {
 
 
   private static Logger log = Logger.getLogger(BankFlowController.class);
+  
+  @Autowired
+  public DBUtil dbUtil;
 
   @FXML
   public ScrollPane scrollDates; // 放所有动态表的pane
@@ -127,7 +132,7 @@ public class BankFlowController extends BaseController implements Initializable 
    * @time 2018年7月1日
    */
   private void initData() {
-    totalBankFlowList = DBUtil.getAllHistoryBankMoney();
+    totalBankFlowList = dbUtil.getAllHistoryBankMoney();
     if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
       return;
     }
@@ -393,7 +398,10 @@ public class BankFlowController extends BaseController implements Initializable 
     }
     return dateString;
   }
-
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
+  }
 
 
 }

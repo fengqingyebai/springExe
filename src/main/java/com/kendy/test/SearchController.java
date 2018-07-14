@@ -3,26 +3,50 @@ package com.kendy.test;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
-import com.kendy.controller.tgController.TGController;
+import org.springframework.stereotype.Component;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
+@Component
 public class SearchController implements Initializable {
   
-  public SearchController(){
-    System.out.println(" 执行SearchController 构造方法");
-  }
-
- @Autowired
- private OrderService orderService;
+  private Logger loger = LoggerFactory.getLogger(SearchController.class);
  
- @Autowired
- private TGController tgController;
+  @Autowired
+  private OrderService orderService;
+  @Autowired
+  private TGController tgController;
+  
+  public SearchController(){
+    loger.info(" 执行SearchController 构造方法");
+    if(orderService != null) {
+      loger.info("orderService is not null");
+    }else {
+      loger.info("orderService is  null....");
+    }
+  }
+  
+ 
+
+  
+  @PostConstruct
+  public void inits() {
+    loger.info("正在初始化SearchController构造方法后的初始化");
+    if(orderService != null) {
+      loger.info("@PostConstruct加载后orderService is not null");
+    }else {
+      loger.info("@PostConstructxml加载后orderService is  null....");
+    }
+  }
+ 
  
  @FXML
  private Button search;
@@ -39,10 +63,14 @@ public class SearchController implements Initializable {
  public void initialize(URL location, ResourceBundle resources) {
   table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
   if(orderService !=null) {
-    System.out.println("orderService is not null !");
+    loger.info("xml加载后orderService is not null !");
+  } else {
+    loger.info("xml加载后orderService is  null !");
   }
   if(tgController !=null) {
-    System.out.println("tgController is not null !");
+    loger.info("tgController is not null !");
+  }else {
+    loger.info("tgController is  null !");
   }
  }
 

@@ -9,17 +9,33 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.BankFlowController;
 import com.kendy.controller.BaseController;
+import com.kendy.controller.GDController;
+import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
+import com.kendy.controller.QuotaController;
+import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Player;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
+import com.kendy.service.AutoDownloadZJExcelService;
+import com.kendy.service.JifenService;
+import com.kendy.service.MemberService;
+import com.kendy.service.MoneyService;
+import com.kendy.service.ShangmaService;
+import com.kendy.service.TGExportExcelService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
+import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.ShowUtil;
@@ -39,11 +55,22 @@ import javafx.scene.control.TextInputDialog;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
-@Controller
+@Component
 public class TGAddCommentController extends BaseController implements Initializable {
 
-  private static Logger log = Logger.getLogger(TGAddCommentController.class);
 
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public TGController tgController; // 托管控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+  
+  
+  
+  
   @FXML
   private TextField searchField; // 玩家名称(模糊搜索)
 
@@ -104,7 +131,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initPlayers() {
-    Map<String, Player> membersMap = DataConstans.membersMap;
+    Map<String, Player> membersMap = dataConstants.membersMap;
     if (MapUtil.isHavaValue(membersMap)) {
       players = new ArrayList<>(membersMap.values());
     }
@@ -144,7 +171,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initTypeChoice() {
-    String typeItemsJson = DBUtil.getValueByKey(TG_WANGJIA_COMMENT_DB_KEY);
+    String typeItemsJson = dbUtil.getValueByKey(TG_WANGJIA_COMMENT_DB_KEY);
     if (StringUtil.isNotBlank(typeItemsJson) && !"{}".equals(typeItemsJson)) {
       typeItems = JSON.parseObject(typeItemsJson, new TypeReference<List<String>>() {});
     } else {
@@ -163,7 +190,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    */
   private void initTGCompanyChoice() {
     List<TGCompanyModel> tgCompanys =
-        DBUtil.get_all_tg_company_By_clubId(MyController.currentClubId.getText());
+        dbUtil.get_all_tg_company_By_clubId(myController.currentClubId.getText());
     List<String> nameList = new ArrayList<>();
     if (CollectUtil.isHaveValue(tgCompanys)) {
       nameList =
@@ -211,7 +238,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    */
   private void saveTypeItem() {
     String typeItemsJson = JSON.toJSONString(typeItems);
-    DBUtil.saveOrUpdateOthers(TG_WANGJIA_COMMENT_DB_KEY, typeItemsJson);
+    dbUtil.saveOrUpdateOthers(TG_WANGJIA_COMMENT_DB_KEY, typeItemsJson);
   }
 
   /**
@@ -236,7 +263,7 @@ public class TGAddCommentController extends BaseController implements Initializa
     String tgCompany = tgCompanyChoice.getSelectionModel().getSelectedItem();
 
     TGCommentInfo entity =
-        new TGCommentInfo(UUID.randomUUID().toString(), MyController.tgController.getDateString(),
+        new TGCommentInfo(UUID.randomUUID().toString(), tgController.getDateString(),
             FinalPlaerIdField.getText(), FinalPlaerNameField.getText(),
             typeChoice.getSelectionModel().getSelectedItem(), IDField.getText(),
             nameField.getText(), StringUtil.nvl(beizhuField.getText(), ""), tgCompany);
@@ -260,10 +287,10 @@ public class TGAddCommentController extends BaseController implements Initializa
     }
     // 传递给主控制类处理逻辑 TODO
     TGCommentInfo tgCommentInfo = getSubmitData();
-    TGController tgController = MyController.tgController;
+   // TGController tgController = MyController.tgController;
 
     // 保存到数据库
-    DBUtil.saveOrUpdate_tg_comment(tgCommentInfo);
+    dbUtil.saveOrUpdate_tg_comment(tgCommentInfo);
     // 刷新界面
     if (equalsCurrentCompany())
       tgController.refreshTableTGComment();
@@ -279,7 +306,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    * @return
    */
   private boolean equalsCurrentCompany() {
-    TGController tgController = MyController.tgController;
+    //TGController tgController = MyController.tgController;
     String tgCompany = tgController.getCurrentTGCompany();
     String selectedCompany = tgCompanyChoice.getSelectionModel().getSelectedItem();
     return tgCompany.equals(selectedCompany);
@@ -317,6 +344,11 @@ public class TGAddCommentController extends BaseController implements Initializa
       nameField.setText(text.split("##")[0]);
       IDField.setText(text.split("##")[1]);
     }
+  }
+
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
   }
 
 

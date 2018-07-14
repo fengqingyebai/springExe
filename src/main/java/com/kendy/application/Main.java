@@ -1,15 +1,10 @@
 package com.kendy.application;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.kendy.constant.Constants;
 import com.kendy.controller.MyController;
-import com.kendy.test.SpringFxmlLoader;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.ShowUtil;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -23,15 +18,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
   
-  static {
-    try {
-      // 生产环境可用
-      String logName = "log4j/log4j.properties";
-      PropertyConfigurator.configure(Main.class.getClassLoader().getResourceAsStream(logName));
-    } catch (Exception e) {
-      ErrorUtil.err("日志组件初始化失败");
-    }
-  }
+  public static final SpringFxmlLoader loader = new SpringFxmlLoader();
 
   private Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -39,8 +26,8 @@ public class Main extends Application {
   // 共用窗口（kendy
   public static Stage primaryStage0;
 
-  public static MyController myController;
-
+  public static MyController myController =loader.getContext().getBean(MyController.class) ;
+  
   @Override
   public void start(Stage primaryStage) {
     try {
@@ -108,10 +95,15 @@ public class Main extends Application {
       // }
 
 
-      FXMLLoader fxmlLoader = new FXMLLoader();
-      Parent root =
-          fxmlLoader.load(getClass().getResource("/dialog/MainStageees2.fxml").openStream());
-      MyController mc = (MyController) fxmlLoader.getController();
+//      FXMLLoader fxmlLoader = new FXMLLoader();
+//      Parent root =
+//          fxmlLoader.load(getClass().getResource("/dialog/MainStageees2.fxml").openStream());
+//      MyController mc = (MyController) fxmlLoader.getController();
+      Parent root = (Parent) loader.load("/dialog/MainStageees2.fxml");
+      if(root != null) {
+        log.info("====================root is not null!");
+      }
+//      MyController mc = loader.getContext().getBean(MyController.class);
 
 
       try {
@@ -126,7 +118,7 @@ public class Main extends Application {
 
 
       primaryStage0 = primaryStage;// add by kendy
-      myController = mc;
+//      myController = mc;
 
       primaryStage.setOnCloseRequest(e -> {
         exit();

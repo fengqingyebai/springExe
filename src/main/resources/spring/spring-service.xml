@@ -15,7 +15,9 @@
     xmlns:jee="http://www.springframework.org/schema/jee"  
     xmlns:jdbc="http://www.springframework.org/schema/jdbc"  
     xmlns:context="http://www.springframework.org/schema/context"  
-    xsi:schemaLocation="http://www.springframework.org/schema/oxm   
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    	http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
+    	http://www.springframework.org/schema/oxm   
         http://www.springframework.org/schema/oxm/spring-oxm-4.3.xsd  
         http://www.springframework.org/schema/jms   
         http://www.springframework.org/schema/jms/spring-jms-4.3.xsd  
@@ -33,22 +35,53 @@
         http://www.springframework.org/schema/cache/spring-cache-4.3.xsd  
         http://www.springframework.org/schema/task   
         http://www.springframework.org/schema/task/spring-task-4.3.xsd  
-        http://www.springframework.org/schema/beans   
-        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
         http://www.springframework.org/schema/lang   
         http://www.springframework.org/schema/lang/spring-lang-4.3.xsd  
         http://www.springframework.org/schema/tx   
-        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">  
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        ">  
       
-     
-       <context:component-scan base-package="com.kendy.controller.*" />     
-       <context:component-scan base-package="com.kendy.service.*" />     
+       <context:annotation-config />
+       <bean id="dbUtil" class="com.kendy.db.DBUtil"></bean>  
+       <bean id="dataConstants" class="com.kendy.constant.DataConstans"></bean> 
+       <context:component-scan base-package="com.kendy.controller" />     
+       <context:component-scan base-package="com.kendy.service" />     
+
+<!--        <bean id="instancePool" class="com.kendy.application.InstancePool"></bean>  -->
        
-       <bean id="searchController" class="com.kendy.test.SearchController"></bean>   
-       <bean id="orderService" class="com.kendy.test.OrderService"></bean>   
-       
+<!--        <bean id="searchController" class="com.kendy.test.SearchController"></bean>    -->
+<!--        <bean id="orderService" class="com.kendy.test.OrderService"></bean>   -->
+
+<!--        <bean id="baseController" class="com.kendy.controller.BaseController"></bean>    -->
+<!--        <bean id="myController" class="com.kendy.controller.MyController"></bean>    -->
+<!--        <bean id="combineIDController" class="com.kendy.controller.CombineIDController"></bean>    -->
+<!--        <bean id="teamProxyController" class="com.kendy.controller.TeamProxyController"></bean>    -->
+<!--        <bean id="smAutoController" class="com.kendy.controller.SMAutoController"></bean>    -->
+<!--        <bean id="bankFlowController" class="com.kendy.controller.BankFlowController"></bean>    -->
+<!--        <bean id="gdController" class="com.kendy.controller.GDController"></bean>    -->
+<!--        <bean id="lmController" class="com.kendy.controller.LMController"></bean>    -->
+<!--        <bean id="tgController" class="com.kendy.controller.tgController.TGController"></bean>    -->
+       <bean id="httpUtil" class="com.kendy.spider.HttpUtil"></bean>  
+       <bean id="customView" class="com.kendy.util.CustomView"></bean>  
+<!-- 		<bean id="autoDownloadZJExcelService" class="com.kendy.service.AutoDownloadZJExcelService"></bean>   -->
+<!-- 		<bean id="jifenService" class="com.kendy.service.JifenService"></bean>   -->
+<!-- 		<bean id="memberService" class="com.kendy.service.MemberService"></bean>   -->
+<!-- 		<bean id="shangmaService" class="com.kendy.service.ShangmaService"></bean>   -->
+<!-- 		<bean id="teamProxyService" class="com.kendy.service.TeamProxyService"></bean>   -->
+<!-- 		<bean id="tGExportExcelService" class="com.kendy.service.TGExportExcelService"></bean>   -->
+<!-- 		<bean id="tgWaizhaiService" class="com.kendy.service.TgWaizhaiService"></bean>   -->
+<!-- 		<bean id="waizhaiService" class="com.kendy.service.WaizhaiService"></bean>   -->
+<!-- 		<bean id="zonghuiService" class="com.kendy.service.ZonghuiService"></bean>   -->
+<!-- 		<bean id="moneyService" class="com.kendy.service.MoneyService"></bean>   -->
+		
+		
+<!-- <bean id="" class="com.kendy.service."></bean>   -->
+<!--        <bean id="quotaController" class="com.kendy.controller.QuotaController"></bean>    -->
       
-      <context:property-placeholder location="classpath:log4j/log4j.properties" />  
+<!--       <context:property-placeholder location="classpath:log4j/log4j.properties" />   -->
+      
 		
 
 </beans>

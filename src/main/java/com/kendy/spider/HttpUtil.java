@@ -23,20 +23,25 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.fastjson.JSON;
 import com.kendy.controller.MyController;
 import com.kendy.util.StringUtil;
 
 // 爬取网站后台接口数据
 public class HttpUtil {
-  private static Logger log = Logger.getLogger(HttpUtil.class);
+  
+  private Logger log = Logger.getLogger(HttpUtil.class);
+  
+  @Autowired
+  MyController myController;
 
-  private static final String BUY_LIST_URL =
+  private final String BUY_LIST_URL =
       "http://cms.pokermanager.club/cms-api/game/getBuyinList";
-  private static final String ACCEPT_BUY_URL =
+  private final String ACCEPT_BUY_URL =
       "http://cms.pokermanager.club/cms-api/game/acceptBuyin";
 
-  public static void main(String[] args) throws Exception {
+  public void main(String[] args) throws Exception {
 
     System.out.println("正在连接...");
     try {
@@ -102,7 +107,7 @@ public class HttpUtil {
    * @param token
    * @return
    */
-  public static WanjiaListResult getWanjiaListResult(String token) {
+  public WanjiaListResult getWanjiaListResult(String token) {
     WanjiaListResult wanjiaListResult = null;
     try {
       URL url = new URL(BUY_LIST_URL);
@@ -111,7 +116,7 @@ public class HttpUtil {
       // openConnection.setRequestProperty("Content-Type",
       // "application/json;charset=UTF-8");//观察后没有这个request Head
       InputStream urlStream = openConnection.getInputStream();
-      String charsetName = MyController.smAutoController.sysCodeField.getText();
+      String charsetName = myController.smAutoController.sysCodeField.getText();
       String ResString =
           org.apache.commons.io.IOUtils.toString(urlStream, Charset.forName(charsetName));
       log.info("后台的玩家列表: " + ResString);
@@ -134,7 +139,7 @@ public class HttpUtil {
    * @return
    * @throws Exception
    */
-  public static List<WanjiaApplyInfo> getBuyinList(String token) throws Exception {
+  public List<WanjiaApplyInfo> getBuyinList(String token) throws Exception {
     WanjiaListResult wanjiaListResult = getWanjiaListResult(token);
     if (wanjiaListResult == null) {
       return null;
@@ -145,7 +150,7 @@ public class HttpUtil {
     }
   }
 
-  public static boolean acceptBuy(Long userUuid, Long roomId, String token)
+  public boolean acceptBuy(Long userUuid, Long roomId, String token)
       throws ClientProtocolException, IOException {
     Map<String, String> map = new HashMap<>();
     map.put("userUuid", userUuid + "");
@@ -159,16 +164,16 @@ public class HttpUtil {
 
 
 
-  public static final String CHARSET = "UTF-8";
+  public final String CHARSET = "UTF-8";
 
-  private static final CloseableHttpClient httpclient;
-  static {
+  private final CloseableHttpClient httpclient;
+  {
     RequestConfig config =
         RequestConfig.custom().setConnectTimeout(50000).setSocketTimeout(10000).build();
     httpclient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
   }
 
-  public static String sendPost(String url, Map<String, String> params, String token)
+  public String sendPost(String url, Map<String, String> params, String token)
       throws ClientProtocolException, IOException {
 
     List<NameValuePair> pairs = null;

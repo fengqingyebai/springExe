@@ -4,10 +4,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
-import com.kendy.application.Main;
+import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
@@ -17,7 +20,7 @@ import com.kendy.service.JifenService;
 import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
 import com.kendy.service.TeamProxyService;
-import com.kendy.util.ConsUtil;
+import com.kendy.service.TgWaizhaiService;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -37,10 +40,32 @@ import javafx.stage.Stage;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:46
  */
-@Controller
+@Component
 public class AddController extends BaseController implements Initializable {
-
+  
   private static Logger log = Logger.getLogger(AddController.class);
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public TeamProxyController teamProxyController; // 代理控制类
+  @Autowired
+  public TGController tgController; // 托管控制类
+  @Autowired
+  public GDController gdController; // 股东控制类
+  @Autowired
+  public JifenService jifenService; // 积分控制类
+  @Autowired
+  public ShangmaService shangmaService; // 上码控制类
+  @Autowired
+  public TeamProxyService teamProxyService; // 配帐控制类
+  @Autowired
+  public TgWaizhaiService tgWaizhaiService; // 配帐控制类
+  @Autowired
+  public MoneyService moneyService; // 配帐控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================新增团队回水对话框
   @FXML
@@ -92,7 +117,7 @@ public class AddController extends BaseController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
 
     // 初始化股东列表
-    ObservableList<String> gudongList = MyController.getGudongList();
+    ObservableList<String> gudongList = myController.getGudongList();
     ObservableList<String> copyGudongList = FXCollections.observableArrayList();
     for (String gudong : gudongList) {
       copyGudongList.add(gudong);
@@ -138,23 +163,23 @@ public class AddController extends BaseController implements Initializable {
     hs.setZjManaged("是");
 
     if (!StringUtil.isBlank(hs.getTeamId()) && !StringUtil.isBlank(hs.getHuishuiRate())) {
-      DataConstans.huishuiMap.put(hs.getTeamId(), hs);
+      dataConstants.huishuiMap.put(hs.getTeamId(), hs);
       // 入库
-      DBUtil.addTeamHS(hs);
+      dbUtil.addTeamHS(hs);
       log.info("已经添加该团队回水:" + hs.toString());
       ShowUtil.show("已经添加该团队回水", 2);
       // add 2017-10-23
       // 添加回水后往实时上码表添加团ID按钮
-      ShangmaService.initShangmaButton();
+      shangmaService.initShangmaButton();
       // 添加回水后往代理查询中添加新团 队ID
-      TeamProxyService.addNewTeamId(hs.getTeamId());
+      teamProxyService.addNewTeamId(hs.getTeamId());
       // 积分查询添加新团队ID jfTeamIDCombox 小胖有反馈时再添加吧
-      JifenService.addNewTeamId(hs.getTeamId());
+      jifenService.addNewTeamId(hs.getTeamId());
 
     }
     // 获取到新增回水窗口的实例
-    Stage huishuiStage = DataConstans.framesNameMap.get(Constants.ADD_TEAM_HUISHUI_FRAME);
-    DataConstans.framesNameMap.remove(Constants.ADD_TEAM_HUISHUI_FRAME);
+    Stage huishuiStage = dataConstants.framesNameMap.get(Constants.ADD_TEAM_HUISHUI_FRAME);
+    dataConstants.framesNameMap.remove(Constants.ADD_TEAM_HUISHUI_FRAME);
     huishuiStage.close();
   }
 
@@ -170,16 +195,16 @@ public class AddController extends BaseController implements Initializable {
     player.setPlayerName(playerNameField.getText());
     player.setEdu(beizhuField.getText());
     if (!StringUtil.isBlank(player.getgameId()) && !StringUtil.isBlank(player.getTeamName())) {
-      DataConstans.membersMap.put(player.getgameId(), player);
-      ConsUtil.refresh_SM_Detail_Map();
-      // ConsUtil.refreshTeamIdAndPlayerId();
-      DBUtil.addMember(player);
+      dataConstants.membersMap.put(player.getgameId(), player);
+      dataConstants.refresh_SM_Detail_Map();
+      // dataConstants.refreshTeamIdAndPlayerId();
+      dbUtil.addMember(player);
       log.info("已经添加该人员:" + player);
       ShowUtil.show("已经添加该人员", 2);
     }
     // 获取到新增人员窗口的实例
-    Stage addNewPlayerStage = DataConstans.framesNameMap.get(Constants.ADD_NEWPALYER_FRAME);
-    DataConstans.framesNameMap.remove(Constants.ADD_NEWPALYER_FRAME);
+    Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_NEWPALYER_FRAME);
+    dataConstants.framesNameMap.remove(Constants.ADD_NEWPALYER_FRAME);
     addNewPlayerStage.close();
   }
 
@@ -189,26 +214,25 @@ public class AddController extends BaseController implements Initializable {
   public void addKaixiaoOKAction(ActionEvent event) {
 
     if (!StringUtil.isBlank(kaixiaoTypes.getText())) {
-      DataConstans.kaixiaoMap.put(kaixiaoTypes.getText(), kaixiaoMoneys.getText());
+      dataConstants.kaixiaoMap.put(kaixiaoTypes.getText(), kaixiaoMoneys.getText());
       ShowUtil.show("添加开销成功", 2);
       // 更新到表
-      MyController mc = Main.myController;
-      if (mc != null) {
+      if (myController != null) {
         String kxGudong = gudongChoice.getSelectionModel().getSelectedItem();
         boolean isGudongEmpty = StringUtil.isBlank(kxGudong);
         String kaixiaoID = isGudongEmpty ? "" : UUID.randomUUID().toString().replace("-", "");
-        String kaixiaoTime = StringUtil.nvl(DataConstans.Date_Str, "2017-01-01");
+        String kaixiaoTime = StringUtil.nvl(dataConstants.Date_Str, "2017-01-01");
         String kxType = kaixiaoTypes.getText();
         String kxMoney = StringUtil.nvl(kaixiaoMoneys.getText(), "");
         KaixiaoInfo kaixiaoInfo =
             new KaixiaoInfo(kaixiaoID, kxType, kxMoney, kxGudong, kaixiaoTime);
         // 添加到场次信息中的开销表(若股东为空，则ID为空)
-        mc.updateKaixiaoTable(kaixiaoInfo);
+        myController.updateKaixiaoTable(kaixiaoInfo);
         // 添加到数据库中（如果股东不为空）
         if (!StringUtil.isAnyBlank(kxMoney, kxGudong)) {
           if (ALL_COMPANY.equals(kxGudong)) {
             // N个股东平摊（包括银河股东）
-            ObservableList<String> gudongList = MyController.getGudongList();
+            ObservableList<String> gudongList = myController.getGudongList();
             String averageKaixiaoMoney = getAverageKaixiaoMoney(kxMoney, gudongList.size());// 股东平摊的开销值
             // 有几个股东就保存几条开销记录进数据库
             int i = 0;
@@ -216,11 +240,11 @@ public class AddController extends BaseController implements Initializable {
               kaixiaoID = kaixiaoID + "#" + (i++); // 共用一个开销ID, 从0编写到N
               KaixiaoInfo averageInfo =
                   new KaixiaoInfo(kaixiaoID, kxType, averageKaixiaoMoney, gudongName, kaixiaoTime);
-              DBUtil.saveOrUpdate_gudong_kaixiao(averageInfo);
+              dbUtil.saveOrUpdate_gudong_kaixiao(averageInfo);
             }
 
           } else {
-            DBUtil.saveOrUpdate_gudong_kaixiao(kaixiaoInfo);
+            dbUtil.saveOrUpdate_gudong_kaixiao(kaixiaoInfo);
           }
           // 缓存？ TODO
         }
@@ -230,8 +254,8 @@ public class AddController extends BaseController implements Initializable {
 
     }
     // 获取到新增人员窗口的实例
-    Stage addNewPlayerStage = DataConstans.framesNameMap.get(Constants.ADD_KAIXIAO_FRAME);
-    DataConstans.framesNameMap.remove(Constants.ADD_KAIXIAO_FRAME);
+    Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_KAIXIAO_FRAME);
+    dataConstants.framesNameMap.remove(Constants.ADD_KAIXIAO_FRAME);
     addNewPlayerStage.close();
   }
 
@@ -261,13 +285,13 @@ public class AddController extends BaseController implements Initializable {
       return;
     } else {
       playerId = playerId.trim();
-      player = DataConstans.membersMap.get(playerId);// 从人员表查找相关记录
+      player = dataConstants.membersMap.get(playerId);// 从人员表查找相关记录
       if (player == null) {
         ShowUtil.show("操作失败！人员表中无此ID,请先添加该人员！");
         return;
       }
       // 重复判断
-      if (MoneyService.isExistIn_SSJE_Table_byId(playerId)) {
+      if (moneyService.isExistIn_SSJE_Table_byId(playerId)) {
         ShowUtil.show("操作失败！实时金额表中已经存在此ID,请查检！");
         return;
       }
@@ -275,14 +299,14 @@ public class AddController extends BaseController implements Initializable {
     // 添加实时金额
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(player.getPlayerName(), cmMoney.getText(),
         player.getgameId(), player.getEdu());
-    MoneyService.addInfo(tempMoneyInfo);
+    moneyService.addInfo(tempMoneyInfo);
     ShowUtil.show("添加成功", 2);
-    MoneyService.flush_SSJE_table();
-    MoneyService.scrolById(playerId);
+    moneyService.flush_SSJE_table();
+    moneyService.scrolById(playerId);
 
     // 获取到新增人员窗口的实例
-    Stage addNewPlayerStage = DataConstans.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
-    DataConstans.framesNameMap.remove(Constants.ADD_CURRENT_MONEY_FRAME);
+    Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
+    dataConstants.framesNameMap.remove(Constants.ADD_CURRENT_MONEY_FRAME);
     addNewPlayerStage.close();
   }
 
@@ -300,24 +324,29 @@ public class AddController extends BaseController implements Initializable {
       return;
     }
     // 重复判断
-    if (MoneyService.isExistIn_SSJE_Table_byName(name)) {
+    if (moneyService.isExistIn_SSJE_Table_byName(name)) {
       ShowUtil.show("操作失败！实时金额表中已经存在此名称,请查检！");
       return;
     }
     // 添加实时金额
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(name, cmMoney.getText(), "", "");
-    MoneyService.addInfo(tempMoneyInfo);
+    moneyService.addInfo(tempMoneyInfo);
     ShowUtil.show("添加成功", 2);
-    MoneyService.flush_SSJE_table();
-    MoneyService.scrolByName(name);
+    moneyService.flush_SSJE_table();
+    moneyService.scrolByName(name);
 
 
     // 获取到新增人员窗口的实例
-    Stage addNewPlayerStage = DataConstans.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
-    DataConstans.framesNameMap.remove(Constants.ADD_CURRENT_MONEY_FRAME);
+    Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
+    dataConstants.framesNameMap.remove(Constants.ADD_CURRENT_MONEY_FRAME);
     addNewPlayerStage.close();
   }
 
+  
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
+  }
 
 
 }

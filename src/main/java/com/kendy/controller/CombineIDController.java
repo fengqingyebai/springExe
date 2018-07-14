@@ -10,12 +10,19 @@ import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Player;
 import com.kendy.service.MoneyService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
+import com.kendy.service.ZonghuiService;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import javafx.collections.FXCollections;
@@ -38,14 +45,30 @@ import javafx.scene.input.KeyEvent;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:54
  */
-@Controller
+@Component
 public class CombineIDController extends BaseController implements Initializable {
 
-  private static Logger log = Logger.getLogger(CombineIDController.class);
-
-  public static TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public TGController tgController; // 托管控制类
+  @Autowired
+  public TeamProxyService teamProxyService; // 配帐控制类
+  @Autowired
+  public TgWaizhaiService tgWaizhaiService; // 配帐控制类
+  @Autowired
+  public WaizhaiService waizhaiService; // 配帐控制类
+  @Autowired
+  public ZonghuiService zonghuiService; // 配帐控制类
+  @Autowired
+  public MoneyService moneyService; // 配帐控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================合并ID对话框
+  public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
   @FXML
   private TextField combineName; // 模糊查询的名称
 
@@ -63,7 +86,7 @@ public class CombineIDController extends BaseController implements Initializable
 
   }
 
-  public static void initCombineIdController(TableView<CurrentMoneyInfo> table) {
+  public void initCombineIdController(TableView<CurrentMoneyInfo> table) {
     tableCurrentMoneyInfo = table;
   }
 
@@ -89,29 +112,29 @@ public class CombineIDController extends BaseController implements Initializable
       Optional<ButtonType> result = alert.showAndWait();
       if (result.get() == ButtonType.OK) {
         String parentId = getIdFromStr(parentNameAndId);
-        Set<String> subIdSet = DataConstans.Combine_Super_Id_Map.get(parentId);
+        Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(parentId);
         if (subIdSet == null) {
           ShowUtil.show(parentNameAndId + "无子ID,不需要解除哦");
           return;
         } else {
           // 删除父节点
-          DataConstans.Combine_Super_Id_Map.remove(parentId);
+          dataConstants.Combine_Super_Id_Map.remove(parentId);
           // 删除子节点
           for (String subId : subIdSet) {
-            DataConstans.Combine_Sub_Id_Map.remove(subId);
+            dataConstants.Combine_Sub_Id_Map.remove(subId);
           }
           ShowUtil.show("已解散该父子ID的合并关系", 3);
           // 刷新实时金额表
-          CurrentMoneyInfo info = MoneyService.getInfoById(parentId);
+          CurrentMoneyInfo info = moneyService.getInfoById(parentId);
           if (info != null) {
             info.setCmSuperIdSum("");
-            MoneyService.refreshRecord();
+            moneyService.refreshRecord();
           }
-          MoneyService.flush_SSJE_table();
+          moneyService.flush_SSJE_table();
           // 刷新上码表
 
           // 更新到数据库
-          DBUtil.cancelCombineId(parentId);
+          dbUtil.cancelCombineId(parentId);
         }
 
       }
@@ -156,7 +179,7 @@ public class CombineIDController extends BaseController implements Initializable
     String name = combineName.getText();
     Set<Player> set = new HashSet<>();
     if (!StringUtil.isBlank(name)) {
-      DataConstans.membersMap.forEach((mId, mPlayer) -> {
+      dataConstants.membersMap.forEach((mId, mPlayer) -> {
         if (mPlayer.getPlayerName().contains(name)
             || mPlayer.getPlayerName().toLowerCase().contains(name.trim().toLowerCase())
             || mPlayer.getPlayerName().toUpperCase().contains(name.trim().toUpperCase())) {
@@ -202,16 +225,16 @@ public class CombineIDController extends BaseController implements Initializable
       ShowUtil.show("请先选择父ID!");
       return;
     } else {
-      if (DataConstans.Combine_Sub_Id_Map.containsKey(getIdFromStr(selectedMemberName))) {
+      if (dataConstants.Combine_Sub_Id_Map.containsKey(getIdFromStr(selectedMemberName))) {
         ShowUtil.show(selectedMemberName + "本身是子ID!请先解除与其他父ID("
-            + DataConstans.Combine_Sub_Id_Map.get(getIdFromStr(selectedMemberName)) + ")的关系！");
+            + dataConstants.Combine_Sub_Id_Map.get(getIdFromStr(selectedMemberName)) + ")的关系！");
         return;
       }
     }
     parentIdField.setText(selectedMemberName);
     // 根据父ID加载所有子节点 大傻哥111 543999226
     String superId = getIdFromStr(selectedMemberName);
-    Set<String> subIdSet = DataConstans.Combine_Super_Id_Map.get(superId);
+    Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(superId);
     rightPlayerListView.setItems(null);
     if (subIdSet == null) {
       return;
@@ -220,7 +243,7 @@ public class CombineIDController extends BaseController implements Initializable
     Player player;
     String playerName;
     for (String subId : subIdSet) {
-      player = DataConstans.membersMap.get(subId);
+      player = dataConstants.membersMap.get(subId);
       if (player != null) {
         playerName = player.getPlayerName();
         obList.add(playerName + " " + subId);
@@ -250,8 +273,8 @@ public class CombineIDController extends BaseController implements Initializable
       } else {
         boolean isSubIdExist = rightPlayerListView.getItems().contains(selectedMemberName);
         boolean isSuperId =
-            DataConstans.Combine_Super_Id_Map.containsKey(getIdFromStr(selectedMemberName));
-        String superId = DataConstans.Combine_Sub_Id_Map.get(getIdFromStr(selectedMemberName));
+            dataConstants.Combine_Super_Id_Map.containsKey(getIdFromStr(selectedMemberName));
+        String superId = dataConstants.Combine_Sub_Id_Map.get(getIdFromStr(selectedMemberName));
         if (isSubIdExist) {
           ShowUtil.show(selectedMemberName + "该子ID已经存在，请勿重复添加");
           return;
@@ -283,10 +306,10 @@ public class CombineIDController extends BaseController implements Initializable
       }
       String parentId = getIdFromStr(parentIdStr);
       // add 合并前先判断父子ID是否在同一个团队
-      String teamId = DataConstans.membersMap.get(parentId).getTeamName();
+      String teamId = dataConstants.membersMap.get(parentId).getTeamName();
       for (String subIdStr : obSubIdlist) {
         String subId = getIdFromStr(subIdStr);
-        String _teamId = DataConstans.membersMap.get(subId).getTeamName();
+        String _teamId = dataConstants.membersMap.get(subId).getTeamName();
         if (!teamId.equalsIgnoreCase(_teamId)) {
           ShowUtil.show("合并失败：父子ID不在同一个团队中，请确认！");
           return;
@@ -294,15 +317,15 @@ public class CombineIDController extends BaseController implements Initializable
       } // 判断是否同个团队结束
 
 
-      Set<String> subIdSets = DataConstans.Combine_Super_Id_Map.get(parentId);
+      Set<String> subIdSets = dataConstants.Combine_Super_Id_Map.get(parentId);
       if (subIdSets == null) {
         subIdSets = new HashSet<>();
       } else {
         // 删除原有数据
         for (String subId : subIdSets) {
-          DataConstans.Combine_Sub_Id_Map.remove(subId);
+          dataConstants.Combine_Sub_Id_Map.remove(subId);
         }
-        DataConstans.Combine_Super_Id_Map.remove(parentId);
+        dataConstants.Combine_Super_Id_Map.remove(parentId);
         subIdSets.clear();
       }
       List<String> tempSubIdList = new ArrayList<>();
@@ -310,14 +333,14 @@ public class CombineIDController extends BaseController implements Initializable
         String subId = getIdFromStr(subIdStr);
         subIdSets.add(subId);
         tempSubIdList.add(subId);
-        DataConstans.Combine_Sub_Id_Map.put(subId, parentId);// 缓存子ID
+        dataConstants.Combine_Sub_Id_Map.put(subId, parentId);// 缓存子ID
       }
-      DataConstans.Combine_Super_Id_Map.put(parentId, subIdSets);// 缓存父ID
+      dataConstants.Combine_Super_Id_Map.put(parentId, subIdSets);// 缓存父ID
       // 刷新实时金额表
-      MoneyService.flush_SSJE_table();
+      moneyService.flush_SSJE_table();
 
       // 将合并ID同步到数据库
-      DBUtil.saveOrUpdateCombineId(parentId);
+      dbUtil.saveOrUpdateCombineId(parentId, subIdSets);
 
       ShowUtil.show("合并ID成功！", 2);
     } catch (Exception e) {
@@ -331,7 +354,7 @@ public class CombineIDController extends BaseController implements Initializable
    * 
    * @param nameAndId 名称和ID 传过来肯定是不为空的，固不作空判断
    */
-  public static String getIdFromStr(String nameAndId) {
+  public String getIdFromStr(String nameAndId) {
     String[] arr = nameAndId.split(" ");
     return arr[arr.length - 1];
   }
@@ -342,7 +365,7 @@ public class CombineIDController extends BaseController implements Initializable
    * 
    * @return String
    */
-  public static String getRandColorCode() {
+  public String getRandColorCode() {
     String r, g, b;
     Random random = new Random();
     r = Integer.toHexString(random.nextInt(256)).toUpperCase();
@@ -364,13 +387,13 @@ public class CombineIDController extends BaseController implements Initializable
    * @param id 玩家ID
    * @return 父ID
    */
-  public static String hasCombineIdRelation(String id) {
+  public String hasCombineIdRelation(String id) {
     String superId = null;
-    if (DataConstans.Combine_Sub_Id_Map.containsKey(id)) {
-      superId = DataConstans.Combine_Sub_Id_Map.get(id);
+    if (dataConstants.Combine_Sub_Id_Map.containsKey(id)) {
+      superId = dataConstants.Combine_Sub_Id_Map.get(id);
       return superId;
     }
-    if (DataConstans.Combine_Super_Id_Map.containsKey(id)) {
+    if (dataConstants.Combine_Super_Id_Map.containsKey(id)) {
       superId = id;
       return superId;
     }
@@ -382,13 +405,13 @@ public class CombineIDController extends BaseController implements Initializable
    * 
    * @time 2017年12月2日
    */
-  public static List<String> checkCombineId() {
+  public List<String> checkCombineId() {
     // 获取所有成员ID
-    Map<String, Player> memberIdMap = DataConstans.membersMap;
+    Map<String, Player> memberIdMap = dataConstants.membersMap;
 
     // 获取所模板ID
-    Map<String, String> subIdMap = DataConstans.Combine_Sub_Id_Map;
-    Map<String, Set<String>> superIdMap = DataConstans.Combine_Super_Id_Map;
+    Map<String, String> subIdMap = dataConstants.Combine_Sub_Id_Map;
+    Map<String, Set<String>> superIdMap = dataConstants.Combine_Super_Id_Map;
 
     // 待返回的结果
     List<String> resList = new ArrayList<>();
@@ -420,5 +443,9 @@ public class CombineIDController extends BaseController implements Initializable
 
   }
 
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
+  }
 
 }

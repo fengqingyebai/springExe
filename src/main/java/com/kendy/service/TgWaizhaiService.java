@@ -12,10 +12,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
-import com.kendy.controller.MyController;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -44,14 +46,22 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @time 2018年3月8日 下午8:49:07
  */
-@Service
-public class TgWaizhaiService {
+@Component
+public class TgWaizhaiService extends InstancePool{
 
+  private Logger log = Logger.getLogger(TgWaizhaiService.class);
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+  @Autowired
+  public TGController tgController ;
+  @Autowired
+  public BaseController baseController ;
+  
 
-  private static Logger log = Logger.getLogger(TgWaizhaiService.class);
-
-  private static final String UNKNOW_TG_TEAM = "未知托管团队";
-  public static DecimalFormat df = new DecimalFormat("#.00");
+  private final String UNKNOW_TG_TEAM = "未知托管团队";
+  public DecimalFormat df = new DecimalFormat("#.00");
 
 
   /**
@@ -60,12 +70,11 @@ public class TgWaizhaiService {
    * @time 2018年3月8日
    * @return
    */
-  public static Set<String> getTGTeamId() {
+  public Set<String> getTGTeamId() {
     Set<String> tgTeamSet = new HashSet<>();
     try {
-      TGController tgController = MyController.tgController;
       TGCompanyModel currentCompany =
-          DBUtil.get_tg_company_by_id(tgController.getCurrentTGCompany());
+          dbUtil.get_tg_company_by_id(tgController.getCurrentTGCompany());
       String tgTeamsStr = currentCompany.getTgTeamsStr();
       if (StringUtil.isNotBlank(tgTeamsStr)) {
         tgTeamSet = Stream.of(tgTeamsStr.split("#")).collect(Collectors.toSet());
@@ -87,7 +96,7 @@ public class TgWaizhaiService {
    * @param tableTeam
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void generateWaizhaiTables(TableView<TypeValueInfo> tableWaizhai, HBox hbox,
+  public void generateWaizhaiTables(TableView<TypeValueInfo> tableWaizhai, HBox hbox,
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo, TableView<TeamInfo> tableTeam) {
     // //获取托管团队ID
     // Set<String> tgTeamIdSet = getTGTeamId();
@@ -97,7 +106,7 @@ public class TgWaizhaiService {
     if (allTables != null && allTables.size() > 0)
       hbox.getChildren().remove(0, allTables.size());
 
-    if (DataConstans.Index_Table_Id_Map.size() == 0) {
+    if (dataConstants.Index_Table_Id_Map.size() == 0) {
       ShowUtil.show("你当前还未锁定任意一局，查询没有数据!", 2);
       return;
     }
@@ -132,7 +141,7 @@ public class TgWaizhaiService {
       lastNameCol.setPrefWidth(65);
       lastNameCol
           .setCellValueFactory(new PropertyValueFactory<CurrentMoneyInfo, String>("shishiJine"));
-      lastNameCol.setCellFactory(BaseController.getColorCellFactory(new CurrentMoneyInfo()));
+      lastNameCol.setCellFactory(baseController.getColorCellFactory(new CurrentMoneyInfo()));
       table.setPrefWidth(150);
       table.getColumns().addAll(firstNameCol, lastNameCol);
 
@@ -163,7 +172,7 @@ public class TgWaizhaiService {
    * @time 2017年10月28日
    * @param tableWaizhai
    */
-  public static void setWaizhaiSum(TableView<TypeValueInfo> tableWaizhai) {
+  public void setWaizhaiSum(TableView<TypeValueInfo> tableWaizhai) {
     Double sum = 0d;
     ObservableList<TypeValueInfo> list = tableWaizhai.getItems();
     if (list != null && list.size() > 0) {
@@ -182,7 +191,7 @@ public class TgWaizhaiService {
    * @param tgTeamIdMap
    * @return
    */
-  public static Map<String, String> getSum(Map<String, List<CurrentMoneyInfo>> tgTeamIdMap) {
+  public Map<String, String> getSum(Map<String, List<CurrentMoneyInfo>> tgTeamIdMap) {
     final Map<String, String> map = new HashMap<>();
     if (tgTeamIdMap != null && tgTeamIdMap.size() > 0) {
       for (Map.Entry<String, List<CurrentMoneyInfo>> entry : tgTeamIdMap.entrySet()) {
@@ -200,9 +209,9 @@ public class TgWaizhaiService {
    * 获取每个托管团队的实时金额 备注：不包括个人和存在于左边的团队
    * 
    */
-  public static Map<String, List<CurrentMoneyInfo>> get_SSJE_Gudong_Map(
+  public Map<String, List<CurrentMoneyInfo>> get_SSJE_Gudong_Map(
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo) {
-    int pageIndex = DataConstans.Index_Table_Id_Map.size();
+    int pageIndex = dataConstants.Index_Table_Id_Map.size();
     if (pageIndex < 0) {
       return new HashMap<>();
     }
@@ -224,7 +233,7 @@ public class TgWaizhaiService {
     for (CurrentMoneyInfo infos : CurrentMoneyInfoList) {
       if (!StringUtil.isAnyBlank(infos.getWanjiaId(), infos.getMingzi())) {
         String playerId = infos.getWanjiaId();
-        Player player = DataConstans.membersMap.get(playerId);
+        Player player = dataConstants.membersMap.get(playerId);
         if (player == null || StringUtil.isBlank(player.getTeamName())
             || !tgTeamIdSet.contains(player.getTeamName().toUpperCase())) {
           continue;
@@ -240,7 +249,7 @@ public class TgWaizhaiService {
 
     // 步骤1：添加玩家
     Map<String, List<CurrentMoneyInfo>> tgTeamCMIMap = SSJE_obList.stream().filter(infos -> {
-      boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(infos.getWanjiaId());
+      boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(infos.getWanjiaId());
       if (!isSuperId) {// 为解决联合ID的问题，在这里把父节点信息加了进来，后面会把父节点的联合额度为0或空的清除掉，问题：能否在此处就过滤过？？
         if (StringUtil.isBlank(infos.getShishiJine()) || "0".equals(infos.getShishiJine())
             || !infos.getShishiJine().contains("-")) {
@@ -252,7 +261,7 @@ public class TgWaizhaiService {
         // .map(info -> copyCurrentMoneyInfo(info)) //复制一份
         .collect(Collectors.groupingBy(info -> {
           CurrentMoneyInfo cmi = (CurrentMoneyInfo) info;
-          Player p = DataConstans.membersMap.get(cmi.getWanjiaId());
+          Player p = dataConstants.membersMap.get(cmi.getWanjiaId());
           if (p == null) {
             return UNKNOW_TG_TEAM;
           } else {
@@ -274,7 +283,7 @@ public class TgWaizhaiService {
    * @return
    */
   @SuppressWarnings("unchecked")
-  private static Map<String, List<CurrentMoneyInfo>> getFinalTGTeamMap(
+  private Map<String, List<CurrentMoneyInfo>> getFinalTGTeamMap(
       List<CurrentMoneyInfo> SSJE_obList) {
 
     if (CollectUtil.isNullOrEmpty(SSJE_obList)) {
@@ -314,7 +323,7 @@ public class TgWaizhaiService {
     Map<String, List<CurrentMoneyInfo>> finalList = totalList.stream()
         .filter(cmi -> cmi.getShishiJine().contains("-")).collect(Collectors.groupingBy(info -> {
           CurrentMoneyInfo cmi = (CurrentMoneyInfo) info;
-          Player p = DataConstans.membersMap.get(cmi.getWanjiaId());
+          Player p = dataConstants.membersMap.get(cmi.getWanjiaId());
           if (p == null) {
             log.error("玩家" + cmi.getWanjiaId() + ",找不到！");
             return UNKNOW_TG_TEAM;
@@ -326,15 +335,15 @@ public class TgWaizhaiService {
     return finalList;
   }
 
-  private static boolean not_supter_not_sub(CurrentMoneyInfo cmi) {
-    boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
-    boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
+  private boolean not_supter_not_sub(CurrentMoneyInfo cmi) {
+    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
+    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
     return !isSuperId && !isSubId;
   }
 
-  private static boolean superList(CurrentMoneyInfo cmi) {
-    boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
-    boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
+  private boolean superList(CurrentMoneyInfo cmi) {
+    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
+    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
     return isSuperId && !isSubId;
   }
 
@@ -346,7 +355,7 @@ public class TgWaizhaiService {
    * @param tempSuperInfoMap
    * @return
    */
-  private static CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
+  private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
         info.getWanjiaId(), info.getCmiEdu());
     copyInfo.setColor(info.getColor());

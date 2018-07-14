@@ -12,8 +12,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankInfo;
@@ -22,8 +27,17 @@ import com.kendy.entity.ClubQuota;
 import com.kendy.entity.LMSumInfo;
 import com.kendy.entity.QuotaMoneyInfo;
 import com.kendy.excel.ExportQuotaPayExcel;
-import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecord;
+import com.kendy.service.AutoDownloadZJExcelService;
+import com.kendy.service.JifenService;
+import com.kendy.service.MemberService;
+import com.kendy.service.MoneyService;
+import com.kendy.service.ShangmaService;
+import com.kendy.service.TGExportExcelService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
+import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
@@ -40,7 +54,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
  * 处理联盟配额的控制器
@@ -48,11 +61,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
-@Controller
+@Component
 public class QuotaController extends BaseController implements Initializable {
 
 
-  private static Logger log = Logger.getLogger(QuotaController.class);
+  private Logger log = Logger.getLogger(QuotaController.class);
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public LMController lmController; // 联盟控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+
 
   // =====================================================================
   @FXML
@@ -107,58 +129,77 @@ public class QuotaController extends BaseController implements Initializable {
   private TableColumn<ClubBankInfo, String> bankAccountInfo;
 
   // 引用联盟控制类
-  public LMController lmController;
+  //public lmController lmController;
 
-  private static Button _LM_Btn1;// 联盟1
+  private Button _LM_Btn1;// 联盟1
   // 缓存所有俱乐部的银行卡信息
-  public static Map<String, ClubBankModel> allClubBankModels = new HashMap<>();
+  public Map<String, ClubBankModel> allClubBankModels = new HashMap<>();
 
+  
+  public QuotaController() {
+    super();
+  }
+  
   // 从数据库中初始化俱乐部
-  static {
-    allClubBankModels = DBUtil.getAllClubBanks();// 加载 俱乐部银行卡信息数据
+  @PostConstruct
+  public void inits(){
+    // 导入每场战绩时的所有俱乐部记录
+    currentRecordList = lmController.currentRecordList;
+
+    // {俱乐部ID : 俱乐部信息}
+    allClubMap = lmController.allClubMap;
+
+    // {俱乐部ID : 俱乐部每一场信息}
+    eachClubList = lmController.eachClubList;
+
+    // 缓存三个联盟的信息
+    LMTotalList = lmController.LMTotalList;
+
+    LM = lmController.LM;
+    
+    allClubBankModels = dbUtil.getAllClubBanks();// 加载 俱乐部银行卡信息数据
     if (allClubBankModels.isEmpty()) {
-      LMController.allClubMap.values().forEach(club -> {
+      lmController.allClubMap.values().forEach(club -> {
         ClubBankModel model = new ClubBankModel();
         model.setClubId(club.getClubId());
         model.setClubName(club.getName());
         // 刷新缓存
         allClubBankModels.put(club.getClubId(), model);
         // 插入到数据库
-        DBUtil.addOrUpdateClubBank(model);
+        dbUtil.addOrUpdateClubBank(model);
       });
     }
-  }
-
-  public QuotaController() {
-    super();
   }
 
 
   /**
    * @param lmController
    */
-  public QuotaController(LMController lmController) {
-    super();
-    this.lmController = lmController;
-  }
+//  public QuotaController(lmController lmController) {
+//    super();
+//    this.lmController = lmController;
+//  }
+  
+  
+
 
 
 
   Map<String, ClubQuota> single_LM_map = new HashMap<>();
 
   // 导入每场战绩时的所有俱乐部记录
-  public static List<GameRecord> currentRecordList = LMController.currentRecordList;
+  public List<GameRecord> currentRecordList;
 
   // {俱乐部ID : 俱乐部信息}
-  public static Map<String, Club> allClubMap = LMController.allClubMap;
+  public Map<String, Club> allClubMap;
 
   // {俱乐部ID : 俱乐部每一场信息}
-  public static Map<String, List<GameRecord>> eachClubList = LMController.eachClubList;
+  public Map<String, List<GameRecord>> eachClubList;
 
   // 缓存三个联盟的信息
-  public static List<Map<String, List<GameRecord>>> LMTotalList = LMController.LMTotalList;
+  public List<Map<String, List<GameRecord>>> LMTotalList;
 
-  public static final String[] LM = LMController.LM;
+  public  String[] LM;
 
   /**
    * DOM加载完后的事件
@@ -167,7 +208,7 @@ public class QuotaController extends BaseController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
 
     _LM_Btn1 = LM_Btn1;
-    lmController = MyController.lmController;
+    //lmController = MyController.lmController;
 
     // 绑定列值属性及颜色
     bindCellValueByTable(new ClubQuota(), tableQuota);
@@ -179,7 +220,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   }
 
-  public static void autoSelectLM1() {
+  public void autoSelectLM1() {
     if (_LM_Btn1 != null) {
       _LM_Btn1.fire();
     }
@@ -202,7 +243,7 @@ public class QuotaController extends BaseController implements Initializable {
       // Map<String,Map<String,List<ClubQuota>>> totalMap = new HashMap<>();
       int lmType = getCurrentLMType() - 1;
       Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(lmType);// 遍历这三个
-      // LMController lmController= new LMController();
+      // lmController lmController= new lmController();
       Map<String, List<LMSumInfo>> allClubSumMap = lmController.getAllClubSumMap(current_LM_Map);
       allClubSumMap.forEach((clubId, sumList) -> {
         Club club = allClubMap.get(clubId);
@@ -415,7 +456,7 @@ public class QuotaController extends BaseController implements Initializable {
    * @time 2017年12月18日
    */
   private void addNegativeRest2CurrentClub() {
-    String currentClubId = MyController.currentClubId.getText();
+    String currentClubId = myController.currentClubId.getText();
     Club winnerClub = allClubMap.get(currentClubId);// 555551为银河ATM的俱乐部ID
     if (winnerClub == null) {
       // ErrorUtil.err("当前俱乐部"+currentClubId+"不存在！！！请添加！！");
@@ -540,7 +581,7 @@ public class QuotaController extends BaseController implements Initializable {
       bank.setPersonName(personName);
       bank.setPhoneNumber(phoneNumber);
       bank.setBankAccountInfo(bankAccountInfo);
-      DBUtil.addOrUpdateClubBank(bank);
+      dbUtil.addOrUpdateClubBank(bank);
 
       // 往银行信息表添加一条记录
       addClubBank2Table(bank);
@@ -656,7 +697,7 @@ public class QuotaController extends BaseController implements Initializable {
       model.setPersonName(personName);
       model.setPhoneNumber(phoneNumber);
       model.setBankAccountInfo(bankAccountInfo);
-      DBUtil.addOrUpdateClubBank(model);
+      dbUtil.addOrUpdateClubBank(model);
 
       // 更新缓存
       allClubBankModels.put(item.getClubId(), model);
@@ -711,6 +752,11 @@ public class QuotaController extends BaseController implements Initializable {
 
   }
 
+  
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
+  }
 
 
 }

@@ -9,9 +9,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import javax.swing.filechooser.FileSystemView;
-import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import com.kendy.controller.MyController;
+import com.kendy.application.InstancePool;
 import com.kendy.controller.SMAutoController;
 
 /**
@@ -20,17 +21,18 @@ import com.kendy.controller.SMAutoController;
  * @author 林泽涛
  * @time 2018年7月6日 下午9:40:36
  */
-@Service
-public class AutoDownloadZJExcelService {
+@Component
+public class AutoDownloadZJExcelService extends InstancePool{
 
-  private static Logger log = Logger.getLogger(AutoDownloadZJExcelService.class);
+  @Autowired
+  public SMAutoController smAutoController; // 托管控制类
 
-  private static final String DOWN_LOAD_EXCEL_URL =
+  private final String DOWN_LOAD_EXCEL_URL =
       "http://cms.pokermanager.club/cms-api/game/exportGame";
 
-  public static void autoDown(String fileName, String rooId, String token) throws Exception {
+  public void autoDown(String fileName, String rooId, String token) throws Exception {
 
-    SMAutoController smAutoController = MyController.smAutoController;
+    //SMAutoController smAutoController = MyController.smAutoController;
 
     String urlString = String.format("%s?roomId=%s&token=%s", DOWN_LOAD_EXCEL_URL, rooId, token);
 
@@ -45,7 +47,7 @@ public class AutoDownloadZJExcelService {
     download(urlString, path);
   }
 
-  public static String getUserDeskPath() {
+  public String getUserDeskPath() {
     String absolutePath = FileSystemView.getFileSystemView().getHomeDirectory().getAbsolutePath();
     return absolutePath + "\\";
   }
@@ -60,7 +62,7 @@ public class AutoDownloadZJExcelService {
    * @throws Exception
    */
   @SuppressWarnings("resource")
-  public static void download(String url, String path) throws IOException {
+  public void download(String url, String path) throws IOException {
 
     File file = null;
     HttpURLConnection httpCon = null;
@@ -95,7 +97,7 @@ public class AutoDownloadZJExcelService {
    * @return
    * @throws IOException
    */
-  public static byte[] readInputStream(InputStream inputStream) throws IOException {
+  public byte[] readInputStream(InputStream inputStream) throws IOException {
     byte[] buffer = new byte[1024 * 4];
     int len = 0;
     ByteArrayOutputStream bos = new ByteArrayOutputStream();

@@ -8,12 +8,32 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.BankFlowController;
 import com.kendy.controller.BaseController;
+import com.kendy.controller.CombineIDController;
+import com.kendy.controller.GDController;
+import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
+import com.kendy.controller.QuotaController;
+import com.kendy.controller.SMAutoController;
+import com.kendy.controller.TeamProxyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.TGCompanyModel;
+import com.kendy.service.AutoDownloadZJExcelService;
+import com.kendy.service.JifenService;
+import com.kendy.service.MemberService;
+import com.kendy.service.MoneyService;
+import com.kendy.service.ShangmaService;
+import com.kendy.service.TGExportExcelService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
+import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.ShowUtil;
@@ -33,10 +53,17 @@ import javafx.scene.control.TextField;
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
-@Controller
+@Component
 public class TGAddCompanyController extends BaseController implements Initializable {
 
-  private static Logger log = Logger.getLogger(TGAddCompanyController.class);
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public MyController myController ;
+  @Autowired
+  public TGController tgController; // 托管控制类
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
 
   @FXML
   private TextField tg_company_field; // 托管公司名称
@@ -95,7 +122,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initGudongTeamMap() {
-    List<Huishui> allTeamHS = DBUtil.getAllTeamHS();
+    List<Huishui> allTeamHS = dbUtil.getAllTeamHS();
     if (CollectUtil.isHaveValue(allTeamHS)) {
       gudongTeamMap = allTeamHS.stream().collect(Collectors.groupingBy(Huishui::getGudong));
     }
@@ -108,7 +135,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
    */
   private void initGudongChoice() {
     try {
-      ObservableList<String> gudongList = MyController.getGudongList();
+      ObservableList<String> gudongList = myController.getGudongList();
       if (CollectUtil.isHaveValue(gudongList)) {
         gudongChoice.setItems(gudongList);
         // 监听
@@ -193,7 +220,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
   private TGCompanyModel getSubmitData() {
     TGCompanyModel tgCompnayModel = new TGCompanyModel(tg_company_field.getText().trim(),
         companyRateField.getText(), tgCompanyRateField.getText(), yajin.getText(), edu.getText(),
-        "", MyController.currentClubId.getText(), "0");
+        "", myController.currentClubId.getText(), "0");
     tgCompnayModel.setBeizhu(gudongChoice.getSelectionModel().getSelectedItem());
     ObservableList<String> items = tg_team_view.getItems();
     if (CollectUtil.isHaveValue(items)) {
@@ -220,15 +247,21 @@ public class TGAddCompanyController extends BaseController implements Initializa
     // 保存到数据库由主控制类去刷新全部
     TGCompanyModel tgCompanyModel = getSubmitData();
 
-    DBUtil.saveOrUpdate_tg_company(tgCompanyModel);
+    dbUtil.saveOrUpdate_tg_company(tgCompanyModel);
     ShowUtil.show("添加成功", 1);
 
-    TGController tgController = MyController.tgController;
+    //TGController tgController = MyController.tgController;
     tgController.loadDataLastest();
     // ObservableList<Node> companyList = tgController.TG_Company_VBox.getChildren();
     // if(CollectUtil.isHaveValue(companyList)) {
     // companyList.add(new Button(tgCompanyModel.getTgCompanyName()));
     // }
+  }
+  
+  
+  @Override
+  public Class<?> getSubClass() {
+    return getClass();
   }
 
 }

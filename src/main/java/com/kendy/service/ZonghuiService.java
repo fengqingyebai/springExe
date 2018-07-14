@@ -5,11 +5,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
+import com.kendy.db.DBUtil;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.DangtianHuizongInfo;
 import com.kendy.entity.KaixiaoInfo;
@@ -29,21 +34,33 @@ import javafx.scene.control.TableView;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:50:55
  */
-@Service
-public class ZonghuiService {
+@Component
+public class ZonghuiService extends InstancePool{
 
-  private static Logger log = Logger.getLogger(ZonghuiService.class);
+  private Logger log = Logger.getLogger(ZonghuiService.class);
+  
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+  @Autowired
+  public MoneyService moneyService; // 
+  @Autowired
+  public BaseController baseController ;
+  @Autowired
+  public MyController myController ;
+  
 
-  public static DecimalFormat df = new DecimalFormat("#.00");
+  public DecimalFormat df = new DecimalFormat("#.00");
 
 
   /**
    * 刷新汇总信息表
    */
-  public static void refreHuizongTable(TableView<ZonghuiInfo> tableZonghui,
+  public void refreHuizongTable(TableView<ZonghuiInfo> tableZonghui,
       TableView<DangtianHuizongInfo> tableDangtianHuizong,
       TableView<ZonghuiKaixiaoInfo> tableZonghuiKaixiao, TableView<ProfitInfo> tableProfit) {
-    Map<String, Map<String, String>> lockedMap = DataConstans.All_Locked_Data_Map;
+    Map<String, Map<String, String>> lockedMap = dataConstants.All_Locked_Data_Map;
     ZonghuiInfo zonghuiInfo = new ZonghuiInfo();
     ObservableList<ZonghuiInfo> obList = FXCollections.observableArrayList();
     ObservableList<DangtianHuizongInfo> obSumList = FXCollections.observableArrayList();
@@ -54,7 +71,7 @@ public class ZonghuiService {
       // 主表复值
       for (Map.Entry<String, Map<String, String>> entry : lockedMap.entrySet()) {
         String keyOfJu = entry.getKey();// 页数第几局
-        String tableId = DataConstans.Index_Table_Id_Map.get(keyOfJu) + "";
+        String tableId = dataConstants.Index_Table_Id_Map.get(keyOfJu) + "";
         Map<String, String> valueMap = entry.getValue();
         String jsonString = valueMap.get("当局");
         // [{"money":"37.1","type":"服务费"},{"money":"295.4","type":"保险"},{"money":"-18.0","type":"团队回水"},{"money":"-0.0","type":"团队回保"}]
@@ -112,7 +129,7 @@ public class ZonghuiService {
    * @param tableProfit 利润表
    * @return
    */
-  public static Double getTeamSumFWF(TableView<ProfitInfo> tableProfit) {
+  public Double getTeamSumFWF(TableView<ProfitInfo> tableProfit) {
     Double teamSumFWF = 0d;
     teamSumFWF = getTodayTotalTeamFWF();
     return teamSumFWF;
@@ -121,19 +138,19 @@ public class ZonghuiService {
   /**
    * 总汇Tab中的开销表赋值
    */
-  public static String initTableKaixiaoAndGetSum(
+  public String initTableKaixiaoAndGetSum(
       TableView<ZonghuiKaixiaoInfo> tableZonghuiKaixiao) {
     ObservableList<ZonghuiKaixiaoInfo> obList = FXCollections.observableArrayList();
-    Map<String, Map<String, String>> lockedMap = DataConstans.All_Locked_Data_Map;
+    Map<String, Map<String, String>> lockedMap = dataConstants.All_Locked_Data_Map;
     String sumOfKaixiao = "0";
     if (lockedMap.size() > 0) {
-      Map<String, String> map = lockedMap.get(DataConstans.Index_Table_Id_Map.size() + "");
-      List<KaixiaoInfo> KaixiaoInfoList = JSON.parseObject(MoneyService.getJsonString(map, "实时开销"),
+      Map<String, String> map = lockedMap.get(dataConstants.Index_Table_Id_Map.size() + "");
+      List<KaixiaoInfo> KaixiaoInfoList = JSON.parseObject(moneyService.getJsonString(map, "实时开销"),
           new TypeReference<List<KaixiaoInfo>>() {});
       for (KaixiaoInfo infos : KaixiaoInfoList) {
         obList.add(new ZonghuiKaixiaoInfo(infos.getKaixiaoType(), infos.getKaixiaoMoney()));
       }
-      sumOfKaixiao = MoneyService.getJsonString(map, "实时开销总和");
+      sumOfKaixiao = moneyService.getJsonString(map, "实时开销总和");
       tableZonghuiKaixiao.getColumns().get(1).setText(sumOfKaixiao);
     }
     tableZonghuiKaixiao.setItems(obList);
@@ -150,10 +167,10 @@ public class ZonghuiService {
    * @time 2018年2月7日
    */
   @SuppressWarnings("unchecked")
-  private static Double getTodayTotalTeamFWF() {
+  private Double getTodayTotalTeamFWF() {
     Double yesterday_diff_today_total_team_fwf_sum = 0d;
     List<ProfitInfo> profitList;
-    String profit = DataConstans.preDataMap.get("利润");
+    String profit = dataConstants.preDataMap.get("利润");
     if (StringUtil.isBlank(profit)) {
       profitList = Collections.EMPTY_LIST;
     } else {
@@ -162,7 +179,7 @@ public class ZonghuiService {
     String yestoday = profitList.stream().filter(info -> "总团队服务费".equals(info.getProfitType()))
         .map(info -> info.getProfitAccount()).findFirst().orElse("0");
 
-    String now = MyController.table_Profit.getItems().stream()
+    String now = myController.table_Profit.getItems().stream()
         .filter(info -> "总团队服务费".equals(info.getProfitType())).map(info -> info.getProfitAccount())
         .findFirst().orElse("0");
 

@@ -17,8 +17,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
@@ -52,17 +55,31 @@ import com.kendy.util.TimeUtil;
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:17
  */
+@Component
 public class DBUtil {
-  private static Logger loger = LoggerFactory.getLogger(DBUtil.class);
+  private Logger loger = LoggerFactory.getLogger(DBUtil.class);
 
-  private static Connection con = null;
-  private static PreparedStatement ps = null;
-  private static String sql;
+  private Connection con = null;
+  private PreparedStatement ps = null;
+  private String sql;
+  
+  /**
+   * 
+   */
+  public DBUtil() {
+    super();
+    loger.info("正在初始化DBUtil构造方法");
+  }
+  
+  @PostConstruct
+  public void inits() {
+    loger.info("正在初始化DBUtil构造方法后的初始化");
+  }
 
   /**
    * 积分查询
    */
-  public static List<JifenInfo> getJifenQuery(String jifenValue, String teamId, String startTime,
+  public List<JifenInfo> getJifenQuery(String jifenValue, String teamId, String startTime,
       String endTime, String limit) {
     List<JifenInfo> list = new LinkedList<>();
     try {
@@ -100,7 +117,7 @@ public class DBUtil {
    * @param playerId
    * @return
    */
-  public static String getTotalZJByPId(String playerId) {
+  public String getTotalZJByPId(String playerId) {
     try {
       con = DBConnection.getConnection();
       String sql = "SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (" + GAME_RECORD_SQL
@@ -125,7 +142,7 @@ public class DBUtil {
 
 
   // 删除一条人员名单---未测试
-  public static void delMember(final String playerId) {
+  public void delMember(final String playerId) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -147,7 +164,7 @@ public class DBUtil {
    * @time 2017年11月14日
    * @param playerId
    */
-  public static void delMembers_after_delTeam(final String teamId) {
+  public void delMembers_after_delTeam(final String teamId) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -164,7 +181,7 @@ public class DBUtil {
   }
 
   // 删除一条团队
-  public static void delHuishui(final String teamId) {
+  public void delHuishui(final String teamId) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -182,7 +199,7 @@ public class DBUtil {
 
 
   // 插入一条人员名单---未测试
-  public static void addMember(final Player player) {
+  public void addMember(final Player player) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -209,7 +226,7 @@ public class DBUtil {
    * @param playerId
    * @return
    */
-  public static Player getMemberById(String playerId) {
+  public Player getMemberById(String playerId) {
     Player player = new Player();
     if (StringUtil.isBlank(playerId))
       return player;
@@ -245,7 +262,7 @@ public class DBUtil {
    * @time 2017年10月31日
    * @param player 玩家信息
    */
-  public static void saveOrUpdate(final Player player) {
+  public void saveOrUpdate(final Player player) {
 
     if (isHasMember(player.getgameId())) {
       updateMember(player);
@@ -262,7 +279,7 @@ public class DBUtil {
    * @param playerId 玩家ID
    * @return
    */
-  public static boolean isHasMember(String playerId) {
+  public boolean isHasMember(String playerId) {
     boolean hasMember = false;
     try {
       // 获取数据
@@ -286,7 +303,7 @@ public class DBUtil {
   }
 
   // 修改人员名单---未测试
-  public static void updateMember(final Player player) {
+  public void updateMember(final Player player) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -314,7 +331,7 @@ public class DBUtil {
    * @time 2017年11月19日
    * @param map
    */
-  public static void insertMembers(final Map<String, Player> map) {
+  public void insertMembers(final Map<String, Player> map) {
     if (map != null && map.size() > 0) {
       String incorrectPlayerName = "";
       long start = System.currentTimeMillis();
@@ -363,7 +380,7 @@ public class DBUtil {
   }
 
   // 导入昨日留底数据（仅在导入和锁定最后一场时用到）
-  public static void insertPreData(String dataTime, String preData) {
+  public void insertPreData(String dataTime, String preData) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -407,9 +424,9 @@ public class DBUtil {
    * 
    * @author 小林
    */
-  public static String Load_Date = "";
+  public String Load_Date = "";
 
-  public static Map<String, String> getLastPreData() {
+  public Map<String, String> getLastPreData() {
     Map<String, String> map = new HashMap<>();
     try {
       // 获取数据
@@ -457,7 +474,7 @@ public class DBUtil {
    * @param dataTime
    * @param preData
    */
-  public static Map<String, String> getLastLockedData() {
+  public Map<String, String> getLastLockedData() {
     Map<String, String> map = new HashMap<>();
     try {
       // 获取数据
@@ -522,7 +539,7 @@ public class DBUtil {
    * @param hs
    * @return
    */
-  public static boolean addTeamHS(final Huishui hs) {
+  public boolean addTeamHS(final Huishui hs) {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
@@ -561,7 +578,7 @@ public class DBUtil {
    * @param teamHsRate
    * @return
    */
-  public static boolean updateTeamHsRate(String teamId, String teamHsRate) {
+  public boolean updateTeamHsRate(String teamId, String teamHsRate) {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
@@ -590,7 +607,7 @@ public class DBUtil {
    * @param teamHsRate
    * @return
    */
-  public static boolean updateTeamHsBaoxianRate(String teamId, String teamHsRate) {
+  public boolean updateTeamHsBaoxianRate(String teamId, String teamHsRate) {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
@@ -617,7 +634,7 @@ public class DBUtil {
    * @param teamGD
    * @return
    */
-  public static boolean updateTeamHsGudong(String teamId, String teamGD) {
+  public boolean updateTeamHsGudong(String teamId, String teamGD) {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
@@ -645,7 +662,7 @@ public class DBUtil {
    * @param teamEdu
    * @return
    */
-  public static boolean updateTeamYajinAndEdu(String teamId, String teamYajin, String teamEdu,
+  public boolean updateTeamYajinAndEdu(String teamId, String teamYajin, String teamEdu,
       String teamAvailabel) {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
@@ -675,7 +692,7 @@ public class DBUtil {
    * @param teamHsRate
    * @return
    */
-  public static boolean updateTeamHsShowInsure(String teamId, String showInsure) {
+  public boolean updateTeamHsShowInsure(String teamId, String showInsure) {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
@@ -701,7 +718,7 @@ public class DBUtil {
    * @time 2018年1月5日
    * @param hs
    */
-  public static void updateTeamHS(final Huishui hs) {
+  public void updateTeamHS(final Huishui hs) {
     try {
       con = DBConnection.getConnection();
       String sql = "update teamhs set teamName=?,huishuiRate=?,insuranceRate=?,"
@@ -736,7 +753,7 @@ public class DBUtil {
    * @time 2017年11月19日
    * @param map
    */
-  public static void insertTeamHS(final Map<String, Huishui> map) {
+  public void insertTeamHS(final Map<String, Huishui> map) {
     if (map != null && map.size() > 0) {
       try {
         con = DBConnection.getConnection();
@@ -782,11 +799,11 @@ public class DBUtil {
   /**
    * 锁定时保存所有缓存数据 备注：如果插入到一半失败了呢，后期考虑引入事务
    */
-  public static int saveLastLockedData() {
+  public int saveLastLockedData(int ju_size, String json_all_locked_data, int ju_size2, String  lastDataDetailJson) {
     int lockedIndex = 0;
-    Map<String, String> lastLockedDataMap = DataConstans.getLockedDataMap();// 这里没有场次信息的数据了
-    String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
-    int ju_size = DataConstans.Index_Table_Id_Map.size();
+//    Map<String, String> lastLockedDataMap = dataConstants.getLockedDataMap();// 这里没有场次信息的数据了
+//    String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
+//    int ju_size = dataConstants.Index_Table_Id_Map.size();
     try {
       loger.info("================插入锁定数据进数据库...开始");
       con = DBConnection.getConnection();
@@ -809,7 +826,7 @@ public class DBUtil {
       lockedIndex = ju_size;
 
       // 单独保存最后一场的详细数据
-      saveLastLockedDataDetail();
+      saveLastLockedDataDetail(ju_size2, lastDataDetailJson);
       return lockedIndex;
     } catch (SQLException e) {
       if (e.getMessage().contains("Incorrect")) {
@@ -828,12 +845,12 @@ public class DBUtil {
    * 
    * @time 2018年4月30日
    */
-  private static void saveLastLockedDataDetail() {
+  private void saveLastLockedDataDetail(int ju_size, String lastDataDetailJson) {
     try {
-      int ju_size = DataConstans.Paiju_Index.get() - 1;
-      loger.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
-      Map<String, String> lastDataDetailMap = DataConstans.All_Locked_Data_Map.get(ju_size + "");
-      String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
+//      int ju_size = dataConstants.Paiju_Index.get() - 1;
+//      loger.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
+//      Map<String, String> lastDataDetailMap = dataConstants.All_Locked_Data_Map.get(ju_size + "");
+//      String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
       sql = "replace into last_locked_data_detail values(?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, ju_size + "");
@@ -847,7 +864,7 @@ public class DBUtil {
 
   }
 
-  public static <K, V> Entry<K, V> getTail(LinkedHashMap<K, V> map) {
+  public <K, V> Entry<K, V> getTail(LinkedHashMap<K, V> map) {
     Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
     Entry<K, V> tail = null;
     while (iterator.hasNext()) {
@@ -862,7 +879,7 @@ public class DBUtil {
    * 
    * @return
    */
-  public static List<Player> getAllMembers() {
+  public List<Player> getAllMembers() {
     List<Player> result = new ArrayList<Player>();
     try {
       con = DBConnection.getConnection();
@@ -894,7 +911,7 @@ public class DBUtil {
    * 
    * @return
    */
-  public static List<Huishui> getAllTeamHS() {
+  public List<Huishui> getAllTeamHS() {
     List<Huishui> result = new ArrayList<Huishui>();
     try {
       con = DBConnection.getConnection();
@@ -931,13 +948,13 @@ public class DBUtil {
 
 
   /******************************************************** 关闭流 ******/
-  public static void close(Connection c, Statement s) {
+  public void close(Connection c, Statement s) {
     close(c);
     close(s);
 
   }
 
-  public static void close(Connection c) {
+  public void close(Connection c) {
     if (c != null) {
       try {
         c.close();
@@ -947,7 +964,7 @@ public class DBUtil {
     }
   }
 
-  public static void close(Statement s) {
+  public void close(Statement s) {
     if (s != null) {
       try {
         s.close();
@@ -958,9 +975,9 @@ public class DBUtil {
   }
 
 
-  public static Set<String> daySet = new LinkedHashSet<>();
+  public Set<String> daySet = new LinkedHashSet<>();
 
-  public static boolean isPreData2017VeryFirst() {
+  public boolean isPreData2017VeryFirst() {
     return "2017-01-01".equals(Load_Date) ? true : false;
   }
 
@@ -969,7 +986,7 @@ public class DBUtil {
    * 
    * @return
    */
-  public static boolean clearAllData() {
+  public boolean clearAllData() {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
@@ -1020,7 +1037,7 @@ public class DBUtil {
    * 
    * @return
    */
-  public static boolean handle_last_locked_data() {
+  public boolean handle_last_locked_data() {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
@@ -1047,7 +1064,7 @@ public class DBUtil {
   }
 
   // 获取已锁定数据最大的牌局
-  private static int getMaxJu() {
+  private int getMaxJu() {
     int maxJu = 0;
     try {
       con = DBConnection.getConnection();
@@ -1066,7 +1083,7 @@ public class DBUtil {
   }
 
   // 结束今天统计时更新已锁定数据
-  private static void update_last_locked_data(int maxJu) {
+  private void update_last_locked_data(int maxJu) {
     try {
       con = DBConnection.getConnection();
       String sql = "update last_locked_data set ju = 0 where ju = ?";
@@ -1092,7 +1109,7 @@ public class DBUtil {
    * @time 2017年11月4日
    * @return
    */
-  public static Map<String, Set<String>> getCombineData() {
+  public Map<String, Set<String>> getCombineData() {
     Map<String, Set<String>> combineMap = new HashMap<>();
     try {
       con = DBConnection.getConnection();
@@ -1123,8 +1140,8 @@ public class DBUtil {
    * @param parentId 父ID
    * @return
    */
-  public static boolean saveOrUpdateCombineId(String parentId) {
-    Set<String> subIdSet = DataConstans.Combine_Super_Id_Map.get(parentId);
+  public boolean saveOrUpdateCombineId(String parentId, Set<String> subIdSet) {
+    //Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(parentId);
     boolean hasCombineRelation = isHasCombineId(parentId);
     if (subIdSet.size() == 0 && hasCombineRelation) {// 针对没有子ID集合的更新关系应该是删除此合并关系
       cancelCombineId(parentId);
@@ -1151,7 +1168,7 @@ public class DBUtil {
    * @param time 更新时间
    * @return
    */
-  public static boolean updateCombineId(String superId, String subIdJson, String time) {
+  public boolean updateCombineId(String superId, String subIdJson, String time) {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
@@ -1182,7 +1199,7 @@ public class DBUtil {
    * @param time 更新时间
    * @return
    */
-  public static boolean addNewCombineId(String parentId, String subIdJson, String time) {
+  public boolean addNewCombineId(String parentId, String subIdJson, String time) {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
@@ -1210,7 +1227,7 @@ public class DBUtil {
    * @param playerId 玩家ID
    * @return
    */
-  public static boolean isHasCombineId(String parentId) {
+  public boolean isHasCombineId(String parentId) {
     boolean hasCombineId = false;
     try {
       // 获取数据
@@ -1239,7 +1256,7 @@ public class DBUtil {
    * @time 2017年11月4日
    * @param parentId
    */
-  public static void cancelCombineId(String parentId) {
+  public void cancelCombineId(String parentId) {
     if (isHasCombineId(parentId)) {
       try {
         con = DBConnection.getConnection();
@@ -1261,7 +1278,7 @@ public class DBUtil {
    * @time 2017年11月12日
    * @return 1:开始新一天按钮 2:中途继续按钮
    */
-  public static int newStaticOrContinue() {
+  public int newStaticOrContinue() {
     int buttonCode = 1;
     try {
       // 获取数据
@@ -1296,7 +1313,7 @@ public class DBUtil {
    * @time 2017年11月24日
    * @return
    */
-  public static Map<String, Club> getAllClub() {
+  public Map<String, Club> getAllClub() {
     Map<String, Club> map = new HashMap<>();
     try {
       con = DBConnection.getConnection();
@@ -1333,7 +1350,7 @@ public class DBUtil {
    * @time 2017年11月22日
    * @param id 俱乐部ID
    */
-  public static void delClub(final String id) {
+  public void delClub(final String id) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -1358,7 +1375,7 @@ public class DBUtil {
    * @time 2018年2月21日
    * @param id
    */
-  public static void reset_clubZhuofei_to_0() {
+  public void reset_clubZhuofei_to_0() {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -1381,7 +1398,7 @@ public class DBUtil {
    * @param club
    * @param lmType 哪个联盟
    */
-  public static void addClub(final Club club) {
+  public void addClub(final Club club) {
     try {
       // 数据库中没有则添加
       con = DBConnection.getConnection();
@@ -1418,7 +1435,7 @@ public class DBUtil {
    * @return
    * @throws Exception
    */
-  public static boolean isHasClub(String id) throws Exception {
+  public boolean isHasClub(String id) throws Exception {
     if (StringUtil.isBlank(id))
       return false;
 
@@ -1452,7 +1469,7 @@ public class DBUtil {
    * @param club
    * @return
    */
-  public static boolean updateClub(final Club club) {
+  public boolean updateClub(final Club club) {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
@@ -1489,7 +1506,7 @@ public class DBUtil {
    * @param club
    * @throws Exception
    */
-  public static void saveOrUpdateClub(final Club club) throws Exception {
+  public void saveOrUpdateClub(final Club club) throws Exception {
     if (isHasClub(club.getClubId())) {
       updateClub(club);
     } else {
@@ -1504,7 +1521,7 @@ public class DBUtil {
    * @param player
    * @throws SQLException
    */
-  public static void clearAllClub_ZF_YiJiSuan() {
+  public void clearAllClub_ZF_YiJiSuan() {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -1527,7 +1544,7 @@ public class DBUtil {
    * @time 2017年11月14日
    * @param playerId
    */
-  public static void del_all_record() {
+  public void del_all_record() {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -1549,7 +1566,7 @@ public class DBUtil {
    * @time 2017年11月14日
    * @param playerId
    */
-  public static void del_all_record_and_zhuofei_and_kaixiao() {
+  public void del_all_record_and_zhuofei_and_kaixiao() {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -1559,8 +1576,8 @@ public class DBUtil {
       ps.execute();
 
       // add 2018 - 3 -17
-      DBUtil.del_all_club_zhuofei();
-      DBUtil.del_all_gudong_kaixiao();
+      this.del_all_club_zhuofei();
+      this.del_all_gudong_kaixiao();
     } catch (SQLException e) {
       ErrorUtil.err("清空所有统计信息失败", e);
     } finally {
@@ -1576,7 +1593,7 @@ public class DBUtil {
   /**
    * 增加或修改俱乐部银行卡信息
    */
-  public static boolean addOrUpdateClubBank(final ClubBankModel bank) {
+  public boolean addOrUpdateClubBank(final ClubBankModel bank) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -1607,7 +1624,7 @@ public class DBUtil {
    * @time 2017年12月18日
    * @return
    */
-  public static Map<String, ClubBankModel> getAllClubBanks() {
+  public Map<String, ClubBankModel> getAllClubBanks() {
     Map<String, ClubBankModel> map = new HashMap<>();
     try {
       con = DBConnection.getConnection();
@@ -1645,7 +1662,7 @@ public class DBUtil {
    * @time 2018年2月3日
    * @return
    */
-  public static String getValueByKey(final String key) {
+  public String getValueByKey(final String key) {
     String value = "{}";
     try {
       con = DBConnection.getConnection();
@@ -1664,7 +1681,7 @@ public class DBUtil {
   }
 
 
-  public static String getValueByKeyWithoutJson(final String key) {
+  public String getValueByKeyWithoutJson(final String key) {
     String value = "";
     try {
       con = DBConnection.getConnection();
@@ -1688,7 +1705,7 @@ public class DBUtil {
    * @time 2018年1月29日
    * @param key
    */
-  public static void delValueByKey(final String key) {
+  public void delValueByKey(final String key) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -1712,7 +1729,7 @@ public class DBUtil {
    * @param value
    * @return
    */
-  public static boolean saveOrUpdateOthers(final String key, final String value) {
+  public boolean saveOrUpdateOthers(final String key, final String value) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -1739,7 +1756,7 @@ public class DBUtil {
    * @param key
    * @param value
    */
-  public static void addValue(final String key, final String value) {
+  public void addValue(final String key, final String value) {
     try {
       // 数据库中没有则添加
       con = DBConnection.getConnection();
@@ -1769,7 +1786,7 @@ public class DBUtil {
    * @param nextday
    * @return
    */
-  public static boolean saveOrUpdate_SM_nextday(final ShangmaNextday nextday) {
+  public boolean saveOrUpdate_SM_nextday(final ShangmaNextday nextday) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -1800,7 +1817,7 @@ public class DBUtil {
    * @time 2018年2月5日
    * @return
    */
-  public static List<ShangmaNextday> getAllSM_nextday() {
+  public List<ShangmaNextday> getAllSM_nextday() {
     List<ShangmaNextday> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -1832,7 +1849,7 @@ public class DBUtil {
    * @param bank
    * @return
    */
-  public static boolean setNextDayLoaded() {
+  public boolean setNextDayLoaded() {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -1862,7 +1879,7 @@ public class DBUtil {
    * @param zhuofei
    * @return
    */
-  public static boolean saveOrUpdate_club_zhuofei(final ClubZhuofei zhuofei) {
+  public boolean saveOrUpdate_club_zhuofei(final ClubZhuofei zhuofei) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -1890,7 +1907,7 @@ public class DBUtil {
    * @time 2018年2月11日
    * @return
    */
-  public static List<ClubZhuofei> get_LM1_all_club_zhuofei() {
+  public List<ClubZhuofei> get_LM1_all_club_zhuofei() {
     List<ClubZhuofei> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -1918,7 +1935,7 @@ public class DBUtil {
    * @time 2018年2月11日
    * @param key
    */
-  public static void del_all_club_zhuofei() {
+  public void del_all_club_zhuofei() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from club_zhuofei ";
@@ -1940,7 +1957,7 @@ public class DBUtil {
    * 保存或修改股东开销
    * 
    */
-  public static boolean saveOrUpdate_gudong_kaixiao(final KaixiaoInfo kaixiao) {
+  public boolean saveOrUpdate_gudong_kaixiao(final KaixiaoInfo kaixiao) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -1970,7 +1987,7 @@ public class DBUtil {
    * @time 2018年2月21日
    * @return
    */
-  public static List<KaixiaoInfo> get_all_gudong_kaixiao() {
+  public List<KaixiaoInfo> get_all_gudong_kaixiao() {
     List<KaixiaoInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -1996,7 +2013,7 @@ public class DBUtil {
    * @time 2018年2月21日
    * @param key
    */
-  public static void del_all_gudong_kaixiao() {
+  public void del_all_gudong_kaixiao() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from gudong_kaixiao ";
@@ -2015,7 +2032,7 @@ public class DBUtil {
    * @time 2018年2月21日
    * @param key
    */
-  public static void del_gudong_kaixiao_by_id(String kaixiaoID) {
+  public void del_gudong_kaixiao_by_id(String kaixiaoID) {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from gudong_kaixiao where kaixiaoID like '" + kaixiaoID + "%'";
@@ -2039,7 +2056,7 @@ public class DBUtil {
    * 保存或修改托管开销表
    * 
    */
-  public static boolean saveOrUpdate_tg_kaixiao(final TGKaixiaoInfo kaixiao) {
+  public boolean saveOrUpdate_tg_kaixiao(final TGKaixiaoInfo kaixiao) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -2070,7 +2087,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @return
    */
-  public static List<TGKaixiaoInfo> get_all_tg_kaixiao() {
+  public List<TGKaixiaoInfo> get_all_tg_kaixiao() {
     List<TGKaixiaoInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2096,7 +2113,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_all_tg_kaixiao() {
+  public void del_all_tg_kaixiao() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_kaixiao ";
@@ -2115,7 +2132,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_tg_kaixiao_by_id(String kaixiaoID) {
+  public void del_tg_kaixiao_by_id(String kaixiaoID) {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_kaixiao where tg_id = '" + kaixiaoID + "'";
@@ -2137,7 +2154,7 @@ public class DBUtil {
    * 保存或修改玩家备注表
    * 
    */
-  public static boolean saveOrUpdate_tg_comment(final TGCommentInfo comment) {
+  public boolean saveOrUpdate_tg_comment(final TGCommentInfo comment) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -2171,7 +2188,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @return
    */
-  public static List<TGCommentInfo> get_all_tg_comment() {
+  public List<TGCommentInfo> get_all_tg_comment() {
     List<TGCommentInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2199,7 +2216,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_all_tg_comment() {
+  public void del_all_tg_comment() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_comment ";
@@ -2218,7 +2235,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_tg_comment_by_id(String commentID) {
+  public void del_tg_comment_by_id(String commentID) {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_comment where id = '" + commentID + "'";
@@ -2240,7 +2257,7 @@ public class DBUtil {
    * 保存或修改托管公司表
    * 
    */
-  public static boolean saveOrUpdate_tg_company(final TGCompanyModel company) {
+  public boolean saveOrUpdate_tg_company(final TGCompanyModel company) {
     boolean isOK = false;
 
     try {
@@ -2275,7 +2292,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @return
    */
-  public static List<TGCompanyModel> get_all_tg_company() {
+  public List<TGCompanyModel> get_all_tg_company() {
     List<TGCompanyModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2309,7 +2326,7 @@ public class DBUtil {
    * @param clubId
    * @return
    */
-  public static List<TGCompanyModel> get_all_tg_company_By_clubId(String clubId) {
+  public List<TGCompanyModel> get_all_tg_company_By_clubId(String clubId) {
     List<TGCompanyModel> list = new ArrayList<>();
     if (StringUtil.isBlank(clubId)) {
       ShowUtil.show("当前俱乐部ID为空，请检查！", 2);
@@ -2346,7 +2363,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_all_tg_company() {
+  public void del_all_tg_company() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_company ";
@@ -2360,7 +2377,7 @@ public class DBUtil {
   }
 
 
-  public static TGCompanyModel get_tg_company_by_id(String company) {
+  public TGCompanyModel get_tg_company_by_id(String company) {
     TGCompanyModel model = null;
     try {
       con = DBConnection.getConnection();
@@ -2386,7 +2403,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_tg_company_by_id(String companyName) {
+  public void del_tg_company_by_id(String companyName) {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_company where tg_company_name = '" + companyName + "'";
@@ -2410,7 +2427,7 @@ public class DBUtil {
    * 保存或修改团队比例表
    * 
    */
-  public static boolean saveOrUpdate_tg_team(final TGTeamModel team) {
+  public boolean saveOrUpdate_tg_team(final TGTeamModel team) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -2440,7 +2457,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @return
    */
-  public static List<TGTeamModel> get_all_tg_team() {
+  public List<TGTeamModel> get_all_tg_team() {
     List<TGTeamModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2461,7 +2478,7 @@ public class DBUtil {
     return list;
   }
 
-  public static TGTeamModel get_tg_team_by_id(String teamId) {
+  public TGTeamModel get_tg_team_by_id(String teamId) {
     TGTeamModel model = null;
     try {
       con = DBConnection.getConnection();
@@ -2487,7 +2504,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_all_tg_team() {
+  public void del_all_tg_team() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_team ";
@@ -2506,7 +2523,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static void del_tg_team_by_id(String teamId) {
+  public void del_tg_team_by_id(String teamId) {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from tg_comment where tg_team_id = '" + teamId + "'";
@@ -2528,7 +2545,7 @@ public class DBUtil {
    * 保存或修改托管日利润表
    * 
    */
-  public static boolean saveOrUpdate_tg_lirun(final TGLirunInfo lirun) {
+  public boolean saveOrUpdate_tg_lirun(final TGLirunInfo lirun) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -2564,7 +2581,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @return
    */
-  public static List<TGLirunInfo> get_all_tg_lirun(String tgCompany) {
+  public List<TGLirunInfo> get_all_tg_lirun(String tgCompany) {
     List<TGLirunInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2591,7 +2608,7 @@ public class DBUtil {
    * @time 2018年3月4日
    * @param key
    */
-  public static boolean del_all_tg_lirun() {
+  public boolean del_all_tg_lirun() {
     boolean delOK = false;
     try {
       con = DBConnection.getConnection();
@@ -2613,7 +2630,7 @@ public class DBUtil {
    * 
    * @time 2018年4月30日
    */
-  public static void del_all_locked_data_details() {
+  public void del_all_locked_data_details() {
     try {
       con = DBConnection.getConnection();
       String sql = "delete from last_locked_data_detail ";
@@ -2636,7 +2653,7 @@ public class DBUtil {
   /**
    * 保存银行流水表
    */
-  public static boolean saveHistoryBankMoney(final BankFlowModel moneyModel) {
+  public boolean saveHistoryBankMoney(final BankFlowModel moneyModel) {
     boolean isOK = false;
     try {
       con = DBConnection.getConnection();
@@ -2665,7 +2682,7 @@ public class DBUtil {
    * @param tgCompany
    * @return
    */
-  public static List<BankFlowModel> getAllHistoryBankMoney() {
+  public List<BankFlowModel> getAllHistoryBankMoney() {
     List<BankFlowModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2694,7 +2711,7 @@ public class DBUtil {
    * 
    ***********************************************************************************************/
 
-  private static final String GAME_RECORD_SQL =
+  private final String GAME_RECORD_SQL =
       "select r.*, m.playerName, m.teamId, c.name from  game_record r left join members m on r.playerId = m.playerId left join club c on r.clubId = c.clubId ";
 
   /**
@@ -2702,7 +2719,7 @@ public class DBUtil {
    * 
    * @throws Exception
    */
-  public static void addGameRecord(final GameRecord record) throws Exception {
+  public void addGameRecord(final GameRecord record) throws Exception {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -2740,7 +2757,7 @@ public class DBUtil {
    * @param map
    * @throws Exception
    */
-  public static void addGameRecordList(final List<GameRecord> recordList) throws Exception {
+  public void addGameRecordList(final List<GameRecord> recordList) throws Exception {
     if (CollectUtil.isHaveValue(recordList)) {
       long start = System.currentTimeMillis();
       for (GameRecord record : recordList) {
@@ -2757,7 +2774,7 @@ public class DBUtil {
    * @time 2017年11月25日
    * @return
    */
-  public static String getMaxGameRecordTime() {
+  public String getMaxGameRecordTime() {
     String maxRecordTime = "";
     try {
       con = DBConnection.getConnection();
@@ -2782,7 +2799,7 @@ public class DBUtil {
    * @param maxRecordTime
    * @return
    */
-  public static List<GameRecord> getGameRecordsByMaxTime(String maxRecordTime) {
+  public List<GameRecord> getGameRecordsByMaxTime(String maxRecordTime) {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2799,7 +2816,7 @@ public class DBUtil {
     return list;
   }
 
-  private static List<GameRecord> getGameRecordResult(ResultSet rs) throws Exception {
+  private List<GameRecord> getGameRecordResult(ResultSet rs) throws Exception {
     List<GameRecord> list = new ArrayList<>();
     while (rs.next()) {
       GameRecord record = new GameRecord();
@@ -2837,7 +2854,7 @@ public class DBUtil {
    * @param clubId
    * @return
    */
-  public static List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime,
+  public List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime,
       String clubId) {
     List<GameRecord> list = new ArrayList<>();
     try {
@@ -2863,7 +2880,7 @@ public class DBUtil {
    * @param clubId
    * @return
    */
-  public static List<GameRecord> getGameRecordsByClubId(String clubId) {
+  public List<GameRecord> getGameRecordsByClubId(String clubId) {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2887,7 +2904,7 @@ public class DBUtil {
    * @time 2017年11月25日
    * @param maxRecordTime
    */
-  public static List<GameRecord> getAllGameRecords() {
+  public List<GameRecord> getAllGameRecords() {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2902,7 +2919,6 @@ public class DBUtil {
     }
     return list;
   }
-
 
 
 }

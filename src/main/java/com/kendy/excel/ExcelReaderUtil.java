@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.fastjson.JSON;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.LMController;
@@ -42,10 +43,21 @@ import com.kendy.util.StringUtil;
  * @time 2017年10月7日 下午3:54:05
  */
 public class ExcelReaderUtil {
+  
+  @Autowired
+  private MoneyService moneyService;
+  
+  @Autowired
+  private DataConstans dataConstans;
+  
+  @Autowired
+  private LMController lmController;
+  
+  public static ExcelReaderUtil instance = new ExcelReaderUtil();
 
-  private static Logger log = Logger.getLogger(ExcelReaderUtil.class);
+  private  Logger log = Logger.getLogger(ExcelReaderUtil.class);
 
-  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+  private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
   /**
    * 测试本工具类
@@ -56,10 +68,11 @@ public class ExcelReaderUtil {
     List<GameRecord> basicRecords =
         ExcelUtils.getInstance().readExcel2Objects(excelPath, GameRecord.class, 1, 0);
 
-
-
-    log.info("finishes..." + basicRecords.size());
+    //log.info("finishes..." + basicRecords.size());
   }
+  
+  
+  
 
 
   /**
@@ -70,7 +83,7 @@ public class ExcelReaderUtil {
    * @return
    * @throws IOException
    */
-  public static Workbook getWeebWork(String filename) throws Exception {
+  public Workbook getWeebWork(String filename) throws Exception {
     Workbook workbook = null;
     if (null != filename) {
       String fileType = filename.substring(filename.lastIndexOf("."), filename.length());
@@ -92,7 +105,7 @@ public class ExcelReaderUtil {
    * @param file
    * @return
    */
-  public static Map<String, Player> readMembersRecord(File file) throws Exception {
+  public Map<String, Player> readMembersRecord(File file) throws Exception {
 
     Map<String, Player> membersMap = new LinkedHashMap<>();
     Player player;
@@ -136,7 +149,7 @@ public class ExcelReaderUtil {
     return membersMap;
   }
 
-  private static String getCellValue(Cell cell) {
+  private String getCellValue(Cell cell) {
     if (cell == null) {
       return "";
     } else {
@@ -151,7 +164,7 @@ public class ExcelReaderUtil {
    * @param file
    * @return
    */
-  public static Wrap readHuishuiRecord(File file) {
+  public Wrap readHuishuiRecord(File file) {
 
     Map<String, Huishui> huishuiMap = new HashMap<>();
     Wrap wrap = new Wrap();
@@ -280,7 +293,7 @@ public class ExcelReaderUtil {
    * @param versionType
    * @return
    */
-  public static List<GameRecord> readZJRecord(String excelFilePath, String userClubId,
+  public List<GameRecord> readZJRecord(String excelFilePath, String userClubId,
       String LMType, int versionType) throws Exception {
     if (0 == versionType) {
       return null;
@@ -294,7 +307,7 @@ public class ExcelReaderUtil {
   /*
    * 判断总手数为0
    */
-  private static void judgeSumHandsCount(List<GameRecord> gameRecords) {
+  private void judgeSumHandsCount(List<GameRecord> gameRecords) {
     boolean isSumHandsCountZero =
         gameRecords.stream().allMatch(record -> "0".equals(record.getSumHandsCount()));
     if (isSumHandsCountZero || CollectUtil.isNullOrEmpty(gameRecords)) {
@@ -307,7 +320,7 @@ public class ExcelReaderUtil {
    * 
    * 两个功能： A:导入到场次信息 B:导入到联盟Tab
    */
-  public static List<GameRecord> readZJRecord_NewVersion(String excelFilePath, String userClubId,
+  public List<GameRecord> readZJRecord_NewVersion(String excelFilePath, String userClubId,
       String LMType) throws Exception {// 新增了联盟类型
 
     // 获取所有记录
@@ -315,19 +328,19 @@ public class ExcelReaderUtil {
         ExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
     String tableId = FileUtil.getTableId(excelFilePath);
     // 补全每条记录的值
-    MoneyService.fillGameRecords(gameRecords, tableId, LMType);
+    moneyService.fillGameRecords(gameRecords, tableId, LMType);
     // 判断总手数为0
     judgeSumHandsCount(gameRecords);
 
     // TODO 添加所有记录到联盟对帐表final?
-    LMController.currentRecordList = gameRecords;
+    lmController.currentRecordList = gameRecords;
 
     // 只返回当前俱乐部的记录
     List<GameRecord> _gameRecords = gameRecords.stream()
         .filter(e -> e.getClubId().equals(userClubId)).collect(Collectors.toList());
 
     // 存储数据 {场次=infoList...}
-    DataConstans.zjMap.put(tableId, _gameRecords);
+    dataConstans.zjMap.put(tableId, _gameRecords);
 
     return _gameRecords;
   }
@@ -339,7 +352,7 @@ public class ExcelReaderUtil {
    * 
    * @throws IOException,Exception
    */
-  public static Map<String, String> readPreDataRecord(File file) throws IOException, Exception {
+  public Map<String, String> readPreDataRecord(File file) throws IOException, Exception {
 
     // 昨日留底总数据结构
     Map<String, String> preDataMap = new HashMap<>();
@@ -385,7 +398,7 @@ public class ExcelReaderUtil {
 
 
   @SuppressWarnings("unused")
-  private static boolean isDuplicate = false;
+  private boolean isDuplicate = false;
 
   /**
    * 根据位置获取相应领域的Map值
@@ -397,7 +410,7 @@ public class ExcelReaderUtil {
    * @throws Exception
    * 
    */
-  private static Map<String, String> getMapByPosition(Sheet sheet, int x, int y, int x2)
+  private Map<String, String> getMapByPosition(Sheet sheet, int x, int y, int x2)
       throws Exception {
     Map<String, String> resultMap = new LinkedHashMap<>();
     String key = "";
@@ -452,7 +465,7 @@ public class ExcelReaderUtil {
    * @throws Exception
    * 
    */
-  private static Map<String, String> getMapByPosition_SSJE(Sheet sheet, int x, int y, int x2)
+  private Map<String, String> getMapByPosition_SSJE(Sheet sheet, int x, int y, int x2)
       throws Exception {
     Map<String, String> resultMap = new LinkedHashMap<>();
     String key = "";
@@ -512,7 +525,7 @@ public class ExcelReaderUtil {
    * 
    * @throws IOException,Exception
    */
-  public static Map<String, String> readCombineIdRecord(File file) throws IOException, Exception {
+  public Map<String, String> readCombineIdRecord(File file) throws IOException, Exception {
 
     // 昨日留底总数据结构
     Map<String, String> combineIdMap = new LinkedHashMap<>();

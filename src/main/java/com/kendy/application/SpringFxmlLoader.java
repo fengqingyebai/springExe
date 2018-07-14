@@ -1,16 +1,16 @@
-package com.kendy.test;
+package com.kendy.application;
 
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.log4j.PropertyConfigurator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import com.kendy.application.Main;
 import com.kendy.util.ErrorUtil;
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 
 public class SpringFxmlLoader {
+  
   static {
     try {
       // 生产环境可用
@@ -21,9 +21,8 @@ public class SpringFxmlLoader {
     }
   }
   
-  
-  private static final ApplicationContext applicationContext =
-      new ClassPathXmlApplicationContext("spring/spring-service2.xml");
+  private static  ApplicationContext applicationContext =
+      new ClassPathXmlApplicationContext("spring/spring-service.xml");
 
   public Object load(String url) {
     try (InputStream fxmlStream = SpringFxmlLoader.class.getResourceAsStream(url)) {
@@ -40,8 +39,6 @@ public class SpringFxmlLoader {
       throw new RuntimeException(ioException);
     }
   }
-  
-  
   public static ApplicationContext getContext() {
     return applicationContext;
   }

@@ -10,8 +10,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import com.kendy.application.InstancePool;
 import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
@@ -36,9 +40,14 @@ import javafx.scene.control.TableView;
  * @author 林泽涛
  * @time 2018年3月13日 下午6:58:18
  */
-@Service
-public class TGFwfService {
+@Component
+public class TGFwfService extends InstancePool{
 
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public TGController tgController ;
+  
   public void setFwfDetail(String tgCompany, TableView<TGFwfinfo> tableTGFwf,
       TableView<TypeValueInfo> tableTGFwfSum) {
     if (StringUtil.isBlank(tgCompany)) {
@@ -46,8 +55,7 @@ public class TGFwfService {
       // return;
     }
 
-    TGController tgController = MyController.tgController;
-    List<TGCompanyModel> tgCompanys = DBUtil.get_all_tg_company();
+    List<TGCompanyModel> tgCompanys = dbUtil.get_all_tg_company();
 
     Set<String> teamSet = new HashSet<>();
     if (CollectUtil.isHaveValue(tgCompanys)) {
@@ -207,7 +215,6 @@ public class TGFwfService {
    */
   private List<TGTeamInfo> convert2TGTeamInfo(List<ProxyTeamInfo> proxyTeamInfoList) {
     List<TGTeamInfo> list = new ArrayList<>();
-    TGController tgController = MyController.tgController;
     Map<String, TGTeamModel> tgTeamRateMap = tgController.getTgTeamModelMap();
 
     if (CollectUtil.isHaveValue(proxyTeamInfoList)) {
@@ -224,10 +231,10 @@ public class TGFwfService {
         TGTeamModel tgTeamModel = tgTeamRateMap.get(teamId);
         String teamUnknowValue = tgTeamModel == null ? "0.0" : tgTeamModel.getTgHuishui();
         String teamUnknowStr =
-            MyController.tgController.getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 2);
+            tgController.getLirunByYSZJ_TG(yszj, teamUnknowValue, null, 2);
         tgTeam.setTgZJUnknow(teamUnknowStr);
         // 设置战绩2.5% ,即满水
-        String percent25Str = MyController.tgController.getLirunByYSZJ_TG(info.getProxyYSZJ(),
+        String percent25Str = tgController.getLirunByYSZJ_TG(info.getProxyYSZJ(),
             teamUnknowValue, null, 1);
         tgTeam.setTgZJ25(percent25Str);
         // 设置回保

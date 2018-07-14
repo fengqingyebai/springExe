@@ -10,12 +10,16 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.application.InstancePool;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
-import com.kendy.controller.MyController;
+import com.kendy.controller.BaseController;
+import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
@@ -42,13 +46,22 @@ import javafx.scene.layout.HBox;
  * @author 林泽涛
  * @version 1.0
  */
-@Service
-public class WaizhaiService {
+@Component
+public class WaizhaiService extends InstancePool{
 
-
-  private static Logger log = Logger.getLogger(WaizhaiService.class);
-
-  public static DecimalFormat df = new DecimalFormat("#.00");
+  private Logger log = Logger.getLogger(WaizhaiService.class);
+  @Autowired
+  public DBUtil dbUtil;
+  @Autowired
+  public DataConstans dataConstants; // 数据控制类
+  @Autowired
+  public MoneyService moneyService; // 
+  @Autowired
+  public BaseController baseController ;
+  
+  
+  
+  public DecimalFormat df = new DecimalFormat("#.00");
 
   /**
    * 自动生成外债信息表
@@ -59,14 +72,14 @@ public class WaizhaiService {
    * @param tableTeam
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void generateWaizhaiTables(TableView<WaizhaiInfo> tableWaizhai, HBox hbox,
+  public void generateWaizhaiTables(TableView<WaizhaiInfo> tableWaizhai, HBox hbox,
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo, TableView<TeamInfo> tableTeam) {
     // 清空数据
     ObservableList<Node> allTables = hbox.getChildren();
     if (allTables != null && allTables.size() > 0)
       hbox.getChildren().remove(0, allTables.size());
 
-    if (DataConstans.Index_Table_Id_Map.size() == 0) {
+    if (dataConstants.Index_Table_Id_Map.size() == 0) {
       ShowUtil.show("你当前还未锁定任意一局，查询没有数据!", 2);
       return;
     }
@@ -100,7 +113,7 @@ public class WaizhaiService {
       lastNameCol.setPrefWidth(95);
       lastNameCol
           .setCellValueFactory(new PropertyValueFactory<CurrentMoneyInfo, String>("shishiJine"));
-      lastNameCol.setCellFactory(MyController.getColorCellFactory(new CurrentMoneyInfo()));
+      lastNameCol.setCellFactory(baseController.getColorCellFactory(new CurrentMoneyInfo()));
       table.setPrefWidth(210);
       table.getColumns().addAll(firstNameCol, lastNameCol);
 
@@ -131,7 +144,7 @@ public class WaizhaiService {
    * @time 2017年10月28日
    * @param tableWaizhai
    */
-  public static void setWaizhaiSum(TableView<WaizhaiInfo> tableWaizhai) {
+  public void setWaizhaiSum(TableView<WaizhaiInfo> tableWaizhai) {
     Double sum = 0d;
     ObservableList<WaizhaiInfo> list = tableWaizhai.getItems();
     if (list != null && list.size() > 0) {
@@ -150,7 +163,7 @@ public class WaizhaiService {
    * @param gudongMap
    * @return
    */
-  public static Map<String, String> getSum(Map<String, List<CurrentMoneyInfo>> gudongMap) {
+  public Map<String, String> getSum(Map<String, List<CurrentMoneyInfo>> gudongMap) {
     final Map<String, String> map = new HashMap<>();
     if (gudongMap != null && gudongMap.size() > 0) {
       for (Map.Entry<String, List<CurrentMoneyInfo>> entry : gudongMap.entrySet()) {
@@ -172,14 +185,14 @@ public class WaizhaiService {
    * @param tableTeam
    * @return
    */
-  public static Map<String, List<CurrentMoneyInfo>> get_SSJE_Gudong_Map(
+  public Map<String, List<CurrentMoneyInfo>> get_SSJE_Gudong_Map(
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo, TableView<TeamInfo> tableTeam) {
-    int pageIndex = DataConstans.Index_Table_Id_Map.size();
+    int pageIndex = dataConstants.Index_Table_Id_Map.size();
     if (pageIndex < 0) {
       return new HashMap<>();
     }
     // 获取实时金额数据
-    Map<String, String> map = DataConstans.All_Locked_Data_Map.get(pageIndex + "");
+    Map<String, String> map = dataConstants.All_Locked_Data_Map.get(pageIndex + "");
     List<CurrentMoneyInfo> CurrentMoneyInfoList = null;
     List<TeamInfo> teamInfoList = null;
     // 情况1：从最新的表中获取数据
@@ -195,9 +208,9 @@ public class WaizhaiService {
     }
     // 情况2：从最新的锁定表中获取数据
     else {
-      CurrentMoneyInfoList = JSON.parseObject(MoneyService.getJsonString(map, "实时金额"),
+      CurrentMoneyInfoList = JSON.parseObject(moneyService.getJsonString(map, "实时金额"),
           new TypeReference<List<CurrentMoneyInfo>>() {});
-      teamInfoList = JSON.parseObject(MoneyService.getJsonString(map, "团队回水"),
+      teamInfoList = JSON.parseObject(moneyService.getJsonString(map, "团队回水"),
           new TypeReference<List<TeamInfo>>() {});
     }
     List<CurrentMoneyInfo> SSJE_obList = new LinkedList<>();
@@ -208,7 +221,7 @@ public class WaizhaiService {
     }
 
     // 获取每个股东的实时金额数据
-    List<String> gudongList = DataConstans.gudongList;
+    List<String> gudongList = dataConstants.gudongList;
     // int gudongSize = gudongList.size();
     List<CurrentMoneyInfo> eachGudongList = null;
     Map<String, List<CurrentMoneyInfo>> gudongMap = new HashMap<>();
@@ -217,7 +230,7 @@ public class WaizhaiService {
 
     // 步骤1：添加玩家
     for (CurrentMoneyInfo infos : SSJE_obList) {
-      boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(infos.getWanjiaId());
+      boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(infos.getWanjiaId());
       if (!isSuperId) {// 为解决联合ID的问题，在这里把父节点信息加了进来，后面会把父节点的联合额度为0或空的清除掉，问题：能否在此处就过滤过？？
         if (StringUtil.isBlank(infos.getShishiJine()) || "0".equals(infos.getShishiJine())
             || !infos.getShishiJine().contains("-")) {
@@ -226,7 +239,7 @@ public class WaizhaiService {
       }
       playerId = infos.getWanjiaId();
       if (!StringUtil.isBlank(playerId)) {
-        player = DataConstans.membersMap.get(playerId);
+        player = dataConstants.membersMap.get(playerId);
         if (player == null) {
           ShowUtil.show("名单列表中匹配不到该玩家!玩家名称：" + infos.getMingzi() + " ID是" + infos.getWanjiaId());
           continue;
@@ -263,7 +276,7 @@ public class WaizhaiService {
     // 步骤3：添加团队
     for (TeamInfo infos : teamInfoList) {
       String teamId = infos.getTeamID();
-      Huishui hsInfo = DataConstans.huishuiMap.get(teamId);
+      Huishui hsInfo = dataConstants.huishuiMap.get(teamId);
       if (hsInfo == null) {
         ErrorUtil.err("外债信息：添加负数团队时检测到缓存中没有该团队信息，团队ID:" + teamId);
         continue;
@@ -310,7 +323,7 @@ public class WaizhaiService {
         // if(eachList.stream().filter(cmi->cmi.getMingzi().startsWith("团队")).count() == 0)
         // continue;
         if (eachList.stream()
-            .filter(cmi -> DataConstans.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId()))
+            .filter(cmi -> dataConstants.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId()))
             .count() == 0)
           continue;
         // 处理包含有负数团队的股东（既有联合ID,又有负数团队）
@@ -322,12 +335,12 @@ public class WaizhaiService {
           if (pId == null && cmi.getMingzi() != null && cmi.getMingzi().startsWith("团队")) {
             continue;
           }
-          boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(pId);
-          Player _player = DataConstans.membersMap.get(pId);// 1528833636
+          boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(pId);
+          Player _player = dataConstants.membersMap.get(pId);// 1528833636
           String teamID = _player.getTeamName();// 如ST,公司
           // 将联合ID的金额设置到对应的团队里
           if (isSuperId) {
-            String playerName = DataConstans.membersMap.get(pId).getPlayerName();
+            String playerName = dataConstants.membersMap.get(pId).getPlayerName();
             if ("公司".equals(teamID)) {
               final String _cmSuperIdSum = cmi.getCmSuperIdSum();
               cmi.setShishiJine(_cmSuperIdSum);
@@ -335,7 +348,7 @@ public class WaizhaiService {
                   pId, _cmSuperIdSum));
               continue;
             }
-            final String _teamId = "团队" + DataConstans.membersMap.get(pId).getTeamName();
+            final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamName();
             Optional<CurrentMoneyInfo> teamInfoOpt =
                 eachList.stream().filter(info -> info.getMingzi().equals(_teamId)).findFirst();
             if (teamInfoOpt.isPresent()) {
@@ -356,8 +369,8 @@ public class WaizhaiService {
           }
           // 非公司团队，非父节点，累加进其所属的团队中
           else if (!"公司".equals(teamID)) {
-            String playerName = DataConstans.membersMap.get(pId).getPlayerName();
-            final String _teamId = "团队" + DataConstans.membersMap.get(pId).getTeamName();
+            String playerName = dataConstants.membersMap.get(pId).getPlayerName();
+            final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamName();
             Optional<CurrentMoneyInfo> teamInfoOpt =
                 eachList.stream().filter(info -> info.getMingzi().equals(_teamId)).findFirst();
             if (teamInfoOpt.isPresent()) {
@@ -387,7 +400,7 @@ public class WaizhaiService {
    * @time 2017年12月28日
    * @param SSJE_obList
    */
-  private static Map<String, CurrentMoneyInfo> get_SSJE_Map(List<CurrentMoneyInfo> SSJE_obList) {
+  private Map<String, CurrentMoneyInfo> get_SSJE_Map(List<CurrentMoneyInfo> SSJE_obList) {
     Map<String, CurrentMoneyInfo> ssje_map = new HashMap<>();
     SSJE_obList.stream().filter(m -> StringUtil.isNotBlank(m.getWanjiaId())).forEach(info -> {
       ssje_map.put(info.getWanjiaId(), copyCurrentMoneyInfo(info));// copy一个实时金额记录
@@ -403,7 +416,7 @@ public class WaizhaiService {
    * @param ssje_map
    * @return
    */
-  private static boolean isExistIn_SSJE(String playerId, Map<String, CurrentMoneyInfo> ssje_map) {
+  private boolean isExistIn_SSJE(String playerId, Map<String, CurrentMoneyInfo> ssje_map) {
     return ssje_map.containsKey(playerId);
   }
 
@@ -414,7 +427,7 @@ public class WaizhaiService {
    * @param gudongMap
    * @param ssje_map
    */
-  private static void handlePersonWaizhai(Map<String, List<CurrentMoneyInfo>> gudongMap,
+  private void handlePersonWaizhai(Map<String, List<CurrentMoneyInfo>> gudongMap,
       Map<String, CurrentMoneyInfo> ssje_map) {
 
 
@@ -434,11 +447,11 @@ public class WaizhaiService {
       while (ite.hasNext()) {
         CurrentMoneyInfo cmiInfo = ite.next();
         String playerId = cmiInfo.getWanjiaId();
-        boolean isSubId = DataConstans.Combine_Sub_Id_Map.containsKey(playerId);
-        boolean isSuperId = DataConstans.Combine_Super_Id_Map.containsKey(playerId);
+        boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(playerId);
+        boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(playerId);
         // 是子节点
         if (isSubId) {
-          String superId = DataConstans.Combine_Sub_Id_Map.get(playerId);
+          String superId = dataConstants.Combine_Sub_Id_Map.get(playerId);
           boolean isSuperInfo_exist_in_ssje = isExistIn_SSJE(superId, ssje_map);
           if (isSuperInfo_exist_in_ssje) {
             // 父节点存在于实时金额表，直接删掉子ID
@@ -491,7 +504,7 @@ public class WaizhaiService {
    * @param tempSuperInfoMap
    * @return
    */
-  private static CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
+  private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
         info.getWanjiaId(), info.getCmiEdu());
     copyInfo.setColor(info.getColor());
@@ -499,10 +512,10 @@ public class WaizhaiService {
     return copyInfo;
   }
 
-  private static String getPlayerName(String playerId) {
+  private String getPlayerName(String playerId) {
     String name = "";
     try {
-      name = DataConstans.membersMap.get(playerId).getPlayerName() + "[" + playerId + "]";
+      name = dataConstants.membersMap.get(playerId).getPlayerName() + "[" + playerId + "]";
     } catch (Exception e) {
       log.error("找不到ID为" + playerId + "的人员名字！");
     }

@@ -7,7 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import com.kendy.application.InstancePool;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.TGCommentInfo;
@@ -33,8 +35,8 @@ import javafx.scene.control.TableView;
  * @author linzt
  * @time 2018年3月19日 下午2:49:16
  */
-@Service
-public class TGExportExcelService {
+@Component
+public class TGExportExcelService extends InstancePool{
 
   private TGController tgController;
 

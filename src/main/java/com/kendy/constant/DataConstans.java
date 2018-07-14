@@ -2,23 +2,29 @@ package com.kendy.constant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
+import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
+import com.kendy.entity.UserInfos;
 import com.kendy.enums.KeyEnum;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
@@ -31,8 +37,21 @@ import javafx.stage.Stage;
  * 
  * @author 林泽涛
  */
+@Component
 public class DataConstans {
+  
+  
+  @Autowired
+  private DBUtil dbUtil;
 
+
+  /**
+   * 
+   */
+  public DataConstans() {
+    super();
+    System.out.println("DataConstans 构造方法");
+  }
 
   /**************************************************************************************
    * 
@@ -42,73 +61,73 @@ public class DataConstans {
    * 
    **************************************************************************************/
 
-  private static Logger log = LoggerFactory.getLogger(DataConstans.class);
+  private Logger log = LoggerFactory.getLogger(DataConstans.class);
 
   // 缓存人员名单登记Excel中的数据{玩家ID={}}
-  public static Map<String, Player> membersMap = new HashMap<>();// 撤销后不变
+  public Map<String, Player> membersMap = new HashMap<>();// 撤销后不变
   // 团队ID=玩家ID列表
-  // public static Map<String, List<String>> teamWanjiaIdMap = new HashMap<>();//撤销后不变
+  // public Map<String, List<String>> teamWanjiaIdMap = new HashMap<>();//撤销后不变
   // 玩家ID=上码详情列表（正在使用的值）
-  public static Map<String, List<ShangmaDetailInfo>> SM_Detail_Map = new HashMap<>();
+  public Map<String, List<ShangmaDetailInfo>> SM_Detail_Map = new HashMap<>();
   // 玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
-  public static Map<String, List<ShangmaDetailInfo>> SM_Detail_Map_Locked = new HashMap<>();
+  public Map<String, List<ShangmaDetailInfo>> SM_Detail_Map_Locked = new HashMap<>();
 
   // 缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-  public static Map<String, List<GameRecord>> zjMap = new LinkedHashMap<>();
+  public Map<String, List<GameRecord>> zjMap = new LinkedHashMap<>();
   // 缓存当局回水
-  public static List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
+  public List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
   // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-  public static Map<String, List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
+  public Map<String, List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
   // 这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-  public static Map<String, List<GameRecord>> Total_Team_Huishui_Map = new LinkedHashMap<>();// 撤销后不变
+  public Map<String, List<GameRecord>> Total_Team_Huishui_Map = new LinkedHashMap<>();// 撤销后不变
 
   // 缓存120场次的所有锁定数据{页数第几局={...}}
-  public static Map<String, Map<String, String>> All_Locked_Data_Map = new LinkedHashMap<>();// 撤销后不变
+  public Map<String, Map<String, String>> All_Locked_Data_Map = new LinkedHashMap<>();// 撤销后不变
   // 锁定后是第X局
-  public static AtomicInteger Paiju_Index = new AtomicInteger(1);// 撤销后不变
+  public AtomicInteger Paiju_Index = new AtomicInteger(1);// 撤销后不变
   // 缓存场次与局映射
-  public static Map<String, String> Index_Table_Id_Map = new HashMap<>();// 撤销后不变
+  public Map<String, String> Index_Table_Id_Map = new HashMap<>();// 撤销后不变
 
   // 缓存父ID和子ID {父ID=List<子ID>}
-  public static Map<String, Set<String>> Combine_Super_Id_Map = new HashMap<>();
+  public Map<String, Set<String>> Combine_Super_Id_Map = new HashMap<>();
   // 缓存子ID和父ID {子ID=父ID}
-  public static Map<String, String> Combine_Sub_Id_Map = new HashMap<>();
+  public Map<String, String> Combine_Sub_Id_Map = new HashMap<>();
 
-  public static String Root_Dir = System.getProperty("user.home");// 撤销后不变
+  public String Root_Dir = System.getProperty("user.home");// 撤销后不变
 
   // 缓存团队回水
-  public static Map<String, Huishui> huishuiMap = new HashMap<>();// 撤销后不变
+  public Map<String, Huishui> huishuiMap = new HashMap<>();// 撤销后不变
 
   // 缓存实时开销
-  public static Map<String, String> kaixiaoMap = new HashMap<>();
+  public Map<String, String> kaixiaoMap = new HashMap<>();
 
   // 缓存昨日留底
-  public static Map<String, String> preDataMap = new HashMap<>();
+  public Map<String, String> preDataMap = new HashMap<>();
 
   // 缓存所有股东名称
-  public static List<String> gudongList = new ArrayList<>();// 撤销后不变
+  public List<String> gudongList = new ArrayList<>();// 撤销后不变
 
   // 缓存一些窗体的实例
-  public static Map<String, Stage> framesNameMap = new HashMap<>();// 撤销后不变
+  public Map<String, Stage> framesNameMap = new HashMap<>();// 撤销后不变
 
   // 导入战绩后缓存一些总和信息
-  public static Map<String, Double> SumMap = new HashMap<>();
+  public Map<String, Double> SumMap = new HashMap<>();
 
   // 缓存上一场次已经锁定的团队记录{teamID=TeamInfo...},主要用于合并团队记录(好像也没必要了这个)
-  public static Map<String, TeamInfo> Team_Info_Pre_Map = new HashMap<>();// 撤销后不变
+  public Map<String, TeamInfo> Team_Info_Pre_Map = new HashMap<>();// 撤销后不变
 
   // 缓存日期
-  public static String Date_Str = "";
+  public String Date_Str = "";
 
 
-  private static final String KEY_GU_DONG = KeyEnum.GU_DONG.getKeyName();
+  private final String KEY_GU_DONG = KeyEnum.GU_DONG.getKeyName();
 
   // 初始化股东列表
-  public static void initGudong() {
-    String gudongs = DBUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
+  public void initGudong() {
+    String gudongs = dbUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
     if (StringUtil.isBlank(gudongs)) {
       gudongs = "B,C,Q,银河"; // 如果客户删除这四个，想用其它的，这里的值就不对了
-      DBUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
+      dbUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
     }
     if (!StringUtil.isBlank(gudongs)) {
       for (String gudong : gudongs.split(",")) {
@@ -117,7 +136,8 @@ public class DataConstans {
     }
   }
 
-  static {
+  @PostConstruct
+  public void inits() {
     // 股东
     initGudong();
 
@@ -133,76 +153,76 @@ public class DataConstans {
    * @time 2017年11月4日
    * @return
    */
-  public static Map<String, String> getLockedDataMap() {
+  public Map<String, String> getLockedDataMap() {
     Map<String, String> lastLockedDataMap = new HashMap<>();
 
     // 玩家ID=上码详情列表（正在使用的值）
-    // public static Map<String,List<ShangmaDetailInfo>> SM_Detail_Map= new HashMap<>();
-    lastLockedDataMap.put("SM_Detail_Map", JSON.toJSONString(DataConstans.SM_Detail_Map));
+    // public Map<String,List<ShangmaDetailInfo>> SM_Detail_Map= new HashMap<>();
+    lastLockedDataMap.put("SM_Detail_Map", JSON.toJSONString(this.SM_Detail_Map));
 
     // 玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
-    // public static Map<String,List<ShangmaDetailInfo>> SM_Detail_Map_Locked= new HashMap<>();
+    // public Map<String,List<ShangmaDetailInfo>> SM_Detail_Map_Locked= new HashMap<>();
     lastLockedDataMap.put("SM_Detail_Map_Locked",
-        JSON.toJSONString(DataConstans.SM_Detail_Map_Locked));
+        JSON.toJSONString(this.SM_Detail_Map_Locked));
 
 
     // **********************************************************以下四个不保存数据，中途开始时去数据表拿*********************************
     // 缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-    // public static Map<String,List<UserInfos>> zjMap = new LinkedHashMap<>();
-    // lastLockedDataMap.put("zjMap", JSON.toJSONString(DataConstans.zjMap));
+    // public Map<String,List<UserInfos>> zjMap = new LinkedHashMap<>();
+    // lastLockedDataMap.put("zjMap", JSON.toJSONString(this.zjMap));
 
     // 缓存当局回水
-    // public static List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
+    // public List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
     // lastLockedDataMap.put("Dangju_Team_Huishui_List",
-    // JSON.toJSONString(DataConstans.Dangju_Team_Huishui_List));
+    // JSON.toJSONString(this.Dangju_Team_Huishui_List));
 
     // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-    // public static Map<String,List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
-    // lastLockedDataMap.put("Team_Huishui_Map", JSON.toJSONString(DataConstans.Team_Huishui_Map));
+    // public Map<String,List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
+    // lastLockedDataMap.put("Team_Huishui_Map", JSON.toJSONString(this.Team_Huishui_Map));
 
     // 这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-    // public static Map<String,List<GameRecord>> Total_Team_Huishui_Map = new
+    // public Map<String,List<GameRecord>> Total_Team_Huishui_Map = new
     // LinkedHashMap<>();//撤销后不变
     // lastLockedDataMap.put("Total_Team_Huishui_Map",
-    // JSON.toJSONString(DataConstans.Total_Team_Huishui_Map));
+    // JSON.toJSONString(this.Total_Team_Huishui_Map));
 
     // *******************************************************************************************
 
     // 锁定后是第X局
-    // public static AtomicInteger Paiju_Index = new AtomicInteger(1);//撤销后不变
-    lastLockedDataMap.put("Paiju_Index", JSON.toJSONString(DataConstans.Paiju_Index));
+    // public AtomicInteger Paiju_Index = new AtomicInteger(1);//撤销后不变
+    lastLockedDataMap.put("Paiju_Index", JSON.toJSONString(this.Paiju_Index));
 
     // 缓存场次与局映射
-    // public static Map<String,String> Index_Table_Id_Map = new HashMap<>();//撤销后不变
-    lastLockedDataMap.put("Index_Table_Id_Map", JSON.toJSONString(DataConstans.Index_Table_Id_Map));
+    // public Map<String,String> Index_Table_Id_Map = new HashMap<>();//撤销后不变
+    lastLockedDataMap.put("Index_Table_Id_Map", JSON.toJSONString(this.Index_Table_Id_Map));
 
-    // public static String Root_Dir = System.getProperty("user.home");//撤销后不变
-    lastLockedDataMap.put("Root_Dir", JSON.toJSONString(DataConstans.Root_Dir));
+    // public String Root_Dir = System.getProperty("user.home");//撤销后不变
+    lastLockedDataMap.put("Root_Dir", JSON.toJSONString(this.Root_Dir));
 
     // 缓存实时开销
-    // public static Map<String, String> kaixiaoMap = new HashMap<>();
-    lastLockedDataMap.put("kaixiaoMap", JSON.toJSONString(DataConstans.kaixiaoMap));
+    // public Map<String, String> kaixiaoMap = new HashMap<>();
+    lastLockedDataMap.put("kaixiaoMap", JSON.toJSONString(this.kaixiaoMap));
 
     // 缓存昨日留底
-    // public static Map<String,Map<String,String>> preDataMap = new HashMap<>();;
-    lastLockedDataMap.put("preDataMap", JSON.toJSONString(DataConstans.preDataMap));
+    // public Map<String,Map<String,String>> preDataMap = new HashMap<>();;
+    lastLockedDataMap.put("preDataMap", JSON.toJSONString(this.preDataMap));
 
     // 缓存所有股东名称
-    // public static List<String> gudongList = new ArrayList<>();//撤销后不变
-    lastLockedDataMap.put("gudongList", JSON.toJSONString(DataConstans.gudongList));
+    // public List<String> gudongList = new ArrayList<>();//撤销后不变
+    lastLockedDataMap.put("gudongList", JSON.toJSONString(this.gudongList));
 
 
     // 导入战绩后缓存一些总和信息
-    // public static Map<String,Double> SumMap = new HashMap<>();
-    lastLockedDataMap.put("SumMap", JSON.toJSONString(DataConstans.SumMap));
+    // public Map<String,Double> SumMap = new HashMap<>();
+    lastLockedDataMap.put("SumMap", JSON.toJSONString(this.SumMap));
 
     // 缓存上一场次已经锁定的团队记录{teamID=TeamInfo...},主要用于合并团队记录(好像也没必要了这个)
-    // public static Map<String,TeamInfo> Team_Info_Pre_Map = new HashMap<>();//撤销后不变
-    lastLockedDataMap.put("Team_Info_Pre_Map", JSON.toJSONString(DataConstans.Team_Info_Pre_Map));
+    // public Map<String,TeamInfo> Team_Info_Pre_Map = new HashMap<>();//撤销后不变
+    lastLockedDataMap.put("Team_Info_Pre_Map", JSON.toJSONString(this.Team_Info_Pre_Map));
 
     // 缓存日期
-    // public static String Date_Str = "";
-    lastLockedDataMap.put("Date_Str", JSON.toJSONString(DataConstans.Date_Str));
+    // public String Date_Str = "";
+    lastLockedDataMap.put("Date_Str", JSON.toJSONString(this.Date_Str));
 
     return lastLockedDataMap;
   }
@@ -211,7 +231,7 @@ public class DataConstans {
   /**
    * 初始化所有缓存
    */
-  public static void clearAllData() {
+  public void clearAllData() {
     // 缓存人员名单登记Excel中的数据{玩家ID={}}
     membersMap = new HashMap<>();// 撤销后不变
     // 玩家ID=上码详情列表（正在使用的值）
@@ -257,20 +277,20 @@ public class DataConstans {
   /**
    * 初始化数据
    */
-  public static void initMetaData() {
+  public void initMetaData() {
     // 清空所有数据
     // clearAllData();
 
     try {
       // 初始化人员数据
-      List<Player> memberList = DBUtil.getAllMembers();
+      List<Player> memberList = dbUtil.getAllMembers();
       membersMap = new HashMap<>();
       memberList.forEach(player -> {
         membersMap.put(player.getgameId(), player);
       });
 
       // 初始化团队回水
-      List<Huishui> teamHSList = DBUtil.getAllTeamHS();
+      List<Huishui> teamHSList = dbUtil.getAllTeamHS();
       huishuiMap = new HashMap<>();
       teamHSList.forEach(hs -> {
         huishuiMap.put(hs.getTeamId().toUpperCase(), hs);
@@ -290,15 +310,15 @@ public class DataConstans {
    * 
    * @time 2017年11月4日
    */
-  public static void initCombineId() {
-    DataConstans.Combine_Super_Id_Map = DBUtil.getCombineData();
-    if (DataConstans.Combine_Super_Id_Map == null) {
-      DataConstans.Combine_Super_Id_Map = new HashMap<>();
+  public void initCombineId() {
+    this.Combine_Super_Id_Map = dbUtil.getCombineData();
+    if (this.Combine_Super_Id_Map == null) {
+      this.Combine_Super_Id_Map = new HashMap<>();
     } else {
-      DataConstans.Combine_Sub_Id_Map = new HashMap<>();
-      DataConstans.Combine_Super_Id_Map.forEach((parentId, subIdSet) -> {
+      this.Combine_Sub_Id_Map = new HashMap<>();
+      this.Combine_Super_Id_Map.forEach((parentId, subIdSet) -> {
         for (String subId : subIdSet)
-          DataConstans.Combine_Sub_Id_Map.put(subId, parentId);
+          this.Combine_Sub_Id_Map.put(subId, parentId);
       });
     }
   }
@@ -307,14 +327,14 @@ public class DataConstans {
   /**
    * 加载昨日数据
    */
-  public static void loadPreData() {
+  public void loadPreData() {
     // 初始化昨日留底数据
     preDataMap = new HashMap<>();
     try {
-      preDataMap = DBUtil.getLastPreData();
+      preDataMap = dbUtil.getLastPreData();
       // 从数据库中获取上一次保存的锁定数据
-      if (!DBUtil.isPreData2017VeryFirst()) {
-        Map<String, String> map = DBUtil.getLastLockedData();
+      if (!dbUtil.isPreData2017VeryFirst()) {
+        Map<String, String> map = dbUtil.getLastLockedData();
         SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {});
       }
     } catch (Exception e) {
@@ -323,7 +343,7 @@ public class DataConstans {
   }
 
 
-  public static Map<String, Map<String, String>> getPreData() {
+  public Map<String, Map<String, String>> getPreData() {
 
 
     return null;
@@ -334,7 +354,7 @@ public class DataConstans {
    * 
    * （人员和回水以及合并ID不在此处，在调用此方法前已经设置了）
    */
-  public static void recoveryAllCache() {
+  public void recoveryAllCache() {
     // 清空所有数据
     clearAllData();
 
@@ -342,7 +362,7 @@ public class DataConstans {
     recoveryGameRecords();
 
     // 从数据库中获取上一次保存的锁定数据
-    Map<String, String> map = DBUtil.getLastLockedData();
+    Map<String, String> map = dbUtil.getLastLockedData();
 
     // 玩家ID=上码详情列表（正在使用的值）
     SM_Detail_Map = JSON.parseObject(map.get("SM_Detail_Map"),
@@ -396,10 +416,11 @@ public class DataConstans {
   /**
    * 中途继续恢复记录信息 主要是恢复 Dangju_Team_Huishui_List， zjMap，Team_Huishui_Map，Total_Team_Huishui_Map
    */
-  private static void recoveryGameRecords() {
-    String maxGameRecordTime = DBUtil.getMaxGameRecordTime();
-    String clubId = MyController.currentClubId.getText();
-    List<GameRecord> gameRecords = DBUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
+  private  void recoveryGameRecords() {
+    String maxGameRecordTime = dbUtil.getMaxGameRecordTime();
+    //String clubId = myController.currentClubId.getText();
+    String clubId = dbUtil.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
+    List<GameRecord> gameRecords = dbUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
 
     if (StringUtil.isAnyBlank(maxGameRecordTime, clubId)
         || CollectUtil.isNullOrEmpty(gameRecords)) {
@@ -421,7 +442,254 @@ public class DataConstans {
     }
 
   }
+  
+  
+  
+  
+  
+  /******************************************************************************************
+   * 
+   * 
+   * 
+   * ****************************************************************************************
+   */
+  /**
+   * 获取LinkedHashMap的最后一个元素
+   * 
+   * @param map
+   * @return
+   */
+  public <K, V> Entry<K, V> getTail(LinkedHashMap<K, V> map) {
+    Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
+    Entry<K, V> tail = null;
+    while (iterator.hasNext()) {
+      tail = iterator.next();
+    }
+    return tail;
+  }
+
+  public Entry<String, List<UserInfos>> getTail(Map<String, List<UserInfos>> zjMap) {
+    Iterator<Entry<String, List<UserInfos>>> iterator = zjMap.entrySet().iterator();
+    Entry<String, List<UserInfos>> tail = null;
+    while (iterator.hasNext()) {
+      tail = iterator.next();
+    }
+    return tail;
+  }
+
+  // 同步SM_Detail_Map
+
+  // 获取最新的SM_Detail_Map(上码表的个人详情）{玩家ID=List<ShangmaDetailInfo>}
+  public void refresh_SM_Detail_Map() {
+    if (this.membersMap == null)
+      return;
+
+    this.membersMap.forEach((playerId, player) -> {
+      if (!StringUtil.isBlank(playerId) && this.SM_Detail_Map.get(playerId) == null) {
+        this.SM_Detail_Map.put(playerId, new ArrayList<ShangmaDetailInfo>());
+      }
+    });
+  }
+
+  // 在实时金额那里临时添加
+  public void refresh_SM_Detail_Map(CurrentMoneyInfo info) {
+    String playerId = info.getWanjiaId();
+    if (!StringUtil.isBlank(playerId)) {
+      List<ShangmaDetailInfo> list = this.SM_Detail_Map.get(playerId);
+      if (list == null) {
+        list = new ArrayList<>();
+        this.SM_Detail_Map.put(playerId, list);
+      }
+
+    }
+  }
+
+  /**
+   * 根据名称找玩家ID
+   * 
+   * @param name
+   */
+  @SuppressWarnings("unused")
+  public String getPlayerIdByName(String name) {
+    final Map<String, Player> memberMap = this.membersMap;
+    if (memberMap != null && memberMap.size() > 0) {
+      String playerName = "";
+      for (Map.Entry<String, Player> entry : memberMap.entrySet()) {
+        Player wanjia = entry.getValue();
+        playerName = wanjia.getPlayerName();
+        if (!StringUtil.isBlank(playerName) && playerName.equals(name)) {
+          return entry.getKey();// playerId
+        }
+      }
+    }
+    return "";
+  }
+
+  public Player getPlayerByName(String name) {
+    String pId = getPlayerIdByName(name);
+    if (!StringUtil.isBlank(pId)) {
+      return this.membersMap.get(pId);
+    }
+    return null;
+  }
+
+  // 锁定当局备份上码表的个人详情
+  public void lock_SM_Detail_Map() {
+    Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
+    List<ShangmaDetailInfo> list = null;
+    List<ShangmaDetailInfo> srcList = null;
+    ShangmaDetailInfo info = null;
+    for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map
+        .entrySet()) {
+      srcList = entry.getValue();
+      if (srcList == null || srcList.size() == 0) {
+        list = new ArrayList<ShangmaDetailInfo>();
+        map.put(entry.getKey(), list);
+      } else {
+        list = new ArrayList<ShangmaDetailInfo>();
+        for (ShangmaDetailInfo detail : srcList) {
+          info = new ShangmaDetailInfo();
+          info.setShangmaDetailName(detail.getShangmaDetailName());
+          info.setShangmaJu(detail.getShangmaJu());
+          info.setShangmaPlayerId(detail.getShangmaPlayerId());
+          info.setShangmaShishou(detail.getShangmaShishou());
+          info.setShangmaSM(detail.getShangmaSM());
+          info.setShangmaPreSM(detail.getShangmaPreSM());
+          info.setShangmaHasPayed(detail.getShangmaHasPayed());
+          list.add(info);
+        }
+        map.put(entry.getKey(), list);
+      }
+    }
+
+    this.SM_Detail_Map_Locked = null;
+    this.SM_Detail_Map_Locked = map;
+    // 复制当前上码的人个详情表,缓存到锁定中
+    // 开启线程异步执行
+//    new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
+//        List<ShangmaDetailInfo> list = null;
+//        List<ShangmaDetailInfo> srcList = null;
+//        ShangmaDetailInfo info = null;
+//        for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map
+//            .entrySet()) {
+//          srcList = entry.getValue();
+//          if (srcList == null || srcList.size() == 0) {
+//            list = new ArrayList<ShangmaDetailInfo>();
+//            map.put(entry.getKey(), list);
+//          } else {
+//            list = new ArrayList<ShangmaDetailInfo>();
+//            for (ShangmaDetailInfo detail : srcList) {
+//              info = new ShangmaDetailInfo();
+//              info.setShangmaDetailName(detail.getShangmaDetailName());
+//              info.setShangmaJu(detail.getShangmaJu());
+//              info.setShangmaPlayerId(detail.getShangmaPlayerId());
+//              info.setShangmaShishou(detail.getShangmaShishou());
+//              info.setShangmaSM(detail.getShangmaSM());
+//              info.setShangmaPreSM(detail.getShangmaPreSM());
+//              info.setShangmaHasPayed(detail.getShangmaHasPayed());
+//              list.add(info);
+//            }
+//            map.put(entry.getKey(), list);
+//          }
+//        }
+//
+//        this.SM_Detail_Map_Locked = null;
+//        this.SM_Detail_Map_Locked = map;
+//      }
+//    }).start();
+  }
+
+  // 撤销时当局恢复上码表的个人详情
+  public void recovery_SM_Detail_Map() {
+    Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
+    List<ShangmaDetailInfo> list = null;
+    List<ShangmaDetailInfo> srcList = null;
+    ShangmaDetailInfo info = null;
+    for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked
+        .entrySet()) {
+      srcList = entry.getValue();
+      if (srcList == null || srcList.size() == 0) {
+        list = new ArrayList<ShangmaDetailInfo>();
+        map.put(entry.getKey(), list);
+      } else {
+        list = new ArrayList<ShangmaDetailInfo>();
+        for (ShangmaDetailInfo detail : srcList) {
+          info = new ShangmaDetailInfo();
+          info.setShangmaDetailName(detail.getShangmaDetailName());
+          info.setShangmaJu(detail.getShangmaJu());
+          info.setShangmaPlayerId(detail.getShangmaPlayerId());
+          info.setShangmaShishou(detail.getShangmaShishou());
+          info.setShangmaSM(detail.getShangmaSM());
+          info.setShangmaPreSM(detail.getShangmaPreSM());
+          info.setShangmaHasPayed(detail.getShangmaHasPayed());
+          list.add(info);
+        }
+        map.put(entry.getKey(), list);
+      }
+    }
+
+    this.SM_Detail_Map = null;
+    this.SM_Detail_Map = map;
+//    new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
+//        List<ShangmaDetailInfo> list = null;
+//        List<ShangmaDetailInfo> srcList = null;
+//        ShangmaDetailInfo info = null;
+//        for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked
+//            .entrySet()) {
+//          srcList = entry.getValue();
+//          if (srcList == null || srcList.size() == 0) {
+//            list = new ArrayList<ShangmaDetailInfo>();
+//            map.put(entry.getKey(), list);
+//          } else {
+//            list = new ArrayList<ShangmaDetailInfo>();
+//            for (ShangmaDetailInfo detail : srcList) {
+//              info = new ShangmaDetailInfo();
+//              info.setShangmaDetailName(detail.getShangmaDetailName());
+//              info.setShangmaJu(detail.getShangmaJu());
+//              info.setShangmaPlayerId(detail.getShangmaPlayerId());
+//              info.setShangmaShishou(detail.getShangmaShishou());
+//              info.setShangmaSM(detail.getShangmaSM());
+//              info.setShangmaPreSM(detail.getShangmaPreSM());
+//              info.setShangmaHasPayed(detail.getShangmaHasPayed());
+//              list.add(info);
+//            }
+//            map.put(entry.getKey(), list);
+//          }
+//        }
+//
+//        this.SM_Detail_Map = null;
+//        this.SM_Detail_Map = map;
+//      }
+//    }).start();
+  }
 
 
+//  public DBUtil getDbUtil() {
+//    return dbUtil;
+//  }
+//
+//
+//  public void setDbUtil(DBUtil dbUtil) {
+//    this.dbUtil = dbUtil;
+//  }
+
+
+//  public MyController getMyController() {
+//    return myController;
+//  }
+//
+//
+//  public void setMyController(MyController myController) {
+//    this.myController = myController;
+//  }
+
+  
+  
 
 }
