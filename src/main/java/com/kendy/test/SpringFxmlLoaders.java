@@ -10,7 +10,7 @@ import com.kendy.util.ErrorUtil;
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 
-public class SpringFxmlLoader {
+public class SpringFxmlLoaders {
   static {
     try {
       // 生产环境可用
@@ -26,8 +26,8 @@ public class SpringFxmlLoader {
       new ClassPathXmlApplicationContext("spring/spring-service2.xml");
 
   public Object load(String url) {
-    try (InputStream fxmlStream = SpringFxmlLoader.class.getResourceAsStream(url)) {
-      System.err.println(SpringFxmlLoader.class.getResourceAsStream(url));
+    try (InputStream fxmlStream = SpringFxmlLoaders.class.getResourceAsStream(url)) {
+      System.err.println(SpringFxmlLoaders.class.getResourceAsStream(url));
       FXMLLoader loader = new FXMLLoader();
       loader.setControllerFactory(new Callback<Class<?>, Object>() {
         @Override

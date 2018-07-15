@@ -11,6 +11,12 @@ import javafx.util.Callback;
 
 public class SpringFxmlLoader {
   
+
+  
+  private static  ApplicationContext applicationContext =
+      new ClassPathXmlApplicationContext("com/kendy/application/spring-service.xml");
+//  new ClassPathXmlApplicationContext("/spring/spring-service.xml");
+  
   static {
     try {
       // 生产环境可用
@@ -20,13 +26,9 @@ public class SpringFxmlLoader {
       ErrorUtil.err("日志组件初始化失败");
     }
   }
-  
-  private static  ApplicationContext applicationContext =
-      new ClassPathXmlApplicationContext("spring/spring-service.xml");
 
   public Object load(String url) {
     try (InputStream fxmlStream = SpringFxmlLoader.class.getResourceAsStream(url)) {
-      System.err.println(SpringFxmlLoader.class.getResourceAsStream(url));
       FXMLLoader loader = new FXMLLoader();
       loader.setControllerFactory(new Callback<Class<?>, Object>() {
         @Override
@@ -36,6 +38,7 @@ public class SpringFxmlLoader {
       });
       return loader.load(fxmlStream);
     } catch (IOException ioException) {
+      ErrorUtil.err("加载视图文件失败");
       throw new RuntimeException(ioException);
     }
   }
