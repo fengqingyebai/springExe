@@ -7,10 +7,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
@@ -35,7 +33,7 @@ import javafx.scene.control.TableView;
  * @time 2018年1月1日 下午10:50:55
  */
 @Component
-public class ZonghuiService extends InstancePool{
+public class ZonghuiService{
 
   private Logger log = Logger.getLogger(ZonghuiService.class);
   

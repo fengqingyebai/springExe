@@ -12,11 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import com.kendy.application.InstancePool;
 import com.kendy.constant.Constants;
-import com.kendy.constant.DataConstans;
-import com.kendy.controller.MyController;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxyTeamInfo;
@@ -41,7 +37,7 @@ import javafx.scene.control.TableView;
  * @time 2018年3月13日 下午6:58:18
  */
 @Component
-public class TGFwfService extends InstancePool{
+public class TGFwfService{
 
   @Autowired
   public DBUtil dbUtil;

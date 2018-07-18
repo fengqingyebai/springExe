@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.tgController.TGController;
@@ -47,7 +45,7 @@ import javafx.scene.layout.HBox;
  * @time 2018年3月8日 下午8:49:07
  */
 @Component
-public class TgWaizhaiService extends InstancePool{
+public class TgWaizhaiService{
 
   private Logger log = Logger.getLogger(TgWaizhaiService.class);
   @Autowired

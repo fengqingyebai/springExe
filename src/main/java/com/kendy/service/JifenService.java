@@ -5,8 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.JifenInfo;
@@ -26,7 +24,7 @@ import javafx.scene.control.TextField;
  * @time 2017年11月12日 上午3:07:21
  */
 @Component
-public class JifenService extends InstancePool{
+public class JifenService{
 
   @Autowired
   public DBUtil dbUtil;

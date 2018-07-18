@@ -11,8 +11,6 @@ import java.net.URLConnection;
 import javax.swing.filechooser.FileSystemView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import com.kendy.application.InstancePool;
 import com.kendy.controller.SMAutoController;
 
 /**
@@ -22,7 +20,7 @@ import com.kendy.controller.SMAutoController;
  * @time 2018年7月6日 下午9:40:36
  */
 @Component
-public class AutoDownloadZJExcelService extends InstancePool{
+public class AutoDownloadZJExcelService{
 
   @Autowired
   public SMAutoController smAutoController; // 托管控制类

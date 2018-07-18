@@ -11,19 +11,27 @@ import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 
 public class SpringFxmlLoaders {
-  static {
-    try {
-      // 生产环境可用
-      String logName = "log4j/log4j.properties";
-      PropertyConfigurator.configure(Main.class.getClassLoader().getResourceAsStream(logName));
-    } catch (Exception e) {
-      ErrorUtil.err("日志组件初始化失败");
-    }
-  }
+  
+  private static  ApplicationContext applicationContext = null;
+//  static {
+//    try {
+//      // 生产环境可用
+//      String logName = "log4j/log4j.properties";
+//      PropertyConfigurator.configure(Main.class.getClassLoader().getResourceAsStream(logName));
+//    } catch (Exception e) {
+//      ErrorUtil.err("日志组件初始化失败");
+//    }
+//  }
+//  static {
+//    try {
+//      applicationContext =
+//          new ClassPathXmlApplicationContext("spring/spring-service2.xml");
+//    } catch (Exception e) {
+//      ErrorUtil.err("Spring组件初始化失败:" + e.getMessage());
+//    }
+//  }
   
   
-  private static final ApplicationContext applicationContext =
-      new ClassPathXmlApplicationContext("spring/spring-service2.xml");
 
   public Object load(String url) {
     try (InputStream fxmlStream = SpringFxmlLoaders.class.getResourceAsStream(url)) {

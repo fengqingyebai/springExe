@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
@@ -30,7 +28,7 @@ import javafx.scene.control.TextField;
  * @time 2018年1月1日 下午10:51:39
  */
 @Component
-public class MemberService extends InstancePool{
+public class MemberService{
   
   @Autowired
   public DBUtil dbUtil;

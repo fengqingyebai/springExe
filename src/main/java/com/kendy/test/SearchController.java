@@ -22,8 +22,6 @@ public class SearchController implements Initializable {
  
   @Autowired
   private OrderService orderService;
-  @Autowired
-  private TGController tgController;
   
   public SearchController(){
     loger.info(" 执行SearchController 构造方法");
@@ -67,11 +65,11 @@ public class SearchController implements Initializable {
   } else {
     loger.info("xml加载后orderService is  null !");
   }
-  if(tgController !=null) {
-    loger.info("tgController is not null !");
-  }else {
-    loger.info("tgController is  null !");
-  }
+//  if(tgController !=null) {
+//    loger.info("tgController is not null !");
+//  }else {
+//    loger.info("tgController is  null !");
+//  }
  }
 
  public void search() {

@@ -44,11 +44,16 @@
         ">  
       
 <!--        <context:annotation-config /> -->
-       <bean id="dbUtil" class="com.kendy.db.DBUtil"></bean>  
-       <bean id="dataConstants" class="com.kendy.constant.DataConstans"></bean> 
-       <context:component-scan base-package="com.kendy.controller" />     
-       <context:component-scan base-package="com.kendy.service" />     
-       <bean id="httpUtil" class="com.kendy.spider.HttpUtil"></bean>  
-       <bean id="customView" class="com.kendy.util.CustomView"></bean>  
+       <bean id="searchController" class="com.kendy.test.SearchController"></bean>   
+       <bean id="orderService" class="com.kendy.test.OrderService"></bean>  
+
+		
+		
+<!-- <bean id="" class="com.kendy.service."></bean>   -->
+<!--        <bean id="quotaController" class="com.kendy.controller.QuotaController"></bean>    -->
+      
+<!--       <context:property-placeholder location="classpath:log4j/log4j.properties" />   -->
+      
+		
 
 </beans>

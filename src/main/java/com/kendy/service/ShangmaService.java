@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import com.kendy.application.InstancePool;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
@@ -66,7 +64,7 @@ import javafx.util.Pair;
  * @time 2017年10月28日 下午5:22:28
  */
 @Component
-public class ShangmaService extends InstancePool{
+public class ShangmaService{
 
   private Logger log = Logger.getLogger(ShangmaService.class);
   
