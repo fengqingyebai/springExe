@@ -30,14 +30,11 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) {
     try {
-      log.info("====================soft starting...");
+      log.info("进入Main.start方法......");
       Parent root = (Parent) loader.load("/dialog/MainStageees2.fxml");
-      if(root != null) {
-        log.info("====================root is not null!");
-      }
-      ShowUtil.show("root:" + (root != null));
       try {
-        primaryStage.getIcons().add(new Image("file:src/main/resources/images/icon.png"));
+        Image icon = new Image(getClass().getResourceAsStream("/images/icon.png"));
+        primaryStage.getIcons().add(icon);
       } catch (Exception e) {
         log.error("找不到icon图标！");
       }

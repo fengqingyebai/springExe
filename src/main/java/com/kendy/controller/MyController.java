@@ -146,7 +146,7 @@ import javafx.util.Pair;
 @Component
 public class MyController extends BaseController implements Initializable {
 
-  Logger log = Logger.getLogger(MyController.class);
+  Logger logger = Logger.getLogger(MyController.class);
   
   @Autowired
   public DBUtil dbUtil;
@@ -192,13 +192,13 @@ public class MyController extends BaseController implements Initializable {
   
   public MyController() {
     super();
-    log.info("执行MyController构造方法");
+    logger.info("执行MyController构造方法");
   }
   
   
   @PostConstruct
   public void inits() {
-    log.info("@PostConstruct MyController");
+    logger.info("@PostConstruct MyController");
 
   }
 
@@ -574,15 +574,15 @@ public class MyController extends BaseController implements Initializable {
     loadSubTabs();
     
     if( SpringFxmlLoader.getContext() == null ) {
-      log.error("SpringFxmlLoader.getContext() is null");
+      logger.error("SpringFxmlLoader.getContext() is null");
     }else {
-      log.error("=========================================SpringFxmlLoader.getContext() is not null");
+      logger.error("=========================================SpringFxmlLoader.getContext() is not null");
     String[] beanDefinitionNames = SpringFxmlLoader.getContext().getBeanDefinitionNames();
-    System.out.println("================================================");
+    logger.info("================================================");
     for( String bean : beanDefinitionNames) {
-      System.out.println(bean);
+      logger.info(bean);
     }
-    System.out.println("================================================");
+    logger.info("================================================");
     }
 
   }
@@ -659,7 +659,7 @@ public class MyController extends BaseController implements Initializable {
    */
   private void loadSubTabs() {
     ApplicationContext context = SpringFxmlLoader.getContext();
-    log.info("before: context is " + (context != null ? " not null" : "null" ));
+    logger.info("before: context is " + (context != null ? " not null" : "null" ));
     addSubTab("代理查询", "team_proxy_tab_frame.fxml");
     addSubTab("联盟对账", "LM_Tab_Fram.fxml");
     addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
@@ -669,7 +669,7 @@ public class MyController extends BaseController implements Initializable {
     addSubTab("银行流水", "bank_flow_frame.fxml");
     
     ApplicationContext context2 = SpringFxmlLoader.getContext();
-    log.info("after: context is " + (context2 != null ? " not null" : "null" ));
+    logger.info("after: context is " + (context2 != null ? " not null" : "null" ));
     
 //    teamProxyController = (TeamProxyController) addSubTab("代理查询", "team_proxy_tab_frame.fxml");
 //    lmController = (LMController) addSubTab("联盟对账", "LM_Tab_Fram.fxml");
@@ -715,14 +715,14 @@ public class MyController extends BaseController implements Initializable {
     whiteVersionOld.setUserData(0);// "旧名单"
     whiteVersionNew.setUserData(1);// "新名单"
     whiteVersionNew.setSelected(true);
-    log.info("默认导入版本：新名单");
+    logger.info("默认导入版本：新名单");
     group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
       public void changed(ObservableValue<? extends Toggle> ov, Toggle toggle, Toggle new_toggle) {
         Integer version = (Integer) group.getSelectedToggle().getUserData();
         if (version == 1) {
-          log.info("导入版本：新名单");
+          logger.info("导入版本：新名单");
         } else {
-          log.info("导入版本：旧名单");
+          logger.info("导入版本：旧名单");
         }
       }
     });
@@ -782,10 +782,10 @@ public class MyController extends BaseController implements Initializable {
         String rate = (String) group.getSelectedToggle().getUserData();
         if ("0.975".equals(rate)) {
           Constants.CURRENT_HS_RATE = 0.975;
-          log.info("当前全局比例修改为0.975");
+          logger.info("当前全局比例修改为0.975");
         } else {
           Constants.CURRENT_HS_RATE = 0.95;
-          log.info("当前全局比例修改为0.95");
+          logger.info("当前全局比例修改为0.95");
         }
       }
     });
@@ -802,7 +802,7 @@ public class MyController extends BaseController implements Initializable {
       @Override
       public void changed(ObservableValue observable, Object oldValue, Object newValue) {
         Tab tab = (Tab) newValue;
-        log.info(" newTab:" + tab.getText());
+        logger.info(" newTab:" + tab.getText());
         if ("场次信息".equals(tab.getText())) {
           moneyService.flush_SSJE_table();
           moneyService.update_Table_CMI_Map();// 更新{玩家ID=CurrentMoneyInfo},感觉没什么用
@@ -1135,7 +1135,7 @@ public class MyController extends BaseController implements Initializable {
       btn.setOnAction(event -> {
         selected_LM_type = btn.getText();
         dialog.setTitle(selected_LM_type);
-        System.out.println(selected_LM_type);
+        logger.info(selected_LM_type);
       });
       grid.add(btn, 0, i);
     }
@@ -1170,9 +1170,9 @@ public class MyController extends BaseController implements Initializable {
       Optional<ButtonType> result = alert.showAndWait();
       if (result.get() != ButtonType.OK) {
         selected_LM_type = "";
-        System.out.println("selected_LM_type:" + selected_LM_type);
+        logger.info("selected_LM_type:" + selected_LM_type);
       } else {
-        System.out.println("最终选择:" + selected_LM_type);
+        logger.info("最终选择:" + selected_LM_type);
       }
     });
 
@@ -1339,7 +1339,7 @@ public class MyController extends BaseController implements Initializable {
           addNewPlayerWindow.getIcons()
               .add(new javafx.scene.image.Image("file:resource/images/icon.png"));
         } catch (Exception e) {
-          log.debug("找不到icon图标！");
+          logger.debug("找不到icon图标！");
           e.printStackTrace();
         }
         addNewPlayerWindow.show();
@@ -1506,7 +1506,7 @@ public class MyController extends BaseController implements Initializable {
                   WanjiaInfo wanjiaInfo = getTableView().getItems().get(getIndex());
                   try {
                     clip2QQ(wanjiaInfo);
-                    log.debug("已经复制到剪切板");
+                    logger.debug("已经复制到剪切板");
                   } catch (Exception e) {
                     ShowUtil.show("复制失败", 1);
                     e.printStackTrace();
@@ -1630,7 +1630,7 @@ public class MyController extends BaseController implements Initializable {
         if (cmiInfo == null) {// cmiInfo为null表示该团队不存在于实时金额表中
           cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "");// 玩家ID和额度为空
           moneyService.addInfo(cmiInfo);
-          log.info(String.format("点击结算按钮:新增一条团队记录进金额表,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
+          logger.info(String.format("点击结算按钮:新增一条团队记录进金额表,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
               tempSSJE));
         } else {
           // 如果在实时金额中已经存在该团队记录，则更新该条实时金额
@@ -1638,7 +1638,7 @@ public class MyController extends BaseController implements Initializable {
           Double _newTeamSSJE = NumUtil.getNum(oldTeamSSJE) + _tempSSJE;// 此处已减去该 团队服务费
           String newTeamSSJE = NumUtil.digit0(_newTeamSSJE);
           cmiInfo.setShishiJine(newTeamSSJE);
-          log.info(String.format("点击结算按钮:修改金额表原团队记录,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
+          logger.info(String.format("点击结算按钮:修改金额表原团队记录,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
               newTeamSSJE));
         }
         // 并刷新表
@@ -1948,7 +1948,7 @@ public class MyController extends BaseController implements Initializable {
       FileUtils.copyFile(new File(resourceFilePath), new File(targetFilePath));
       FileUtils.deleteQuietly(new File(resourceFilePath));
     } catch (FileNotFoundException e) {
-      log.info("锁定后转移Excel失败,原因：FileNotFoundException，源地址是：" + resourceFilePath);
+      logger.info("锁定后转移Excel失败,原因：FileNotFoundException，源地址是：" + resourceFilePath);
     } catch (IOException e) {
       ErrorUtil.err("锁定后转移Excel失败", e);
     }
@@ -2178,7 +2178,7 @@ public class MyController extends BaseController implements Initializable {
         // 锁定的数据不能再被修改
         fobiddenChangeData();
         indexLabel.setVisible(true);
-        log.debug("dataConstants.Index_Table_Id_Map.get(pageIndex):"
+        logger.debug("dataConstants.Index_Table_Id_Map.get(pageIndex):"
             + dataConstants.Index_Table_Id_Map.get(pageIndex + ""));
         indexLabel.setText(dataConstants.Index_Table_Id_Map.get(pageIndex + ""));
 
@@ -2289,7 +2289,7 @@ public class MyController extends BaseController implements Initializable {
     Optional<ButtonType> result = alert.showAndWait();
     if (result.get() == ButtonType.OK) {
       importZJBtn.setDisable(false);
-      log.debug("确定撤销本局所有操作");
+      logger.debug("确定撤销本局所有操作");
       // 情况一：第一场还没锁定就撤销
       // 直接从昨日留底中加载数据
       // 备份到01场次
@@ -2325,14 +2325,14 @@ public class MyController extends BaseController implements Initializable {
         // 撤销的代码
         cancelDangju();
 
-        log.debug("=====================缓存中的数据恢复成功！");
+        logger.debug("=====================缓存中的数据恢复成功！");
         ShowUtil.show("撤销成功", 1);
       } catch (Exception e) {
         ShowUtil.show("撤销失败！！！", 1);
         e.printStackTrace();
       }
     } else {
-      log.debug("取消撤销本局所有操作");
+      logger.debug("取消撤销本局所有操作");
     }
   }
 
@@ -2347,10 +2347,10 @@ public class MyController extends BaseController implements Initializable {
     Optional<ButtonType> result = alert.showAndWait();
     if (result.get() == ButtonType.OK) {
       LMLabel.setText("0.00");
-      log.info("确定清空联盟对帐信息");
+      logger.info("确定清空联盟对帐信息");
 
     } else {
-      log.info("取消清空联盟对帐信息");
+      logger.info("取消清空联盟对帐信息");
     }
   }
 
@@ -2406,7 +2406,7 @@ public class MyController extends BaseController implements Initializable {
         String sumOfTeam = moneyService.getLockedInfo(size + "", "团队回水总和");
         String shangchangKaixiao = moneyService.getLockedInfo(size + "", "实时开销总和");
         if ("".equals(sumOfTeam)) {
-          log.error("从上一场加载==团队回水总和失败！！！！");
+          logger.error("从上一场加载==团队回水总和失败！！！！");
         } else {
           dataConstants.SumMap.put("团队回水及保险总和", Double.valueOf(sumOfTeam));
           dataConstants.SumMap.put("上场开销", Double.valueOf(shangchangKaixiao));// add 9-1
@@ -2575,7 +2575,7 @@ public class MyController extends BaseController implements Initializable {
 
         dataConstants.Date_Str = time;
       } catch (Exception e) {
-        log.error("输入新的一天时间格式错误:" + time, e);
+        logger.error("输入新的一天时间格式错误:" + time, e);
       }
     });
     if (StringUtil.isBlank(dataConstants.Date_Str)) {
@@ -2583,7 +2583,7 @@ public class MyController extends BaseController implements Initializable {
       return Boolean.FALSE;
     } else {
       dateLabel.setText(dataConstants.Date_Str);
-      log.info("客户输入新一天的时间是：" + dataConstants.Date_Str);
+      logger.info("客户输入新一天的时间是：" + dataConstants.Date_Str);
     }
     return Boolean.TRUE;
   }
@@ -2987,7 +2987,7 @@ public class MyController extends BaseController implements Initializable {
 
         ShowUtil.show("删除成功！", 2);
       } catch (Exception e) {
-        log.error("删除团队ID失败", e);
+        logger.error("删除团队ID失败", e);
       }
     });
   }
@@ -3253,7 +3253,7 @@ public class MyController extends BaseController implements Initializable {
         }
       }
     } catch (Exception e) {
-      log.error("根据原始战绩获取出回水出错，原因:" + e.getMessage());
+      logger.error("根据原始战绩获取出回水出错，原因:" + e.getMessage());
       return "0";
     }
   }
