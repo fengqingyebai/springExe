@@ -1294,7 +1294,7 @@ public class LMController extends BaseController implements Initializable {
     final int With3 = 70;
     final int With4 = 60;
     final int height = 115;
-    final String style = "-fx-alignment: CENTER;";
+    final String style = Constants.CSS_CENTER;
     for (Map.Entry<String, Club> entry : lmClubMap.entrySet()) {
       Club club = entry.getValue();
       String clubId = entry.getKey();
