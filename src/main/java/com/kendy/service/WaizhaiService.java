@@ -342,8 +342,8 @@ public class WaizhaiService {
             if ("公司".equals(teamID)) {
               final String _cmSuperIdSum = cmi.getCmSuperIdSum();
               cmi.setShishiJine(_cmSuperIdSum);
-              log.info(String.format("外债：股东%s--属于公司的父节点%s(%s）设置联合额度%s为实时金额", gudongName, playerName,
-                  pId, _cmSuperIdSum));
+//              log.info(String.format("外债：股东%s--属于公司的父节点%s(%s）设置联合额度%s为实时金额", gudongName, playerName,
+//                  pId, _cmSuperIdSum));
               continue;
             }
             final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamName();
@@ -361,8 +361,8 @@ public class WaizhaiService {
               CurrentMoneyInfo cmiInfo =
                   new CurrentMoneyInfo(_teamId, cmi.getCmSuperIdSum(), "", "");
               ite.add(cmiInfo);
-              log.info(String.format("外债：股东%s--根据父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除父节点",
-                  gudongName, playerName, _teamId, cmi.getCmSuperIdSum()));
+//              log.info(String.format("外债：股东%s--根据父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除父节点",
+//                  gudongName, playerName, _teamId, cmi.getCmSuperIdSum()));
             }
           }
           // 非公司团队，非父节点，累加进其所属的团队中
@@ -375,8 +375,8 @@ public class WaizhaiService {
               CurrentMoneyInfo teamInfo = teamInfoOpt.get();
               teamInfo.setShishiJine(NumUtil.getSum(teamInfo.getShishiJine(), cmi.getShishiJine()));
               ite.remove();
-              log.info(String.format("外债：股东%s--非父节点%s(%s)将%s转移到%s，并删除非父节点", gudongName, playerName,
-                  pId, cmi.getShishiJine(), teamInfo.getMingzi()));
+//              log.info(String.format("外债：股东%s--非父节点%s(%s)将%s转移到%s，并删除非父节点", gudongName, playerName,
+//                  pId, cmi.getShishiJine(), teamInfo.getMingzi()));
             } else {
               // 新增一个所属团队信息
               ite.remove();
