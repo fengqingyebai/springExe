@@ -18,10 +18,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
-import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubQuota;
@@ -30,12 +28,7 @@ import com.kendy.entity.LMDetailInfo;
 import com.kendy.entity.LMSumInfo;
 import com.kendy.excel.ExportAllLMExcel;
 import com.kendy.excel.ExportLMExcel;
-import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecord;
-import com.kendy.service.MoneyService;
-import com.kendy.service.TeamProxyService;
-import com.kendy.service.TgWaizhaiService;
-import com.kendy.service.WaizhaiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
@@ -69,7 +62,6 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
-import javafx.util.Pair;
 
 /**
  * 处理联盟对帐的控制器
@@ -147,20 +139,16 @@ public class LMController extends BaseController implements Initializable {
   /**
    * FXML DOM节点加载完毕后的初始化
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     log.info("联盟对帐页面加载数据开始...");
 
     // 绑定代理查询中的合计表
-    bindCellValue(lmDetailTableId, lmDetailZJ, lmDetailInsure, lmDetailPersonCount);
-    lmDetailZJ.setCellFactory(getColorCellFactory(new LMDetailInfo()));// 红色注释
-    lmDetailInsure.setCellFactory(getColorCellFactory(new LMDetailInfo()));
+    bindCellValueByTable(new LMDetailInfo(), tableLMDetail);
 
     // 绑定代理查询中的合计表
     tableLMSum.setEditable(true);
-    bindCellValue(lmSumName, lmSumZJ, lmSumInsure, lmSumPersonCount);
-    lmSumInsure.setCellFactory(getColorCellFactory(new LMSumInfo()));// 红色注释
+    bindCellValueByTable(new LMSumInfo(), tableLMSum);
     lmSumZJ.setCellFactory(TextFieldTableCell.forTableColumn());
     setOnEditCommit();
 
@@ -205,7 +193,6 @@ public class LMController extends BaseController implements Initializable {
           tableLMSum.refresh();
           return;
         }
-        // String zf_or_yiJieSuan = sumInfo.getLmSumZJ();//因为桌费和已结算在战绩那列
         try {
           if (!StringUtil.isBlank(newValue))
             Double.valueOf(newValue);
@@ -489,8 +476,6 @@ public class LMController extends BaseController implements Initializable {
       return;
 
     // 桌费
-    // info2.setLmSumZJ(getSelectedClub().getZhuoFei());
-    // info3.setLmSumZJ(getSelectedClub().getYiJieSuan());
     info2.setLmSumZJ(this.get_LM_Zhuofei());
     info3.setLmSumZJ(this.get_LM_YiJiesuan());
 
@@ -575,10 +560,6 @@ public class LMController extends BaseController implements Initializable {
       list = computSumList(list, true);// 求和统计
 
     list.forEach(record -> {
-      // * @param lmDetailTableId
-      // * @param lmDetailZJ
-      // * @param lmDetailInsure
-      // * @param lmDetailPersonCount
       String tableId = record.getTableId();
       String zj = record.getYszj();
       String insure = record.getSinegleInsurance();
@@ -843,62 +824,6 @@ public class LMController extends BaseController implements Initializable {
   }
 
 
-  /**
-   * kendy:绑定数据域
-   * 
-   * @param colums TableColumn 可变参数
-   */
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  private void bindCellValue(TableColumn<? extends Entity, String>... colums) {
-    try {
-      for (TableColumn column : colums) {
-        String fxId = column.getId();
-        column.setCellValueFactory(new PropertyValueFactory<Entity, String>(fxId));
-        column.setStyle("-fx-alignment: CENTER;");
-        column.setSortable(false);// 禁止排序
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("小林：绑定列值失败");
-    }
-  }
-
-  /**
-   * 新增俱乐部
-   * 
-   * @time 2017年11月22日
-   * @param event
-   */
-  public void addNewClubAction(ActionEvent event) {
-    InputDialog inputDlg = new InputDialog("增加", "待新增的俱乐部ID:", "俱乐部名称：");
-    Optional<Pair<String, String>> result = inputDlg.getResult();
-    result.ifPresent(entry -> {
-
-      // 获取到原始的有效的团队ID及团队回水率
-      String clubId = StringUtil.nvl(entry.getKey(), "");
-      String clubName = StringUtil.nvl(entry.getValue(), "");
-      if (StringUtil.isAnyBlank(clubId, clubName)) {
-        ShowUtil.show("操作失败！原因：俱乐部ID或名称不能为空！！");
-        return;
-      }
-      if (allClubMap.get(clubId) != null) {
-        ShowUtil.show("操作失败！原因：俱乐部ID已存在！！！");
-        return;
-      }
-      // 正式进入新增的编码
-      Club club = new Club(clubId, clubName, "0");
-      try {
-        dbUtil.saveOrUpdateClub(club);// 保存到数据库
-        allClubMap.put(clubId, club);// 刷新到刷新
-        refreshClubList();// 刷新表
-        ShowUtil.show("新增成功", 2);
-        return;
-      } catch (Exception e) {
-        log.error("新增俱乐部失败");
-      }
-      // 新增俱乐部操作
-      ShowUtil.show("新增失败！！");
-    });
-  }
 
   /**
    * 删除俱乐部
@@ -1136,46 +1061,6 @@ public class LMController extends BaseController implements Initializable {
   }
 
 
-  /**
-   * 清空所有统计信息
-   * 
-   * @time 2017年11月26日
-   * @param event
-   */
-  public void clearClubAndRecordAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n你确定要清空所有统计信息操作吗?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
-      // 从数据库中删除相应信息
-      dbUtil.del_all_record();
-
-      /**************** 前端展示的相应信息都置空 ****************/
-
-      // 导入每场战绩时的所有俱乐部记录
-      currentRecordList = new ArrayList<>();
-
-      // {俱乐部ID : 俱乐部信息}
-      // allClubMap = new HashMap<>();
-
-      // {俱乐部ID : 俱乐部每一场信息}
-      eachClubList = new HashMap<>();
-
-      sumOfZF.setText("0");
-      currentLMLabel.setText("");
-      LMTotalList.forEach(lm -> {
-        lm.clear();
-      });
-
-      // clubListView.setItems(null);;
-
-      tableLMDetail.setItems(null);
-      tableLMSum.setItems(null);
-      _clubListView.setItems(null);
-    }
-  }
 
   public void clearTables() {
     sumOfZF.setText("0");
