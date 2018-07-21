@@ -570,19 +570,18 @@ public class MyController extends BaseController implements Initializable {
     // 初始化全局比例
     initHSRate();
 
-    // 加载各个tab页面
+    // 加载各个tab页面，备注：此方法应放在tabsAction之前
     loadSubTabs();
     
     if( SpringFxmlLoader.getContext() == null ) {
       logger.error("SpringFxmlLoader.getContext() is null");
     }else {
-      logger.error("=========================================SpringFxmlLoader.getContext() is not null");
+      logger.info("SpringFxmlLoader.getContext() is not null >>>>>");
     String[] beanDefinitionNames = SpringFxmlLoader.getContext().getBeanDefinitionNames();
-    logger.info("================================================");
     for( String bean : beanDefinitionNames) {
       logger.info(bean);
     }
-    logger.info("================================================");
+    logger.info("以上为spring容器中加载的bean\n\n");
     }
 
   }
@@ -671,13 +670,6 @@ public class MyController extends BaseController implements Initializable {
     ApplicationContext context2 = SpringFxmlLoader.getContext();
     logger.info("after: context is " + (context2 != null ? " not null" : "null" ));
     
-//    teamProxyController = (TeamProxyController) addSubTab("代理查询", "team_proxy_tab_frame.fxml");
-//    lmController = (LMController) addSubTab("联盟对账", "LM_Tab_Fram.fxml");
-//    quotaController = (QuotaController) addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
-//    gdController = (GDController) addSubTab("股东贡献值", "gudong_contribution.fxml");
-//    tgController = (TGController) addSubTab("托管工具", "TG_toolaa.fxml");
-//    smAutoController = (SMAutoController) addSubTab("自动上码配置", "SM_Autos.fxml");
-//    bankFlowController = (BankFlowController) addSubTab("银行流水", "bank_flow_frame.fxml");
   }
 
   /**
@@ -689,8 +681,6 @@ public class MyController extends BaseController implements Initializable {
    */
   private void addSubTab(String tabName, String frameName) {
     try {
-//      FXMLLoader loader = new FXMLLoader();
-//      Parent root = loader.load(getClass().getResource("/dialog/" + frameName).openStream());
       String path = "/dialog/" + frameName;
       Parent root = (Parent) Main.loader.load(path);
       Tab subTab = new Tab();
@@ -2417,25 +2407,6 @@ public class MyController extends BaseController implements Initializable {
     dataConstants.recovery_SM_Detail_Map();
   }
 
-  // unused
-//  public void recoverySumMap() {
-//    // 恢复上一场的团队累计 getLockedInfo
-//    int currentPage = Integer.parseInt(pageInput.getText());
-//    int size = dataConstants.Index_Table_Id_Map.size();
-//    if (currentPage - size == 1) {
-//      // 此情况下要从上一场加载==团队回水总和
-//      dataConstants.SumMap = new HashMap<String, Double>();
-//      String sumOfTeam = moneyService.getLockedInfo(size + "", "团队回水总和");
-//      String shangchangKaixiao = moneyService.getLockedInfo(size + "", "实时开销总和");
-//      if ("".equals(sumOfTeam)) {
-//        log.debug("从上一场加载==团队回水总和失败！！！！");
-//      } else {
-//        dataConstants.SumMap.put("团队回水及保险总和", Double.valueOf(sumOfTeam));
-//        dataConstants.SumMap.put("上场开销", Double.valueOf(shangchangKaixiao));// add 9-1
-//      }
-//    }
-//  }
-
   public int getCurrentPage() {
     return Integer.parseInt(pageInput.getText());
   }
@@ -2498,7 +2469,6 @@ public class MyController extends BaseController implements Initializable {
    * 实时上码导出为Excel
    */
   public void exportSMExcelAction(ActionEvent event) {
-    // ShowUtil.show("未开发",2);
     shangmaService.exportShangmaExcel();
   }
 
