@@ -423,7 +423,7 @@ public class DataConstans {
     List<GameRecord> gameRecords = dbUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
 
     if (StringUtil.isAnyBlank(maxGameRecordTime, clubId)
-        || CollectUtil.isNullOrEmpty(gameRecords)) {
+        || CollectUtil.isEmpty(gameRecords)) {
       // 清空所有数据
       clearAllData();
     } else {

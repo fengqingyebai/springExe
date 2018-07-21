@@ -81,7 +81,7 @@ public class BankFlowController extends BaseController implements Initializable 
 
     // 初始化数据
     initData();
-    if (CollectUtil.isNullOrEmpty(totalBankFlowList))
+    if (CollectUtil.isEmpty(totalBankFlowList))
       return;
 
     // 动态生成表
@@ -133,7 +133,7 @@ public class BankFlowController extends BaseController implements Initializable 
    */
   private void initData() {
     totalBankFlowList = dbUtil.getAllHistoryBankMoney();
-    if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
+    if (CollectUtil.isEmpty(totalBankFlowList)) {
       return;
     }
 
@@ -165,7 +165,7 @@ public class BankFlowController extends BaseController implements Initializable 
       for (BankEnum bankEnum : BankEnum.values()) {
         bankName = bankEnum.getName();
         List<BankFlowModel> todayBankList = todayMap.get(bankName);
-        if (CollectUtil.isNullOrEmpty(todayBankList)) {
+        if (CollectUtil.isEmpty(todayBankList)) {
           msg = getBankFlowMsg(bankName, 0, 0L, 0L, 0L, 0L, 0L);
         } else {
           todayCount = todayBankList.size();
@@ -318,7 +318,7 @@ public class BankFlowController extends BaseController implements Initializable 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @FXML
   public void seeHistoryStaticAction(ActionEvent event) {
-    if (CollectUtil.isNullOrEmpty(totalBankFlowList)) {
+    if (CollectUtil.isEmpty(totalBankFlowList)) {
       ShowUtil.show("数据库中没有银行流水记录");
       return;
     }

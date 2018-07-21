@@ -717,7 +717,7 @@ public class QuotaController extends BaseController implements Initializable {
   public void exportClubPayExcel(ActionEvent event) {
     // 数据
     ObservableList<QuotaMoneyInfo> obList = tableQuotaPay.getItems();
-    if (CollectUtil.isNullOrEmpty(obList)) {
+    if (CollectUtil.isEmpty(obList)) {
       ShowUtil.show("没有需要导出的数据！");
       return;
     }

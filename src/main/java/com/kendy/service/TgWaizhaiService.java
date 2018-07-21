@@ -284,7 +284,7 @@ public class TgWaizhaiService{
   private Map<String, List<CurrentMoneyInfo>> getFinalTGTeamMap(
       List<CurrentMoneyInfo> SSJE_obList) {
 
-    if (CollectUtil.isNullOrEmpty(SSJE_obList)) {
+    if (CollectUtil.isEmpty(SSJE_obList)) {
       return Collections.EMPTY_MAP;
     }
     // 1 获取非父非子节点 A

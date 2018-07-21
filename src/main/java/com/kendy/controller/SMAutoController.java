@@ -527,7 +527,7 @@ public class SMAutoController extends BaseController implements Initializable {
           testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##"))
               .collect(Collectors.toList());
 
-        if (CollectUtil.isNullOrEmpty(testList) || testList.contains(playerId)) {
+        if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
           // 添加上码到软件中，同时发送后台请求
           Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
           Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
@@ -762,7 +762,7 @@ public class SMAutoController extends BaseController implements Initializable {
    */
   public void exportSMAction(ActionEvent event) {
     List<SMAutoInfo> autoShangmas = getAutoShangmas(1);
-    if (CollectUtil.isNullOrEmpty(autoShangmas)) {
+    if (CollectUtil.isEmpty(autoShangmas)) {
       ShowUtil.show("没有可供导出的数据！");
       return;
     }
@@ -1060,7 +1060,7 @@ public class SMAutoController extends BaseController implements Initializable {
    */
   @SuppressWarnings("unchecked")
   private List<GameRoomModel> updatedList(final List<GameRoomModel> roomList) {
-    if (CollectUtil.isNullOrEmpty(roomList))
+    if (CollectUtil.isEmpty(roomList))
       return Collections.EMPTY_LIST;
 
     List<GameRoomModel> updateList = roomList.stream().filter(info -> {

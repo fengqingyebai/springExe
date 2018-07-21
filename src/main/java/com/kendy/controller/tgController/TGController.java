@@ -565,7 +565,7 @@ public class TGController extends BaseController implements Initializable {
     // 赋值
     ObservableList<TGKaixiaoInfo> obList;
     ObservableList<String> sumObList;
-    if (CollectUtil.isNullOrEmpty(tgKaixiaoList)) {
+    if (CollectUtil.isEmpty(tgKaixiaoList)) {
       obList = FXCollections.observableArrayList();
       sumObList = FXCollections.observableArrayList();
     } else {
@@ -620,7 +620,7 @@ public class TGController extends BaseController implements Initializable {
     // 赋值
     ObservableList<TGCommentInfo> obList;
     ObservableList<String> sumObList;
-    if (CollectUtil.isNullOrEmpty(tgCommentList)) {
+    if (CollectUtil.isEmpty(tgCommentList)) {
       obList = FXCollections.observableArrayList();
       sumObList = FXCollections.observableArrayList();
     } else {
@@ -970,7 +970,7 @@ public class TGController extends BaseController implements Initializable {
 
     List<ProxyTeamInfo> proxyTeamList = new ArrayList<>();
     boolean noValue = teamProxyService.teamIDCombox == null 
-        || CollectUtil.isNullOrEmpty(teamProxyService.teamIDCombox.getItems());
+        || CollectUtil.isEmpty(teamProxyService.teamIDCombox.getItems());
     if (noValue) {
       ShowUtil.show("小林提示：代理查询团队下拉框没有数据！", 2);
       return proxyTeamList;
@@ -1023,7 +1023,7 @@ public class TGController extends BaseController implements Initializable {
    */
   public Map<String, TGTeamModel> getTgTeamModelMap() {
     List<TGTeamModel> tableTGTeams = dbUtil.get_all_tg_team();
-    if (CollectUtil.isNullOrEmpty(tableTGTeams)) {
+    if (CollectUtil.isEmpty(tableTGTeams)) {
       tableTGTeams = new ArrayList<>();
     }
     // toMap方法，当key相同时会报错
@@ -1045,7 +1045,7 @@ public class TGController extends BaseController implements Initializable {
    */
   public List<TypeValueInfo> getTableTGTeams() {
     ObservableList<TypeValueInfo> tgTeamRates = tableTGTeamRate.getItems();
-    return CollectUtil.isNullOrEmpty(tgTeamRates) ? FXCollections.observableArrayList()
+    return CollectUtil.isEmpty(tgTeamRates) ? FXCollections.observableArrayList()
         : tgTeamRates;
   }
 

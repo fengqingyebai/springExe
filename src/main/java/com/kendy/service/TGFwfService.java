@@ -59,7 +59,7 @@ public class TGFwfService{
           .flatMap((TGCompanyModel info) -> Stream.of(info.getTgTeamsStr().split("#")))
           .collect(Collectors.toSet());
     }
-    if (CollectUtil.isNullOrEmpty(teamSet)) {
+    if (CollectUtil.isEmpty(teamSet)) {
       ShowUtil.show("没有托管团队！", 2);
       return;
     }
@@ -72,7 +72,7 @@ public class TGFwfService{
     }
     int renci = companyProxyTeamInfo.size();
 
-    if (CollectUtil.isNullOrEmpty(companyProxyTeamInfo)) {
+    if (CollectUtil.isEmpty(companyProxyTeamInfo)) {
       ShowUtil.show("没有代理数据！", 2);
       return;
     }

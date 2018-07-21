@@ -3108,7 +3108,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void checkCombineIdAction(ActionEvent even) {
     List<String> resList = combineIDController.checkCombineId();
-    if (CollectUtil.isNullOrEmpty(resList)) {
+    if (CollectUtil.isEmpty(resList)) {
       ShowUtil.show("检测通过", 2);
       return;
     }

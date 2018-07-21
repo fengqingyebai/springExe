@@ -343,7 +343,7 @@ public class TGExportExcelService{
   private List<TGExcelModel> getTGTeamZhanjiExcelModels() {
     List<TGExcelModel> excelLsit = new ArrayList<>();
     ObservableList<Node> teamBtns = tgController.TG_Team_VBox.getChildren();
-    if (CollectUtil.isNullOrEmpty(teamBtns))
+    if (CollectUtil.isEmpty(teamBtns))
       return excelLsit;
 
     for (Node node : teamBtns) {

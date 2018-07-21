@@ -10,12 +10,12 @@ import java.util.Collection;
  */
 public class CollectUtil {
 
-  public static boolean isNullOrEmpty(Collection<?> collection) {
+  public static boolean isEmpty(Collection<?> collection) {
     return collection == null || collection.isEmpty();
   }
 
   public static boolean isHaveValue(Collection<?> collection) {
-    return !isNullOrEmpty(collection);
+    return !isEmpty(collection);
   }
 
 

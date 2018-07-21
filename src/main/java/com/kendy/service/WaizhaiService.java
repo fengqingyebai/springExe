@@ -316,7 +316,7 @@ public class WaizhaiService {
         List<CurrentMoneyInfo> eachList = entry.getValue();
         // List<CurrentMoneyInfo> tempEachList = copyListCurrentMoneyInfo(eachList);//深层复制
         // 过滤掉没有负数团队的股东,过滤掉没有联合ID的股东
-        if (CollectUtil.isNullOrEmpty(eachList))
+        if (CollectUtil.isEmpty(eachList))
           continue;
         // if(eachList.stream().filter(cmi->cmi.getMingzi().startsWith("团队")).count() == 0)
         // continue;

@@ -310,7 +310,7 @@ public class ExcelReaderUtil {
   private void judgeSumHandsCount(List<GameRecord> gameRecords) {
     boolean isSumHandsCountZero =
         gameRecords.stream().allMatch(record -> "0".equals(record.getSumHandsCount()));
-    if (isSumHandsCountZero || CollectUtil.isNullOrEmpty(gameRecords)) {
+    if (isSumHandsCountZero || CollectUtil.isEmpty(gameRecords)) {
       ShowUtil.show("提示：总手数为0！");
     }
   }

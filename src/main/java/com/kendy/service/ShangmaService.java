@@ -1097,7 +1097,7 @@ public class ShangmaService{
     String out = "D:/" + title + System.currentTimeMillis();
     // 数据
     ObservableList<ShangmaInfo> obList = tableSM.getItems();
-    if (CollectUtil.isNullOrEmpty(obList)) {
+    if (CollectUtil.isEmpty(obList)) {
       ShowUtil.show("没有需要导出的数据！");
       return;
     }

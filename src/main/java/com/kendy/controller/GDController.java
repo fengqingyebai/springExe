@@ -243,7 +243,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月19日
    */
   private void initGudongTeamMap() {
-    if (CollectUtil.isNullOrEmpty(dataList))
+    if (CollectUtil.isEmpty(dataList))
       return;
     gudongTeamMap = dataList.stream().collect(Collectors.groupingBy(// 先按股东分
         record -> getGudongByGameRecord((GameRecord) record), Collectors.groupingBy(info -> {
@@ -265,7 +265,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月19日
    */
   private void initGudongKaixiaoMap() {
-    if (CollectUtil.isNullOrEmpty(gudongKaixiao_dataList))
+    if (CollectUtil.isEmpty(gudongKaixiao_dataList))
       return;
     gudongKaixiaoMap = gudongKaixiao_dataList.stream().collect(Collectors
         .groupingBy(info -> StringUtil.nvl(((KaixiaoInfo) info).getKaixiaoGudong(), UN_KNOWN)));// 按团队分
@@ -277,7 +277,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月19日
    */
   private void initTeamMap() {
-    if (CollectUtil.isNullOrEmpty(dataList))
+    if (CollectUtil.isEmpty(dataList))
       return;
     teamMap = dataList.stream()
         .collect(Collectors.groupingBy(info -> StringUtil.nvl(info.getTeamId(), UN_KNOWN)));// 按团队分
@@ -348,7 +348,7 @@ public class GDController extends BaseController implements Initializable {
    */
   public void prepareAllData() {
     initData();
-    if (CollectUtil.isNullOrEmpty(dataList))
+    if (CollectUtil.isEmpty(dataList))
       return;
     Map<String, List<GameRecord>> gudongRecordList = dataList.stream()
         .collect(Collectors.groupingBy(record -> getGudongByGameRecord((GameRecord) record)));
@@ -452,7 +452,7 @@ public class GDController extends BaseController implements Initializable {
    * @return
    */
   public Double getHelirun(final List<GameRecord> recordList) {
-    return CollectUtil.isNullOrEmpty(recordList) ? 0d
+    return CollectUtil.isEmpty(recordList) ? 0d
         : recordList.stream().mapToDouble(item -> getHeLirun(item)).sum();
   }
 
@@ -834,7 +834,7 @@ public class GDController extends BaseController implements Initializable {
    * @return
    */
   private Double getTeamProfit(List<GameRecord> teamList) {
-    return CollectUtil.isNullOrEmpty(teamList) ? 0d
+    return CollectUtil.isEmpty(teamList) ? 0d
         : teamList.stream().mapToDouble(item -> getTeamPersonProfit(item)).sum();
   }
 
@@ -907,7 +907,7 @@ public class GDController extends BaseController implements Initializable {
     clearBtn.fire();
     // 准备数据
     prepareAllData();
-    if (CollectUtil.isNullOrEmpty(dataList)) {
+    if (CollectUtil.isEmpty(dataList)) {
       tableGDDetail.getItems().clear();
       tableYSGu.getItems().clear();
       tablekfGu.getItems().clear();
