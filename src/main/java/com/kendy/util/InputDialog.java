@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 
 /**
@@ -46,6 +47,7 @@ public class InputDialog {
     this.dialog = new Dialog<>();
     dialog.setTitle(title);
     dialog.setHeaderText(null);
+    ShowUtil.setIcon(this.dialog);
 
     // Set the button types.
     ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
@@ -92,6 +94,7 @@ public class InputDialog {
     this.multyDialog = new Dialog<>();
     multyDialog.setTitle(title);
     multyDialog.setHeaderText(null);
+    ShowUtil.setIcon(multyDialog);
 
     // Set the button types.
     // ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
@@ -162,6 +165,7 @@ public class InputDialog {
     this.multyDialog = new Dialog<>();
     multyDialog.setTitle(title);
     multyDialog.setHeaderText(null);
+    ShowUtil.setIcon(multyDialog);
 
     // Set the button types.
     ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
@@ -235,6 +239,7 @@ public class InputDialog {
     this.multyDialog = new Dialog<>();
     multyDialog.setTitle(title);
     multyDialog.setHeaderText(null);
+    ShowUtil.setIcon(multyDialog);
 
     // Set the button types.
     ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);

@@ -29,6 +29,9 @@ public class Constants {
 
 
   public static final String ZERO = "0";
+  
+  public static  final javafx.scene.image.Image icon =
+      new javafx.scene.image.Image(Constants.class.getResourceAsStream("/images/icon.png"));
 
   public static final double FINAL_HS_RATE_095 = 0.95; // 回水比例，这个是固定值
   public static final double FINAL_HS_RATE_0975 = 0.975; // 回水比例，这个是固定值

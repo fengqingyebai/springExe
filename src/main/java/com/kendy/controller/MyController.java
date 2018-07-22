@@ -666,10 +666,6 @@ public class MyController extends BaseController implements Initializable {
     addSubTab("托管工具", "TG_toolaa.fxml");
     addSubTab("自动上码配置", "SM_Autos.fxml");
     addSubTab("银行流水", "bank_flow_frame.fxml");
-    
-    ApplicationContext context2 = SpringFxmlLoader.getContext();
-    logger.info("after: context is " + (context2 != null ? " not null" : "null" ));
-    
   }
 
   /**
@@ -1325,13 +1321,7 @@ public class MyController extends BaseController implements Initializable {
         Scene scene = new Scene(root);
         addNewPlayerWindow.setTitle(title);
         addNewPlayerWindow.setScene(scene);
-        try {
-          addNewPlayerWindow.getIcons()
-              .add(new javafx.scene.image.Image("file:resource/images/icon.png"));
-        } catch (Exception e) {
-          logger.debug("找不到icon图标！");
-          e.printStackTrace();
-        }
+        ShowUtil.setIcon(addNewPlayerWindow);
         addNewPlayerWindow.show();
         // 缓存该对话框实例
         dataConstants.framesNameMap.put(windowName, addNewPlayerWindow);
@@ -3120,6 +3110,7 @@ public class MyController extends BaseController implements Initializable {
     Dialog<?> dialog = new Dialog<>();
     dialog.setTitle("检测结果");
     dialog.setHeaderText(null);
+    ShowUtil.setIcon(dialog);
 
     ButtonType loginButtonType = new ButtonType("我知道了", ButtonData.OK_DONE);
     dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);

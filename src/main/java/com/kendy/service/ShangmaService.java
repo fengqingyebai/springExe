@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.kendy.application.Main;
+import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
@@ -742,6 +744,7 @@ public class ShangmaService{
       dialog.setTitle("添加");
       dialog.setHeaderText(null);
       dialog.setContentText("续增上码值(Enter):");
+      ShowUtil.setIcon(dialog);
 
       Optional<String> result = dialog.showAndWait();
       if (result.isPresent()) {
@@ -799,6 +802,7 @@ public class ShangmaService{
       dialog.setTitle("添加");
       dialog.setHeaderText(null);
       dialog.setContentText("续增上码值(Enter):");
+      ShowUtil.setIcon(dialog);
 
       Optional<String> result = dialog.showAndWait();
       if (result.isPresent()) {
@@ -838,6 +842,7 @@ public class ShangmaService{
       Dialog<Pair<String, String>> dialog = new Dialog<>();
       dialog.setTitle(smInfo.getShangmaName());
       dialog.setHeaderText(null);
+      ShowUtil.setIcon(dialog);
       ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
       dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
       GridPane grid = new GridPane();
@@ -1216,6 +1221,7 @@ public class ShangmaService{
       Dialog<Pair<String, String>> dialog = new Dialog<>();
       dialog.setTitle("次日上码：" + smInfo.getShangmaName());
       dialog.setHeaderText(null);
+      ShowUtil.setIcon(dialog);
       ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
       dialog.getDialogPane().getButtonTypes().addAll(loginButtonType, ButtonType.CANCEL);
       GridPane grid = new GridPane();

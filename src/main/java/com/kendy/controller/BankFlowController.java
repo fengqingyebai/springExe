@@ -44,6 +44,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * 银行流水控制类
@@ -330,7 +331,9 @@ public class BankFlowController extends BaseController implements Initializable 
     dialog.setResizable(true);
     ButtonType loginButtonType = new ButtonType("关闭", ButtonData.APPLY);
     dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-    dialog.initOwner(Main.primaryStage0); // 用于设置图标和使大小有效
+    //dialog.initOwner(Main.primaryStage0); // 用于设置图标和使大小有效
+    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+    ShowUtil.setIcon(stage);
 
     StackPane stackPane = new StackPane();
 

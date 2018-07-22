@@ -32,12 +32,7 @@ public class Main extends Application {
     try {
       log.info("进入Main.start方法......");
       Parent root = (Parent) loader.load("/dialog/MainStageees2.fxml");
-      try {
-        Image icon = new Image(getClass().getResourceAsStream("/images/icon.png"));
-        primaryStage.getIcons().add(icon);
-      } catch (Exception e) {
-        log.error("找不到icon图标！");
-      }
+      primaryStage.getIcons().add(Constants.icon);
       primaryStage.setTitle(Constants.TITLE + Constants.VERSION);
       primaryStage.setScene(new Scene(root));
       primaryStage.show();
@@ -45,8 +40,6 @@ public class Main extends Application {
       primaryStage.setOnCloseRequest(e -> {
         exit();
       });
-      
-      
     } catch (Exception e) {
       e.printStackTrace();
     }

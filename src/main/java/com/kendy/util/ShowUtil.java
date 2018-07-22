@@ -5,8 +5,13 @@ import java.util.TimerTask;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
+import com.kendy.application.Main;
+import com.kendy.constant.Constants;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.TextInputDialog;
+import javafx.stage.Stage;
 
 /**
  * 展示工具类
@@ -61,6 +66,7 @@ public class ShowUtil {
     alert.setTitle("提示");
     alert.setHeaderText(null);
     alert.setContentText("\r\n" + message);
+    setIcon(alert);
     alert.showAndWait();
 
   }
@@ -76,8 +82,38 @@ public class ShowUtil {
     alert.setTitle("提示");
     alert.setHeaderText(null);
     alert.setContentText("\r\n" + message);
+    setIcon(alert);
     alert.showAndWait();
 
+  }
+  
+  
+  /**
+   * 设置弹框图标
+   * 
+   * @time 2018年7月22日
+   * @param stage
+   */
+  public static void setIcon(Stage stage) {
+    try {
+      stage.getIcons().add(Constants.icon);
+    } catch (Exception e) {
+    }
+  }
+  
+  /**
+   * 针对Dialog类型的弹框图标设置
+   * 
+   * @time 2018年7月22日
+   * @param dialog
+   */
+  public static void setIcon(Dialog<?> dialog) {
+    if(dialog instanceof TextInputDialog || dialog instanceof Alert) {
+      dialog.initOwner(Main.primaryStage0);
+    } else {
+      Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+      setIcon(stage);
+    }
   }
 
 

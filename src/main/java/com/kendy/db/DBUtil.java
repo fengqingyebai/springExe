@@ -1571,7 +1571,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
 
-      sql = "delete from record ";
+      sql = "delete from game_record ";
       ps = con.prepareStatement(sql);
       ps.execute();
 

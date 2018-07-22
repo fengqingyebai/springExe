@@ -1322,6 +1322,31 @@ public class GDController extends BaseController implements Initializable {
     }
     return KF_Total_Salary;
   }
+  
+  
+  /**
+   * 手动删除所有Record数据
+   * 
+   * @time 2018年2月25日
+   * @param event
+   */
+  public void clear_all_records_Action(ActionEvent event) {
+    Alert alert = new Alert(AlertType.CONFIRMATION);
+    alert.setTitle("警告");
+    alert.setHeaderText(null);
+    alert.setContentText("\r\n确定要手动删除数据库中所有白名单数据？");
+    Optional<ButtonType> result = alert.showAndWait();
+    if (result.get() == ButtonType.OK) {
+      // 删除缓存？
+      clearBtn.fire();
+
+      // 删除数据库
+      dbUtil.del_all_record_and_zhuofei_and_kaixiao();
+
+      log.info("客户手动删除数据库中所有白名单数据成功！！");
+      ShowUtil.show("手动删除成功！", 2);
+    }
+  }
 
   /**
    * 加载客服数据（按钮）
@@ -1396,29 +1421,6 @@ public class GDController extends BaseController implements Initializable {
     return NumUtil.getNumDivide(d1, d2);
   }
 
-  /**
-   * 手动删除所有Record数据
-   * 
-   * @time 2018年2月25日
-   * @param event
-   */
-  public void clear_all_records_Action(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n确定要手动删除数据库中所有白名单数据？");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
-      // 删除缓存？
-      clearBtn.fire();
-
-      // 删除数据库
-      dbUtil.del_all_record_and_zhuofei_and_kaixiao();
-
-      log.info("客户手动删除数据库中所有白名单数据成功！！");
-      ShowUtil.show("手动删除成功！", 2);
-    }
-  }
 
   /**
    * 一键配额

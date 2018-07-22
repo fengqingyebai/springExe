@@ -1070,36 +1070,6 @@ public class LMController extends BaseController implements Initializable {
     _clubListView.setItems(null);
   }
 
-  /**
-   * 清空桌费和已结算
-   * 
-   * @time 2017年11月22日
-   * @param event
-   */
-  public void clear_All_Club_ZhuoFei_Action(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n你确定要清空所有俱乐部的桌费和已结算操作吗?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
-      // 先去更新数据库
-      dbUtil.clearAllClub_ZF_YiJiSuan();
-      // 更新缓存
-      if (allClubMap != null && allClubMap.size() > 0) {
-        allClubMap.values().forEach(club -> {
-          club.setZhuoFei("0");
-          club.setZhuoFei2("0");
-          club.setZhuoFei3("0");
-          club.setYiJieSuan("0");
-          club.setYiJieSuan2("0");
-          club.setYiJieSuan3("0");
-        });
-        _clubListView.getSelectionModel().selectFirst();
-      }
-      ShowUtil.show("已清空桌费和已结算！", 2);
-    }
-  }
 
   /**
    * 修改俱乐部的股东
