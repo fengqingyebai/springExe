@@ -17,6 +17,7 @@ import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.TgWaizhaiService;
 import com.kendy.service.WaizhaiService;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import javafx.beans.value.ChangeListener;
@@ -183,12 +184,9 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText(selectedMemberName + " 你确定要删除该人员吗?\r\n若是父节点会连同所有子节点都删除!");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    boolean confirmYes = AlertUtil.confirm(selectedMemberName 
+        + " 你确定要删除该人员吗?\r\n若是父节点会连同所有子节点都删除!");
+    if (confirmYes) {
       if (!StringUtil.isBlank(selectedMemberName)) {
         String playerId = getIdFromStr(selectedMemberName);// selectedMemberName.split(" ")[1];
         delMemberListView.getItems().remove(selectedMemberName);
@@ -275,12 +273,8 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText(selectedMemberName + " 哥，你确定要修改该玩家名称为" + newName + "??");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    boolean confirmYes = AlertUtil.confirm("警告", selectedMemberName + " 哥，你确定要修改该玩家名称为" + newName + "??");
+    if (confirmYes) {
       try {
         String playerId = getIdFromStr(selectedMemberName);
 
@@ -333,12 +327,9 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText(selectedMemberName + " 哥，你确定要修改该玩家额度为" + newEdu + "??");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    boolean confirmYes =
+        AlertUtil.confirm("警告", selectedMemberName + " 哥，你确定要修改该玩家额度为" + newEdu + "??");
+    if (confirmYes) {
       try {
         String playerId = getIdFromStr(selectedMemberName);
 
@@ -395,12 +386,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText(selectedMemberName + " 哥，你确定要修改该玩家团队为为" + newTeam + "??");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("警告", selectedMemberName + " 哥，你确定要修改该玩家团队为为" + newTeam + "??")) {
       try {
         // 1,判断是否 已经合并了父子ID关系
         // 若是，则提示先解除,结束程序
@@ -447,12 +433,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText(selectedMemberName + " 哥，你确定要修改该玩家的股东为" + newGD + "??");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("警告", selectedMemberName + " 哥，你确定要修改该玩家的股东为" + newGD + "??")) {
       try {
         // 1,获取玩家ID
         String playerId = getIdFromStr(selectedMemberName);

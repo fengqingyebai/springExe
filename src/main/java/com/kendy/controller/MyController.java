@@ -70,6 +70,7 @@ import com.kendy.service.ShangmaService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.WaizhaiService;
 import com.kendy.service.ZonghuiService;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
@@ -90,13 +91,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -1149,16 +1147,11 @@ public class MyController extends BaseController implements Initializable {
       if ("".equals(selected_LM_type)) {
         return;
       }
-      Alert alert = new Alert(AlertType.CONFIRMATION);
-      alert.setTitle("提示");
-      alert.setHeaderText(null);
-      alert.setContentText("\r\n==== " + selected_LM_type + " ===, 确定??");
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() != ButtonType.OK) {
+      if (AlertUtil.confirm("==== " + selected_LM_type + " ===, 确定??")) {
+        logger.info("最终选择:" + selected_LM_type);
+      } else {
         selected_LM_type = "";
         logger.info("selected_LM_type:" + selected_LM_type);
-      } else {
-        logger.info("最终选择:" + selected_LM_type);
       }
     });
 
@@ -1527,12 +1520,7 @@ public class MyController extends BaseController implements Initializable {
                     ShowUtil.show("只能在导入战绩后才能结算！");
                     return;
                   }
-                  Alert alert = new Alert(AlertType.CONFIRMATION);
-                  alert.setTitle("提示");
-                  alert.setHeaderText(null);
-                  alert.setContentText("\r\n只能在当天最后一场才能结算！你确定了吗?");
-                  Optional<ButtonType> result = alert.showAndWait();
-                  if (result.get() != ButtonType.OK) {
+                  if (!AlertUtil.confirm("只能在当天最后一场才能结算！你确定了吗?")) {
                     return;
                   }
                   TeamInfo teamInfo = getTableView().getItems().get(getIndex());
@@ -2262,12 +2250,7 @@ public class MyController extends BaseController implements Initializable {
    * 撤销当局信息
    */
   public void openCancelAlertAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n你确定要撤销本局所有操作吗?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("即将加载关闭之前的最后锁定数据，确认要从中途加载吗？")) {
       importZJBtn.setDisable(false);
       logger.debug("确定撤销本局所有操作");
       // 情况一：第一场还没锁定就撤销
@@ -2320,12 +2303,7 @@ public class MyController extends BaseController implements Initializable {
    * 清空联盟对帐的信息
    */
   public void openLMDialogAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n你确定要清空联盟对称信息么?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("你确定要清空联盟对称信息么?")) {
       LMLabel.setText("0.00");
       logger.info("确定清空联盟对帐信息");
 
@@ -2469,13 +2447,9 @@ public class MyController extends BaseController implements Initializable {
     int kaixiaoIndex = tableKaixiao.getSelectionModel().getFocusedIndex();
     KaixiaoInfo info = tableKaixiao.getSelectionModel().getSelectedItem();
     if (info != null) {
-      Alert alert = new Alert(AlertType.CONFIRMATION);
-      alert.setTitle("提示");
-      alert.setHeaderText(null);
-      alert.setContentText("实时开销名称：" + info.getKaixiaoType() + " 金额：" + info.getKaixiaoMoney()
-          + "\r\n你确定要删除所选中的开销记录吗?");
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() == ButtonType.OK) {
+      String content = "实时开销名称：" + info.getKaixiaoType() + " 金额：" + info.getKaixiaoMoney()
+      + "\r\n你确定要删除所选中的开销记录吗?";
+      if (AlertUtil.confirm(content)) {
         tableKaixiao.getItems().remove(kaixiaoIndex);
         tableKaixiao.refresh();
         // 删除数据库中的开销数据
@@ -2498,13 +2472,9 @@ public class MyController extends BaseController implements Initializable {
     int index = tableCurrentMoneyInfo.getSelectionModel().getFocusedIndex();
     CurrentMoneyInfo info = tableCurrentMoneyInfo.getSelectionModel().getSelectedItem();
     if (info != null) {
-      Alert alert = new Alert(AlertType.CONFIRMATION);
-      alert.setTitle("提示");
-      alert.setHeaderText(null);
-      alert.setContentText(
-          "实时金额名称：" + info.getMingzi() + " 金额：" + info.getShishiJine() + "\r\n你确定要删除所选中的实时金额吗?");
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() == ButtonType.OK) {
+      String content =
+          "实时金额名称：" + info.getMingzi() + " 金额：" + info.getShishiJine() + "\r\n你确定要删除所选中的实时金额吗?";
+      if (AlertUtil.confirm(content)) {
         tableCurrentMoneyInfo.getItems().remove(index);
         tableCurrentMoneyInfo.refresh();
         moneyService.flush_SSJE_table();
@@ -2552,12 +2522,8 @@ public class MyController extends BaseController implements Initializable {
    * 开始新一天的统计
    */
   public void openTimeInputAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n即将初始化所有配置项，点击确定开始操作新一天报表!");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("即将初始化所有配置项，点击确定开始操作新一天报表!")) {
+      
       // 从数据库中判断是否符合从中途继续条件
       if (2 == dbUtil.newStaticOrContinue()) {
         ShowUtil.show("开始新一天的统计条件不满足，请点击中途继续按钮！");
@@ -2637,12 +2603,8 @@ public class MyController extends BaseController implements Initializable {
    * 中途继续按钮
    */
   public void middle2ContinueAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n即将加载关闭之前的最后锁定数据，确认要从中途加载吗？");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    String content = "即将加载关闭之前的最后锁定数据，确认要从中途加载吗？";
+    if (AlertUtil.confirm(content)) {
       // 从数据库中判断是否符合从中途继续条件
       if (1 == dbUtil.newStaticOrContinue()) {
         ShowUtil.show("中途继续条件不满足，请点击开始新一天的统计！");
@@ -2687,12 +2649,8 @@ public class MyController extends BaseController implements Initializable {
    * 结束今天统计按钮
    */
   public void endStaticAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n即将结束今天所有操作并将数据保存到数据库，确定？");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("即将结束今天所有操作并将数据保存到数据库，确定？")) {
+      
       if (dataConstants.All_Locked_Data_Map.isEmpty()) {
         ShowUtil.show("今日无锁定数据，不能归档！请检查");
         return;
@@ -2769,12 +2727,7 @@ public class MyController extends BaseController implements Initializable {
    * @param event
    */
   public void clearAllDataAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("即将清空桌费、已结算、已锁定的历史数据，是否继续?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("即将清空桌费、已结算、已锁定的历史数据，是否继续?")) {
       if (dbUtil.clearAllData()) {
         ShowUtil.show("清空成功。", 1);
       } else {
@@ -2839,28 +2792,23 @@ public class MyController extends BaseController implements Initializable {
    * @param event
    */
   public void refreshNextExcelAction(ActionEvent event) {
-    // 先给个提示
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n你确定要强制刷新自动导入下一场的缓存操作吗?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() != ButtonType.OK)
-      return;
+    
+    if (AlertUtil.confirm("你确定要强制刷新自动导入下一场的缓存操作吗?")) {
 
-    // 获取导入的值
-    String zjFilePath = excelDir.getText();
-    if (StringUtil.isBlank(zjFilePath)) {
-      ShowUtil.show("战绩栏要有初始Excel地址！");
-      return;
-    }
-    // 获取父级目录下的所有Excel文件
-    File rootFile = new File(zjFilePath.substring(0, zjFilePath.lastIndexOf("\\")));
-    File[] excelList = rootFile.listFiles();
-    // 清空并重置待导入队列
-    excelQueue.clear();
-    for (File file : excelList) {
-      excelQueue.add(file);
+      // 获取导入的值
+      String zjFilePath = excelDir.getText();
+      if (StringUtil.isBlank(zjFilePath)) {
+        ShowUtil.show("战绩栏要有初始Excel地址！");
+        return;
+      }
+      // 获取父级目录下的所有Excel文件
+      File rootFile = new File(zjFilePath.substring(0, zjFilePath.lastIndexOf("\\")));
+      File[] excelList = rootFile.listFiles();
+      // 清空并重置待导入队列
+      excelQueue.clear();
+      for (File file : excelList) {
+        excelQueue.add(file);
+      }
     }
   }
 

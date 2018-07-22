@@ -23,6 +23,7 @@ import com.kendy.service.TeamProxyService;
 import com.kendy.service.TgWaizhaiService;
 import com.kendy.service.WaizhaiService;
 import com.kendy.service.ZonghuiService;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import javafx.collections.FXCollections;
@@ -105,12 +106,8 @@ public class CombineIDController extends BaseController implements Initializable
       ShowUtil.show("请先选择父ID!");
       return;
     } else {
-      Alert alert = new Alert(AlertType.CONFIRMATION);
-      alert.setTitle(parentNameAndId);
-      alert.setHeaderText(null);
-      alert.setContentText("你确定要解散该合并ID吗?\r\n父ID：" + parentNameAndId);
-      Optional<ButtonType> result = alert.showAndWait();
-      if (result.get() == ButtonType.OK) {
+      if (AlertUtil.confirm(parentNameAndId, "你确定要解散该合并ID吗?\r\n父ID：" + parentNameAndId)) {
+        
         String parentId = getIdFromStr(parentNameAndId);
         Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(parentId);
         if (subIdSet == null) {

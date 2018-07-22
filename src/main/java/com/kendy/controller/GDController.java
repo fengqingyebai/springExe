@@ -32,6 +32,7 @@ import com.kendy.model.GameRecord;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.WaizhaiService;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
@@ -1331,12 +1332,7 @@ public class GDController extends BaseController implements Initializable {
    * @param event
    */
   public void clear_all_records_Action(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n确定要手动删除数据库中所有白名单数据？");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("警告", "确定要手动删除数据库中所有白名单数据？")) {
       // 删除缓存？
       clearBtn.fire();
 
@@ -1433,12 +1429,8 @@ public class GDController extends BaseController implements Initializable {
       ShowUtil.show("您已经一键分配过了！");
       return;
     }
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("警告");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n 将清空场次信息中的利润栏以及把股东值赋到金额栏, 确定??");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    boolean confirmYes = AlertUtil.confirm("警告", "将清空场次信息中的利润栏以及把股东值赋到金额栏, 确定??");
+    if (confirmYes) {
       // 金额表
       TableView<CurrentMoneyInfo> tableMoney = myController.tableCurrentMoneyInfo;
       // 利润表

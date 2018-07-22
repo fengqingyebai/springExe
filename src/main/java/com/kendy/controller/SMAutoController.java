@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -53,6 +52,7 @@ import com.kendy.spider.HttpUtil;
 import com.kendy.spider.RespResult;
 import com.kendy.spider.WanjiaApplyInfo;
 import com.kendy.spider.WanjiaListResult;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FilterUtf8mb4;
@@ -70,8 +70,6 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
@@ -1176,13 +1174,8 @@ public class SMAutoController extends BaseController implements Initializable {
    * @param event
    */
   public void reAutoDownAction(ActionEvent event) {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText(
-        System.lineSeparator() + "你即将删除本地文件【" + downloadCache.size() + "个】并重新下载 , 确定?");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    String content = "你即将删除本地文件【" + downloadCache.size() + "个】并重新下载 , 确定?";
+    if (AlertUtil.confirm(content)) {
       if (this.timer != null) {
         ShowUtil.show("请先暂停爬取!");
         return;

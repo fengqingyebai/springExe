@@ -312,7 +312,7 @@ public class InputDialog {
     textDialog.setTitle(title);
     textDialog.setHeaderText(null);
     textDialog.setContentText(keyText);
-    // textDialog.initOwner(Main.primaryStage0);
+    ShowUtil.setIcon(textDialog);
   }
 
   public Optional<Pair<String, String>> getResult() {

@@ -32,6 +32,7 @@ import com.kendy.entity.ShangmaNextday;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.excel.ExportShangmaExcel;
 import com.kendy.model.SMResultModel;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
@@ -1148,12 +1149,7 @@ public class ShangmaService{
    * @time 2018年2月4日
    */
   public void loadNextDayDataAction() {
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("\r\n只有开始新一天的统计才可以加载次日数据哦");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    if (AlertUtil.confirm("只有开始新一天的统计才可以加载次日数据哦")) {
       Map<String, List<ShangmaDetailInfo>> detailMap = dataConstants.SM_Detail_Map;
       boolean isHasValue = detailMap.values().stream().anyMatch(list -> list.size() > 0);
       if (isHasValue) {

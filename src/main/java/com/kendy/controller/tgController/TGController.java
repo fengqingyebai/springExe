@@ -16,21 +16,12 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.application.Main;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
-import com.kendy.controller.BankFlowController;
 import com.kendy.controller.BaseController;
-import com.kendy.controller.CombineIDController;
-import com.kendy.controller.GDController;
-import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
-import com.kendy.controller.QuotaController;
-import com.kendy.controller.SMAutoController;
-import com.kendy.controller.TeamProxyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.TGCommentInfo;
@@ -43,19 +34,15 @@ import com.kendy.entity.TGTeamModel;
 import com.kendy.entity.TypeValueInfo;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.interfaces.Entity;
-import com.kendy.service.AutoDownloadZJExcelService;
-import com.kendy.service.JifenService;
-import com.kendy.service.MemberService;
 import com.kendy.service.MoneyService;
-import com.kendy.service.ShangmaService;
 import com.kendy.service.TGExportExcelService;
 import com.kendy.service.TGFwfService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.TgWaizhaiService;
 import com.kendy.service.WaizhaiService;
 import com.kendy.service.ZonghuiService;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
-import com.kendy.util.CustomView;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.InputDialog;
 import com.kendy.util.NumUtil;
@@ -65,13 +52,9 @@ import com.kendy.util.TableUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -86,8 +69,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 
 /**
@@ -1455,12 +1436,8 @@ public class TGController extends BaseController implements Initializable {
       return;
     }
 
-    Alert alert = new Alert(AlertType.CONFIRMATION);
-    alert.setTitle("提示");
-    alert.setHeaderText(null);
-    alert.setContentText("确定这是最后一场了吗，将保存本场最后一条记录进数据库，确定数据正确了吗？");
-    Optional<ButtonType> result = alert.showAndWait();
-    if (result.get() == ButtonType.OK) {
+    boolean confirmYes = AlertUtil.confirm("确定这是最后一场了吗，将保存本场最后一条记录进数据库，确定数据正确了吗？");
+    if (confirmYes) {
       int size = tableTGLirun.getItems().size();
       if (size > 0) {
         TGLirunInfo tgLirunInfo = tableTGLirun.getItems().get(size - 1);
