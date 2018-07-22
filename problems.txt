@@ -3,12 +3,12 @@
 3 网络请求时间限止问题待解决
 4 PropertiesUtil.java将移除（已解决）
 5 把application模块统一到com.kendy包下 （已解决）
-6 获取实例实例问题，是否采用spring 或springBoot
+6 获取实例实例问题，是否采用spring 或springBoot （已解决, 引进了Spring）
 7 数据库考虑引进ORM框架
 8 将根目录下的resources文件夹统一到src/main/resources中（已解决）
 9 重构spider中的内容
 10 根据编码规范进行约束所有代码格式（已解决）
 11 重构旧版本Excel导入为注解导入
 12 dialog关闭问题
-13 实时上码抽离
+13 实时上码抽离 （已解决）
 14 调取后台接口和刷新ListView的等待问题，需要引入Task和Service

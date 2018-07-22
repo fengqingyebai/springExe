@@ -39,7 +39,7 @@ import javafx.stage.Stage;
  */
 @Component
 public class DataConstans {
-  
+  private Logger logger = LoggerFactory.getLogger(DataConstans.class);
   
   @Autowired
   private DBUtil dbUtil;
@@ -50,7 +50,7 @@ public class DataConstans {
    */
   public DataConstans() {
     super();
-    System.out.println("DataConstans 构造方法");
+    logger.info("DataConstans 构造方法");
   }
 
   /**************************************************************************************
