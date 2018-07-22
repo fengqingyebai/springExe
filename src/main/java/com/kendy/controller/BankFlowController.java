@@ -55,7 +55,6 @@ import javafx.stage.Stage;
 @Component
 public class BankFlowController extends BaseController implements Initializable {
 
-
   private static Logger log = Logger.getLogger(BankFlowController.class);
   
   @Autowired

@@ -64,7 +64,7 @@ public class DBUtil {
   private String sql;
   
   /**
-   * 
+   * 构造方法
    */
   public DBUtil() {
     super();
