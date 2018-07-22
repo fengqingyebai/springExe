@@ -18,10 +18,9 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.kendy.application.Main;
-import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
+import com.kendy.controller.SMController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
@@ -45,8 +44,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
@@ -77,6 +74,8 @@ public class ShangmaService{
   public DataConstans dataConstants; // 数据控制类
   @Autowired
   public MyController myController ;
+  @Autowired
+  public SMController smController ;
 
   public TableView<ShangmaInfo> tableSM;
   public TableView<ShangmaDetailInfo> tableSMD;
@@ -102,26 +101,21 @@ public class ShangmaService{
   /**
    * 初始化上码相关配置
    */
-  public void initShangma(VBox shangmaVBox0, final TableView<ShangmaInfo> tableShangma,
-      final Label shangmaTeamIdLabel0, TableView<ShangmaDetailInfo> tableShangmaDetail,
-      Label shangmaZSM, Label shangmaZZJ, TableView<WanjiaInfo> tablePaiju,
-      TableView<ShangmaDetailInfo> tableShangmaNextDay, Label teamShangmaAvailable0,
-      TextField teamYajin0, TextField teamEdu0, CheckBox smTeamShangmaCheckBox0) {
-    shangmaVBox = shangmaVBox0;
-    tableSM = tableShangma;
-    tableSMD = tableShangmaDetail;
-    labelZSM = shangmaZSM;
-    labelZZJ = shangmaZZJ;
-    tablePJ = tablePaiju;
-    shangmaTeamIdLabel = shangmaTeamIdLabel0;
-    tableND = tableShangmaNextDay;
-    teamShangmaAvailable = teamShangmaAvailable0;
-    teamYajin = teamYajin0;
-    teamEdu = teamEdu0;
-    smTeamShangmaCheckBox = smTeamShangmaCheckBox0;
+  public void initShangma() {
+    this.shangmaVBox = smController.shangmaVBox;
+    this.tableSM = smController.tableShangma;
+    this.tableSMD = smController.tableShangmaDetail;
+    this.labelZSM = smController.shangmaZSM;
+    this.labelZZJ = smController.shangmaZZJ;
+    this.tablePJ = myController.tablePaiju;
+    this.shangmaTeamIdLabel = smController.shangmaTeamId;
+    this.tableND = smController.tableShangmaNextDay;
+    this.teamShangmaAvailable = smController.teamShangmaAvailable;
+    this.teamYajin = smController.teamYajin;
+    this.teamEdu = smController.teamEdu;
+    this.smTeamShangmaCheckBox = smController.smTeamShangmaCheckBox;
 
     // TODO 打勾：团队可上码
-
 
     // 重新初始化所有团队ID按钮
     initShangmaButton();

@@ -177,7 +177,7 @@ public class ZonghuiService{
     String yestoday = profitList.stream().filter(info -> "总团队服务费".equals(info.getProfitType()))
         .map(info -> info.getProfitAccount()).findFirst().orElse("0");
 
-    String now = myController.table_Profit.getItems().stream()
+    String now = myController.tableProfit.getItems().stream()
         .filter(info -> "总团队服务费".equals(info.getProfitType())).map(info -> info.getProfitAccount())
         .findFirst().orElse("0");
 
