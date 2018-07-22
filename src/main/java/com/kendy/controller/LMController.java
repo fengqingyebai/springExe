@@ -80,39 +80,25 @@ public class LMController extends BaseController implements Initializable {
   public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================
-  @FXML
-  private ListView<String> clubListView;
-  @FXML
-  private AnchorPane bigAnchorPane;// 展示面板（包含单个详情和所有俱乐部统计）
-  @FXML
-  private Label sumOfZF;// 合计桌费
-  @FXML
-  private Label currentLMLabel;// 当前联盟
+  @FXML private ListView<String> clubListView;
+  @FXML private AnchorPane bigAnchorPane;// 展示面板（包含单个详情和所有俱乐部统计）
+  @FXML private Label sumOfZF;// 合计桌费
+  @FXML private Label currentLMLabel;// 当前联盟
 
   // =====================================================================单个俱乐部总和表
-  @FXML
-  private TableView<LMSumInfo> tableLMSum;
-  @FXML
-  private TableColumn<LMSumInfo, String> lmSumName;
-  @FXML
-  private TableColumn<LMSumInfo, String> lmSumZJ;
-  @FXML
-  private TableColumn<LMSumInfo, String> lmSumInsure;
-  @FXML
-  private TableColumn<LMSumInfo, String> lmSumPersonCount;
+  @FXML private TableView<LMSumInfo> tableLMSum;
+  @FXML private TableColumn<LMSumInfo, String> lmSumName;
+  @FXML private TableColumn<LMSumInfo, String> lmSumZJ;
+  @FXML private TableColumn<LMSumInfo, String> lmSumInsure;
+  @FXML private TableColumn<LMSumInfo, String> lmSumPersonCount;
 
 
   // =====================================================================单个俱乐部详情表
-  @FXML
-  private TableView<LMDetailInfo> tableLMDetail;
-  @FXML
-  private TableColumn<LMDetailInfo, String> lmDetailTableId;
-  @FXML
-  private TableColumn<LMDetailInfo, String> lmDetailZJ;
-  @FXML
-  private TableColumn<LMDetailInfo, String> lmDetailInsure;
-  @FXML
-  private TableColumn<LMDetailInfo, String> lmDetailPersonCount;
+  @FXML private TableView<LMDetailInfo> tableLMDetail;
+  @FXML private TableColumn<LMDetailInfo, String> lmDetailTableId;
+  @FXML private TableColumn<LMDetailInfo, String> lmDetailZJ;
+  @FXML private TableColumn<LMDetailInfo, String> lmDetailInsure;
+  @FXML private TableColumn<LMDetailInfo, String> lmDetailPersonCount;
 
 
   private Logger log = Logger.getLogger(LMController.class);

@@ -139,8 +139,6 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
           players.parallelStream().filter(info -> ((Player) info).getPlayerName().contains(text))
               .map(Player::getPlayerName).collect(Collectors.toList());
       playersView.setItems(FXCollections.observableArrayList(playerNames));
-      // if(CollectUtil.isHaveValue(playerNames))
-      // playersView.getSelectionModel().select(0);
     });
 
     // 监听ListView点击框

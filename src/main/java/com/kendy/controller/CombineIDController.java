@@ -70,18 +70,10 @@ public class CombineIDController extends BaseController implements Initializable
 
   // =====================================================================合并ID对话框
   public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
-  @FXML
-  private TextField combineName; // 模糊查询的名称
-
-  @FXML
-  private TextField parentIdField;
-
-  @FXML
-  private ListView<String> leftPlayerListView;
-
-  @FXML
-  private ListView<String> rightPlayerListView;
-
+  @FXML private TextField combineName; // 模糊查询的名称
+  @FXML private TextField parentIdField;
+  @FXML private ListView<String> leftPlayerListView;
+  @FXML private ListView<String> rightPlayerListView;
   @Override
   public void initialize(URL location, ResourceBundle resources) {
 

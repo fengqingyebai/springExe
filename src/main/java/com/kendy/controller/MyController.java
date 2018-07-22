@@ -379,10 +379,11 @@ public class MyController extends BaseController implements Initializable {
 
 
   /**
-   * 节点加载完后需要进行的一些初始化操作 Initializes the controller class. This method is automatically called after
+   * 节点加载完后需要进行的一些初始化操作 
+   * Initializes the controller class. 
+   * This method is automatically called after
    * the fxml file has been loaded.
    */
-  @SuppressWarnings({"unchecked"})
   @Override
   public void initialize(URL location, ResourceBundle resources) {
 
@@ -411,11 +412,11 @@ public class MyController extends BaseController implements Initializable {
     bindCellValueByTable(new WanjiaInfo(), tablePaiju);
     pay.setCellFactory(cellFactory);// 支付按钮：单独出来
     copy.setCellFactory(cellFactoryCopy);// 复制按钮：单独出来
-    setColumnCenter(pay, copy);
+    //setColumnCenter(pay, copy);
 
     // 绑定实时金额表
     tableCurrentMoneyInfo.setEditable(true);
-    bindCellValue(cmSuperIdSum, mingzi, shishiJine, cmiEdu);
+    bindCellValueByTable(new CurrentMoneyInfo(), tableCurrentMoneyInfo);
     cmSuperIdSum.setStyle(Constants.CSS_CENTER_BOLD);
     shishiJine.setCellFactory(TextFieldTableCell.forTableColumn());
     setSSJEEditOnCommit();
@@ -690,48 +691,10 @@ public class MyController extends BaseController implements Initializable {
           moneyService.update_Table_CMI_Map();// 更新{玩家ID=CurrentMoneyInfo},感觉没什么用
         }
         if ("代理查询".equals(tab.getText())) {
-          String dateStr = dateLabel.getText();
-          if (!StringUtil.isBlank(dateStr)) {
-            teamProxyController.proxyDateLabel.setText(dateStr);
-          }
-          // 查询最新数据
-          String teamId = teamProxyController.teamIDCombox.getSelectionModel().getSelectedItem();
-          if (!StringUtil.isBlank(teamId))
-            teamProxyService.refresh_TableTeamProxy_TableProxySum(teamId);
-
+          teamProxyController.loadWhenClickTab();
         }
         if ("实时上码系统".equals(tab.getText())) {
-          // 刷新上码中的teamWanjiaIdMap
-          shangmaService.refreshTeamIdAndPlayerId(); // update 2018-3-16
-
-          // 获取最新的实时金额Map {玩家ID={}}
-          Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();;
-          ObservableList<CurrentMoneyInfo> obList = tableCurrentMoneyInfo.getItems();
-          if (obList != null) {
-            String pId = "";
-            for (CurrentMoneyInfo cmiInfo : obList) {
-              pId = cmiInfo.getWanjiaId();
-              if (!StringUtil.isBlank(pId)) {
-                lastCMIMap.put(pId, cmiInfo);
-              }
-            }
-          }
-          shangmaService.cmiMap = lastCMIMap;
-
-          dataConstants.refresh_SM_Detail_Map();
-
-          // 加载数据
-          String shangmaTeamIdValue = smController.shangmaTeamId.getText();
-          if (!StringUtil.isBlank(shangmaTeamIdValue)) {
-            // ShangmaService.loadShangmaTable(shangmaTeamIdValue,tableShangma);
-          } else {
-            if (dataConstants.huishuiMap.containsKey("公司")) {
-              shangmaTeamIdValue = "公司";
-            } else {
-              shangmaTeamIdValue = ((Button) smController.shangmaVBox.getChildren().get(0)).getText();
-            }
-          }
-          shangmaService.loadShangmaTable(shangmaTeamIdValue, smController.tableShangma);
+          smController.loadWhenClickTab();
         }
         if ("积分查询".equals(tab.getText())) {
 
@@ -783,9 +746,7 @@ public class MyController extends BaseController implements Initializable {
     }
   }
 
-
-
-  // ======================= 打开文件选择 Excel  =======================
+  // ==================================== 打开文件选择 Excel  ====================================
   /**
    * 导入excel文件选择器
    * 
@@ -852,7 +813,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void importMembersExcelAction(ActionEvent even) {
     String membersFilePath = membersDir.getText();
-    if (!StringUtil.isBlank(membersFilePath)) {
+    if (StringUtil.isNotBlank(membersFilePath)) {
       // 将人员名单文件缓存起来
       try {
         Map<String, Player> allPlayers =
@@ -2551,22 +2512,18 @@ public class MyController extends BaseController implements Initializable {
     jifenService.jifenQuery(tableJifen, jfStartTime, jfEndTime, jifenInput, jifenRankLimit,
         jfTeamIDCombox);
   }
-
-
   /**
    * 导出人员表
    */
   public void exportMembersExcelAction(ActionEvent event) {
     moneyService.exportMemberExcel();
   }
-
   /**
    * 导出回水表
    */
   public void exportHuishuiExcelAction(ActionEvent event) {
     moneyService.exportTeamhsExcel();
   }
-
   /**
    * 导出合并ID表
    */

@@ -78,7 +78,7 @@
                         <TableColumn fx:id="shangmaSumOfZJ" text="战绩总结算" />
                     </columns>
                   </TableView>
-                  <ScrollPane layoutX="59.0" layoutY="55.0" prefHeight="754.0" prefViewportHeight="849.0" prefViewportWidth="105.0" prefWidth="107.0">
+                  <ScrollPane layoutX="47.0" layoutY="55.0" prefHeight="754.0" prefViewportHeight="849.0" prefViewportWidth="105.0" prefWidth="119.0">
                      <content>
                         <VBox fx:id="shangmaVBox" layoutX="59.0" layoutY="6.0" prefHeight="1153.0" prefWidth="105.0">
                            <padding>

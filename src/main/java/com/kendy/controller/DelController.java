@@ -63,33 +63,14 @@ public class DelController extends BaseController implements Initializable {
   public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================删除人员对话框
-  @FXML
-  private TextField memberName;
-
-  @FXML
-  private TextField memberId;
-
-  @FXML
-  private ListView<String> delMemberListView;
-
-  @FXML
-  private ListView<String> detailListView;
-
-
-  @FXML
-  private TextField newPlayerName;
-
-  @FXML
-  private TextField newPlayerEdu;
-
-  @FXML
-  private TextField newTeamId;
-  @FXML
-  private TextField newGudong;
-  // =====================================================================对话框
-
-
-  // =====================================================================对话框
+  @FXML private TextField memberName;
+  @FXML private TextField memberId;
+  @FXML private ListView<String> delMemberListView;
+  @FXML private ListView<String> detailListView;
+  @FXML private TextField newPlayerName;
+  @FXML private TextField newPlayerEdu;
+  @FXML private TextField newTeamId;
+  @FXML private TextField newGudong;
 
 
   @SuppressWarnings({"unchecked", "rawtypes"})

@@ -1,15 +1,9 @@
 package com.kendy.controller;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.kendy.annotation.Mycolumn;
-import com.kendy.application.SpringFxmlLoader;
 import com.kendy.interfaces.Entity;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

@@ -61,11 +61,9 @@ public class BankFlowController extends BaseController implements Initializable 
   @Autowired
   public DBUtil dbUtil;
 
-  @FXML
-  public ScrollPane scrollDates; // 放所有动态表的pane
+  @FXML public ScrollPane scrollDates; // 放所有动态表的pane
 
-  @FXML
-  public StackPane stackPane; // 放条形图的pane
+  @FXML public StackPane stackPane; // 放条形图的pane
 
   private static final String CENTER_CSS = "-fx-alignment: CENTER;";
   private static final int COL_WIDTH = 98;

@@ -1,6 +1,8 @@
 package com.kendy.controller;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
@@ -9,18 +11,22 @@ import org.springframework.stereotype.Component;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
+import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.WaizhaiInfo;
 import com.kendy.interfaces.Entity;
+import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
 import com.kendy.util.StringUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
@@ -153,6 +159,47 @@ public class SMController extends BaseController implements Initializable {
     // 实时上马系统
     shangmaService.initShangma();
 
+  }
+  
+  /**
+   * 点击实时上码Tab时加载数据
+   * 
+   * @time 2018年7月22日
+   */
+  public void loadWhenClickTab() {
+    // 刷新上码中的teamWanjiaIdMap
+    shangmaService.refreshTeamIdAndPlayerId();
+
+    // 获取最新的实时金额Map {玩家ID={}}
+    Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();;
+    ObservableList<CurrentMoneyInfo> obList = myController.tableCurrentMoneyInfo.getItems();
+    if (obList != null) {
+      String pId = "";
+      for (CurrentMoneyInfo cmiInfo : obList) {
+        pId = cmiInfo.getWanjiaId();
+        if (StringUtil.isNotBlank(pId)) {
+          lastCMIMap.put(pId, cmiInfo);
+        }
+      }
+    }
+    shangmaService.cmiMap = lastCMIMap;
+
+    // 获取最新的上码表的个人详情
+    dataConstants.refresh_SM_Detail_Map();
+
+    // 加载数据
+    String shangmaTeamIdValue = shangmaTeamId.getText();
+    if (StringUtil.isNotBlank(shangmaTeamIdValue)) {
+      // ShangmaService.loadShangmaTable(shangmaTeamIdValue,tableShangma);
+    } else {
+      if (dataConstants.huishuiMap.containsKey("公司")) {
+        shangmaTeamIdValue = "公司";
+        shangmaTeamId.setText("公司");
+      } else {
+        shangmaTeamIdValue = ((Button)shangmaVBox.getChildren().get(0)).getText();
+      }
+    }
+    shangmaService.loadShangmaTable(shangmaTeamIdValue, tableShangma);
   }
 
   /**

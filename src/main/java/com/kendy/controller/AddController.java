@@ -68,48 +68,29 @@ public class AddController extends BaseController implements Initializable {
   public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================新增团队回水对话框
-  @FXML
-  private TextField gudong2Field; // 股东
-  @FXML
-  private TextField beizhu2Field; // 股东
-  @FXML
-  private TextField teamIdField; // 新增团队ID
-  @FXML
-  private TextField teamNameField; // 新增团队名称
-  @FXML
-  private TextField huishui; // 新增团队回水
-  @FXML
-  private TextField insuranceRate; // 新增保险比例
+  @FXML private TextField gudong2Field; // 股东
+  @FXML private TextField beizhu2Field; // 股东
+  @FXML private TextField teamIdField; // 新增团队ID
+  @FXML private TextField teamNameField; // 新增团队名称
+  @FXML private TextField huishui; // 新增团队回水
+  @FXML private TextField insuranceRate; // 新增保险比例
   // =====================================================================新增人员名单对话框
-  @FXML
-  private TextField gameIdField;// 团ID
-  @FXML
-  private TextField gudongField;// 股东
-  @FXML
-  private TextField teamField;// 团队名称
-  @FXML
-  private TextField playerNameField;// 玩家名称
-  @FXML
-  private TextField beizhuField;// 备注
+  @FXML private TextField gameIdField;// 团ID
+  @FXML private TextField gudongField;// 股东
+  @FXML private TextField teamField;// 团队名称
+  @FXML private TextField playerNameField;// 玩家名称
+  @FXML private TextField beizhuField;// 备注
 
   // =====================================================================新增实时开销对话框
-  @FXML
-  private TextField kaixiaoTypes;// 名称
-  @FXML
-  private TextField kaixiaoMoneys;// 开销金额
-  @FXML
-  private ChoiceBox<String> gudongChoice;// 股东下拉框
-  @FXML
-  private CheckBox needComputeBox;// 是否需要纳入股东贡献值
+  @FXML private TextField kaixiaoTypes;// 名称
+  @FXML private TextField kaixiaoMoneys;// 开销金额
+  @FXML private ChoiceBox<String> gudongChoice;// 股东下拉框
+  @FXML private CheckBox needComputeBox;// 是否需要纳入股东贡献值
   // =====================================================================新增实时金额对话框
-  @FXML
-  private TextField cmName;// 名称
-  @FXML
-  private TextField cmMoney;// 实时金额
-  @FXML
-  private TextField cmPlayerId;
-  @FXML
-  private TextField cmEdu;// 额度
+  @FXML private TextField cmName;// 名称
+  @FXML private TextField cmMoney;// 实时金额
+  @FXML private TextField cmPlayerId;
+  @FXML private TextField cmEdu;// 额度
 
   public static final String ALL_COMPANY = "全公司参与";
 

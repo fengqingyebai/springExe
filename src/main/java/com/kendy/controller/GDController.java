@@ -1199,22 +1199,6 @@ public class GDController extends BaseController implements Initializable {
   }
 
   /**
-   * 获取总公司的利润
-   * 
-   * @time 2018年2月21日
-   * @return
-   */
-  // @Deprecated
-  // private Double get_Zonggongsi_Profit() {
-  // Optional<GudongRateInfo> gudongRateInfoOpt =
-  // tableGDSum.getItems().stream().filter(info->info.getGudongName().contains("总公司")).findFirst();
-  // if(gudongRateInfoOpt.isPresent())
-  // return NumUtil.getNum(gudongRateInfoOpt.get().getGudongProfit());
-  // else
-  // return 0d;
-  // }
-
-  /**
    * 设置客服股数据
    * 
    * @time 2018年1月28日

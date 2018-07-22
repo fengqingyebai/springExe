@@ -124,54 +124,32 @@ public class SMAutoController extends BaseController implements Initializable {
   @Autowired
   HttpUtil httpUtil;
 
-  @FXML
-  public TextField smNextDayRangeFieldd; // 次日上码配置
+  @FXML public TextField smNextDayRangeFieldd; // 次日上码配置
 
-  @FXML
-  public TextArea tokenArea;// token值
-  @FXML
-  public Label tokenStatus; // token状态
-  @FXML
-  public ListView<String> logArea;
-  @FXML
-  public ListView<String> excelArea;
-  @FXML
-  public TextField sysCodeField;
-  @FXML
-  public TextField sperateTimeField;// 每隔多久去刷新
-  @FXML
-  public TextField filterPlayIdFields;// 上码过过滤人员（只给这些人上码）
+  @FXML public TextArea tokenArea;// token值
+  @FXML public Label tokenStatus; // token状态
+  @FXML public ListView<String> logArea;
+  @FXML public ListView<String> excelArea;
+  @FXML public TextField sysCodeField;
+  @FXML public TextField sperateTimeField;// 每隔多久去刷新
+  @FXML public TextField filterPlayIdFields;// 上码过过滤人员（只给这些人上码）
 
   // =====================================================================自动上码日志记录表
-  @FXML
-  public TableView<SMAutoInfo> tableSMAuto;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoDate;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoPlayerId;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoPlayerName;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoPaiju;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoApplyAccount;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsTeamAvailabel;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsCurrentDay;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsNextDay;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsAgree;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsAgreeSuccess;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoAvailabel;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
+  @FXML public TableView<SMAutoInfo> tableSMAuto;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoDate;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoPlayerId;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoPlayerName;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoPaiju;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoApplyAccount;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoIsTeamAvailabel;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoIsCurrentDay;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoIsNextDay;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoIsAgree;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoIsAgreeSuccess;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoAvailabel;
+  @FXML private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
 
-  @FXML
-  public TextField downExcelPierodField;// 每隔多久去刷新
+  @FXML public TextField downExcelPierodField;// 每隔多久去刷新
 
 
   private final String SM_AOTO_NEXT_DAY_DB_KEY =
@@ -843,12 +821,9 @@ public class SMAutoController extends BaseController implements Initializable {
    * 自动下载区域<a href=> http://cms.pokermanager.club/cms-api/game/exportGame?roomId=28739668&token=...
    * 
    *************************************************************************************************/
-  @FXML
-  private DatePicker datePicker; // dateLabel.setText(dataConstants.Date_Str);
-  @FXML
-  private TextField firstDayStartTimeField;
-  @FXML
-  private TextField secondDayEndTimeField;
+  @FXML private DatePicker datePicker; // dateLabel.setText(dataConstants.Date_Str);
+  @FXML private TextField firstDayStartTimeField;
+  @FXML private TextField secondDayEndTimeField;
 
   private final String EN_MH = ":";
   private final String CN_MH = "：";

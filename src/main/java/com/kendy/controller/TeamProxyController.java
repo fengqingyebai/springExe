@@ -3,14 +3,13 @@ package com.kendy.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javax.annotation.PostConstruct;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.service.TeamProxyService;
+import com.kendy.util.StringUtil;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -28,16 +27,15 @@ import javafx.scene.layout.HBox;
  * <P>
  * 单独出来，原先是在MyController中
  * </P>
- * 
- * 
  * @author linzt
- * @time 2018年2月14日 上午9:32:23
  */
 @Component
 public class TeamProxyController extends BaseController implements Initializable {
   
   @Autowired
   public DBUtil dbUtil;
+  @Autowired
+  public MyController myController;
   @Autowired
   public TeamProxyService teamProxyService; // 配帐控制类
 
@@ -64,11 +62,6 @@ public class TeamProxyController extends BaseController implements Initializable
   @FXML public TextField proxyHBRate;// 回保比例
   @FXML public TextField proxyFWF;// 服务费大于多少有效
 
-  @PostConstruct
-  public void inits() {
-    logger.info("@PostConstruct加载中的TeamProxyController" + System.currentTimeMillis());
-    
-  }
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -85,21 +78,34 @@ public class TeamProxyController extends BaseController implements Initializable
     // 代理查询中的团队回水选择
     teamProxyService.initTeamSelectAction(teamIDCombox, isZjManage, tableProxyTeam, proxySumHBox);
   }
-
+  
+  /**
+   * 点击代理查询Tab时加载最新数据
+   * @time 2018年7月22日
+   */
+  public void loadWhenClickTab() {
+    String dateStr = myController.dateLabel.getText();
+    if (StringUtil.isNotBlank(dateStr)) {
+      proxyDateLabel.setText(dateStr);
+    }
+    // 查询最新数据
+    String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
+    if (StringUtil.isNotBlank(teamId)) {
+      teamProxyService.refresh_TableTeamProxy_TableProxySum(teamId);
+    }
+  }
   /**
    * 代理查询导出为Excel
    */
   public void exportExcelAction(ActionEvent e) {
     teamProxyService.exportExcel();
   }
-
   /**
    * 代理查询一键导出为Excel
    */
   @FXML public void exportExcelBatchAction(Event e) {
     teamProxyService.exportExcel();
   }
-
   /**
    * 代理查询刷新按钮
    */
@@ -108,7 +114,6 @@ public class TeamProxyController extends BaseController implements Initializable
   }
 
   public void teamIDSelectedAction(Event e) {
-
   }
 
   /**

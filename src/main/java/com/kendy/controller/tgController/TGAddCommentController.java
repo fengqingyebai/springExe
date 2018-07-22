@@ -151,18 +151,6 @@ public class TGAddCommentController extends BaseController implements Initializa
           .map(info -> info.getPlayerName() + "##" + info.getgameId()).collect(Collectors.toList());
       playersView.setItems(FXCollections.observableArrayList(playerNames));
     });
-
-    // 监听ListView点击框
-    // playersView.getSelectionModel().selectedItemProperty().addListener(event -> {
-    // String text = playersView.getSelectionModel().getSelectedItem();
-    // if(StringUtil.isBlank(text)) {
-    // FinalPlaerNameField.setText("");
-    // FinalPlaerIdField.setText("");
-    // }else {
-    // FinalPlaerNameField.setText(text.split("##")[0]);
-    // FinalPlaerIdField.setText(text.split("##")[1]);
-    // }
-    // });
   }
 
   /**

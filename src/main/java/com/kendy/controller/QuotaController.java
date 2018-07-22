@@ -77,56 +77,34 @@ public class QuotaController extends BaseController implements Initializable {
 
 
   // =====================================================================
-  @FXML
-  private Label currentLMLabels;// 当前联盟
-  @FXML
-  private Button LM_Btn1;// 联盟1
+  @FXML private Label currentLMLabels;// 当前联盟
+  @FXML private Button LM_Btn1;// 联盟1
   // =====================================================================自动配额表
-  @FXML
-  private TableView<ClubQuota> tableQuota;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaClubName;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaJieyu;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaRest;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaHedgeFirst;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaHedgeSecond;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaHedgeThree;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaHedgeFour;
-  @FXML
-  private TableColumn<ClubQuota, String> quotaHedgeFive;
+  @FXML private TableView<ClubQuota> tableQuota;
+  @FXML private TableColumn<ClubQuota, String> quotaClubName;
+  @FXML private TableColumn<ClubQuota, String> quotaJieyu;
+  @FXML private TableColumn<ClubQuota, String> quotaRest;
+  @FXML private TableColumn<ClubQuota, String> quotaHedgeFirst;
+  @FXML private TableColumn<ClubQuota, String> quotaHedgeSecond;
+  @FXML private TableColumn<ClubQuota, String> quotaHedgeThree;
+  @FXML private TableColumn<ClubQuota, String> quotaHedgeFour;
+  @FXML private TableColumn<ClubQuota, String> quotaHedgeFive;
 
 
   // =====================================================================俱乐部结账表
-  @FXML
-  private TableView<QuotaMoneyInfo> tableQuotaPay;
-  @FXML
-  private TableColumn<QuotaMoneyInfo, String> quotaMoneyPaytor;
-  @FXML
-  private TableColumn<QuotaMoneyInfo, String> quotaMoney;
-  @FXML
-  private TableColumn<QuotaMoneyInfo, String> quotaMoneyGather;
+  @FXML private TableView<QuotaMoneyInfo> tableQuotaPay;
+  @FXML private TableColumn<QuotaMoneyInfo, String> quotaMoneyPaytor;
+  @FXML private TableColumn<QuotaMoneyInfo, String> quotaMoney;
+  @FXML private TableColumn<QuotaMoneyInfo, String> quotaMoneyGather;
 
   // =====================================================================银行信息表
-  @FXML
-  private TableView<ClubBankInfo> tableQuotaBank;
-  @FXML
-  private TableColumn<ClubBankInfo, String> clubName;
-  @FXML
-  private TableColumn<ClubBankInfo, String> mobilePayType;
-  @FXML
-  private TableColumn<ClubBankInfo, String> personName;
-  @FXML
-  private TableColumn<ClubBankInfo, String> phoneNumber;
-  @FXML
-  private TableColumn<ClubBankInfo, String> bankType;
-  @FXML
-  private TableColumn<ClubBankInfo, String> bankAccountInfo;
+  @FXML private TableView<ClubBankInfo> tableQuotaBank;
+  @FXML private TableColumn<ClubBankInfo, String> clubName;
+  @FXML private TableColumn<ClubBankInfo, String> mobilePayType;
+  @FXML private TableColumn<ClubBankInfo, String> personName;
+  @FXML private TableColumn<ClubBankInfo, String> phoneNumber;
+  @FXML private TableColumn<ClubBankInfo, String> bankType;
+  @FXML private TableColumn<ClubBankInfo, String> bankAccountInfo;
 
   // 引用联盟控制类
   //public lmController lmController;
