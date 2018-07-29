@@ -176,6 +176,8 @@ public class MyController extends BaseController implements Initializable {
   public MoneyService moneyService; // 配帐控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+  @Autowired
+  public ExcelReaderUtil excelReaderUtil; // excel读取类
 
 
   private final String ZERO = "0";
@@ -817,7 +819,7 @@ public class MyController extends BaseController implements Initializable {
       // 将人员名单文件缓存起来
       try {
         Map<String, Player> allPlayers =
-            ExcelReaderUtil.instance.readMembersRecord(new File(membersFilePath));
+            excelReaderUtil.readMembersRecord(new File(membersFilePath));
         dataConstants.membersMap.putAll(allPlayers);// 求并集,key相同的会被替换掉
         // 插入到数据库
         dbUtil.insertMembers(allPlayers);
@@ -841,7 +843,7 @@ public class MyController extends BaseController implements Initializable {
     String huishuiFilePath = huishuiDir.getText();
     if (!StringUtil.isBlank(huishuiFilePath)) {
       // 将人员名单文件缓存起来
-      Wrap wrap = ExcelReaderUtil.instance.readHuishuiRecord(new File(huishuiFilePath));
+      Wrap wrap = excelReaderUtil.readHuishuiRecord(new File(huishuiFilePath));
       if (wrap.resultSuccess) {
         dataConstants.huishuiMap.putAll((Map<String, Huishui>) wrap.obj);
         dbUtil.insertTeamHS((Map<String, Huishui>) wrap.obj);
@@ -866,7 +868,7 @@ public class MyController extends BaseController implements Initializable {
     if (!StringUtil.isBlank(preDataFilePath)) {
       // 将人员名单文件缓存起来
       try {
-        dataConstants.preDataMap = ExcelReaderUtil.instance.readPreDataRecord(new File(preDataFilePath));
+        dataConstants.preDataMap = excelReaderUtil.readPreDataRecord(new File(preDataFilePath));
         if (dataConstants.preDataMap.size() == 0) {
           ShowUtil.show("导入昨日留底失败!");
         } else {
@@ -920,7 +922,7 @@ public class MyController extends BaseController implements Initializable {
 
       try {
         // 将人员名单文件缓存起来
-        List<GameRecord> gameRecords = ExcelReaderUtil.instance.readZJRecord(excelFilePath, userClubId,
+        List<GameRecord> gameRecords = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
             selected_LM_type, getVersionType());
         indexLabel.setText(tableId);
         importExcelData(tableId, gameRecords);
@@ -1023,7 +1025,7 @@ public class MyController extends BaseController implements Initializable {
     try {
       // 读取模板数据
       final Map<String, String> excelCombineIdMap =
-          ExcelReaderUtil.instance.readCombineIdRecord(new File(combineIdPath));
+          excelReaderUtil.readCombineIdRecord(new File(combineIdPath));
 
       // 将模板数据读取结果转化为缓存中合并ID相同的数据结果
       Map<String, Set<String>> tempCombineIdMap = new HashMap<>();

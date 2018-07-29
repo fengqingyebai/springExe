@@ -52,7 +52,6 @@ public class SpringFxmlLoader {
           new ClassPathXmlApplicationContext("spring/spring-service.xml");
     } catch (Exception e) {
       ErrorUtil.err("Spring组件初始化失败:" + e.getMessage());
-      logger.error("Spring组件初始化失败", e);
     }
   }
   

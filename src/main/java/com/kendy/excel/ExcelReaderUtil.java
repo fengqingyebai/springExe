@@ -20,6 +20,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.LMController;
@@ -42,6 +44,7 @@ import com.kendy.util.StringUtil;
  * @author 林泽涛
  * @time 2017年10月7日 下午3:54:05
  */
+@Component
 public class ExcelReaderUtil {
   
   @Autowired
@@ -53,7 +56,7 @@ public class ExcelReaderUtil {
   @Autowired
   private LMController lmController;
   
-  public static ExcelReaderUtil instance = new ExcelReaderUtil();
+//  public static ExcelReaderUtil instance = new ExcelReaderUtil();
 
   private  Logger log = Logger.getLogger(ExcelReaderUtil.class);
 
