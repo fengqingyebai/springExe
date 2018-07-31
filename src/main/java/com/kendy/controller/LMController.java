@@ -539,16 +539,17 @@ public class LMController extends BaseController implements Initializable {
     ObservableList<LMDetailInfo> obList = FXCollections.observableArrayList();
     if (list == null) {
       tableLMDetail.setItems(obList);
-      log.warn("根据详情表找不到俱乐部信息:" + clubId);// 如果有回查功能就有可能出现这个问题
+      log.error("根据详情表找不到俱乐部信息:" + clubId);// 如果有回查功能就有可能出现这个问题
       return;
     }
-    if (isNeedSum)
+    if (isNeedSum) {
       list = computSumList(list, true);// 求和统计
+    }
 
     list.forEach(record -> {
       String tableId = record.getTableId();
       String zj = record.getYszj();
-      String insure = record.getSinegleInsurance();
+      String insure = record.getClubInsurance();
       String personNumbers = record.getPersonCount();
       obList.add(new LMDetailInfo(tableId, zj, insure, personNumbers));
 
@@ -565,7 +566,7 @@ public class LMController extends BaseController implements Initializable {
    * @time 2017年11月25日
    * @param list 某个俱乐部的所有场次信息，具体到每一条战绩记录
    */
-  private List<GameRecord> computSumList(List<GameRecord> list, boolean isNeedSort) {
+  private List<GameRecord> computSumList(final List<GameRecord> list, boolean isNeedSort) {
     List<GameRecord> sumList = new ArrayList<>();
     Map<String, List<GameRecord>> map = new HashMap<>();// key是tableId
     String tableId = "";// 以tableId进行分类求和
@@ -586,20 +587,22 @@ public class LMController extends BaseController implements Initializable {
       for (GameRecord record : eachClubList) {
         sumOfEachClubZJ += NumUtil.getNum(record.getYszj());
         // sumOfEachClubInsure = NumUtil.getNum(record.getInsurance());
-        sumOfEachClubInsure = NumUtil.getNum(record.getSinegleInsurance());
-        sumOfEachClubPersonCount++;
+        //sumOfEachClubInsure = NumUtil.getNum(record.getSinegleInsurance());
+        //sumOfEachClubPersonCount++;
       }
+      sumOfEachClubPersonCount = eachClubList.size();
       if (sumOfEachClubPersonCount == 0) {
         // 这里应该清空数据并返回
         continue;
       }
+      sumOfEachClubInsure = NumUtil.getNum(eachClubList.get(0).getClubInsurance());
       GameRecord sumRecord = new GameRecord();
       sumRecord.setTableId(entry.getKey());
       sumRecord.setYszj(NumUtil
           .digit0("" + ((sumOfEachClubZJ + sumOfEachClubInsure) * Constants.CURRENT_HS_RATE)));
       // sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.CURRENT_HS_RATE
       // )));
-      sumRecord.setSinegleInsurance(
+      sumRecord.setClubInsurance(
           NumUtil.digit0("" + (sumOfEachClubInsure * Constants.CURRENT_HS_RATE)));
       sumRecord.setPersonCount(sumOfEachClubPersonCount + "");
       // 添加到最后的总和列表中

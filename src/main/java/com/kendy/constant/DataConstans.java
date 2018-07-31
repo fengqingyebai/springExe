@@ -40,7 +40,7 @@ import javafx.stage.Stage;
 @Component
 public class DataConstans {
   private Logger logger = LoggerFactory.getLogger(DataConstans.class);
-  
+
   @Autowired
   private DBUtil dbUtil;
 
@@ -54,10 +54,16 @@ public class DataConstans {
   }
 
   /**************************************************************************************
-   * 
-   * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合 Map<String, List<GameRecord>> zjMap :
-   * 当前俱乐部的记录，以场次GroupBy Map<String,List<GameRecord>> Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy
-   * Map<String,List<GameRecord>> Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
+   * <p>
+   * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合
+   * </p>
+   * <p>
+   * Map<String, List<GameRecord>> zjMap :当前俱乐部的记录，以场次GroupBy Map<String,List<GameRecord>>
+   * </p>
+   * <p>
+   * Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupByMap<String,List<GameRecord>>
+   * </p>
+   * Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
    * 
    **************************************************************************************/
 
@@ -162,8 +168,7 @@ public class DataConstans {
 
     // 玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
     // public Map<String,List<ShangmaDetailInfo>> SM_Detail_Map_Locked= new HashMap<>();
-    lastLockedDataMap.put("SM_Detail_Map_Locked",
-        JSON.toJSONString(this.SM_Detail_Map_Locked));
+    lastLockedDataMap.put("SM_Detail_Map_Locked", JSON.toJSONString(this.SM_Detail_Map_Locked));
 
 
     // **********************************************************以下四个不保存数据，中途开始时去数据表拿*********************************
@@ -416,14 +421,13 @@ public class DataConstans {
   /**
    * 中途继续恢复记录信息 主要是恢复 Dangju_Team_Huishui_List， zjMap，Team_Huishui_Map，Total_Team_Huishui_Map
    */
-  private  void recoveryGameRecords() {
+  private void recoveryGameRecords() {
     String maxGameRecordTime = dbUtil.getMaxGameRecordTime();
-    //String clubId = myController.currentClubId.getText();
+    // String clubId = myController.currentClubId.getText();
     String clubId = dbUtil.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
     List<GameRecord> gameRecords = dbUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
 
-    if (StringUtil.isAnyBlank(maxGameRecordTime, clubId)
-        || CollectUtil.isEmpty(gameRecords)) {
+    if (StringUtil.isAnyBlank(maxGameRecordTime, clubId) || CollectUtil.isEmpty(gameRecords)) {
       // 清空所有数据
       clearAllData();
     } else {
@@ -442,11 +446,9 @@ public class DataConstans {
     }
 
   }
-  
-  
-  
-  
-  
+
+
+
   /******************************************************************************************
    * 
    * 
@@ -539,8 +541,7 @@ public class DataConstans {
     List<ShangmaDetailInfo> list = null;
     List<ShangmaDetailInfo> srcList = null;
     ShangmaDetailInfo info = null;
-    for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map
-        .entrySet()) {
+    for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map.entrySet()) {
       srcList = entry.getValue();
       if (srcList == null || srcList.size() == 0) {
         list = new ArrayList<ShangmaDetailInfo>();
@@ -566,40 +567,40 @@ public class DataConstans {
     this.SM_Detail_Map_Locked = map;
     // 复制当前上码的人个详情表,缓存到锁定中
     // 开启线程异步执行
-//    new Thread(new Runnable() {
-//      @Override
-//      public void run() {
-//        Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
-//        List<ShangmaDetailInfo> list = null;
-//        List<ShangmaDetailInfo> srcList = null;
-//        ShangmaDetailInfo info = null;
-//        for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map
-//            .entrySet()) {
-//          srcList = entry.getValue();
-//          if (srcList == null || srcList.size() == 0) {
-//            list = new ArrayList<ShangmaDetailInfo>();
-//            map.put(entry.getKey(), list);
-//          } else {
-//            list = new ArrayList<ShangmaDetailInfo>();
-//            for (ShangmaDetailInfo detail : srcList) {
-//              info = new ShangmaDetailInfo();
-//              info.setShangmaDetailName(detail.getShangmaDetailName());
-//              info.setShangmaJu(detail.getShangmaJu());
-//              info.setShangmaPlayerId(detail.getShangmaPlayerId());
-//              info.setShangmaShishou(detail.getShangmaShishou());
-//              info.setShangmaSM(detail.getShangmaSM());
-//              info.setShangmaPreSM(detail.getShangmaPreSM());
-//              info.setShangmaHasPayed(detail.getShangmaHasPayed());
-//              list.add(info);
-//            }
-//            map.put(entry.getKey(), list);
-//          }
-//        }
-//
-//        this.SM_Detail_Map_Locked = null;
-//        this.SM_Detail_Map_Locked = map;
-//      }
-//    }).start();
+    // new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
+    // List<ShangmaDetailInfo> list = null;
+    // List<ShangmaDetailInfo> srcList = null;
+    // ShangmaDetailInfo info = null;
+    // for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map
+    // .entrySet()) {
+    // srcList = entry.getValue();
+    // if (srcList == null || srcList.size() == 0) {
+    // list = new ArrayList<ShangmaDetailInfo>();
+    // map.put(entry.getKey(), list);
+    // } else {
+    // list = new ArrayList<ShangmaDetailInfo>();
+    // for (ShangmaDetailInfo detail : srcList) {
+    // info = new ShangmaDetailInfo();
+    // info.setShangmaDetailName(detail.getShangmaDetailName());
+    // info.setShangmaJu(detail.getShangmaJu());
+    // info.setShangmaPlayerId(detail.getShangmaPlayerId());
+    // info.setShangmaShishou(detail.getShangmaShishou());
+    // info.setShangmaSM(detail.getShangmaSM());
+    // info.setShangmaPreSM(detail.getShangmaPreSM());
+    // info.setShangmaHasPayed(detail.getShangmaHasPayed());
+    // list.add(info);
+    // }
+    // map.put(entry.getKey(), list);
+    // }
+    // }
+    //
+    // this.SM_Detail_Map_Locked = null;
+    // this.SM_Detail_Map_Locked = map;
+    // }
+    // }).start();
   }
 
   // 撤销时当局恢复上码表的个人详情
@@ -608,8 +609,7 @@ public class DataConstans {
     List<ShangmaDetailInfo> list = null;
     List<ShangmaDetailInfo> srcList = null;
     ShangmaDetailInfo info = null;
-    for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked
-        .entrySet()) {
+    for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked.entrySet()) {
       srcList = entry.getValue();
       if (srcList == null || srcList.size() == 0) {
         list = new ArrayList<ShangmaDetailInfo>();
@@ -633,63 +633,62 @@ public class DataConstans {
 
     this.SM_Detail_Map = null;
     this.SM_Detail_Map = map;
-//    new Thread(new Runnable() {
-//      @Override
-//      public void run() {
-//        Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
-//        List<ShangmaDetailInfo> list = null;
-//        List<ShangmaDetailInfo> srcList = null;
-//        ShangmaDetailInfo info = null;
-//        for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked
-//            .entrySet()) {
-//          srcList = entry.getValue();
-//          if (srcList == null || srcList.size() == 0) {
-//            list = new ArrayList<ShangmaDetailInfo>();
-//            map.put(entry.getKey(), list);
-//          } else {
-//            list = new ArrayList<ShangmaDetailInfo>();
-//            for (ShangmaDetailInfo detail : srcList) {
-//              info = new ShangmaDetailInfo();
-//              info.setShangmaDetailName(detail.getShangmaDetailName());
-//              info.setShangmaJu(detail.getShangmaJu());
-//              info.setShangmaPlayerId(detail.getShangmaPlayerId());
-//              info.setShangmaShishou(detail.getShangmaShishou());
-//              info.setShangmaSM(detail.getShangmaSM());
-//              info.setShangmaPreSM(detail.getShangmaPreSM());
-//              info.setShangmaHasPayed(detail.getShangmaHasPayed());
-//              list.add(info);
-//            }
-//            map.put(entry.getKey(), list);
-//          }
-//        }
-//
-//        this.SM_Detail_Map = null;
-//        this.SM_Detail_Map = map;
-//      }
-//    }).start();
+    // new Thread(new Runnable() {
+    // @Override
+    // public void run() {
+    // Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
+    // List<ShangmaDetailInfo> list = null;
+    // List<ShangmaDetailInfo> srcList = null;
+    // ShangmaDetailInfo info = null;
+    // for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked
+    // .entrySet()) {
+    // srcList = entry.getValue();
+    // if (srcList == null || srcList.size() == 0) {
+    // list = new ArrayList<ShangmaDetailInfo>();
+    // map.put(entry.getKey(), list);
+    // } else {
+    // list = new ArrayList<ShangmaDetailInfo>();
+    // for (ShangmaDetailInfo detail : srcList) {
+    // info = new ShangmaDetailInfo();
+    // info.setShangmaDetailName(detail.getShangmaDetailName());
+    // info.setShangmaJu(detail.getShangmaJu());
+    // info.setShangmaPlayerId(detail.getShangmaPlayerId());
+    // info.setShangmaShishou(detail.getShangmaShishou());
+    // info.setShangmaSM(detail.getShangmaSM());
+    // info.setShangmaPreSM(detail.getShangmaPreSM());
+    // info.setShangmaHasPayed(detail.getShangmaHasPayed());
+    // list.add(info);
+    // }
+    // map.put(entry.getKey(), list);
+    // }
+    // }
+    //
+    // this.SM_Detail_Map = null;
+    // this.SM_Detail_Map = map;
+    // }
+    // }).start();
   }
 
 
-//  public DBUtil getDbUtil() {
-//    return dbUtil;
-//  }
-//
-//
-//  public void setDbUtil(DBUtil dbUtil) {
-//    this.dbUtil = dbUtil;
-//  }
+  // public DBUtil getDbUtil() {
+  // return dbUtil;
+  // }
+  //
+  //
+  // public void setDbUtil(DBUtil dbUtil) {
+  // this.dbUtil = dbUtil;
+  // }
 
 
-//  public MyController getMyController() {
-//    return myController;
-//  }
-//
-//
-//  public void setMyController(MyController myController) {
-//    this.myController = myController;
-//  }
+  // public MyController getMyController() {
+  // return myController;
+  // }
+  //
+  //
+  // public void setMyController(MyController myController) {
+  // this.myController = myController;
+  // }
 
-  
-  
+
 
 }
