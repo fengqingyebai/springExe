@@ -223,9 +223,6 @@ public class TGController extends BaseController implements Initializable {
     binCellValueDiff(tgFwfType, "type");
     binCellValueDiff(tgFwfValue, "value");
     bindCellValueByTable(new TGTeamInfo(), tableTGZhanji);
-    bindCellValueByTable(new TGTeamInfo(), tableTGZhanji);
-    bindCellValueByTable(new TGFwfinfo(), tableTGFwf);
-    bindCellValueByTable(new TGLirunInfo(), tableTGLirun);
     
     // tabs切换事件
     tabsAction();

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
@@ -40,9 +41,17 @@ import javafx.scene.control.TableView;
 public class TGFwfService{
 
   @Autowired
-  public DBUtil dbUtil;
+  private DBUtil dbUtil;
   @Autowired
-  public TGController tgController ;
+  private TGController tgController ;
+  
+  public void inits() {
+    if(dbUtil == null) {
+      dbUtil = SpringFxmlLoader.getContext().getBean(DBUtil.class);
+      tgController = SpringFxmlLoader.getContext().getBean(TGController.class);
+    }
+  }
+  
   
   public void setFwfDetail(String tgCompany, TableView<TGFwfinfo> tableTGFwf,
       TableView<TypeValueInfo> tableTGFwfSum) {
@@ -50,6 +59,7 @@ public class TGFwfService{
       ShowUtil.show("请选择托管公司");
       // return;
     }
+    inits();
 
     List<TGCompanyModel> tgCompanys = dbUtil.get_all_tg_company();
 

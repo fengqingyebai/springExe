@@ -481,15 +481,22 @@ public class QuotaController extends BaseController implements Initializable {
    * @return
    */
   private ClubQuota getRecord(int type) {
-    Stream<ClubQuota> stream = tableQuota.getItems().stream();
-
-    Comparator<ClubQuota> comparator =
-        (o1, o2) -> NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()));
-
-    Optional<ClubQuota> result = 1 == type ? stream.max((o1, o2) -> comparator.compare(o1, o2))
-        : stream.min((o1, o2) -> comparator.reversed().compare(o1, o2));
+//    Stream<ClubQuota> stream = tableQuota.getItems().stream();
+//
+//    Comparator<ClubQuota> comparator =
+//        (o1, o2) -> NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()));
+//
+//    Optional<ClubQuota> result = 1 == type ? stream.max((o1, o2) -> comparator.compare(o1, o2))
+//        : stream.min((o1, o2) -> comparator.reversed().compare(o1, o2));
+//    
+//    return result.get();
     
-    return result.get();
+    if (1 == type)
+      return tableQuota.getItems().parallelStream().max((o1, o2) -> NumUtil
+          .getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))).get();
+    else
+      return tableQuota.getItems().parallelStream().min((o1, o2) -> NumUtil
+          .getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))).get();
   }
 
 
