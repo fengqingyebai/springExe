@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.kendy.constant.Constants;
 import com.kendy.controller.MyController;
+import com.kendy.util.FXUtil;
 import com.kendy.util.ShowUtil;
 import javafx.application.Application;
 import javafx.scene.Parent;
@@ -37,6 +38,7 @@ public class Main extends Application {
       primaryStage.setScene(new Scene(root));
       primaryStage.show();
       primaryStage0 = primaryStage;
+      FXUtil.stage = primaryStage;
       primaryStage.setOnCloseRequest(e -> {
         exit();
       });

@@ -1,5 +1,14 @@
 package com.kendy.model;
 
+/**
+ * 游戏记录
+ * <p>
+ * 记录了一个玩家一场记录的相关金额信息
+ * </p>
+ * 
+ * @author linzt
+ * @time 2018年8月1日
+ */
 public class GameRecord extends BasicRecord {
 
 
@@ -21,7 +30,7 @@ public class GameRecord extends BasicRecord {
 
   private String isJiesuaned = "0"; // 是否已经结算过 0：未结算 1：已结算
 
-  private String teamId;
+  private String teamId; // 团队ID( 请注意：关联最新的人员表获取最新
 
   /*
    * 联盟类型

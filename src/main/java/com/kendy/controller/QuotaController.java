@@ -4,6 +4,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,7 @@ public class QuotaController extends BaseController implements Initializable {
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public LMController lmController; // 联盟控制类
   @Autowired
@@ -77,50 +79,72 @@ public class QuotaController extends BaseController implements Initializable {
 
 
   // =====================================================================
-  @FXML private Label currentLMLabels;// 当前联盟
-  @FXML private Button LM_Btn1;// 联盟1
+  @FXML
+  private Label currentLMLabels;// 当前联盟
+  @FXML
+  private Button LM_Btn1;// 联盟1
   // =====================================================================自动配额表
-  @FXML private TableView<ClubQuota> tableQuota;
-  @FXML private TableColumn<ClubQuota, String> quotaClubName;
-  @FXML private TableColumn<ClubQuota, String> quotaJieyu;
-  @FXML private TableColumn<ClubQuota, String> quotaRest;
-  @FXML private TableColumn<ClubQuota, String> quotaHedgeFirst;
-  @FXML private TableColumn<ClubQuota, String> quotaHedgeSecond;
-  @FXML private TableColumn<ClubQuota, String> quotaHedgeThree;
-  @FXML private TableColumn<ClubQuota, String> quotaHedgeFour;
-  @FXML private TableColumn<ClubQuota, String> quotaHedgeFive;
+  @FXML
+  private TableView<ClubQuota> tableQuota;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaClubName;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaJieyu;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaRest;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaHedgeFirst;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaHedgeSecond;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaHedgeThree;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaHedgeFour;
+  @FXML
+  private TableColumn<ClubQuota, String> quotaHedgeFive;
 
 
   // =====================================================================俱乐部结账表
-  @FXML private TableView<QuotaMoneyInfo> tableQuotaPay;
-  @FXML private TableColumn<QuotaMoneyInfo, String> quotaMoneyPaytor;
-  @FXML private TableColumn<QuotaMoneyInfo, String> quotaMoney;
-  @FXML private TableColumn<QuotaMoneyInfo, String> quotaMoneyGather;
+  @FXML
+  private TableView<QuotaMoneyInfo> tableQuotaPay;
+  @FXML
+  private TableColumn<QuotaMoneyInfo, String> quotaMoneyPaytor;
+  @FXML
+  private TableColumn<QuotaMoneyInfo, String> quotaMoney;
+  @FXML
+  private TableColumn<QuotaMoneyInfo, String> quotaMoneyGather;
 
   // =====================================================================银行信息表
-  @FXML private TableView<ClubBankInfo> tableQuotaBank;
-  @FXML private TableColumn<ClubBankInfo, String> clubName;
-  @FXML private TableColumn<ClubBankInfo, String> mobilePayType;
-  @FXML private TableColumn<ClubBankInfo, String> personName;
-  @FXML private TableColumn<ClubBankInfo, String> phoneNumber;
-  @FXML private TableColumn<ClubBankInfo, String> bankType;
-  @FXML private TableColumn<ClubBankInfo, String> bankAccountInfo;
+  @FXML
+  private TableView<ClubBankInfo> tableQuotaBank;
+  @FXML
+  private TableColumn<ClubBankInfo, String> clubName;
+  @FXML
+  private TableColumn<ClubBankInfo, String> mobilePayType;
+  @FXML
+  private TableColumn<ClubBankInfo, String> personName;
+  @FXML
+  private TableColumn<ClubBankInfo, String> phoneNumber;
+  @FXML
+  private TableColumn<ClubBankInfo, String> bankType;
+  @FXML
+  private TableColumn<ClubBankInfo, String> bankAccountInfo;
 
   // 引用联盟控制类
-  //public lmController lmController;
+  // public lmController lmController;
 
   private Button _LM_Btn1;// 联盟1
   // 缓存所有俱乐部的银行卡信息
   public Map<String, ClubBankModel> allClubBankModels = new HashMap<>();
 
-  
+
   public QuotaController() {
     super();
   }
-  
+
   // 从数据库中初始化俱乐部
   @PostConstruct
-  public void inits(){
+  public void inits() {
     // 导入每场战绩时的所有俱乐部记录
     currentRecordList = lmController.currentRecordList;
 
@@ -134,7 +158,7 @@ public class QuotaController extends BaseController implements Initializable {
     LMTotalList = lmController.LMTotalList;
 
     LM = lmController.LM;
-    
+
     allClubBankModels = dbUtil.getAllClubBanks();// 加载 俱乐部银行卡信息数据
     if (allClubBankModels.isEmpty()) {
       lmController.allClubMap.values().forEach(club -> {
@@ -148,19 +172,6 @@ public class QuotaController extends BaseController implements Initializable {
       });
     }
   }
-
-
-  /**
-   * @param lmController
-   */
-//  public QuotaController(lmController lmController) {
-//    super();
-//    this.lmController = lmController;
-//  }
-  
-  
-
-
 
 
   Map<String, ClubQuota> single_LM_map = new HashMap<>();
@@ -177,7 +188,7 @@ public class QuotaController extends BaseController implements Initializable {
   // 缓存三个联盟的信息
   public List<Map<String, List<GameRecord>>> LMTotalList;
 
-  public  String[] LM;
+  public String[] LM;
 
   /**
    * DOM加载完后的事件
@@ -186,7 +197,7 @@ public class QuotaController extends BaseController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
 
     _LM_Btn1 = LM_Btn1;
-    //lmController = MyController.lmController;
+    // lmController = MyController.lmController;
 
     // 绑定列值属性及颜色
     bindCellValueByTable(new ClubQuota(), tableQuota);
@@ -437,16 +448,14 @@ public class QuotaController extends BaseController implements Initializable {
     String currentClubId = myController.currentClubId.getText();
     Club winnerClub = allClubMap.get(currentClubId);// 555551为银河ATM的俱乐部ID
     if (winnerClub == null) {
-      // ErrorUtil.err("当前俱乐部"+currentClubId+"不存在！！！请添加！！");
       return;
     }
-    tableQuota.getItems().parallelStream().filter(info -> NumUtil.getNum(info.getQuotaRest()) < 0)
+    tableQuota.getItems().stream().filter(info -> NumUtil.getNum(info.getQuotaRest()) < 0)
         .forEach(info -> {
           String from, to, money = "";
           to = winnerClub.getName();
           money = NumUtil.digit0((-1) * NumUtil.getNum(info.getQuotaRest()));
           from = info.getQuotaClubName();
-          // log.info(String.format("%s转%s到%s", from,money,to));
           addRecord2TableQuotaPay(new QuotaMoneyInfo(winnerClub.getClubId(), from, money, to));
         });
     tableQuotaPay.refresh();
@@ -468,18 +477,19 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 获取剩余最大和最小的两行
-   * 
-   * @time 2017年12月16日
-   * @param type 0:最小值 1：最大值
+   * @param type
    * @return
    */
   private ClubQuota getRecord(int type) {
-    if (1 == type)
-      return tableQuota.getItems().parallelStream().max((o1, o2) -> NumUtil
-          .getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))).get();
-    else
-      return tableQuota.getItems().parallelStream().min((o1, o2) -> NumUtil
-          .getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))).get();
+    Stream<ClubQuota> stream = tableQuota.getItems().stream();
+
+    Comparator<ClubQuota> comparator =
+        (o1, o2) -> NumUtil.getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()));
+
+    Optional<ClubQuota> result = 1 == type ? stream.max((o1, o2) -> comparator.compare(o1, o2))
+        : stream.min((o1, o2) -> comparator.reversed().compare(o1, o2));
+    
+    return result.get();
   }
 
 
@@ -730,7 +740,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   }
 
-  
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

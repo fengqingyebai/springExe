@@ -109,7 +109,7 @@ public class ShowUtil {
    */
   public static void setIcon(Dialog<?> dialog) {
     if(dialog instanceof TextInputDialog || dialog instanceof Alert) {
-      dialog.initOwner(Main.primaryStage0);
+      dialog.initOwner(FXUtil.stage);
     } else {
       Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
       setIcon(stage);

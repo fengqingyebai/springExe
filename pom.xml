@@ -160,6 +160,33 @@
 		    <artifactId>jfoenix</artifactId>
 		    <version>8.0.4</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjava -->
+		<dependency>
+		    <groupId>io.reactivex.rxjava2</groupId>
+		    <artifactId>rxjava</artifactId>
+		    <version>2.1.17</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/io.reactivex.rxjava2/rxjavafx -->
+		<dependency>
+		    <groupId>io.reactivex.rxjava2</groupId>
+		    <artifactId>rxjavafx</artifactId>
+		    <version>2.2.2</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+		    <groupId>junit</groupId>
+		    <artifactId>junit</artifactId>
+		    <version>4.12</version>
+		    <scope>test</scope>
+		</dependency>
+		
+		
+		
     	
     </dependencies>
     
@@ -171,6 +198,7 @@
                 <configuration>  
                     <source>1.8</source>  
                     <target>1.8</target>  
+                    <skip>true</skip>
                 </configuration>  
             </plugin>  
             <plugin>  
