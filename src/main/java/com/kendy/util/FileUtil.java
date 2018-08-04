@@ -41,48 +41,25 @@ public class FileUtil {
     return "第" + tableId + "局";
   }
   
-  
   /**
-   * @复制文件，支持把源文件内容追加到目标文件末尾
-   * @param src
-   * @param dst
-   * @param append
-   * @throws Exception
+   * 获取文件名称
+   * 
+   * @param filePath
+   * @return
    */
-  public static void copy(File src, File dst) throws Exception {
-    if(!dst.exists()) {
-      dst.createNewFile();
+  public static String getFileName(String filePath) {
+    String fileName = "";
+    if(StringUtil.isNotBlank(filePath)) {
+      int index = 0;
+      if(filePath.contains(File.separator)){
+        index = filePath.lastIndexOf(File.separator);
+      }else {
+        index = filePath.lastIndexOf("/");
+      }
+      fileName = filePath.substring(index + 1);
     }
-    int BUFFER_SIZE = 4096;
-    InputStream in = null;
-    OutputStream out = null;
-    try {
-      in = new BufferedInputStream(new FileInputStream(src), BUFFER_SIZE);
-      out = new BufferedOutputStream(new FileOutputStream(dst), BUFFER_SIZE);
-      byte[] buffer = new byte[BUFFER_SIZE];
-      int len = 0;
-      while ((len = in.read(buffer)) > 0) {
-        out.write(buffer, 0, len);
-      }
-    } catch (Exception e) {
-      throw e;
-    } finally {
-      if (null != in) {
-        try {
-          in.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        in = null;
-      }
-      if (null != out) {
-        try {
-          out.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        out = null;
-      }
-    }
+    return fileName;
   }
+  
+  
 }

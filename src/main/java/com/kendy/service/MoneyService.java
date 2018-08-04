@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -180,6 +181,9 @@ public class MoneyService{
           relatedTeamIdSet.add(teamId);
         }
         // 缓存到总团队回水中(结算按钮后从中减少)
+        if(dataConstants.Team_Huishui_Map == null) { // add 2018-08-04
+          dataConstants.Team_Huishui_Map = new LinkedHashMap<>();
+        }
         teamHuishuiList = dataConstants.Team_Huishui_Map.get(teamId);
         if (teamHuishuiList == null) {
           teamHuishuiList = new ArrayList<>();
@@ -1616,14 +1620,15 @@ public class MoneyService{
           ShowUtil.show("非法数据!");
           return;
         }
-        LocalDate time = smAutoController.getSelectedDate();
-        if (time == null) {
-          ShowUtil.show("请先选择自动上码配置中的今日时间!");
+        
+        String softDate = myController.getSoftDate();
+        if (StringUtil.isBlank(softDate)) {
+          ShowUtil.show("请先在场次信息中填写当天时间!");
           return;
         }
         // 保存到数据库
         BankFlowModel bankMoney =
-            new BankFlowModel(info.getZijinType(), value, TimeUtil.getDateTime2(), time.toString()// dataConstants.Date_Str
+            new BankFlowModel(info.getZijinType(), value, TimeUtil.getDateTime2(), softDate// dataConstants.Date_Str
             );
         dbUtil.saveHistoryBankMoney(bankMoney);
         // 生成界面表记录

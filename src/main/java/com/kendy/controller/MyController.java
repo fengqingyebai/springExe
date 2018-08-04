@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -69,15 +68,16 @@ import com.kendy.service.ZonghuiService;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.CollectUtil;
+import com.kendy.util.DialogUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.FileUtil;
-import com.kendy.util.DialogUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.PathUtil;
 import com.kendy.util.RandomUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
+import com.kendy.util.SystemUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.Text2ImageUtil;
 import javafx.application.Platform;
@@ -183,7 +183,7 @@ public class MyController extends BaseController implements Initializable {
   private final String INDEX_ZERO = "第0局";
 
   // 自动导入下一场战绩Excel的缓存队列
-  private Queue<File> excelQueue = new ArrayBlockingQueue<>(1000);
+  private ArrayBlockingQueue<File> excelQueue = new ArrayBlockingQueue<>(2500);
   
   public MyController() {
     super();
@@ -202,7 +202,6 @@ public class MyController extends BaseController implements Initializable {
   @FXML public TextField huishuiDir; // 回水Excel路径
   @FXML public TextField preDataDir; // 回水Excel路径
   @FXML public TextField excelDir; // excel文件夹路径
-  @FXML public Label lable_currentClubId; // 当前俱乐部ID
   @FXML public Label currentClubId; // 当前俱乐部ID
   @FXML public TextField teamIdField; // 新增团队ID
   @FXML public TextField teamNameField; // 新增团队名称
@@ -390,9 +389,7 @@ public class MyController extends BaseController implements Initializable {
 
     // 第一次打开主窗口时设置当前俱乐部ID值
     String clubIdValue = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
-    currentClubId = lable_currentClubId;
-    if (clubIdValue != null)
-      lable_currentClubId.setText(clubIdValue);
+    currentClubId.setText(clubIdValue);
 
     // 第一次打开主窗口时显示所有股东
     String gudongs = dbUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
@@ -761,7 +758,13 @@ public class MyController extends BaseController implements Initializable {
     fileChooser.setTitle(Constants.TITLE + ": " + title);// 标题
     fileChooser.setInitialDirectory(new File(rootPathName));// 初始化根目标
     fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("excel", "*.xls?"));
-    File file = fileChooser.showOpenDialog(FXUtil.stage);
+    File file=null;
+    try {
+      file = fileChooser.showOpenDialog(Main.primaryStage0);
+    } catch (Exception e) {
+      fileChooser.setInitialDirectory(SystemUtil.getUserFile());// 初始化根目标
+      file = fileChooser.showOpenDialog(Main.primaryStage0);
+    }
     if (file != null) {
       String filePath = file.getAbsolutePath();
       textField.setText(filePath);
@@ -887,10 +890,15 @@ public class MyController extends BaseController implements Initializable {
    * 导入战绩文件
    */
   public void importZJExcelAction(ActionEvent even) {
-    String excelFilePath = excelDir.getText();
-    String userClubId = lable_currentClubId.getText();
+    String excelFilePath = getExcelPath();
+    String userClubId = getClubId();
     String tableId = FileUtil.getTableId(excelFilePath);
-    if (!StringUtil.isBlank(excelFilePath)) {
+    if (StringUtil.isNotBlank(excelFilePath)) {
+      File file = new File(excelFilePath);
+      if(!file.exists()) {
+        ShowUtil.show("检测到该Excel文件不存在，可能已经锁定后被转移了（桌号"+tableId+")");
+        return;
+      }
       if (StringUtil.isAnyBlank(dataConstants.Date_Str, getSoftDate())) {
         ShowUtil.show("检测到您当前未设置软件时间！请开始新的一天");
         return;
@@ -1088,7 +1096,6 @@ public class MyController extends BaseController implements Initializable {
     new DialogUtil("修改", "新俱乐部ID:").getTextResult().ifPresent(newClubId -> {
       String currentClubId = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
       if (!StringUtils.equals(newClubId, currentClubId) && StringUtil.isNotBlank(newClubId)) {
-        lable_currentClubId.setText(newClubId);
         dbUtil.saveOrUpdateOthers(KEY_CLUB_ID, newClubId);
         ShowUtil.show("软件的当前俱乐部为" + newClubId, 2);
       }
@@ -1120,7 +1127,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void delGudongAction(ActionEvent event) {
     String selectedGudongName = (String) gudongListView.getFocusModel().getFocusedItem();
-    if (!StringUtil.isBlank(selectedGudongName)) {
+    if (StringUtil.isNotBlank(selectedGudongName)) {
       gudongListView.getItems().remove(selectedGudongName);
       List<String> cacheGudongs = dataConstants.gudongList;
       cacheGudongs.remove(selectedGudongName);
@@ -1214,10 +1221,6 @@ public class MyController extends BaseController implements Initializable {
   public void opentCombineIDDialogAction(ActionEvent event) {
     openBasedDialog("combine_player_id_framess.fxml", "合并ID", Constants.COMBINE_ID_FRAME);
   }
-  /**
-   * 打开会员战绩查询对话框(没用到)
-   */
-  public void openMemberZJQueryAction(ActionEvent event) {}
   /**
    * 牌局表列中添加支付按钮
    */
@@ -1680,8 +1683,22 @@ public class MyController extends BaseController implements Initializable {
   /**
    * 获取软件时间
    */
-  private String getSoftDate() {
+  public String getSoftDate() {
     return softDateLabel.getText();
+  }
+  
+  /**
+   * 获取Excel路径
+   */
+  public String getExcelPath() {
+    return excelDir.getText();
+  }
+  
+  /**
+   * 获取当前俱乐部
+   */
+  public String getClubId() {
+    return currentClubId.getText();
   }
 
 
@@ -1691,38 +1708,28 @@ public class MyController extends BaseController implements Initializable {
    * @time 2018年4月21日
    */
   private void moveExcel() {
+    //判断日期
     if (StringUtil.isBlank(getSoftDate())) {
       ShowUtil.show("软件时间未确定，导致当前Excel未被转移!");
       return;
     }
+    //白名单路径或白名单文件为空时不进行转移
+    String resourceFilePath = getExcelPath();
+    File srcFile = new File(resourceFilePath);
+    if(StringUtil.isBlank(getExcelPath()) || !srcFile.exists()) {
+      logger.info("白名单路径 为空或者不存在，锁定时不进行Excel转移！");
+      return;
+    }
     try {
-      String resourceFilePath = excelDir.getText();
-      String fileName = getFileName(resourceFilePath);
+      String fileName = FileUtil.getFileName(resourceFilePath);
       String targetFilePath =
           PathUtil.getUserDeskPath() + getSoftDate() + "已锁定" + File.separator +  fileName;
-      File srcFile = new File(resourceFilePath);
-      File dstFile = new File(targetFilePath);
-      FileUtils.moveFile(srcFile, dstFile);
+      FileUtils.moveFile(srcFile, new File(targetFilePath));
     } catch (Exception e) {
       ErrorUtil.err("转移Excel失败", e);
     }
   }
   
-  private String getFileName(String filePath) {
-    String fileName = "";
-    if(StringUtil.isNotBlank(filePath)) {
-      int index = 0;
-      if(filePath.contains(File.separator)){
-        index = filePath.lastIndexOf(File.separator);
-      }else {
-        index = filePath.lastIndexOf("/");
-      }
-      fileName = filePath.substring(index + 1);
-    }
-    return fileName;
-  }
-
-
 
   // 缓存到总团队回水中(不会从中减少)
   public void setDangjuTeamInfo() {
@@ -2319,7 +2326,10 @@ public class MyController extends BaseController implements Initializable {
 
       // 清空所有缓存数据
       dataConstants.clearAllData();
-      dataConstants.Date_Str = softDateLabel.getText();// 此行代码不能删，因为上行代码已将其时间删除
+      // 恢复所有缓存数据
+//      dataConstants.recoveryGameRecords(); // 新增，是否有问题？
+      
+      dataConstants.Date_Str = getSoftDate();// 此行代码不能删，因为上行代码已将其时间删除
       // 加载必要的原始数据（人员和回水）
       dataConstants.initMetaData();
       // 加载昨日数据
@@ -2585,7 +2595,11 @@ public class MyController extends BaseController implements Initializable {
       // 清空并重置待导入队列
       excelQueue.clear();
       for (File file : excelList) {
-        excelQueue.add(file);
+        try {
+          excelQueue.put(file);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
       }
     }
   }

@@ -418,7 +418,7 @@ public class DataConstans {
   /**
    * 中途继续恢复记录信息 主要是恢复 Dangju_Team_Huishui_List， zjMap，Team_Huishui_Map，Total_Team_Huishui_Map
    */
-  private void recoveryGameRecords() {
+  public void recoveryGameRecords() {
     String maxGameRecordTime = dbUtil.getMaxGameRecordTime();
     // String clubId = myController.currentClubId.getText();
     String clubId = dbUtil.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
