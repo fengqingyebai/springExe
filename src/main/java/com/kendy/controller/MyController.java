@@ -3,8 +3,6 @@ package com.kendy.controller;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -325,7 +323,7 @@ public class MyController extends BaseController implements Initializable {
   @FXML public Hyperlink addCurrentMoneyLink;
   @FXML public Hyperlink delCurrentMoneyLink;
   @FXML public Label lockedLabel;
-  @FXML public Label dateLabel;
+  @FXML public Label softDateLabel; //软件时间
   // ===============================================================汇总Tab
   @FXML public TableView<ZonghuiInfo> tableZonghui;
   @FXML public TableColumn<ZonghuiInfo, String> zonghuiTabelId;
@@ -895,7 +893,7 @@ public class MyController extends BaseController implements Initializable {
     String userClubId = lable_currentClubId.getText();
     String tableId = FileUtil.getTableId(excelFilePath);
     if (!StringUtil.isBlank(excelFilePath)) {
-      if (StringUtil.isAnyBlank(dataConstants.Date_Str, dateLabel.getText())) {
+      if (StringUtil.isAnyBlank(dataConstants.Date_Str, getSoftDate())) {
         ShowUtil.show("检测到您当前未设置软件时间！请开始新的一天");
         return;
       }
@@ -1683,6 +1681,13 @@ public class MyController extends BaseController implements Initializable {
       ShowUtil.show("平帐失败，不能锁定！！！", 2);
     }
   }
+  
+  /**
+   * 获取软件时间
+   */
+  private String getSoftDate() {
+    return softDateLabel.getText();
+  }
 
 
   /**
@@ -1691,23 +1696,35 @@ public class MyController extends BaseController implements Initializable {
    * @time 2018年4月21日
    */
   private void moveExcel() {
-    String resourceFilePath = excelDir.getText();
-    String fileName = resourceFilePath.substring(resourceFilePath.lastIndexOf("\\") + 1);
-    String softDate = dataConstants.Date_Str;
-    if (StringUtil.isBlank(softDate)) {
-      ShowUtil.show("软件时间未确定，影响到转移Excel!");
-      dataConstants.Date_Str = LocalDate.now().toString();
+    if (StringUtil.isBlank(getSoftDate())) {
+      ShowUtil.show("软件时间未确定，导致当前Excel未被转移!");
+      return;
     }
-    String targetFilePath =
-        PathUtil.getUserDeskPath() + "\\" + softDate + "已锁定" + "\\" + "已锁定-" + fileName;
     try {
-      FileUtils.copyFile(new File(resourceFilePath), new File(targetFilePath));
-      FileUtils.deleteQuietly(new File(resourceFilePath));
-    } catch (FileNotFoundException e) {
-      logger.info("锁定后转移Excel失败,原因：FileNotFoundException，源地址是：" + resourceFilePath);
-    } catch (IOException e) {
-      ErrorUtil.err("锁定后转移Excel失败", e);
+      String resourceFilePath = excelDir.getText();
+      String fileName = getFileName(resourceFilePath);
+      String targetFilePath =
+          PathUtil.getUserDeskPath() + getSoftDate() + "已锁定" + File.separator +  fileName;
+      File srcFile = new File(resourceFilePath);
+      File dstFile = new File(targetFilePath);
+      FileUtils.moveFile(srcFile, dstFile);
+    } catch (Exception e) {
+      ErrorUtil.err("转移Excel失败", e);
     }
+  }
+  
+  private String getFileName(String filePath) {
+    String fileName = "";
+    if(StringUtil.isNotBlank(filePath)) {
+      int index = 0;
+      if(filePath.contains(File.separator)){
+        index = filePath.lastIndexOf(File.separator);
+      }else {
+        index = filePath.lastIndexOf("/");
+      }
+      fileName = filePath.substring(index + 1);
+    }
+    return fileName;
   }
 
 
@@ -2255,7 +2272,7 @@ public class MyController extends BaseController implements Initializable {
 
 
   private boolean handleNewDayTimeOK() {
-    TextInputDialog textDialog = new TextInputDialog("");
+    TextInputDialog textDialog = new TextInputDialog(LocalDate.now().toString());
     textDialog.setTitle("新一天,如：" + LocalDate.now());
     textDialog.setHeaderText(null);
     textDialog.setContentText("请输入新一天时间:");
@@ -2280,7 +2297,7 @@ public class MyController extends BaseController implements Initializable {
       ShowUtil.show("时间不准确！！");
       return Boolean.FALSE;
     } else {
-      dateLabel.setText(dataConstants.Date_Str);
+      softDateLabel.setText(dataConstants.Date_Str);
       logger.info("客户输入新一天的时间是：" + dataConstants.Date_Str);
     }
     return Boolean.TRUE;
@@ -2301,11 +2318,13 @@ public class MyController extends BaseController implements Initializable {
       if (!handleNewDayTimeOK()) {
         return;
       }
+      
+      excelDir.setText("C:\\Users\\kendy\\Desktop\\2018-07-26已锁定\\已锁定-1532541147231-07月26号-战绩导出-24-09.xls");
 
 
       // 清空所有缓存数据
       dataConstants.clearAllData();
-      dataConstants.Date_Str = dateLabel.getText();// 此行代码不能删，因为上行代码已将其时间删除
+      dataConstants.Date_Str = softDateLabel.getText();// 此行代码不能删，因为上行代码已将其时间删除
       // 加载必要的原始数据（人员和回水）
       dataConstants.initMetaData();
       // 加载昨日数据
@@ -2391,7 +2410,7 @@ public class MyController extends BaseController implements Initializable {
       int pageIndex = dataConstants.Paiju_Index.get();
       pageInput.setText(pageIndex + "");
       try {
-        dateLabel.setText(dataConstants.Date_Str);
+        softDateLabel.setText(dataConstants.Date_Str);
         // 恢复锁定的数据
         changableData();
         // 加载前一场数据

@@ -206,7 +206,6 @@ public class TGController extends BaseController implements Initializable {
   /**
    * DOM加载完后的事件
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     // 绑定列值属性

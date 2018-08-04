@@ -1,7 +1,6 @@
 package com.kendy.model;
 
 import com.kendy.excel.excel4j.annotation.ExcelField;
-
 /**
  * 新版本战绩记录（统一） 
  * 备注：保险是整个牌局的保险合计的总和 而保险合计只是单个玩家单条记录的保险

@@ -21,7 +21,7 @@ public class DBConnection {
 
   private static Connection connection = null;
 
-  private static final String URL = "jdbc:mysql://localhost:3306/financial";
+  private static final String URL = "jdbc:mysql://localhost:3306/financial?autoReconnect=true";
   private static final String USER = "root";
   private static final String PASSWORD = "123456";
 
@@ -46,8 +46,10 @@ public class DBConnection {
   }
 
   public static void main(String[] args) {
-    log.info("success..");
-    getConnection();
+    if(getConnection() == null) {
+      System.out.println("fail to connect the database..");
+    }
+    System.out.println("success.." + System.currentTimeMillis());
   }
 
 }

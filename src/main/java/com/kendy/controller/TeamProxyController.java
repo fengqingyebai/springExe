@@ -84,7 +84,7 @@ public class TeamProxyController extends BaseController implements Initializable
    * @time 2018年7月22日
    */
   public void loadWhenClickTab() {
-    String dateStr = myController.dateLabel.getText();
+    String dateStr = myController.softDateLabel.getText();
     if (StringUtil.isNotBlank(dateStr)) {
       proxyDateLabel.setText(dateStr);
     }

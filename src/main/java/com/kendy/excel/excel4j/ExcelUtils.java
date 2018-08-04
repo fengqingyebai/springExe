@@ -1,6 +1,7 @@
 package com.kendy.excel.excel4j;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,24 +11,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import com.kendy.excel.ExcelCss;
 import com.kendy.excel.excel4j.converter.DefaultConvertible;
 import com.kendy.excel.excel4j.exceptions.Excel4JException;
 import com.kendy.excel.excel4j.exceptions.Excel4jReadException;
 import com.kendy.excel.excel4j.handler.ExcelHeader;
+import com.kendy.excel.excel4j.handler.SheetTemplate;
 import com.kendy.excel.excel4j.handler.SheetTemplateHandler;
 import com.kendy.excel.excel4j.sheet.wrapper.MapSheetWrapper;
 import com.kendy.excel.excel4j.sheet.wrapper.NoTemplateSheetWrapper;
@@ -51,7 +48,7 @@ import com.kendy.excel.excel4j.utils.Utils;
  * <p>
  * 详细用法请关注: https://gitee.com/Crab2Died/Excel4J
  *
- * @author Crab2Died,linzt
+ * @author Crab2Died
  */
 public final class ExcelUtils {
 
@@ -65,7 +62,7 @@ public final class ExcelUtils {
     }
 
     /**
-     * 双检锁保证绝对线程安全
+     * 双检锁保证单例
      */
     public static ExcelUtils getInstance() {
         if (null == excelUtils) {
@@ -109,8 +106,9 @@ public final class ExcelUtils {
                                          int limitLine, int sheetIndex)
             throws Excel4JException, IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(new File(excelPath));
-        return readExcel2ObjectsHandler(workbook, clazz, offsetLine, limitLine, sheetIndex);
+        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(new File(excelPath)))) {
+            return readExcel2ObjectsHandler(workbook, clazz, offsetLine, limitLine, sheetIndex);
+        }
     }
 
     /**
@@ -132,8 +130,9 @@ public final class ExcelUtils {
                                          int limitLine, int sheetIndex)
             throws Excel4JException, IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(is);
-        return readExcel2ObjectsHandler(workbook, clazz, offsetLine, limitLine, sheetIndex);
+        try (Workbook workbook = WorkbookFactory.create(is)) {
+            return readExcel2ObjectsHandler(workbook, clazz, offsetLine, limitLine, sheetIndex);
+        }
     }
 
     /**
@@ -298,8 +297,9 @@ public final class ExcelUtils {
     public List<List<String>> readExcel2List(String excelPath, int offsetLine, int limitLine, int sheetIndex)
             throws IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(new File(excelPath));
-        return readExcel2ObjectsHandler(workbook, offsetLine, limitLine, sheetIndex);
+        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(new File(excelPath)))) {
+            return readExcel2ObjectsHandler(workbook, offsetLine, limitLine, sheetIndex);
+        }
     }
 
     /**
@@ -318,8 +318,9 @@ public final class ExcelUtils {
     public List<List<String>> readExcel2List(InputStream is, int offsetLine, int limitLine, int sheetIndex)
             throws Excel4JException, IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(is);
-        return readExcel2ObjectsHandler(workbook, offsetLine, limitLine, sheetIndex);
+        try (Workbook workbook = WorkbookFactory.create(is)) {
+            return readExcel2ObjectsHandler(workbook, offsetLine, limitLine, sheetIndex);
+        }
     }
 
     /**
@@ -335,8 +336,9 @@ public final class ExcelUtils {
     public List<List<String>> readExcel2List(String excelPath, int offsetLine)
             throws IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(new File(excelPath));
-        return readExcel2ObjectsHandler(workbook, offsetLine, Integer.MAX_VALUE, 0);
+        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(new File(excelPath)))) {
+            return readExcel2ObjectsHandler(workbook, offsetLine, Integer.MAX_VALUE, 0);
+        }
     }
 
     /**
@@ -352,8 +354,9 @@ public final class ExcelUtils {
     public List<List<String>> readExcel2List(InputStream is, int offsetLine)
             throws IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(is);
-        return readExcel2ObjectsHandler(workbook, offsetLine, Integer.MAX_VALUE, 0);
+        try (Workbook workbook = WorkbookFactory.create(is)) {
+            return readExcel2ObjectsHandler(workbook, offsetLine, Integer.MAX_VALUE, 0);
+        }
     }
 
     /**
@@ -368,8 +371,9 @@ public final class ExcelUtils {
     public List<List<String>> readExcel2List(String excelPath)
             throws IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(new File(excelPath));
-        return readExcel2ObjectsHandler(workbook, 0, Integer.MAX_VALUE, 0);
+        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(new File(excelPath)))) {
+            return readExcel2ObjectsHandler(workbook, 0, Integer.MAX_VALUE, 0);
+        }
     }
 
     /**
@@ -384,8 +388,9 @@ public final class ExcelUtils {
     public List<List<String>> readExcel2List(InputStream is)
             throws IOException, InvalidFormatException {
 
-        Workbook workbook = WorkbookFactory.create(is);
-        return readExcel2ObjectsHandler(workbook, 0, Integer.MAX_VALUE, 0);
+        try (Workbook workbook = WorkbookFactory.create(is)) {
+            return readExcel2ObjectsHandler(workbook, 0, Integer.MAX_VALUE, 0);
+        }
     }
 
     private List<List<String>> readExcel2ObjectsHandler(Workbook workbook, int offsetLine,
@@ -443,8 +448,12 @@ public final class ExcelUtils {
                                     boolean isWriteHeader, String targetPath)
             throws Excel4JException {
 
-        exportExcelByModuleHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)
-                .write2File(targetPath);
+        try (SheetTemplate sheetTemplate = exportExcelByModuleHandler
+                (templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)) {
+            sheetTemplate.write2File(targetPath);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -465,8 +474,12 @@ public final class ExcelUtils {
                                     boolean isWriteHeader, OutputStream os)
             throws Excel4JException {
 
-        exportExcelByModuleHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)
-                .write2Stream(os);
+        try (SheetTemplate sheetTemplate = exportExcelByModuleHandler
+                (templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)) {
+            sheetTemplate.write2Stream(os);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -576,15 +589,15 @@ public final class ExcelUtils {
     }
 
     // 单sheet导出
-    private SheetTemplateHandler.SheetTemplate exportExcelByModuleHandler(String templatePath,
-                                                                          int sheetIndex,
-                                                                          List<?> data,
-                                                                          Map<String, String> extendMap,
-                                                                          Class clazz,
-                                                                          boolean isWriteHeader)
+    private SheetTemplate exportExcelByModuleHandler(String templatePath,
+                                                     int sheetIndex,
+                                                     List<?> data,
+                                                     Map<String, String> extendMap,
+                                                     Class clazz,
+                                                     boolean isWriteHeader)
             throws Excel4JException {
 
-        SheetTemplateHandler.SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
+        SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
         generateSheet(sheetIndex, data, extendMap, clazz, isWriteHeader, template);
         return template;
     }
@@ -600,8 +613,11 @@ public final class ExcelUtils {
     public void normalSheet2Excel(List<NormalSheetWrapper> sheetWrappers, String templatePath, String targetPath)
             throws Excel4JException {
 
-        exportExcelByModuleHandler(templatePath, sheetWrappers)
-                .write2File(targetPath);
+        try (SheetTemplate sheetTemplate = exportExcelByModuleHandler(templatePath, sheetWrappers)) {
+            sheetTemplate.write2File(targetPath);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -615,16 +631,19 @@ public final class ExcelUtils {
     public void normalSheet2Excel(List<NormalSheetWrapper> sheetWrappers, String templatePath, OutputStream os)
             throws Excel4JException {
 
-        exportExcelByModuleHandler(templatePath, sheetWrappers)
-                .write2Stream(os);
+        try (SheetTemplate sheetTemplate = exportExcelByModuleHandler(templatePath, sheetWrappers)) {
+            sheetTemplate.write2Stream(os);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     // 多sheet导出
-    private SheetTemplateHandler.SheetTemplate exportExcelByModuleHandler(String templatePath,
-                                                                          List<NormalSheetWrapper> sheets)
+    private SheetTemplate exportExcelByModuleHandler(String templatePath,
+                                                     List<NormalSheetWrapper> sheets)
             throws Excel4JException {
 
-        SheetTemplateHandler.SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
+        SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
         for (NormalSheetWrapper sheet : sheets) {
             generateSheet(sheet.getSheetIndex(), sheet.getData(), sheet.getExtendMap(), sheet.getClazz(),
                     sheet.isWriteHeader(), template);
@@ -634,7 +653,7 @@ public final class ExcelUtils {
 
     // 生成sheet数据
     private void generateSheet(int sheetIndex, List<?> data, Map<String, String> extendMap, Class clazz,
-                               boolean isWriteHeader, SheetTemplateHandler.SheetTemplate template)
+                               boolean isWriteHeader, SheetTemplate template)
             throws Excel4JException {
 
         SheetTemplateHandler.loadTemplate(template, sheetIndex);
@@ -693,8 +712,11 @@ public final class ExcelUtils {
                                 boolean isWriteHeader, String targetPath)
             throws Excel4JException {
 
-        exportExcelByMapHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)
-                .write2File(targetPath);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)) {
+            sheetTemplate.write2File(targetPath);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -715,8 +737,11 @@ public final class ExcelUtils {
                                 Map<String, String> extendMap, Class clazz, boolean isWriteHeader, OutputStream os)
             throws Excel4JException {
 
-        exportExcelByMapHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)
-                .write2Stream(os);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)) {
+            sheetTemplate.write2Stream(os);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -735,8 +760,11 @@ public final class ExcelUtils {
                                 Map<String, String> extendMap, Class clazz, String targetPath)
             throws Excel4JException {
 
-        exportExcelByMapHandler(templatePath, 0, data, extendMap, clazz, true)
-                .write2File(targetPath);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, extendMap, clazz, true)) {
+            sheetTemplate.write2File(targetPath);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -755,8 +783,11 @@ public final class ExcelUtils {
                                 Map<String, String> extendMap, Class clazz, OutputStream os)
             throws Excel4JException {
 
-        exportExcelByMapHandler(templatePath, 0, data, extendMap, clazz, true)
-                .write2Stream(os);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, extendMap, clazz, true)) {
+            sheetTemplate.write2Stream(os);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -774,8 +805,11 @@ public final class ExcelUtils {
                                 Class clazz, String targetPath)
             throws Excel4JException {
 
-        exportExcelByMapHandler(templatePath, 0, data, null, clazz, true)
-                .write2File(targetPath);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, null, clazz, true)) {
+            sheetTemplate.write2File(targetPath);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -793,21 +827,24 @@ public final class ExcelUtils {
                                 Class clazz, OutputStream os)
             throws Excel4JException {
 
-        exportExcelByMapHandler(templatePath, 0, data, null, clazz, true)
-                .write2Stream(os);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, null, clazz, true)) {
+            sheetTemplate.write2Stream(os);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     // 单sheet导出
-    private SheetTemplateHandler.SheetTemplate exportExcelByMapHandler(String templatePath,
-                                                                       int sheetIndex,
-                                                                       Map<String, List<?>> data,
-                                                                       Map<String, String> extendMap,
-                                                                       Class clazz,
-                                                                       boolean isWriteHeader)
+    private SheetTemplate exportExcelByMapHandler(String templatePath,
+                                                  int sheetIndex,
+                                                  Map<String, List<?>> data,
+                                                  Map<String, String> extendMap,
+                                                  Class clazz,
+                                                  boolean isWriteHeader)
             throws Excel4JException {
 
         // 加载模板
-        SheetTemplateHandler.SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
+        SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
 
         // 生成sheet
         generateSheet(template, sheetIndex, data, extendMap, clazz, isWriteHeader);
@@ -827,8 +864,11 @@ public final class ExcelUtils {
     public void mapSheet2Excel(List<MapSheetWrapper> sheetWrappers, String templatePath, String targetPath)
             throws Excel4JException {
 
-        exportExcelByMapHandler(sheetWrappers, templatePath)
-                .write2File(targetPath);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(sheetWrappers, templatePath)) {
+            sheetTemplate.write2File(targetPath);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     /**
@@ -843,18 +883,20 @@ public final class ExcelUtils {
     public void mapSheet2Excel(List<MapSheetWrapper> sheetWrappers, String templatePath, OutputStream os)
             throws Excel4JException {
 
-        exportExcelByMapHandler(sheetWrappers, templatePath)
-                .write2Stream(os);
+        try (SheetTemplate sheetTemplate = exportExcelByMapHandler(sheetWrappers, templatePath)) {
+            sheetTemplate.write2Stream(os);
+        } catch (IOException e) {
+            throw new Excel4JException(e);
+        }
     }
 
     // 多sheet导出
-    private SheetTemplateHandler.SheetTemplate exportExcelByMapHandler(List<MapSheetWrapper> sheetWrappers,
-                                                                       String templatePath)
+    private SheetTemplate exportExcelByMapHandler(List<MapSheetWrapper> sheetWrappers,
+                                                  String templatePath)
             throws Excel4JException {
 
         // 加载模板
-        SheetTemplateHandler.SheetTemplate template =
-                SheetTemplateHandler.sheetTemplateBuilder(templatePath);
+        SheetTemplate template = SheetTemplateHandler.sheetTemplateBuilder(templatePath);
 
         // 多sheet生成
         for (MapSheetWrapper sheet : sheetWrappers) {
@@ -871,7 +913,7 @@ public final class ExcelUtils {
     }
 
     // sheet生成
-    private void generateSheet(SheetTemplateHandler.SheetTemplate template, int sheetIndex,
+    private void generateSheet(SheetTemplate template, int sheetIndex,
                                Map<String, List<?>> data, Map<String, String> extendMap,
                                Class clazz, boolean isWriteHeader)
             throws Excel4JException {
@@ -931,11 +973,10 @@ public final class ExcelUtils {
                                     String sheetName, boolean isXSSF, String targetPath)
             throws Excel4JException, IOException {
 
-        try (FileOutputStream fos = new FileOutputStream(targetPath)) {
-            exportExcelNoTemplateHandler(data, clazz, isWriteHeader, sheetName, isXSSF)
-                    .write(fos);
+        try (FileOutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelNoTemplateHandler(data, clazz, isWriteHeader, sheetName, isXSSF)) {
+            workbook.write(fos);
         }
-
     }
 
     /**
@@ -955,8 +996,9 @@ public final class ExcelUtils {
                                     String sheetName, boolean isXSSF, OutputStream os)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(data, clazz, isWriteHeader, sheetName, isXSSF)
-                .write(os);
+        try (Workbook workbook = exportExcelNoTemplateHandler(data, clazz, isWriteHeader, sheetName, isXSSF)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -973,9 +1015,9 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, Class clazz, boolean isWriteHeader, String targetPath)
             throws Excel4JException, IOException {
 
-        try (FileOutputStream fos = new FileOutputStream(targetPath);) {
-            exportExcelNoTemplateHandler(data, clazz, isWriteHeader, null, true)
-                    .write(fos);
+        try (FileOutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelNoTemplateHandler(data, clazz, isWriteHeader, null, true)) {
+            workbook.write(fos);
         }
     }
 
@@ -993,8 +1035,9 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, Class clazz, boolean isWriteHeader, OutputStream os)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(data, clazz, isWriteHeader, null, true)
-                .write(os);
+        try (Workbook workbook = exportExcelNoTemplateHandler(data, clazz, isWriteHeader, null, true)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -1010,8 +1053,9 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, Class clazz, OutputStream os)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(data, clazz, true, null, true)
-                .write(os);
+        try (Workbook workbook = exportExcelNoTemplateHandler(data, clazz, true, null, true)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -1027,9 +1071,9 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, Class clazz, String targetPath)
             throws Excel4JException, IOException {
 
-        try (FileOutputStream fos = new FileOutputStream(targetPath)) {
-            exportExcelNoTemplateHandler(data, clazz, true, null, true)
-                    .write(fos);
+        try (FileOutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelNoTemplateHandler(data, clazz, true, null, true)) {
+            workbook.write(fos);
         }
     }
 
@@ -1061,8 +1105,10 @@ public final class ExcelUtils {
     public void noTemplateSheet2Excel(List<NoTemplateSheetWrapper> sheets, String targetPath)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(sheets, true)
-                .write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelNoTemplateHandler(sheets, true)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1077,8 +1123,10 @@ public final class ExcelUtils {
     public void noTemplateSheet2Excel(List<NoTemplateSheetWrapper> sheets, boolean isXSSF, String targetPath)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(sheets, isXSSF)
-                .write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelNoTemplateHandler(sheets, isXSSF)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1092,8 +1140,9 @@ public final class ExcelUtils {
     public void noTemplateSheet2Excel(List<NoTemplateSheetWrapper> sheets, OutputStream os)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(sheets, true)
-                .write(os);
+        try (Workbook workbook = exportExcelNoTemplateHandler(sheets, true)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -1108,8 +1157,9 @@ public final class ExcelUtils {
     public void noTemplateSheet2Excel(List<NoTemplateSheetWrapper> sheets, boolean isXSSF, OutputStream os)
             throws Excel4JException, IOException {
 
-        exportExcelNoTemplateHandler(sheets, isXSSF)
-                .write(os);
+        try (Workbook workbook = exportExcelNoTemplateHandler(sheets, isXSSF)) {
+            workbook.write(os);
+        }
     }
 
     // 多sheet数据导出
@@ -1139,10 +1189,6 @@ public final class ExcelUtils {
                                boolean isWriteHeader, String sheetName)
             throws Excel4JException {
 
-    	//获取列头样式对象
-        CellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);
-        CellStyle style = ExcelCss.getStyle(workbook); 
-        
         Sheet sheet;
         if (null != sheetName && !"".equals(sheetName)) {
             sheet = workbook.createSheet(sheetName);
@@ -1154,9 +1200,7 @@ public final class ExcelUtils {
         if (isWriteHeader) {
             // 写标题
             for (int i = 0; i < headers.size(); i++) {
-            	Cell cell = row.createCell(i);
-            	cell.setCellValue(headers.get(i).getTitle());
-            	cell.setCellStyle(columnTopStyle);
+                row.createCell(i).setCellValue(headers.get(i).getTitle());
             }
         }
         // 写数据
@@ -1168,25 +1212,8 @@ public final class ExcelUtils {
                 row.createCell(j).setCellValue(Utils.getProperty(_data,
                         headers.get(j).getFiled(),
                         headers.get(j).getWriteConverter()));
-                row.getCell(j).setCellStyle(style);
             }
         }
-        
-        // 设置列宽(泽涛：256的倍数，最长为256 * 256)
-		for (int colNum = 0; colNum < headers.size(); colNum++) {
-			int columnWidth = headers.get(colNum).getColWidth() ;
-			for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
-				Row currentRow;
-				// 当前行未被使用过
-				if (sheet.getRow(rowNum) == null) {
-					currentRow = sheet.createRow(rowNum);
-				} else {
-					currentRow = sheet.getRow(rowNum);
-					currentRow.setHeight((short) 400);
-				}
-			}
-			sheet.setColumnWidth(colNum, columnWidth * 256);
-		}
 
     }
 
@@ -1217,8 +1244,10 @@ public final class ExcelUtils {
                                     boolean isXSSF, String targetPath)
             throws IOException {
 
-        exportExcelBySimpleHandler(data, header, sheetName, isXSSF)
-                .write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelBySimpleHandler(data, header, sheetName, isXSSF)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1236,7 +1265,9 @@ public final class ExcelUtils {
                                     boolean isXSSF, OutputStream os)
             throws IOException {
 
-        exportExcelBySimpleHandler(data, header, sheetName, isXSSF).write(os);
+        try (Workbook workbook = exportExcelBySimpleHandler(data, header, sheetName, isXSSF)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -1251,8 +1282,10 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, List<String> header, String targetPath)
             throws IOException {
 
-        exportExcelBySimpleHandler(data, header, null, true)
-                .write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelBySimpleHandler(data, header, null, true)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1267,8 +1300,9 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, List<String> header, OutputStream os)
             throws IOException {
 
-        exportExcelBySimpleHandler(data, header, null, true)
-                .write(os);
+        try (Workbook workbook = exportExcelBySimpleHandler(data, header, null, true)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -1282,8 +1316,10 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, String targetPath)
             throws IOException {
 
-        exportExcelBySimpleHandler(data, null, null, true)
-                .write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelBySimpleHandler(data, null, null, true)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1297,8 +1333,9 @@ public final class ExcelUtils {
     public void exportObjects2Excel(List<?> data, OutputStream os)
             throws IOException {
 
-        exportExcelBySimpleHandler(data, null, null, true)
-                .write(os);
+        try (Workbook workbook = exportExcelBySimpleHandler(data, null, null, true)) {
+            workbook.write(os);
+        }
     }
 
     private Workbook exportExcelBySimpleHandler(List<?> data, List<String> header,
@@ -1326,8 +1363,10 @@ public final class ExcelUtils {
     public void simpleSheet2Excel(List<SimpleSheetWrapper> sheets, String targetPath)
             throws IOException {
 
-        exportExcelBySimpleHandler(sheets, true)
-                .write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelBySimpleHandler(sheets, true)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1341,7 +1380,10 @@ public final class ExcelUtils {
     public void simpleSheet2Excel(List<SimpleSheetWrapper> sheets, boolean isXSSF, String targetPath)
             throws IOException {
 
-        exportExcelBySimpleHandler(sheets, isXSSF).write(new FileOutputStream(targetPath));
+        try (OutputStream fos = new FileOutputStream(targetPath);
+             Workbook workbook = exportExcelBySimpleHandler(sheets, isXSSF)) {
+            workbook.write(fos);
+        }
     }
 
     /**
@@ -1354,7 +1396,9 @@ public final class ExcelUtils {
     public void simpleSheet2Excel(List<SimpleSheetWrapper> sheets, OutputStream os)
             throws IOException {
 
-        exportExcelBySimpleHandler(sheets, true).write(os);
+        try (Workbook workbook = exportExcelBySimpleHandler(sheets, true)) {
+            workbook.write(os);
+        }
     }
 
     /**
@@ -1368,7 +1412,9 @@ public final class ExcelUtils {
     public void simpleSheet2Excel(List<SimpleSheetWrapper> sheets, boolean isXSSF, OutputStream os)
             throws IOException {
 
-        exportExcelBySimpleHandler(sheets, isXSSF).write(os);
+        try (Workbook workbook = exportExcelBySimpleHandler(sheets, isXSSF)) {
+            workbook.write(os);
+        }
     }
 
     private Workbook exportExcelBySimpleHandler(List<SimpleSheetWrapper> sheets, boolean isXSSF) {

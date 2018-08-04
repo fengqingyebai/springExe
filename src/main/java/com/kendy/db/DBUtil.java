@@ -990,33 +990,25 @@ public class DBUtil {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
-      // 表：last_locked_data
-      String sql1 = "delete from last_locked_data";
-      ps = con.prepareStatement(sql1);
-      ps.execute();
+      String sql ;
 
-      String sql2 = "DELETE from yesterday_data where dateTime != '2017-01-01'";
-      ps = con.prepareStatement(sql2);
-      ps.execute();
-
-
-      String sql3 = "DELETE from historyrecord ";
-      ps = con.prepareStatement(sql3);
-      ps.execute();
-
-      sql = "DELETE from club_zhuofei ";
-      ps = con.prepareStatement(sql);
-      ps.execute();
-
-      sql = "DELETE from record ";
-      ps = con.prepareStatement(sql);
-      ps.execute();
-
-      sql = "DELETE from gudong_kaixiao ";
-      ps = con.prepareStatement(sql);
-      ps.execute();
-
-      sql = "DELETE from last_locked_data_detail ";
+      
+      List<String> delTables = Arrays.asList(
+          "club_zhuofei", 
+          "game_record", 
+          "gudong_kaixiao", 
+          "last_locked_data", 
+          "last_locked_data_detail", 
+          "tg_lirun",
+          "shangma_nextday");
+      
+      for(String tableName : delTables) {
+        sql = "DELETE from " + tableName;
+        ps = con.prepareStatement(sql);
+        ps.execute();
+      }
+      
+      sql = "DELETE from yesterday_data where dateTime != '2017-01-01'";
       ps = con.prepareStatement(sql);
       ps.execute();
 
