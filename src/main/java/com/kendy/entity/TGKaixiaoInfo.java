@@ -1,10 +1,7 @@
 package com.kendy.entity;
 
 import com.kendy.interfaces.Entity;
-
 import javafx.beans.property.SimpleStringProperty;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
 
 /**
  * 托管开销模型

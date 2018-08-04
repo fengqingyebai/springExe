@@ -1,4 +1,4 @@
-package com.kendy.spider;
+package com.kendy.model;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

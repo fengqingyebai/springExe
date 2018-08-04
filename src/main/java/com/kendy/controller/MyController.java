@@ -70,8 +70,9 @@ import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
 import com.kendy.util.FileUtil;
-import com.kendy.util.InputDialog;
+import com.kendy.util.DialogUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.PathUtil;
 import com.kendy.util.RandomUtil;
@@ -750,30 +751,23 @@ public class MyController extends BaseController implements Initializable {
   /**
    * 导入excel文件选择器
    * 
-   * @param excelDir
+   * @param textField
    * @param title
    */
-  public void openBasicExcelDialog(TextField excelDir, String title) {
+  public File openBasicExcelDialog(TextField textField, String title) {
     String rootPathName = !StringUtil.isBlank(dataConstants.Root_Dir) ? dataConstants.Root_Dir
         : System.getProperty("user.home");
     FileChooser fileChooser = new FileChooser();// 文件选择器
     fileChooser.setTitle(Constants.TITLE + ": " + title);// 标题
     fileChooser.setInitialDirectory(new File(rootPathName));// 初始化根目标
-    fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("excel", "*.xls?")
-    // new FileChooser.ExtensionFilter("2007Excel", "*.xlsx")
-    );
-    File file = null;
-    try {
-      file = fileChooser.showOpenDialog(Main.primaryStage0);
-    } catch (Exception e) {
-      fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));// 初始化根目标
-      file = fileChooser.showOpenDialog(Main.primaryStage0);
-    }
+    fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("excel", "*.xls?"));
+    File file = fileChooser.showOpenDialog(FXUtil.stage);
     if (file != null) {
       String filePath = file.getAbsolutePath();
-      excelDir.setText(filePath);
+      textField.setText(filePath);
       dataConstants.Root_Dir = filePath.substring(0, filePath.lastIndexOf("\\"));
     }
+    return file;
   }
 
   /**
@@ -786,7 +780,11 @@ public class MyController extends BaseController implements Initializable {
    * 打开战绩excel
    */
   public void openZJExcelAction(ActionEvent event) {
-    openBasicExcelDialog(excelDir, "请选择战绩Excel");
+    File file = openBasicExcelDialog(excelDir, "请选择战绩Excel");
+    if(file != null) {
+     String tableId = FileUtil.getTableId(file.getAbsolutePath());
+     indexLabel.setText(tableId);
+    }
   }
   /**
    * 打开回水比例excel
@@ -953,10 +951,7 @@ public class MyController extends BaseController implements Initializable {
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   private void selectLM() {
-    Dialog dialog = new Dialog<>();
-    dialog.setTitle("请选择联盟:");
-    dialog.setHeaderText(null);
-
+    Dialog dialog = FXUtil.getBasicDialog("请选择联盟:"); 
     // 添加联盟按钮
     GridPane grid = new GridPane();
     grid.setPrefHeight(150);
@@ -1090,7 +1085,7 @@ public class MyController extends BaseController implements Initializable {
    * 修改当前俱乐部ID
    */
   public void configCurrentClueIdAction(ActionEvent event) {
-    new InputDialog("修改", "新俱乐部ID:").getTextResult().ifPresent(newClubId -> {
+    new DialogUtil("修改", "新俱乐部ID:").getTextResult().ifPresent(newClubId -> {
       String currentClubId = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
       if (!StringUtils.equals(newClubId, currentClubId) && StringUtil.isNotBlank(newClubId)) {
         lable_currentClubId.setText(newClubId);
@@ -2276,6 +2271,7 @@ public class MyController extends BaseController implements Initializable {
     textDialog.setTitle("新一天,如：" + LocalDate.now());
     textDialog.setHeaderText(null);
     textDialog.setContentText("请输入新一天时间:");
+    ShowUtil.setIcon(textDialog);
     Optional<String> timeOpt = textDialog.showAndWait();
     timeOpt.ifPresent(time -> {
       try {
@@ -2319,8 +2315,7 @@ public class MyController extends BaseController implements Initializable {
         return;
       }
       
-      excelDir.setText("C:\\Users\\kendy\\Desktop\\2018-07-26已锁定\\已锁定-1532541147231-07月26号-战绩导出-24-09.xls");
-
+     // excelDir.setText("C:\\Users\\kendy\\Desktop\\2018-07-26已锁定\\已锁定-1532541147231-07月26号-战绩导出-24-09.xls");
 
       // 清空所有缓存数据
       dataConstants.clearAllData();
@@ -2691,7 +2686,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void updateTeamHsRateAction(ActionEvent event) {
 
-    InputDialog inputDlg = new InputDialog("修改", "待修改的团队ID:", "团队新回水比例：");
+    DialogUtil inputDlg = new DialogUtil("修改", "待修改的团队ID:", "团队新回水比例：");
     Optional<Pair<String, String>> result = inputDlg.getResult();
     result.ifPresent(teamId_and_hsRate -> {
 
@@ -2741,7 +2736,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void updateTeamHsBaoxianRateAction(ActionEvent event) {
 
-    InputDialog inputDlg = new InputDialog("修改团队保险比例", "待修改的团队ID:", "团队新保险比例：");
+    DialogUtil inputDlg = new DialogUtil("修改团队保险比例", "待修改的团队ID:", "团队新保险比例：");
     Optional<Pair<String, String>> result = inputDlg.getResult();
     result.ifPresent(teamId_and_hsRate -> {
 
@@ -2789,7 +2784,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void updateTeamHsGudongAction(ActionEvent event) {
 
-    InputDialog inputDlg = new InputDialog("修改团队股东", "待修改的团队ID:", "团队新股东：");
+    DialogUtil inputDlg = new DialogUtil("修改团队股东", "待修改的团队ID:", "团队新股东：");
     Optional<Pair<String, String>> result = inputDlg.getResult();
     result.ifPresent(teamId_and_teamGD -> {
 

@@ -42,7 +42,7 @@ import com.kendy.service.WaizhaiService;
 import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
-import com.kendy.util.InputDialog;
+import com.kendy.util.DialogUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -545,7 +545,7 @@ public class QuotaController extends BaseController implements Initializable {
    */
   public void addClubBankAction(ActionEvent event) {
     List<String> list = Arrays.asList("俱乐部ID", "移动类型", "姓名", "手机", "银行类型", "银行信息");
-    InputDialog dlg = new InputDialog();
+    DialogUtil dlg = new DialogUtil();
     dlg.InputMultyDialog("新增", list);
     Optional<Map<String, String>> resultMapOpt = dlg.getMultyResult();
     System.out.println(resultMapOpt.toString());
@@ -667,7 +667,7 @@ public class QuotaController extends BaseController implements Initializable {
     paramMap.put("银行类型", item.getBankType());
     paramMap.put("银行信息", item.getBankAccountInfo());
 
-    InputDialog dlg = new InputDialog();
+    DialogUtil dlg = new DialogUtil();
     dlg.InputMultyDialog("修改", paramMap);
     Optional<Map<String, String>> resultMapOpt = dlg.getMultyResult();
     System.out.println(resultMapOpt.toString());

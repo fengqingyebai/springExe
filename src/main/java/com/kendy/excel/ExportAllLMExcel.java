@@ -94,6 +94,7 @@ public class ExportAllLMExcel {
   /**
    * 加载初始化表格数据联盟信息排序数据
    */
+  @SuppressWarnings("serial")
   private void loadDefaultSort() {
     sortMap = new HashMap<String, String>() {
       {

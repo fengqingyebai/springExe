@@ -1,8 +1,5 @@
 package com.kendy.entity;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-
 /**
  * 俱乐部实体类
  * 

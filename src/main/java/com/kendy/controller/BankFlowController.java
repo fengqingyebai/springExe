@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -203,16 +204,17 @@ public class BankFlowController extends BaseController implements Initializable 
       Long todaySumPay, Long todaySumIncome, Long todaySumFlow) {
     StringBuffer msg = new StringBuffer();
     String pattern = "%-8d";
+    
     msg.append(String.format("%-4s", bankName.replace("额", "").replace("付", ""))).append(": ")
-        .append(" 当天总笔数 ").append(String.format(pattern, todayCount)).append(" 当天总支出笔数 ")
-        .append(String.format(pattern, payCount)).append(" 当天总收入笔数 ")
-        .append(String.format(pattern, incomeCount)).append(" 当天总支出￥")
-        .append(String.format(pattern, todaySumPay)).append(" 当天总收入￥")
-        .append(String.format(pattern, todaySumIncome)).append(" 当天总利润￥")
-        .append(String.format(pattern, todaySumFlow));
+    .append(" 当天总笔数 ").append(String.format(pattern, todayCount)).append(" 当天总支出笔数 ")
+    .append(String.format(pattern, payCount)).append(" 当天总收入笔数 ")
+    .append(String.format(pattern, incomeCount)).append(" 当天总支出￥")
+    .append(String.format(pattern, todaySumPay)).append(" 当天总收入￥")
+    .append(String.format(pattern, todaySumIncome)).append(" 当天总利润￥")
+    .append(String.format(pattern, todaySumFlow));
     return msg.toString();
   }
-
+  
   /**
    * 设置动态表的数据
    * 

@@ -1,9 +1,6 @@
 package com.kendy.entity;
 
-import java.io.Serializable;
-
 import com.kendy.interfaces.Entity;
-
 import javafx.beans.property.SimpleStringProperty;
 
 public class ZijinInfo implements Entity{

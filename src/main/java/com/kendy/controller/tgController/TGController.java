@@ -44,7 +44,7 @@ import com.kendy.service.ZonghuiService;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
-import com.kendy.util.InputDialog;
+import com.kendy.util.DialogUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -897,7 +897,7 @@ public class TGController extends BaseController implements Initializable {
    * 添加托管团队
    */
   public void AddTGTeamRateBtnAction(ActionEvent event) {
-    InputDialog dialog = new InputDialog("添加托管团队", "托管团队", "团队比例");
+    DialogUtil dialog = new DialogUtil("添加托管团队", "托管团队", "团队比例");
 
     Optional<Pair<String, String>> result = dialog.getResult();
     if (result.isPresent()) {

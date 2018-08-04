@@ -1,4 +1,4 @@
-package com.kendy.spider;
+package com.kendy.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,21 +27,65 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.kendy.controller.MyController;
+import com.kendy.controller.SMAutoController;
+import com.kendy.model.WanjiaApplyInfo;
+import com.kendy.model.WanjiaListResult;
 import com.kendy.util.StringUtil;
 
-// 爬取网站后台接口数据
+/**
+ * 爬取网站后台接口数据
+ * 
+ * @author kendy
+ */
 @Component
-public class HttpUtil {
-  
-  private Logger log = Logger.getLogger(HttpUtil.class);
-  
+public class HttpService {
+
+  private Logger log = Logger.getLogger(HttpService.class);
+
   @Autowired
   MyController myController;
 
-  private final String BUY_LIST_URL =
-      "http://cms.pokermanager.club/cms-api/game/getBuyinList";
-  private final String ACCEPT_BUY_URL =
-      "http://cms.pokermanager.club/cms-api/game/acceptBuyin";
+  @Autowired
+  SMAutoController smAutoController;
+  
+  public final String CHARSET = "UTF-8";
+
+  private final CloseableHttpClient httpclient;
+
+  {
+    RequestConfig config =
+        RequestConfig.custom().setConnectTimeout(50000).setSocketTimeout(10000).build();
+    httpclient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
+  }
+
+  // @PostConstruct
+  // protected void init() {
+  // PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+  // cm.setMaxTotal(MAX_TOTAL_CONNECTIONS);
+  // cm.setDefaultMaxPerRoute(MAX_ROUTE_CONNECTIONS);
+  //
+  // // try {
+  // // URL url = new URL(netInfoUrl);
+  // // cm.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 100);
+  // // } catch (MalformedURLException e) {
+  // // }
+  //
+  // // httpClient.setHttpRequestRetryHandler(new
+  // // DefaultHttpRequestRetryHandler(0, false));
+  // RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(2000)
+  // .setConnectTimeout(500).setSocketTimeout(1000).build();
+  //
+  // Builder builder = SocketConfig.custom();
+  // builder.setSoKeepAlive(true);
+  // cm.setDefaultSocketConfig(builder.build());
+  //
+  // httpClient = HttpClients.custom().setConnectionManager(cm)
+  // .setDefaultRequestConfig(requestConfig).build();
+  // }
+
+  private final String BUY_LIST_URL = "http://cms.pokermanager.club/cms-api/game/getBuyinList";
+
+  private final String ACCEPT_BUY_URL = "http://cms.pokermanager.club/cms-api/game/acceptBuyin";
 
   public void main(String[] args) throws Exception {
 
@@ -118,7 +162,7 @@ public class HttpUtil {
       // openConnection.setRequestProperty("Content-Type",
       // "application/json;charset=UTF-8");//观察后没有这个request Head
       InputStream urlStream = openConnection.getInputStream();
-      String charsetName = myController.smAutoController.sysCodeField.getText();
+      String charsetName = smAutoController.sysCodeField.getText();
       String ResString =
           org.apache.commons.io.IOUtils.toString(urlStream, Charset.forName(charsetName));
       log.info("后台的玩家列表: " + ResString);
@@ -152,6 +196,16 @@ public class HttpUtil {
     }
   }
 
+  /**
+   * 申请买入
+   * 
+   * @param userUuid
+   * @param roomId
+   * @param token
+   * @return
+   * @throws ClientProtocolException
+   * @throws IOException
+   */
   public boolean acceptBuy(Long userUuid, Long roomId, String token)
       throws ClientProtocolException, IOException {
     Map<String, String> map = new HashMap<>();
@@ -166,15 +220,16 @@ public class HttpUtil {
 
 
 
-  public final String CHARSET = "UTF-8";
-
-  private final CloseableHttpClient httpclient;
-  {
-    RequestConfig config =
-        RequestConfig.custom().setConnectTimeout(50000).setSocketTimeout(10000).build();
-    httpclient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
-  }
-
+  /**
+   * POST请求后台数据
+   * 
+   * @param url
+   * @param params
+   * @param token
+   * @return
+   * @throws ClientProtocolException
+   * @throws IOException
+   */
   public String sendPost(String url, Map<String, String> params, String token)
       throws ClientProtocolException, IOException {
 

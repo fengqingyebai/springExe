@@ -31,7 +31,7 @@ import com.kendy.excel.ExportLMExcel;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
-import com.kendy.util.InputDialog;
+import com.kendy.util.DialogUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -821,7 +821,7 @@ public class LMController extends BaseController implements Initializable {
    * @param event
    */
   public void delClubAction(ActionEvent event) {
-    InputDialog inputDlg = new InputDialog("删除", "待删除的俱乐部ID或名称:");
+    DialogUtil inputDlg = new DialogUtil("删除", "待删除的俱乐部ID或名称:");
     Optional<String> result = inputDlg.getTextResult();
     result.ifPresent(key -> {
       key = StringUtil.nvl(key, "");
@@ -849,7 +849,7 @@ public class LMController extends BaseController implements Initializable {
     }
     String clubName = club.getName();
 
-    InputDialog inputDlg = new InputDialog("修改：" + clubName, " 俱乐部新名称：");
+    DialogUtil inputDlg = new DialogUtil("修改：" + clubName, " 俱乐部新名称：");
     Optional<String> result = inputDlg.getTextResult();
     result.ifPresent(newClubName -> {
 
@@ -889,8 +889,8 @@ public class LMController extends BaseController implements Initializable {
     }
     String clubName = club.getName();
 
-    InputDialog inputDlg =
-        new InputDialog("修改：" + clubName, "联盟" + this.getCurrentLMType() + "的俱乐部新额度：");
+    DialogUtil inputDlg =
+        new DialogUtil("修改：" + clubName, "联盟" + this.getCurrentLMType() + "的俱乐部新额度：");
     Optional<String> result = inputDlg.getTextResult();
     result.ifPresent(newClubEdu -> {
 
@@ -1077,7 +1077,7 @@ public class LMController extends BaseController implements Initializable {
     String title =
         StringUtil.isBlank(club.getGudong()) ? "修改" : "修改（当前股东是" + club.getGudong() + "）";
     Optional<String> result =
-        new InputDialog(title, "俱乐部" + club.getName() + "的新股东").getTextResult();
+        new DialogUtil(title, "俱乐部" + club.getName() + "的新股东").getTextResult();
     if (result.isPresent()) {
       String newGudong = result.get();
       if (StringUtil.isBlank(newGudong)) {

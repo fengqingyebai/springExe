@@ -1,4 +1,4 @@
-package com.kendy.spider;
+package com.kendy.model;
 
 import com.alibaba.fastjson.JSON;
 

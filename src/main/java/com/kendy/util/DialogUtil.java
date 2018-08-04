@@ -25,14 +25,14 @@ import javafx.util.Pair;
  * @author 林泽涛
  * @time 2017年11月19日 上午12:10:35
  */
-public class InputDialog {
+public class DialogUtil {
 
   private Dialog<Pair<String, String>> dialog;
   private TextInputDialog textDialog;
 
 
 
-  public InputDialog() {
+  public DialogUtil() {
     super();
   }
 
@@ -42,7 +42,7 @@ public class InputDialog {
    * @param keyText1
    * @param keyText2
    */
-  public InputDialog(String title, String keyText1, String keyText2) {
+  public DialogUtil(String title, String keyText1, String keyText2) {
 
     this.dialog = new Dialog<>();
     dialog.setTitle(title);
@@ -306,7 +306,7 @@ public class InputDialog {
    * 
    * @param keyText
    */
-  public InputDialog(String title, String keyText) {
+  public DialogUtil(String title, String keyText) {
 
     this.textDialog = new TextInputDialog("");
     textDialog.setTitle(title);
@@ -335,7 +335,7 @@ public class InputDialog {
   public static void main() {
 
     List<String> list = Arrays.asList("A", "B", "C");
-    InputDialog dlg = new InputDialog();
+    DialogUtil dlg = new DialogUtil();
     dlg.InputMultyDialog("新增", list);
     Optional<Map<String, String>> resultMap = dlg.getMultyResult();
     System.out.println(resultMap.toString());

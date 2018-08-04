@@ -425,7 +425,7 @@ public final class ExcelUtils {
     /*      *) sheetIndex       =>      Sheet索引(默认0)                                                           */
     /*      *) data             =>      导出内容List集合                                                            */
     /*      *) extendMap        =>      扩展内容Map(具体就是key匹配替换模板#key内容)                                  */
-    /*      *) clazz            =>      映射对象Class                                                              */
+    /*      *) clazz            =>      映射对象Class<?>                                                             */
     /*      *) isWriteHeader    =>      是否写入表头                                                               */
     /*      *) targetPath       =>      导出文件路径                                                               */
     /*      *) os               =>      导出文件流                                                                 */
@@ -444,7 +444,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportObjects2Excel(String templatePath, int sheetIndex, List<?> data,
-                                    Map<String, String> extendMap, Class clazz,
+                                    Map<String, String> extendMap, Class<?>clazz,
                                     boolean isWriteHeader, String targetPath)
             throws Excel4JException {
 
@@ -470,7 +470,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportObjects2Excel(String templatePath, int sheetIndex, List<?> data,
-                                    Map<String, String> extendMap, Class clazz,
+                                    Map<String, String> extendMap, Class<?>clazz,
                                     boolean isWriteHeader, OutputStream os)
             throws Excel4JException {
 
@@ -495,7 +495,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportObjects2Excel(String templatePath, List<?> data, Map<String, String> extendMap,
-                                    Class clazz, boolean isWriteHeader, String targetPath)
+                                    Class<?>clazz, boolean isWriteHeader, String targetPath)
             throws Excel4JException {
 
         exportObjects2Excel(templatePath, 0, data, extendMap, clazz, isWriteHeader, targetPath);
@@ -514,7 +514,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportObjects2Excel(String templatePath, List<?> data, Map<String, String> extendMap,
-                                    Class clazz, boolean isWriteHeader, OutputStream os)
+                                    Class<?>clazz, boolean isWriteHeader, OutputStream os)
             throws Excel4JException {
 
         exportObjects2Excel(templatePath, 0, data, extendMap, clazz, isWriteHeader, os);
@@ -532,7 +532,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportObjects2Excel(String templatePath, List<?> data, Map<String, String> extendMap,
-                                    Class clazz, String targetPath)
+                                    Class<?>clazz, String targetPath)
             throws Excel4JException {
 
         exportObjects2Excel(templatePath, 0, data, extendMap, clazz, true, targetPath);
@@ -550,7 +550,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportObjects2Excel(String templatePath, List<?> data, Map<String, String> extendMap,
-                                    Class clazz, OutputStream os)
+                                    Class<?>clazz, OutputStream os)
             throws Excel4JException {
 
         exportObjects2Excel(templatePath, 0, data, extendMap, clazz, true, os);
@@ -566,7 +566,7 @@ public final class ExcelUtils {
      * @throws Excel4JException 异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(String templatePath, List<?> data, Class clazz, String targetPath)
+    public void exportObjects2Excel(String templatePath, List<?> data, Class<?>clazz, String targetPath)
             throws Excel4JException {
 
         exportObjects2Excel(templatePath, 0, data, null, clazz, true, targetPath);
@@ -582,7 +582,7 @@ public final class ExcelUtils {
      * @throws Excel4JException 异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(String templatePath, List<?> data, Class clazz, OutputStream os)
+    public void exportObjects2Excel(String templatePath, List<?> data, Class<?>clazz, OutputStream os)
             throws Excel4JException {
 
         exportObjects2Excel(templatePath, 0, data, null, clazz, true, os);
@@ -593,7 +593,7 @@ public final class ExcelUtils {
                                                      int sheetIndex,
                                                      List<?> data,
                                                      Map<String, String> extendMap,
-                                                     Class clazz,
+                                                     Class<?>clazz,
                                                      boolean isWriteHeader)
             throws Excel4JException {
 
@@ -652,7 +652,7 @@ public final class ExcelUtils {
     }
 
     // 生成sheet数据
-    private void generateSheet(int sheetIndex, List<?> data, Map<String, String> extendMap, Class clazz,
+    private void generateSheet(int sheetIndex, List<?> data, Map<String, String> extendMap, Class<?>clazz,
                                boolean isWriteHeader, SheetTemplate template)
             throws Excel4JException {
 
@@ -688,7 +688,7 @@ public final class ExcelUtils {
     /*      *) sheetIndex       =>      Sheet索引(默认0)                                                          */
     /*      *) data             =>      导出内容Map集合                                                            */
     /*      *) extendMap        =>      扩展内容Map(具体就是key匹配替换模板#key内容)                                 */
-    /*      *) clazz            =>      映射对象Class                                                             */
+    /*      *) clazz            =>      映射对象Class<?>                                                            */
     /*      *) isWriteHeader    =>      是否写入表头                                                              */
     /*      *) targetPath       =>      导出文件路径                                                              */
     /*      *) os               =>      导出文件流                                                                */
@@ -708,7 +708,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportMap2Excel(String templatePath, int sheetIndex, Map<String, List<?>> data,
-                                Map<String, String> extendMap, Class clazz,
+                                Map<String, String> extendMap, Class<?>clazz,
                                 boolean isWriteHeader, String targetPath)
             throws Excel4JException {
 
@@ -734,7 +734,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportMap2Excel(String templatePath, int sheetIndex, Map<String, List<?>> data,
-                                Map<String, String> extendMap, Class clazz, boolean isWriteHeader, OutputStream os)
+                                Map<String, String> extendMap, Class<?>clazz, boolean isWriteHeader, OutputStream os)
             throws Excel4JException {
 
         try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, sheetIndex, data, extendMap, clazz, isWriteHeader)) {
@@ -757,7 +757,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportMap2Excel(String templatePath, Map<String, List<?>> data,
-                                Map<String, String> extendMap, Class clazz, String targetPath)
+                                Map<String, String> extendMap, Class<?>clazz, String targetPath)
             throws Excel4JException {
 
         try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, extendMap, clazz, true)) {
@@ -780,7 +780,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportMap2Excel(String templatePath, Map<String, List<?>> data,
-                                Map<String, String> extendMap, Class clazz, OutputStream os)
+                                Map<String, String> extendMap, Class<?>clazz, OutputStream os)
             throws Excel4JException {
 
         try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, extendMap, clazz, true)) {
@@ -802,7 +802,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportMap2Excel(String templatePath, Map<String, List<?>> data,
-                                Class clazz, String targetPath)
+                                Class<?>clazz, String targetPath)
             throws Excel4JException {
 
         try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, null, clazz, true)) {
@@ -824,7 +824,7 @@ public final class ExcelUtils {
      * @author Crab2Died
      */
     public void exportMap2Excel(String templatePath, Map<String, List<?>> data,
-                                Class clazz, OutputStream os)
+                                Class<?>clazz, OutputStream os)
             throws Excel4JException {
 
         try (SheetTemplate sheetTemplate = exportExcelByMapHandler(templatePath, 0, data, null, clazz, true)) {
@@ -839,7 +839,7 @@ public final class ExcelUtils {
                                                   int sheetIndex,
                                                   Map<String, List<?>> data,
                                                   Map<String, String> extendMap,
-                                                  Class clazz,
+                                                  Class<?>clazz,
                                                   boolean isWriteHeader)
             throws Excel4JException {
 
@@ -915,7 +915,7 @@ public final class ExcelUtils {
     // sheet生成
     private void generateSheet(SheetTemplate template, int sheetIndex,
                                Map<String, List<?>> data, Map<String, String> extendMap,
-                               Class clazz, boolean isWriteHeader)
+                               Class<?>clazz, boolean isWriteHeader)
             throws Excel4JException {
 
         SheetTemplateHandler.loadTemplate(template, sheetIndex);
@@ -951,7 +951,7 @@ public final class ExcelUtils {
     /*      *) data             =>      导出内容List集合                                                          */
     /*      *) isWriteHeader    =>      是否写入表头                                                              */
     /*      *) sheetName        =>      Sheet索引名(默认0)                                                        */
-    /*      *) clazz            =>      映射对象Class                                                             */
+    /*      *) clazz            =>      映射对象Class<?>                                                            */
     /*      *) isXSSF           =>      是否Excel2007及以上版本                                                   */
     /*      *) targetPath       =>      导出文件路径                                                              */
     /*      *) os               =>      导出文件流                                                                */
@@ -969,7 +969,7 @@ public final class ExcelUtils {
      * @throws IOException      异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(List<?> data, Class clazz, boolean isWriteHeader,
+    public void exportObjects2Excel(List<?> data, Class<?>clazz, boolean isWriteHeader,
                                     String sheetName, boolean isXSSF, String targetPath)
             throws Excel4JException, IOException {
 
@@ -992,7 +992,7 @@ public final class ExcelUtils {
      * @throws IOException      异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(List<?> data, Class clazz, boolean isWriteHeader,
+    public void exportObjects2Excel(List<?> data, Class<?>clazz, boolean isWriteHeader,
                                     String sheetName, boolean isXSSF, OutputStream os)
             throws Excel4JException, IOException {
 
@@ -1012,7 +1012,7 @@ public final class ExcelUtils {
      * @throws IOException      异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(List<?> data, Class clazz, boolean isWriteHeader, String targetPath)
+    public void exportObjects2Excel(List<?> data, Class<?>clazz, boolean isWriteHeader, String targetPath)
             throws Excel4JException, IOException {
 
         try (FileOutputStream fos = new FileOutputStream(targetPath);
@@ -1032,7 +1032,7 @@ public final class ExcelUtils {
      * @throws IOException      异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(List<?> data, Class clazz, boolean isWriteHeader, OutputStream os)
+    public void exportObjects2Excel(List<?> data, Class<?>clazz, boolean isWriteHeader, OutputStream os)
             throws Excel4JException, IOException {
 
         try (Workbook workbook = exportExcelNoTemplateHandler(data, clazz, isWriteHeader, null, true)) {
@@ -1050,7 +1050,7 @@ public final class ExcelUtils {
      * @throws IOException      异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(List<?> data, Class clazz, OutputStream os)
+    public void exportObjects2Excel(List<?> data, Class<?>clazz, OutputStream os)
             throws Excel4JException, IOException {
 
         try (Workbook workbook = exportExcelNoTemplateHandler(data, clazz, true, null, true)) {
@@ -1068,7 +1068,7 @@ public final class ExcelUtils {
      * @throws IOException      异常
      * @author Crab2Died
      */
-    public void exportObjects2Excel(List<?> data, Class clazz, String targetPath)
+    public void exportObjects2Excel(List<?> data, Class<?>clazz, String targetPath)
             throws Excel4JException, IOException {
 
         try (FileOutputStream fos = new FileOutputStream(targetPath);
@@ -1078,7 +1078,7 @@ public final class ExcelUtils {
     }
 
     // 单sheet数据导出
-    private Workbook exportExcelNoTemplateHandler(List<?> data, Class clazz, boolean isWriteHeader,
+    private Workbook exportExcelNoTemplateHandler(List<?> data, Class<?>clazz, boolean isWriteHeader,
                                                   String sheetName, boolean isXSSF)
             throws Excel4JException {
 
@@ -1185,7 +1185,7 @@ public final class ExcelUtils {
     }
 
     // 生成sheet数据
-    private void generateSheet(Workbook workbook, List<?> data, Class clazz,
+    private void generateSheet(Workbook workbook, List<?> data, Class<?>clazz,
                                boolean isWriteHeader, String sheetName)
             throws Excel4JException {
 

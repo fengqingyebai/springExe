@@ -1,4 +1,4 @@
-package com.kendy.spider;
+package com.kendy.model;
 
 /**
  * 请求结果，只包含两个字段 {"result":1,"iErrCode":0}

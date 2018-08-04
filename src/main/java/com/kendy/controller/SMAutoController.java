@@ -38,8 +38,13 @@ import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.ShangmaNextday;
 import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExportExcelTemplate;
+import com.kendy.model.GameRoomModel;
+import com.kendy.model.RespResult;
 import com.kendy.model.SMResultModel;
+import com.kendy.model.WanjiaApplyInfo;
+import com.kendy.model.WanjiaListResult;
 import com.kendy.service.AutoDownloadZJExcelService;
+import com.kendy.service.HttpService;
 import com.kendy.service.JifenService;
 import com.kendy.service.MemberService;
 import com.kendy.service.MoneyService;
@@ -47,11 +52,6 @@ import com.kendy.service.ShangmaService;
 import com.kendy.service.TGExportExcelService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.TgWaizhaiService;
-import com.kendy.spider.GameRoomModel;
-import com.kendy.spider.HttpUtil;
-import com.kendy.spider.RespResult;
-import com.kendy.spider.WanjiaApplyInfo;
-import com.kendy.spider.WanjiaListResult;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
@@ -122,7 +122,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
   
   @Autowired
-  HttpUtil httpUtil;
+  HttpService httpService;
 
   @FXML public TextField smNextDayRangeFieldd; // 次日上码配置
 
@@ -279,7 +279,7 @@ public class SMAutoController extends BaseController implements Initializable {
       logInfo(message);
       return;
     }
-    WanjiaListResult wanjiaListResult = httpUtil.getWanjiaListResult(token);
+    WanjiaListResult wanjiaListResult = httpService.getWanjiaListResult(token);
     if (wanjiaListResult == null) {
       setTokenStatusFail("接口无返回");
       return;
@@ -422,7 +422,7 @@ public class SMAutoController extends BaseController implements Initializable {
     logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
     try {
       // 调用接口
-      List<WanjiaApplyInfo> buyinList = httpUtil.getBuyinList(getToken());
+      List<WanjiaApplyInfo> buyinList = httpService.getBuyinList(getToken());
       // 处理数据
       if (buyinList == null) {
         logInfo("获取到玩家为空!!!");
@@ -543,7 +543,7 @@ public class SMAutoController extends BaseController implements Initializable {
       String playerName, String paijuString, String buyStack, Long userUuid, Long roomId) {
     boolean addOK = false;
     try {
-      boolean acceptBuyOK = httpUtil.acceptBuy(userUuid, roomId, getToken()); // 后台申请买入
+      boolean acceptBuyOK = httpService.acceptBuy(userUuid, roomId, getToken()); // 后台申请买入
       if (acceptBuyOK) {
         if (isTodaySM) {
           shangmaService.addNewShangma2DetailTable_HT(resultModel,
@@ -937,7 +937,7 @@ public class SMAutoController extends BaseController implements Initializable {
     try {
       excelInfo("正在获取" + houtai + "房间列表..." + TimeUtil.getTimeString());
       Map<String, String> params = getParams(DownType);
-      String respString = httpUtil.sendPost(
+      String respString = httpService.sendPost(
           "http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
       if (StringUtil.isNotBlank(respString)) {
         if (log.isDebugEnabled()) {

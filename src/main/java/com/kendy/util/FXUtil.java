@@ -3,19 +3,24 @@ package com.kendy.util;
 import java.io.File;
 import java.util.Optional;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+/**
+ * Javafx Util
+ */
 public class FXUtil {
   
   public static Stage stage;
   
   // 成功信息
   public static ImageView okImg = new ImageView("images/ok.png");
+  
   
   /**
    * 选择一个文件夹
@@ -24,7 +29,7 @@ public class FXUtil {
    */
   public static File chooseDirFile() {
     DirectoryChooser chooser = new DirectoryChooser();
-    chooser.setInitialDirectory(new File(System.getProperty("user.home")));
+    chooser.setInitialDirectory(SystemUtil.getUserFile());
     return chooser.showDialog(stage);
   }
   
@@ -39,9 +44,17 @@ public class FXUtil {
   public static File chooseExcelFile() {
     FileChooser fileChooser = new FileChooser();// 文件选择器
     fileChooser.setTitle("选择Excel文件");// 标题
-    fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));// 初始化根目标
+    fileChooser.setInitialDirectory(SystemUtil.getUserFile());// 初始化根目标
     fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("excel", "*.xls?"));
     return  fileChooser.showOpenDialog(stage);
+  }
+  
+  public static Dialog<?> getBasicDialog(String title) {
+    Dialog<?> dialog = new Dialog<>();
+    dialog.setTitle(title);
+    dialog.setHeaderText(null);
+    ShowUtil.setIcon(dialog);
+    return dialog;
   }
   
   public static Alert getBasicAlert(String content) {
