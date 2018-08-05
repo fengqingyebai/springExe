@@ -5,11 +5,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -21,13 +26,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.LMController;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.excel.excel4j.ExcelUtils;
+import com.kendy.model.CombineID;
 import com.kendy.model.GameRecord;
 import com.kendy.other.Wrap;
 import com.kendy.service.MoneyService;
@@ -528,54 +533,38 @@ public class ExcelReaderUtil {
    * 
    * @throws IOException,Exception
    */
-  public Map<String, String> readCombineIdRecord(File file) throws IOException, Exception {
+  public List<CombineID> readCombineIdRecord(File file) throws Exception {
 
     // 昨日留底总数据结构
-    Map<String, String> combineIdMap = new LinkedHashMap<>();
-
-    FileInputStream is = null;
-
+    List<CombineID> combinIds = new ArrayList<>();
+    
     if (!file.exists() || !file.isFile()) {
-      return new HashMap<>();
+      return combinIds;
     }
-    log.info("开始----------导入合并ID模板Excel");
-
-    is = new FileInputStream(file);
-
-    // 获取excel sheet
-    Workbook workbook = getWeebWork(file.getAbsolutePath());
-    Sheet sheet = workbook.getSheetAt(0);
-
-    // 检验是否合并ID模板
-    Row firstRow = sheet.getRow(0);
-    if (firstRow == null || firstRow.getCell(0) == null
-        || !"父ID".equals(firstRow.getCell(0).getStringCellValue())) {
-      return combineIdMap;
+    
+    try(FileInputStream is = new FileInputStream(file)){
+      log.info("开始导入合并ID模板Excel");
+      List<List<String>> originalList = ExcelUtils.getInstance().readExcel2List(is, 1);
+      if(CollectUtil.isEmpty(originalList))
+        return combinIds;
+      
+      //转换成想要的数据结构
+      Predicate<List<String>> filterBlank = e ->  {
+        return e != null && StringUtil.isAllNotBlank(e.get(0), e.get(1));
+      };
+      final String SPLIT = "#"; 
+      originalList.stream().filter(filterBlank).forEach(e -> {
+        String parentId = e.get(0);
+        Set<String> subIdSet = new HashSet<>(Arrays.asList(e.get(1).split(SPLIT)));
+        combinIds.add(new CombineID(parentId, subIdSet));
+      });
+      
+      log.info("结束导入合并ID模板Excel" + " ==size:" + combinIds.size());
+    }catch(Exception e) {
+      throw e;
     }
-
-    /** 遍历Excel开始 **/
-    Row row;
-    for (int i = 1; i < 1000; i++) {
-
-      row = sheet.getRow(i);
-      if (row == null)
-        break;
-
-
-      if (row.getCell(0) == null || StringUtil.isBlank(row.getCell(0).toString())
-          || row.getCell(1) == null || StringUtil.isBlank(row.getCell(1).toString()))
-        new Exception("父ID或子ID列表不能为空，请检查！");
-
-      row.getCell(0).setCellType(CellType.STRING);
-      row.getCell(1).setCellType(CellType.STRING);
-      combineIdMap.put(row.getCell(0).toString(), row.getCell(1).toString());
-    }
-
-    /** 遍历Excel结束 **/
-
-    is.close();
-    log.info("结束----------导入合并ID模板Excel" + " ==size:" + combineIdMap.size());
-    return combineIdMap;
+    
+    return combinIds;
   }
 
 

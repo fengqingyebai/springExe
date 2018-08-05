@@ -1127,13 +1127,14 @@ public class DBUtil {
 
   /**
    * 保存或更新合并ID关系
+   * <P>
+   * 后面提供批量插入功能
    * 
    * @time 2017年11月4日
    * @param parentId 父ID
    * @return
    */
   public boolean saveOrUpdateCombineId(String parentId, Set<String> subIdSet) {
-    //Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(parentId);
     boolean hasCombineRelation = isHasCombineId(parentId);
     if (subIdSet.size() == 0 && hasCombineRelation) {// 针对没有子ID集合的更新关系应该是删除此合并关系
       cancelCombineId(parentId);

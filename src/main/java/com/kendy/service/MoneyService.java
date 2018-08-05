@@ -109,6 +109,11 @@ public class MoneyService{
       TableView<WanjiaInfo> tablePaiju, TableView<DangjuInfo> tableDangju,
       TableView<JiaoshouInfo> tableJiaoshou, TableView<TeamInfo> tableTeam,
       List<GameRecord> gameRecords, String tableId) {
+    
+    if(dataConstants.Team_Huishui_Map == null) { // add 2018-08-04
+      dataConstants.Team_Huishui_Map = new LinkedHashMap<>();
+    }
+    
     // 1清空 表数据
     table.setItems(null);
     // 2获取InfoList
@@ -181,9 +186,6 @@ public class MoneyService{
           relatedTeamIdSet.add(teamId);
         }
         // 缓存到总团队回水中(结算按钮后从中减少)
-        if(dataConstants.Team_Huishui_Map == null) { // add 2018-08-04
-          dataConstants.Team_Huishui_Map = new LinkedHashMap<>();
-        }
         teamHuishuiList = dataConstants.Team_Huishui_Map.get(teamId);
         if (teamHuishuiList == null) {
           teamHuishuiList = new ArrayList<>();

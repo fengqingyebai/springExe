@@ -45,5 +45,15 @@ public class StringUtil {
     }
     return false;
   }
+  
+  /**
+   * 判断是否都不为空
+   * 
+   * @param strings
+   * @return
+   */
+  public static boolean isAllNotBlank(String...strings) {
+    return !isAnyBlank(strings);
+  }
 
 }

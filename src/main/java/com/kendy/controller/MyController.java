@@ -56,6 +56,7 @@ import com.kendy.entity.ZonghuiKaixiaoInfo;
 import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
+import com.kendy.model.CombineID;
 import com.kendy.model.GameRecord;
 import com.kendy.other.Wrap;
 import com.kendy.service.JifenService;
@@ -1025,20 +1026,15 @@ public class MyController extends BaseController implements Initializable {
     }
     try {
       // 读取模板数据
-      final Map<String, String> excelCombineIdMap =
+      long start = System.currentTimeMillis();
+      final List<CombineID> importedCombinIds =
           excelReaderUtil.readCombineIdRecord(new File(combineIdPath));
 
-      // 将模板数据读取结果转化为缓存中合并ID相同的数据结果
-      Map<String, Set<String>> tempCombineIdMap = new HashMap<>();
-      excelCombineIdMap.forEach((parentId, subIdStr) -> {
-        Set<String> subSet = new HashSet<>();
-        for (String subId : subIdStr.split("#")) {
-          subSet.add(subId);
-        }
-        tempCombineIdMap.put(parentId, subSet);
-      });
       // 与现有的合并ID缓存进行求并集（更新缓存）
-      tempCombineIdMap.forEach((_parentId, _subIdSet) -> {
+      for(CombineID combineId : importedCombinIds) {
+        String _parentId = combineId.getParentId();
+        Set<String> _subIdSet = combineId.getSubIds();
+        
         Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(_parentId);
         if (subIdSet == null) {// 缓存中没有此父节点，可直接入库
           // 更新缓存
@@ -1047,7 +1043,7 @@ public class MyController extends BaseController implements Initializable {
             dataConstants.Combine_Sub_Id_Map.put(_subID, _parentId);// 更新子节点
           });
           // 入库
-          dbUtil.saveOrUpdateCombineId(_parentId, subIdSet);
+          dbUtil.saveOrUpdateCombineId(_parentId, _subIdSet);
         } else {// 缓存中存在此父节点，需要进行比较
           boolean isNeedSave = false;
           for (String _subId : _subIdSet) {
@@ -1062,9 +1058,10 @@ public class MyController extends BaseController implements Initializable {
             dbUtil.saveOrUpdateCombineId(_parentId, subIdSet);
           }
         }
-      });
+      }
+      long end = System.currentTimeMillis();
 
-      ShowUtil.show("导入合并ID模板成功！", 2);
+      FXUtil.info("导入合并ID模板成功！耗时：" + (end - start) + "毫秒");
     } catch (Exception e) {
       ShowUtil.show("导入合并ID模板失败！原因：" + e.getMessage());
       e.printStackTrace();
