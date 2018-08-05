@@ -2270,27 +2270,33 @@ public class MyController extends BaseController implements Initializable {
   }
 
 
+  /**
+   * 用户输入新的一天
+   */
   private boolean handleNewDayTimeOK() {
-    TextInputDialog textDialog = new TextInputDialog(LocalDate.now().toString());
-    textDialog.setTitle("新一天,如：" + LocalDate.now());
+    String maxGameRecordTimeStr = dbUtil.getMaxGameRecordTime();
+    String newDay = 
+        StringUtil.isBlank(maxGameRecordTimeStr) ? LocalDate.now().toString() : 
+          LocalDate.parse(maxGameRecordTimeStr).plusDays(1).toString();
+    TextInputDialog textDialog = new TextInputDialog(newDay);
+    textDialog.setTitle("提示-昨天的数据库最后时间为：" + StringUtil.nvl(maxGameRecordTimeStr, "无"));
     textDialog.setHeaderText(null);
     textDialog.setContentText("请输入新一天时间:");
     ShowUtil.setIcon(textDialog);
     Optional<String> timeOpt = textDialog.showAndWait();
-    timeOpt.ifPresent(time -> {
+    timeOpt.ifPresent(userTime -> {
       try {
-        time = LocalDate.parse(StringUtil.nvl(time, "")).toString();
+        userTime = LocalDate.parse(StringUtil.nvl(userTime, "")).toString();
         // 判断时间范围
-        String maxGameRecordTimeStr = dbUtil.getMaxGameRecordTime();
         if (StringUtil.isNotBlank(maxGameRecordTimeStr)
-            && time.compareTo(maxGameRecordTimeStr) <= 0) {
+            && userTime.compareTo(maxGameRecordTimeStr) <= 0) {
           ErrorUtil.err("输入的时间不能小于" + maxGameRecordTimeStr);
           return;
         }
 
-        dataConstants.Date_Str = time;
+        dataConstants.Date_Str = userTime;
       } catch (Exception e) {
-        logger.error("输入新的一天时间格式错误:" + time, e);
+        logger.error("输入新的一天时间格式错误:" + userTime, e);
       }
     });
     if (StringUtil.isBlank(dataConstants.Date_Str)) {
@@ -2323,8 +2329,6 @@ public class MyController extends BaseController implements Initializable {
 
       // 清空所有缓存数据
       dataConstants.clearAllData();
-      // 恢复所有缓存数据
-//      dataConstants.recoveryGameRecords(); // 新增，是否有问题？
       
       dataConstants.Date_Str = getSoftDate();// 此行代码不能删，因为上行代码已将其时间删除
       // 加载必要的原始数据（人员和回水）
