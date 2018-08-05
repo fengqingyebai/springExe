@@ -18,10 +18,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
 <AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.BankFlowController">
    <children>
-      <JFXButton buttonType="RAISED" layoutX="479.0" layoutY="21.0" opacity="0.78" prefHeight="51.0" prefWidth="277.0" text="银行流水每日详情" textFill="#9c8617">
+      <JFXButton buttonType="RAISED" layoutX="389.0" layoutY="22.0" opacity="0.78" prefHeight="51.0" prefWidth="277.0" text="银行流水每日详情" textFill="#9c8617">
          <font>
             <Font name="System Bold" size="26.0" />
          </font>
@@ -36,12 +35,12 @@
             </Lighting>
          </effect>
       </JFXButton>
-      <AnchorPane layoutX="163.0" layoutY="80.0" prefHeight="747.0" prefWidth="943.0">
+      <AnchorPane layoutX="11.0" layoutY="80.0" prefHeight="747.0" prefWidth="1275.0">
          <children>
-            <ScrollPane fx:id="scrollDates" layoutX="-1.0" prefHeight="740.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="907.0" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <ScrollPane fx:id="scrollDates" layoutX="-1.0" prefHeight="740.0" prefViewportHeight="576.0" prefViewportWidth="152.0" prefWidth="1095.0" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
          </children>
       </AnchorPane>
-      <JFXButton buttonType="RAISED" layoutX="1134.0" layoutY="92.0" onAction="#seeHistoryStaticAction" opacity="0.85" prefHeight="51.0" prefWidth="116.0" text="历史汇总图" textFill="#bc7070">
+      <JFXButton buttonType="RAISED" layoutX="666.0" layoutY="23.0" onAction="#seeHistoryStaticAction" opacity="0.85" prefHeight="51.0" prefWidth="116.0" text="历史汇总图" textFill="#bc7070">
          <font>
             <Font size="17.0" />
          </font>

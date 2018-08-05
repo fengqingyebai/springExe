@@ -66,7 +66,7 @@ public class BankFlowController extends BaseController implements Initializable 
   @FXML public StackPane stackPane; // 放条形图的pane
 
   private static final String CENTER_CSS = "-fx-alignment: CENTER;";
-  private static final int COL_WIDTH = 98;
+  private static final int COL_WIDTH = 84;
 
   VBox bankFlowVBox = new VBox(); // 放所有动态表
 
@@ -78,14 +78,18 @@ public class BankFlowController extends BaseController implements Initializable 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
 
-    // 初始化数据
+    refresh();
+
+  }
+  
+  public void refresh() {
+ // 初始化数据
     initData();
     if (CollectUtil.isEmpty(totalBankFlowList))
       return;
 
     // 动态生成表
     generateAllTables();
-
   }
 
 
@@ -210,8 +214,10 @@ public class BankFlowController extends BaseController implements Initializable 
     .append(String.format(pattern, payCount)).append(" 当天总收入笔数 ")
     .append(String.format(pattern, incomeCount)).append(" 当天总支出￥")
     .append(String.format(pattern, todaySumPay)).append(" 当天总收入￥")
-    .append(String.format(pattern, todaySumIncome)).append(" 当天总利润￥")
-    .append(String.format(pattern, todaySumFlow));
+    .append(String.format(pattern, todaySumIncome))
+//    .append(" 当天总利润￥")
+//    .append(String.format(pattern, todaySumFlow))
+    ;
     return msg.toString();
   }
   
@@ -231,7 +237,7 @@ public class BankFlowController extends BaseController implements Initializable 
       for (int i = 0; i < loopTimes; i++) {
         BankFlowInfo info = new BankFlowInfo();
         info.setIndex(i + 1 + "");
-        info.setDateString(dateString);
+        info.setDateString(dateString.replace("2018-", ""));
         info.setYuEBao(getBankFlowValue(i, BankEnum.YuEBao, todayMap));
         info.setHuaXia(getBankFlowValue(i, BankEnum.HuaXia, todayMap));
         info.setPingAn(getBankFlowValue(i, BankEnum.PingAn, todayMap));
@@ -239,6 +245,14 @@ public class BankFlowController extends BaseController implements Initializable 
         info.setZhiFuBao(getBankFlowValue(i, BankEnum.ZhiFuBao, todayMap));
         info.setPuFa(getBankFlowValue(i, BankEnum.PuFa, todayMap));
         info.setXingYe(getBankFlowValue(i, BankEnum.XingYe, todayMap));
+        ////中国，中信，民生，光大，建设，工商
+        info.setZhongGuo(getBankFlowValue(i, BankEnum.ZhongGuo, todayMap));
+        info.setZhongXin(getBankFlowValue(i, BankEnum.ZhongXin, todayMap));
+        info.setMinSheng(getBankFlowValue(i, BankEnum.MinSheng, todayMap));
+        info.setGuangDa(getBankFlowValue(i, BankEnum.GuangDa, todayMap));
+        info.setJianShe(getBankFlowValue(i, BankEnum.JianShe, todayMap));
+        info.setGongShang(getBankFlowValue(i, BankEnum.GongShang, todayMap));
+        
         obList.add(info);
       }
       table.setItems(obList);

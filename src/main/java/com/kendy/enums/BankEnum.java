@@ -12,9 +12,16 @@ public  enum BankEnum {
 	PingAn("平安", "pingAn"), 
 	ZhaoShang("招商", "zhaoShang"), 
 	ZhiFuBao("支付宝", "zhiFuBao"), 
-	PuFa("浦发", "puFa")
+	PuFa("浦发", "puFa"),
+	ZhongGuo("中国", "zhongGuo"),
+	ZhongXin("中信", "zhongXin"),
+	MinSheng("民生", "minSheng"),
+	GuangDa("光大", "guangDa"),
+	JianShe("建设", "jianShe"),
+	GongShang("工商", "gongShang"),
 	;
 
+    //中国，中信，民生，光大，建设，工商
 	String name;
 	String value;
 	BankEnum(String name, String value) {

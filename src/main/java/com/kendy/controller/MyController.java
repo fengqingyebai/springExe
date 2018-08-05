@@ -720,6 +720,9 @@ public class MyController extends BaseController implements Initializable {
         if ("自动上码配置".equals(tab.getText().trim())) {
           shangmaService.refreshTeamIdAndPlayerId();
         }
+        if ("银行流水".equals(tab.getText().trim())) {
+          bankFlowController.refresh();
+        }
 
       }
     });
