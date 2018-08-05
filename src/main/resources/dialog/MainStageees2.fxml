@@ -214,8 +214,8 @@
                                        <children>
                                           <TableView fx:id="tableZijin" prefHeight="194.0" prefWidth="152.0">
                                             <columns>
-                                              <TableColumn fx:id="zijinType" prefWidth="75.0" text="资金" />
-                                              <TableColumn fx:id="zijinAccount" prefWidth="75.0" />
+                                              <TableColumn fx:id="zijinType" prefWidth="60.0" text="资金" />
+                                              <TableColumn fx:id="zijinAccount" prefWidth="74.0" />
                                             </columns>
                                           </TableView>
                                           <AnchorPane prefHeight="52.0" prefWidth="152.0">
@@ -318,6 +318,8 @@
                                        </children>
                                     </HBox>
                                     <Button layoutX="22.0" layoutY="56.0" mnemonicParsing="false" onAction="#importBlankExcelAction" text="空白表" />
+                                    <Hyperlink layoutX="1073.0" layoutY="92.0" onAction="#addBankAction" prefHeight="21.0" prefWidth="20.0" text="加" />
+                                    <Hyperlink layoutX="1045.0" layoutY="92.0" onAction="#delBankAction" prefHeight="21.0" prefWidth="28.0" text="删" />
                                  </children>
                               </AnchorPane>
                           </content>

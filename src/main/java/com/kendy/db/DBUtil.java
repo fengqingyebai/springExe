@@ -2695,6 +2695,25 @@ public class DBUtil {
     return list;
   }
 
+  /**
+   * 删除对应的银行流水
+   * @param playerId
+   */
+  public void delBankFlowByType(final String bankName) {
+    try {
+      con = DBConnection.getConnection();
+      String sql;
+      if (StringUtil.isNotBlank(bankName)) {
+        sql = "delete from history_bank_money where bank_name = '" + bankName + "'";
+        ps = con.prepareStatement(sql);
+        ps.execute();
+      }
+    } catch (SQLException e) {
+      ErrorUtil.err("(" + bankName + ")删除对应银行流水失败", e);
+    } finally {
+      close(con, ps);
+    }
+  }
 
 
   /************************************************************************************************

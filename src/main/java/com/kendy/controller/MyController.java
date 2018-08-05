@@ -724,6 +724,19 @@ public class MyController extends BaseController implements Initializable {
       }
     });
   }
+  
+  /**
+   * 新增银行
+   */
+  public void addBankAction(ActionEvent event) {
+    moneyService.addBank();
+  }
+  /**
+   * 减少银行
+   */
+  public void delBankAction(ActionEvent event) {
+    moneyService.delBank();
+  }
 
 
   /**
@@ -2962,7 +2975,7 @@ public class MyController extends BaseController implements Initializable {
    * 根据原始战绩获取回水 (共用)
    * 
    * @time 2018年5月19日
-   * @param yszj
+   * @param yszjz
    * @param teamId
    * @param type
    * @return

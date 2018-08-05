@@ -46,7 +46,9 @@ import com.kendy.excel.ExportTeamhsExcel;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.BankFlowModel;
 import com.kendy.model.GameRecord;
+import com.kendy.util.AlertUtil;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -1609,6 +1611,7 @@ public class MoneyService{
     if (info != null && info.getZijinType() != null) {
       String oddZijin = StringUtil.isBlank(info.getZijinAccount()) ? "0" : info.getZijinAccount();
       TextInputDialog dialog = new TextInputDialog();
+      ShowUtil.setIcon(dialog);
       dialog.setTitle("添加");
       dialog.setHeaderText(null);
       dialog.setContentText("续增" + info.getZijinType() + "值(Enter):");
@@ -2109,6 +2112,60 @@ public class MoneyService{
       }
     }
     return isExist;
+  }
+  
+
+  /**
+   * 新增资金类型
+   */
+  public void addBank() {
+    TextInputDialog dialog = new TextInputDialog();
+    ShowUtil.setIcon(dialog);
+    dialog.setTitle("添加");
+    dialog.setHeaderText(null);
+    dialog.setContentText("请输入新的资金类型:");
+    
+    Optional<String> result = dialog.showAndWait();
+    if (result.isPresent()) {
+      String newBank = result.get().trim();
+      if(StringUtil.isBlank(newBank)) {
+        ShowUtil.show("亲，你输入的资金类型为空，将不计入资金列表！");
+        return;
+      }
+      ZijinInfo newBankInfo = new ZijinInfo(newBank, "0");
+      TableView<ZijinInfo> tableZijin = myController.tableZijin;
+      if (tableZijin != null && tableZijin.getItems() != null) {
+        tableZijin.getItems().add(newBankInfo);
+        tableZijin.refresh();
+      }
+    }
+  }
+  
+  /**
+   * 删除银行类型
+   */
+  public void delBank() {
+    TableView<ZijinInfo> tableZijin = myController.tableZijin;
+    ZijinInfo selectedZijin = tableZijin.getSelectionModel().getSelectedItem();
+    if(selectedZijin == null) {
+      ShowUtil.show("亲，请先选择你要删除的资金类型!");
+      return;
+    }
+    String bankName = selectedZijin.getZijinType();
+    String confirmMsg = "将删除"+bankName+"的所有银行流水，确定要删除吗？";
+    if(AlertUtil.confirm(confirmMsg)) {
+      // 资金表中删除该资金类型
+      tableZijin.getItems().remove(selectedZijin);
+      tableZijin.refresh();
+      
+      // 删除该资金类型的银行流水
+      dbUtil.delBankFlowByType(bankName);
+      
+      // TODO 修改银行流水TAB中的列
+      
+      
+      FXUtil.info("删除成功,已将" + bankName + "从软件系统中删除！");
+    }
   }
 
 
