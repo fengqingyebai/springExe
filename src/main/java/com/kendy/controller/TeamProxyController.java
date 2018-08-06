@@ -104,7 +104,7 @@ public class TeamProxyController extends BaseController implements Initializable
    * 代理查询一键导出为Excel
    */
   @FXML public void exportExcelBatchAction(Event e) {
-    teamProxyService.exportExcel();
+    teamProxyService.exportTeamHasDataOneKey();
   }
   /**
    * 代理查询刷新按钮
