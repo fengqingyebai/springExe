@@ -107,7 +107,7 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="sysCode" alignment="CENTER" layoutX="547.0" layoutY="128.0" prefHeight="23.0" prefWidth="71.0" text="UTF8" />
+                        <TextField fx:id="sysCode" alignment="CENTER" layoutX="547.0" layoutY="128.0" prefHeight="23.0" prefWidth="71.0" text="GBK" />
                         <Label fx:id="label_clubId21" layoutX="637.0" layoutY="130.0" text="启动测试模式：">
                            <font>
                               <Font size="14.0" />

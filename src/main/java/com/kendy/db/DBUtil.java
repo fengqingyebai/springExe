@@ -1000,6 +1000,7 @@ public class DBUtil {
           "last_locked_data", 
           "last_locked_data_detail", 
           "tg_lirun",
+          "history_bank_money",
           "shangma_nextday");
       
       for(String tableName : delTables) {
