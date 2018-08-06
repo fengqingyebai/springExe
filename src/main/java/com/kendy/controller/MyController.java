@@ -1107,10 +1107,11 @@ public class MyController extends BaseController implements Initializable {
    */
   public void configCurrentClueIdAction(ActionEvent event) {
     new DialogUtil("修改", "新俱乐部ID:").getTextResult().ifPresent(newClubId -> {
-      String currentClubId = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
-      if (!StringUtils.equals(newClubId, currentClubId) && StringUtil.isNotBlank(newClubId)) {
+      String _currentClubId = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
+      if (!StringUtils.equals(newClubId, _currentClubId) && StringUtil.isNotBlank(newClubId)) {
         dbUtil.saveOrUpdateOthers(KEY_CLUB_ID, newClubId);
         ShowUtil.show("软件的当前俱乐部为" + newClubId, 2);
+        currentClubId.setText(newClubId);
       }
     });
 
