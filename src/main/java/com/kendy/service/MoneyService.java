@@ -2,7 +2,6 @@ package com.kendy.service;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.BankFlowController;
 import com.kendy.controller.GDController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
@@ -83,6 +83,8 @@ public class MoneyService{
   public GDController gdController; // 股东控制类
   @Autowired
   public ShangmaService shangmaService; // 上码控制类
+  @Autowired
+  public BankFlowController bankFlowController; // 银行流水类
   
   // {玩家ID=CurrentMoneyInfo}
   public  Map<String, CurrentMoneyInfo> Table_CMI_Map = new HashMap<>();
@@ -1639,6 +1641,9 @@ public class MoneyService{
         // 生成界面表记录
         info.setZijinAccount(
             NumUtil.digit0(NumUtil.getNum(oddZijin) + NumUtil.getNum(result.get().trim())));
+        // 添加到银行流水中
+        bankFlowController.totalBankFlowList.add(bankMoney);
+        
       }
       if (tableZijin != null && tableZijin.getItems() != null) {
         for (ZijinInfo zijin : tableZijin.getItems()) {

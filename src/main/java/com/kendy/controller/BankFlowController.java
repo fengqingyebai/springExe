@@ -4,17 +4,16 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import com.kendy.application.Main;
+import com.jfoenix.controls.JFXButton;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.BankFlowInfo;
 import com.kendy.enums.BankEnum;
@@ -60,20 +59,26 @@ public class BankFlowController extends BaseController implements Initializable 
   
   @Autowired
   public DBUtil dbUtil;
+  
+  @FXML public JFXButton bankFlowTitle;
 
   @FXML public ScrollPane scrollDates; // 放所有动态表的pane
 
   @FXML public StackPane stackPane; // 放条形图的pane
+  
+  private static final String TITLE = "今日银行流水";
 
   private static final String CENTER_CSS = "-fx-alignment: CENTER;";
   private static final int COL_WIDTH = 84;
 
   VBox bankFlowVBox = new VBox(); // 放所有动态表
 
-  List<BankFlowModel> totalBankFlowList;
+  public List<BankFlowModel> totalBankFlowList = new ArrayList<>();
 
   // {每一天 ：{银行类型 ： 上码列表}}
-  Map<String, Map<String, List<BankFlowModel>>> bankFlowMap;
+  Map<String, Map<String, List<BankFlowModel>>> bankFlowMap = new HashMap<>();
+  
+  private static boolean firstTime = true;
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -83,13 +88,23 @@ public class BankFlowController extends BaseController implements Initializable 
   }
   
   public void refresh() {
- // 初始化数据
+    
+  // 初始化数据
     initData();
     if (CollectUtil.isEmpty(totalBankFlowList))
       return;
 
     // 动态生成表
     generateAllTables();
+  }
+  
+  /**
+   * 设置银行流水日期
+   * 
+   * @param softTime
+   */
+  public void setBankFlowTitle(String softTime) {
+    bankFlowTitle.setText(TITLE + softTime);
   }
 
 
@@ -104,21 +119,20 @@ public class BankFlowController extends BaseController implements Initializable 
     // 制表
     long start = System.currentTimeMillis();
     bankFlowMap.forEach((dayKey, dayDataMap) -> {
-      Label dateLabel = new Label(dayKey);
-      dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill: #5B5B5B");
-      TableView<BankFlowInfo> table = dynamicGenerateGDTable();
-      int tableHeight = 200;
       if (latestDay.equals(dayKey)) {
-        tableHeight = 620;
+        Label dateLabel = new Label(dayKey);
+        dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill: #5B5B5B");
+        TableView<BankFlowInfo> table = dynamicGenerateGDTable();
+        int tableHeight = 620;
+        table.setMinHeight(tableHeight);
+        setTableData(dayKey, table, dayDataMap);
+  
+        // 添加内容
+  //      bankFlowVBox.getChildren().add(dateLabel);
+        bankFlowVBox.getChildren().add(table);
+        addDetailStaticInfo(dayDataMap); // 添加详细信息
+        bankFlowVBox.getChildren().add(new Label());
       }
-      table.setMinHeight(tableHeight);
-      setTableData(dayKey, table, dayDataMap);
-
-      // 添加内容
-      bankFlowVBox.getChildren().add(dateLabel);
-      addDetailStaticInfo(dayDataMap); // 添加详细信息
-      bankFlowVBox.getChildren().add(table);
-      bankFlowVBox.getChildren().add(new Label());
     });
     long end = System.currentTimeMillis();
     log.info(String.format("加载%d条流水进系统耗时：%d毫秒", totalBankFlowList.size(), end - start));
@@ -135,7 +149,14 @@ public class BankFlowController extends BaseController implements Initializable 
    * @time 2018年7月1日
    */
   private void initData() {
-    totalBankFlowList = dbUtil.getAllHistoryBankMoney();
+    bankFlowVBox.getChildren().clear();
+    logger.info("清空银行流水界面数据");
+    if(firstTime) {
+      logger.info("从数据库加载所有银行流水数据");
+      totalBankFlowList = dbUtil.getAllHistoryBankMoney();
+      firstTime = false;
+    }
+    
     if (CollectUtil.isEmpty(totalBankFlowList)) {
       return;
     }
@@ -164,6 +185,7 @@ public class BankFlowController extends BaseController implements Initializable 
       int todayCount;
       Long payCount, incomeCount, todaySumPay, todaySumIncome, todaySumFlow = 0L;
       List<Label> labelList = new ArrayList<>();
+      labelList.add(new Label("今日汇总  :"));
       // 遍历所有银行
       for (BankEnum bankEnum : BankEnum.values()) {
         bankName = bankEnum.getName();
@@ -188,7 +210,6 @@ public class BankFlowController extends BaseController implements Initializable 
         }
         labelList.add(label);
       }
-      labelList.add(new Label("详情  :"));
       bankFlowVBox.getChildren().addAll(labelList);
     }
   }
@@ -289,9 +310,9 @@ public class BankFlowController extends BaseController implements Initializable 
   private TableView<BankFlowInfo> dynamicGenerateGDTable() {
     TableView<BankFlowInfo> table = new TableView<BankFlowInfo>();
     TableColumn<BankFlowInfo, String> indexCol = getTableColumnCommon("序号", "index");
-    TableColumn<BankFlowInfo, String> dateCol = getTableColumnCommon("日期", "dateString");
+    //TableColumn<BankFlowInfo, String> dateCol = getTableColumnCommon("日期", "dateString");
     table.getColumns().add(indexCol);
-    table.getColumns().add(dateCol);
+    //table.getColumns().add(dateCol);
     for (BankEnum bankEnum : BankEnum.values()) {
       table.getColumns().add(getTableColumn(bankEnum.getName(), bankEnum.getValue()));
     }
