@@ -16,6 +16,7 @@
 	    <spring.version>4.3.7.RELEASE</spring.version>
 	    <poi.version>3.17</poi.version>
         <main.path>com.kendy.application.Main</main.path>
+        <maven.build.timestamp.format>yyyy-MM-dd-HH时mm分</maven.build.timestamp.format>
     </properties>  
    
     <dependencies>
@@ -252,7 +253,7 @@
                         <configuration>  
                             <headerType>gui</headerType>  
                             <jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>  
-                            <outfile>${project.build.directory}/账务软件.exe</outfile>  
+                            <outfile>${project.build.directory}/账务软件${maven.build.timestamp}.exe</outfile>  
                             <downloadUrl>http://java.com/download</downloadUrl>  
                             <classPath>  
                                 <mainClass>${main.path}</mainClass>  

@@ -385,7 +385,8 @@ public class ExcelReaderUtil {
     Map<String, String> presentPayoutMap = getMapByPosition(sheet, 13, 3, 40);// 不知够不够
     // 实时金额(单独开来)
     // Map<String,String> presentMoneyMap = getMapByPosition(sheet,3,6,1500);//不知1000够不够
-    Map<String, String> presentMoneyMap = getMapByPosition_SSJE(sheet, 3, 6, 1500);
+    Map<String, String> presentMoneyMap = getMapByPosition_SSJE(sheet, 3, 6, 4000);
+    log.info("导入实时金额总共记录数：" + presentMoneyMap.size());
 
     // 昨日利润
     Map<String, String> yesterdayProfitMap = getMapByPosition(sheet, 3, 11, 10);// 增加了总服务费

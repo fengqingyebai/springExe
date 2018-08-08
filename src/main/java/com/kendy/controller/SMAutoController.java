@@ -483,6 +483,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
       logInfo(playerName + "正在模拟更新实时上码...");
       SMResultModel resultModel = shangmaService.getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
+      logInfo(playerName + "模拟更新实时上码结束");
       ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
       if (selectedSMInfo == null) {
         logInfo("玩家（" + playerName + ")在上码系统中不存在！！");
@@ -496,6 +497,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
       /****************************************/
       boolean addOK = false;
+      logInfo(playerName + "是否合范围：" + passCheck);
       if (passCheck) {
         List<String> testList = new ArrayList<>();
 
@@ -515,7 +517,6 @@ public class SMAutoController extends BaseController implements Initializable {
             + calcAvailable + "]");
       }
       /****************************************/
-
       SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), playerId, playerName, paijuString,
           buyStack, teamAvailabel, // 团队可上码 (第一关)
           calcAvailable, // 计算可上码（第二关）
@@ -524,6 +525,7 @@ public class SMAutoController extends BaseController implements Initializable {
           passCheck ? "是" : "否", // smAutoIsAgree
           (passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
       );
+      logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo) );
       addItem(smAutoInfo);
     }
   }
@@ -673,9 +675,9 @@ public class SMAutoController extends BaseController implements Initializable {
   public void addItem(SMAutoInfo smAutoInfo) {
     if (TableUtil.isNullOrEmpty(tableSMAuto)) {
       tableSMAuto.setItems(FXCollections.observableArrayList());
-    } else {
-      tableSMAuto.getItems().add(smAutoInfo);
-    }
+    } 
+    tableSMAuto.getItems().add(smAutoInfo);
+    
     tableSMAuto.refresh();
   }
 
