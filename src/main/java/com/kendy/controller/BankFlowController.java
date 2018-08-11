@@ -42,6 +42,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -60,6 +61,9 @@ public class BankFlowController extends BaseController implements Initializable 
   @Autowired
   public DBUtil dbUtil;
   
+  @Autowired
+  public MyController myController;
+  
   @FXML public JFXButton bankFlowTitle;
 
   @FXML public ScrollPane scrollDates; // 放所有动态表的pane
@@ -71,18 +75,17 @@ public class BankFlowController extends BaseController implements Initializable 
   private static final String CENTER_CSS = "-fx-alignment: CENTER;";
   private static final int COL_WIDTH = 84;
 
-  VBox bankFlowVBox = new VBox(); // 放所有动态表
+  VBox bankFlowVBox = new VBox(10); // 放所有动态表
 
   public List<BankFlowModel> totalBankFlowList = new ArrayList<>();
 
-  // {每一天 ：{银行类型 ： 上码列表}}
-  Map<String, Map<String, List<BankFlowModel>>> bankFlowMap = new HashMap<>();
+  // {银行类型 ： 资金列表}
+  Map<String, List<BankFlowModel>> todayBankFlowMap = new HashMap<>();
   
   private static boolean firstTime = true;
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-
     refresh();
 
   }
@@ -115,26 +118,20 @@ public class BankFlowController extends BaseController implements Initializable 
    */
   public void generateAllTables() {
     // 最新日期
-    String latestDay = bankFlowMap.keySet().stream().max((x, y) -> x.compareTo(y)).orElse("");
+//    String latestDay = todayBankFlowMap.keySet().stream().max((x, y) -> x.compareTo(y)).orElse("");
+    String latestDay = getCurrentSoftTime();
     // 制表
     long start = System.currentTimeMillis();
-    bankFlowMap.forEach((dayKey, dayDataMap) -> {
-      if (latestDay.equals(dayKey)) {
-        Label dateLabel = new Label(dayKey);
-        dateLabel.setStyle("-fx-font-size: 1.3em; -fx-text-fill: #5B5B5B");
-        TableView<BankFlowInfo> table = dynamicGenerateGDTable();
-        int tableHeight = 620;
-        table.setMinHeight(tableHeight);
-        setTableData(dayKey, table, dayDataMap);
-  
-        // 添加内容
-  //      bankFlowVBox.getChildren().add(dateLabel);
-        bankFlowVBox.getChildren().add(table);
-        addDetailStaticInfo(dayDataMap); // 添加详细信息
-        bankFlowVBox.getChildren().add(new Label());
-      }
-    });
+    TableView<BankFlowInfo> table = dynamicGenerateGDTable();
+    int tableHeight = 620;
+    table.setMinHeight(tableHeight);
+    setTableData(latestDay, table, todayBankFlowMap);
+    
+    // 添加内容
+    bankFlowVBox.getChildren().add(table);
+    addDetailStaticInfo(todayBankFlowMap); // 添加详细信息
     addHistoryStaticInfo(); // 添加历史汇总信息
+    bankFlowVBox.getChildren().add(new Label());
     long end = System.currentTimeMillis();
     log.info(String.format("加载%d条流水进系统耗时：%d毫秒", totalBankFlowList.size(), end - start));
 
@@ -142,6 +139,12 @@ public class BankFlowController extends BaseController implements Initializable 
     scrollDates.setFitToHeight(true);
     scrollDates.setFitToWidth(true);
     scrollDates.setContent(bankFlowVBox);
+  }
+  
+  private String getCurrentSoftTime() {
+    String latestDay = myController.getSoftDate();
+    return StringUtil.isNotBlank(latestDay) ? latestDay
+        : StringUtil.nvl(dbUtil.getMaxBankFlowTime(), "");
   }
 
   /**
@@ -162,16 +165,24 @@ public class BankFlowController extends BaseController implements Initializable 
       return;
     }
 
+    String softDate = getCurrentSoftTime();
     // {每一天 ：{银行类型 ： 上码列表}}
-    bankFlowMap =
-        totalBankFlowList.stream().sorted((x, y) -> x.getUpdateTime().compareTo(y.getUpdateTime()))
-            .collect(Collectors.groupingBy(BankFlowModel::getSoftTime, // TreeMap::new // 先按每一天分类
-                Collectors.groupingBy(BankFlowModel::getBankName))); // 再按银行类型分类
+    todayBankFlowMap =
+        totalBankFlowList.stream()
+        .filter(e->e.getSoftTime().equals(softDate))
+        .sorted((x, y) -> x.getUpdateTime().compareTo(y.getUpdateTime()))
+        .collect(Collectors.groupingBy(BankFlowModel::getBankName)); // 再按银行类型分类
     // 按时间排序（必须！）
-    Map<String, Map<String, List<BankFlowModel>>> _bankFlowMap =
+    Map<String, List<BankFlowModel>> _bankFlowMap =
         new TreeMap<>((x, y) -> y.compareTo(x));
-    _bankFlowMap.putAll(bankFlowMap);
-    bankFlowMap = _bankFlowMap;
+    _bankFlowMap.putAll(todayBankFlowMap);
+    todayBankFlowMap = _bankFlowMap;
+  }
+  
+  private void addStaticTitle(String title) {
+    Label label = new Label(title);
+    label.setStyle("-fx-font-size: 1.3em; -fx-text-fill: #9c8617");
+    bankFlowVBox.getChildren().addAll(label);
   }
 
   /**
@@ -182,17 +193,17 @@ public class BankFlowController extends BaseController implements Initializable 
    */
   private void addDetailStaticInfo(final Map<String, List<BankFlowModel>> todayMap) {
     if (todayMap != null) {
-      String bankName, msg;
       int todayCount;
       Long payCount, incomeCount, todaySumPay, todaySumIncome, todaySumFlow = 0L;
-      List<Label> labelList = new ArrayList<>();
-      labelList.add(new Label("今日汇总  :"));
+      addStaticTitle("今日汇总  :");
+      final boolean isToday = true;
       // 遍历所有银行
       for (BankEnum bankEnum : BankEnum.values()) {
-        bankName = bankEnum.getName();
+        HBox hbox = new HBox();
+        String bankName = bankEnum.getName();
         List<BankFlowModel> todayBankList = todayMap.get(bankName);
         if (CollectUtil.isEmpty(todayBankList)) {
-          msg = getBankFlowMsg(bankName, 0, 0L, 0L, 0L, 0L, 0L);
+          hbox = getBankFlowHBoxMsg(isToday, bankName, 0, 0L, 0L, 0L, 0L, 0L);
         } else {
           todayCount = todayBankList.size();
           payCount = todayBankList.stream().filter(e -> e.getMoney() < 0).count();
@@ -202,46 +213,14 @@ public class BankFlowController extends BaseController implements Initializable 
           todaySumIncome = todayBankList.stream().filter(e -> e.getMoney() >= 0)
               .mapToLong(BankFlowModel::getMoney).sum();
           todaySumFlow = todaySumPay + todaySumIncome;
-          msg = getBankFlowMsg(bankName, todayCount, payCount, incomeCount, todaySumPay,
+          hbox = getBankFlowHBoxMsg(isToday, bankName, todayCount, payCount, incomeCount, todaySumPay,
               todaySumIncome, todaySumFlow);
         }
-        Label label = new Label(msg.toString());
-        if (todaySumFlow.longValue() < -1) {
-          label.setStyle("-fx-text-fill: red");
-        }
-        labelList.add(label);
+        bankFlowVBox.getChildren().addAll(hbox);
       }
-      bankFlowVBox.getChildren().addAll(labelList);
     }
   }
 
-  /**
-   * 获取详情统计信息
-   * 
-   * @time 2018年6月30日
-   * @param bankName
-   * @param todayCount // 当天总笔数
-   * @param todaySumPay // 当天总支出
-   * @param todaySumIncome // 当天总收入
-   * @param todaySumFlow // 当天总流水
-   * @return
-   */
-  private String getBankFlowMsg(String bankName, int todayCount, Long payCount, Long incomeCount,
-      Long todaySumPay, Long todaySumIncome, Long todaySumFlow) {
-    StringBuffer msg = new StringBuffer();
-    String pattern = "%-12d";
-    
-    msg.append(String.format("%-4s", bankName.replace("额", "").replace("付", ""))).append(": ")
-    .append(" 当天总笔数 ").append(String.format(pattern, todayCount)).append(" 当天总支出笔数 ")
-    .append(String.format(pattern, payCount)).append(" 当天总收入笔数 ")
-    .append(String.format(pattern, incomeCount)).append(" 当天总支出￥")
-    .append(String.format(pattern, todaySumPay)).append(" 当天总收入￥")
-    .append(String.format(pattern, todaySumIncome))
-//    .append(" 当天总利润￥")
-//    .append(String.format(pattern, todaySumFlow))
-    ;
-    return msg.toString();
-  }
   
   /**
    * 历史汇总信息
@@ -249,18 +228,17 @@ public class BankFlowController extends BaseController implements Initializable 
   private void addHistoryStaticInfo() {
     final Map<String, List<BankFlowModel>> historyMap = totalBankFlowList.stream().collect(Collectors.groupingBy(BankFlowModel::getBankName));
     if (historyMap != null) {
-      String bankName, msg;
       int totalCount;
       Long payCount, incomeCount, totalSumPay, totalSumIncome, totalSumFlow = 0L;
-      List<Label> labelList = new ArrayList<>();
-      labelList.add(new Label());
-      labelList.add(new Label("历史汇总  :"));
+      addStaticTitle("历史汇总  :");
+      final boolean isToday = false; //历史
       // 遍历所有银行
       for (BankEnum bankEnum : BankEnum.values()) {
-        bankName = bankEnum.getName();
+        HBox hbox = new HBox();
+        String bankName = bankEnum.getName();
         List<BankFlowModel> totalBankList = historyMap.get(bankName);
         if (CollectUtil.isEmpty(totalBankList)) {
-          msg = getBankFlowTotalMsg(bankName, 0, 0L, 0L, 0L, 0L, 0L);
+          hbox = getBankFlowHBoxMsg(isToday, bankName, 0, 0L, 0L, 0L, 0L, 0L);
         } else {
           totalCount = totalBankList.size();
           payCount = totalBankList.stream().filter(e -> e.getMoney() < 0).count();
@@ -270,38 +248,41 @@ public class BankFlowController extends BaseController implements Initializable 
           totalSumIncome = totalBankList.stream().filter(e -> e.getMoney() >= 0)
               .mapToLong(BankFlowModel::getMoney).sum();
           totalSumFlow = totalSumPay + totalSumIncome;
-          msg = getBankFlowTotalMsg(bankName, totalCount, payCount, incomeCount, totalSumPay,
+          hbox = getBankFlowHBoxMsg(isToday, bankName, totalCount, payCount, incomeCount, totalSumPay,
               totalSumIncome, totalSumFlow);
         }
-        Label label = new Label(msg.toString());
-        if (totalSumFlow.longValue() < -1) {
-          label.setStyle("-fx-text-fill: red");
-        }
-        labelList.add(label);
+        bankFlowVBox.getChildren().addAll(hbox);
       }
-      bankFlowVBox.getChildren().addAll(labelList);
     }
   }
   
-  /**
-   * 历史汇总写入
-   */
-  private String getBankFlowTotalMsg(String bankName, int todayCount, Long payCount, Long incomeCount,
+  
+  private HBox getBankFlowHBoxMsg(boolean isToday, String bankName, int todayCount, Long payCount, Long incomeCount,
       Long totalSumPay, Long totalSumIncome, Long totalSumFlow) {
-    StringBuffer msg = new StringBuffer();
-    String pattern = "%-12d";
-    
-    msg.append(String.format("%-4s", bankName.replace("额", "").replace("付", ""))).append(": ")
-    .append(" 历史总笔数 ").append(String.format(pattern, todayCount)).append(" 历史总支出笔数 ")
-    .append(String.format(pattern, payCount)).append(" 历史总收入笔数 ")
-    .append(String.format(pattern, incomeCount)).append(" 历史总支出￥")
-    .append(String.format(pattern, totalSumPay)).append(" 历史总收入￥")
-    .append(String.format(pattern, totalSumIncome))
-//    .append(" 历史总利润￥")
-//    .append(String.format(pattern, todaySumFlow))
-    ;
-    return msg.toString();
+    String prefix = isToday ? "当天" : "历史";
+    String first = "\t"+bankName.replace("额", "").replace("付", "") + " : " + prefix + "总笔数  ";
+    HBox hbox = new HBox();
+    hbox.getChildren().add(getHbox(first, todayCount));
+    hbox.getChildren().add(getHbox(prefix + "总支出笔数", payCount));
+    hbox.getChildren().add(getHbox(prefix + "总收入笔数", incomeCount));
+    hbox.getChildren().add(getHbox(prefix + "总支出￥", totalSumPay));
+    hbox.getChildren().add(getHbox(prefix + "总收入￥", totalSumIncome));
+    return hbox;
   }
+  
+  private HBox getHbox(String key, long value) {
+    HBox hbox = new HBox();
+    Label keyLabel = new Label(" "+key+" ");
+    Label valueLabel = new Label(value+"");
+    if (value < -1) {
+      valueLabel.setStyle("-fx-text-fill: red");
+    }
+    valueLabel.setPrefWidth(100D);
+    hbox.getChildren().addAll(keyLabel, valueLabel);
+    return hbox;
+  }
+  
+
   
   /**
    * 设置动态表的数据
@@ -411,55 +392,55 @@ public class BankFlowController extends BaseController implements Initializable 
    * @time 2018年7月1日
    * @param event
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
+//  @SuppressWarnings({"rawtypes", "unchecked"})
   @FXML
   public void seeHistoryStaticAction(ActionEvent event) {
-    if (CollectUtil.isEmpty(totalBankFlowList)) {
-      ShowUtil.show("数据库中没有银行流水记录");
-      return;
-    }
-    Dialog dialog = new Dialog<>();
-    dialog.setTitle("银行流水汇总");
-    dialog.setHeaderText(null);
-    dialog.setHeight(500.0);
-    dialog.setWidth(1000.0);
-    dialog.setResizable(true);
-    ButtonType loginButtonType = new ButtonType("关闭", ButtonData.APPLY);
-    dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-    //dialog.initOwner(Main.primaryStage0); // 用于设置图标和使大小有效
-    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-    ShowUtil.setIcon(stage);
-
-    StackPane stackPane = new StackPane();
-
-    final CategoryAxis xAxis = new CategoryAxis();
-    final NumberAxis yAxis = new NumberAxis();
-    final StackedBarChart<String, Number> sbc = new StackedBarChart<>(xAxis, yAxis);
-    List<String> dayList =
-        bankFlowMap.keySet().stream().map(e -> getSimpleDateString(e)).collect(Collectors.toList());
-    xAxis.setCategories(FXCollections.<String>observableArrayList(dayList));
-    sbc.setTitle(getTitleInfo());
-
-    Platform.runLater(() -> {
-      for (BankEnum bankEnum : BankEnum.values()) {
-        String bankName = bankEnum.getName();
-        final XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName(bankName);
-        bankFlowMap.forEach((day, dayMap) -> {
-          List<BankFlowModel> bankFlowList = dayMap.get(bankName);
-          int data = 0;
-          if (CollectUtil.isHaveValue(bankFlowList)) {
-            data = bankFlowList.stream().mapToInt(BankFlowModel::getMoney).sum();
-          }
-          series.getData().add(new XYChart.Data<>(getSimpleDateString(day), data));
-        });
-        sbc.getData().addAll(series);
-      }
-    });
-    stackPane.getChildren().add(sbc);
-    dialog.getDialogPane().setContent(stackPane);
-
-    dialog.show();
+//    if (CollectUtil.isEmpty(totalBankFlowList)) {
+//      ShowUtil.show("数据库中没有银行流水记录");
+//      return;
+//    }
+//    Dialog dialog = new Dialog<>();
+//    dialog.setTitle("银行流水汇总");
+//    dialog.setHeaderText(null);
+//    dialog.setHeight(500.0);
+//    dialog.setWidth(1000.0);
+//    dialog.setResizable(true);
+//    ButtonType loginButtonType = new ButtonType("关闭", ButtonData.APPLY);
+//    dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+//    //dialog.initOwner(Main.primaryStage0); // 用于设置图标和使大小有效
+//    Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+//    ShowUtil.setIcon(stage);
+//
+//    StackPane stackPane = new StackPane();
+//
+//    final CategoryAxis xAxis = new CategoryAxis();
+//    final NumberAxis yAxis = new NumberAxis();
+//    final StackedBarChart<String, Number> sbc = new StackedBarChart<>(xAxis, yAxis);
+//    List<String> dayList =
+//        todayBankFlowMap.keySet().stream().map(e -> getSimpleDateString(e)).collect(Collectors.toList());
+//    xAxis.setCategories(FXCollections.<String>observableArrayList(dayList));
+//    sbc.setTitle(getTitleInfo());
+//
+//    Platform.runLater(() -> {
+//      for (BankEnum bankEnum : BankEnum.values()) {
+//        String bankName = bankEnum.getName();
+//        final XYChart.Series<String, Number> series = new XYChart.Series<>();
+//        series.setName(bankName);
+//        todayBankFlowMap.forEach((day, dayMap) -> {
+//          List<BankFlowModel> bankFlowList = dayMap.get(bankName);
+//          int data = 0;
+//          if (CollectUtil.isHaveValue(bankFlowList)) {
+//            data = bankFlowList.stream().mapToInt(BankFlowModel::getMoney).sum();
+//          }
+//          series.getData().add(new XYChart.Data<>(getSimpleDateString(day), data));
+//        });
+//        sbc.getData().addAll(series);
+//      }
+//    });
+//    stackPane.getChildren().add(sbc);
+//    dialog.getDialogPane().setContent(stackPane);
+//
+//    dialog.show();
   }
 
   /**
@@ -468,17 +449,17 @@ public class BankFlowController extends BaseController implements Initializable 
    * @time 2018年7月1日
    * @return
    */
-  private String getTitleInfo() {
-    int sumIncome = totalBankFlowList.stream().filter(e -> e.getMoney() > 0)
-        .mapToInt(BankFlowModel::getMoney).sum();
-    int sum = totalBankFlowList.stream().mapToInt(e -> Math.abs(e.getMoney())).sum();
-    double devideUnit = 10000d;
-    String titleInfo = String.format("总流水%s万    总收入%s万    总支出%s万",
-        NumUtil.getNumDivide2(Double.valueOf(sum + ""), devideUnit),
-        NumUtil.getNumDivide2(Double.valueOf(sumIncome + ""), devideUnit),
-        NumUtil.getNumDivide2(Double.valueOf(sum - sumIncome + ""), devideUnit));
-    return titleInfo;
-  }
+//  private String getTitleInfo() {
+//    int sumIncome = totalBankFlowList.stream().filter(e -> e.getMoney() > 0)
+//        .mapToInt(BankFlowModel::getMoney).sum();
+//    int sum = totalBankFlowList.stream().mapToInt(e -> Math.abs(e.getMoney())).sum();
+//    double devideUnit = 10000d;
+//    String titleInfo = String.format("总流水%s万    总收入%s万    总支出%s万",
+//        NumUtil.getNumDivide2(Double.valueOf(sum + ""), devideUnit),
+//        NumUtil.getNumDivide2(Double.valueOf(sumIncome + ""), devideUnit),
+//        NumUtil.getNumDivide2(Double.valueOf(sum - sumIncome + ""), devideUnit));
+//    return titleInfo;
+//  }
 
   /**
    * 获取月份和日， 如2018-06-01 ==> 6-1
@@ -487,19 +468,19 @@ public class BankFlowController extends BaseController implements Initializable 
    * @param dateString
    * @return
    */
-  private final String getSimpleDateString(String dateString) {
-    if (StringUtil.isNotBlank(dateString) && dateString.length() > 6) {
-      LocalDate date = LocalDate.parse(dateString);
-      int month = date.getMonthValue();
-      int day = date.getDayOfMonth();
-      return month + "-" + day;
-    }
-    return dateString;
-  }
-  @Override
-  public Class<?> getSubClass() {
-    return getClass();
-  }
+//  private final String getSimpleDateString(String dateString) {
+//    if (StringUtil.isNotBlank(dateString) && dateString.length() > 6) {
+//      LocalDate date = LocalDate.parse(dateString);
+//      int month = date.getMonthValue();
+//      int day = date.getDayOfMonth();
+//      return month + "-" + day;
+//    }
+//    return dateString;
+//  }
+//  @Override
+//  public Class<?> getSubClass() {
+//    return getClass();
+//  }
 
 
 }

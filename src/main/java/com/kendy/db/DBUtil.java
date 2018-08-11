@@ -2932,6 +2932,32 @@ public class DBUtil {
     }
     return list;
   }
+  
+  
+  
+  /**
+   * 获取已锁定的战绩记录中最大的时间
+   * 
+   * @time 2017年11月25日
+   * @return
+   */
+  public String getMaxBankFlowTime() {
+    String maxRecordTime = "";
+    try {
+      con = DBConnection.getConnection();
+      String sql = "select max(soft_time) from history_bank_money";
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        maxRecordTime = rs.getString(1);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      close(con, ps);
+    }
+    return maxRecordTime;
+  }
 
 
 }

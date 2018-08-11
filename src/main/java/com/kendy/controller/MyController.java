@@ -908,6 +908,10 @@ public class MyController extends BaseController implements Initializable {
    */
   public void importZJExcelAction(ActionEvent even) {
     String excelFilePath = getExcelPath();
+    if(StringUtil.isBlank(excelFilePath)) {
+      ShowUtil.show("亲，你还未导入E白名单呢！");
+      return;
+    }
     String userClubId = getClubId();
     String tableId = FileUtil.getTableId(excelFilePath);
     if (StringUtil.isNotBlank(excelFilePath)) {

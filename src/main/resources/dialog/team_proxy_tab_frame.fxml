@@ -18,9 +18,9 @@
 
 <AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.TeamProxyController">
     <children>
-         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="785.0" prefWidth="1073.0">
+         <AnchorPane layoutX="325.0" layoutY="18.0" minHeight="0.0" minWidth="0.0" prefHeight="846.0" prefWidth="933.0">
            <children>
-           <GridPane hgap="14.0" layoutX="204.0" layoutY="58.0" maxHeight="+Infinity" maxWidth="+Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="772.0" prefWidth="701.0" vgap="20.0" >
+           <GridPane hgap="14.0" layoutX="204.0" layoutY="58.0" maxHeight="+Infinity" maxWidth="+Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="772.0" prefWidth="701.0" vgap="20.0">
              <children>
                <VBox maxHeight="+Infinity" maxWidth="+Infinity" minHeight="-Infinity" prefHeight="769.0" prefWidth="689.0" spacing="7.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                  <children>

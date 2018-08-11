@@ -35,7 +35,13 @@ public class Main extends Application {
       Parent root = (Parent) loader.load("/dialog/MainStageees2.fxml");
       primaryStage.getIcons().add(Constants.icon);
       primaryStage.setTitle(Constants.TITLE + Constants.VERSION);
-      primaryStage.setScene(new Scene(root));
+      Scene scene = new Scene(root);
+//      scene.getStylesheets().add( 
+//          Main.class.getClassLoader().getResource("/dialog/myCss.css") 
+//          .toExternalForm()); 
+      scene.getStylesheets().add("css/myCss.css"); 
+//      scene.getStylesheets().add("-fx-background-image: url(/images/blueBackground.jpg)"); 
+      primaryStage.setScene(scene);
       primaryStage.show();
       primaryStage0 = primaryStage;
       FXUtil.stage = primaryStage;
