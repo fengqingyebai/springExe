@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -163,15 +164,19 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 搜索可能符合的人员
+   * <p>
+   * 可以根据名字和ID进行搜索
    */
   public void handleSearch() {
-    String name = combineName.getText();
+    String searchText = combineName.getText();
     Set<Player> set = new HashSet<>();
-    if (!StringUtil.isBlank(name)) {
+    if (StringUtil.isNotBlank(searchText)) {
       dataConstants.membersMap.forEach((mId, mPlayer) -> {
-        if (mPlayer.getPlayerName().contains(name)
-            || mPlayer.getPlayerName().toLowerCase().contains(name.trim().toLowerCase())
-            || mPlayer.getPlayerName().toUpperCase().contains(name.trim().toUpperCase())) {
+        if (mPlayer.getPlayerName().contains(searchText)
+            || mPlayer.getPlayerName().toLowerCase().contains(searchText.trim().toLowerCase())
+            || mPlayer.getPlayerName().toUpperCase().contains(searchText.trim().toUpperCase())
+            || StringUtils.contains(mId, searchText)
+            ) {
           set.add(mPlayer);
         }
       });
