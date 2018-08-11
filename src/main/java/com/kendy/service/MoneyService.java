@@ -1065,13 +1065,17 @@ public class MoneyService{
       }
       ObservableList<CurrentMoneyInfo> list = table.getItems();
       String tempName = "";
+      String ssje = "";
       int selectedIndex = table.getSelectionModel().getSelectedIndex();
       for (CurrentMoneyInfo moneyInfo : list) {
         tempName = moneyInfo.getMingzi();
-        if (!StringUtil.isBlank(tempName)) {
+        ssje = moneyInfo.getShishiJine();
+        if (StringUtil.isNotBlank(tempName)) {
           if (tempName.contains(searchText.trim())
               || tempName.toLowerCase().contains(searchText.trim().toLowerCase())
-              || tempName.toUpperCase().contains(searchText.trim().toUpperCase())) {
+              || tempName.toUpperCase().contains(searchText.trim().toUpperCase())
+              || ssje.equals(searchText)
+              ) {
             int index = list.indexOf(moneyInfo);
             indexList.add(index);
           }
