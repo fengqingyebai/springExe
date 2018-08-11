@@ -84,7 +84,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 /**
- * 处理联盟配额的控制器
+ * 自动上码控制器
  * 
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
@@ -119,7 +119,6 @@ public class SMAutoController extends BaseController implements Initializable {
   public MoneyService moneyService; // 配帐控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
-
   
   @Autowired
   HttpService httpService;
@@ -832,7 +831,7 @@ public class SMAutoController extends BaseController implements Initializable {
   private final String PU_TONG = "1";
   private final String AO_MA_HA = "2";
   private final String DA_BO_LUO = "6";
-  private final int DOWN_LIMIT = 6; // 每次下载5个，总共一次性下载 6 * 3 = 18
+  private final int DOWN_LIMIT = 10; // 每次下载5个，总共一次性下载 6 * 3 = 18
 
   public LocalDate getSelectedDate() {
     return datePicker.getValue();

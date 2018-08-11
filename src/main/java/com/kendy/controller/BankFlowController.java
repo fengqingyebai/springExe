@@ -134,6 +134,7 @@ public class BankFlowController extends BaseController implements Initializable 
         bankFlowVBox.getChildren().add(new Label());
       }
     });
+    addHistoryStaticInfo(); // 添加历史汇总信息
     long end = System.currentTimeMillis();
     log.info(String.format("加载%d条流水进系统耗时：%d毫秒", totalBankFlowList.size(), end - start));
 
@@ -228,7 +229,7 @@ public class BankFlowController extends BaseController implements Initializable 
   private String getBankFlowMsg(String bankName, int todayCount, Long payCount, Long incomeCount,
       Long todaySumPay, Long todaySumIncome, Long todaySumFlow) {
     StringBuffer msg = new StringBuffer();
-    String pattern = "%-8d";
+    String pattern = "%-12d";
     
     msg.append(String.format("%-4s", bankName.replace("额", "").replace("付", ""))).append(": ")
     .append(" 当天总笔数 ").append(String.format(pattern, todayCount)).append(" 当天总支出笔数 ")
@@ -237,6 +238,66 @@ public class BankFlowController extends BaseController implements Initializable 
     .append(String.format(pattern, todaySumPay)).append(" 当天总收入￥")
     .append(String.format(pattern, todaySumIncome))
 //    .append(" 当天总利润￥")
+//    .append(String.format(pattern, todaySumFlow))
+    ;
+    return msg.toString();
+  }
+  
+  /**
+   * 历史汇总信息
+   */
+  private void addHistoryStaticInfo() {
+    final Map<String, List<BankFlowModel>> historyMap = totalBankFlowList.stream().collect(Collectors.groupingBy(BankFlowModel::getBankName));
+    if (historyMap != null) {
+      String bankName, msg;
+      int totalCount;
+      Long payCount, incomeCount, totalSumPay, totalSumIncome, totalSumFlow = 0L;
+      List<Label> labelList = new ArrayList<>();
+      labelList.add(new Label());
+      labelList.add(new Label("历史汇总  :"));
+      // 遍历所有银行
+      for (BankEnum bankEnum : BankEnum.values()) {
+        bankName = bankEnum.getName();
+        List<BankFlowModel> totalBankList = historyMap.get(bankName);
+        if (CollectUtil.isEmpty(totalBankList)) {
+          msg = getBankFlowTotalMsg(bankName, 0, 0L, 0L, 0L, 0L, 0L);
+        } else {
+          totalCount = totalBankList.size();
+          payCount = totalBankList.stream().filter(e -> e.getMoney() < 0).count();
+          incomeCount = totalBankList.stream().filter(e -> e.getMoney() >= 0).count();
+          totalSumPay = totalBankList.stream().filter(e -> e.getMoney() < 0)
+              .mapToLong(BankFlowModel::getMoney).sum();
+          totalSumIncome = totalBankList.stream().filter(e -> e.getMoney() >= 0)
+              .mapToLong(BankFlowModel::getMoney).sum();
+          totalSumFlow = totalSumPay + totalSumIncome;
+          msg = getBankFlowTotalMsg(bankName, totalCount, payCount, incomeCount, totalSumPay,
+              totalSumIncome, totalSumFlow);
+        }
+        Label label = new Label(msg.toString());
+        if (totalSumFlow.longValue() < -1) {
+          label.setStyle("-fx-text-fill: red");
+        }
+        labelList.add(label);
+      }
+      bankFlowVBox.getChildren().addAll(labelList);
+    }
+  }
+  
+  /**
+   * 历史汇总写入
+   */
+  private String getBankFlowTotalMsg(String bankName, int todayCount, Long payCount, Long incomeCount,
+      Long totalSumPay, Long totalSumIncome, Long totalSumFlow) {
+    StringBuffer msg = new StringBuffer();
+    String pattern = "%-12d";
+    
+    msg.append(String.format("%-4s", bankName.replace("额", "").replace("付", ""))).append(": ")
+    .append(" 历史总笔数 ").append(String.format(pattern, todayCount)).append(" 历史总支出笔数 ")
+    .append(String.format(pattern, payCount)).append(" 历史总收入笔数 ")
+    .append(String.format(pattern, incomeCount)).append(" 历史总支出￥")
+    .append(String.format(pattern, totalSumPay)).append(" 历史总收入￥")
+    .append(String.format(pattern, totalSumIncome))
+//    .append(" 历史总利润￥")
 //    .append(String.format(pattern, todaySumFlow))
     ;
     return msg.toString();

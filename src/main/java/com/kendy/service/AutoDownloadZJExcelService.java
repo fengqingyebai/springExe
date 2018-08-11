@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import javax.swing.filechooser.FileSystemView;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.controller.SMAutoController;
@@ -59,32 +60,35 @@ public class AutoDownloadZJExcelService{
    * @throws IOException
    * @throws Exception
    */
-  @SuppressWarnings("resource")
+//  @SuppressWarnings("resource")
   public void download(String url, String path) throws IOException {
+    
+    
+    FileUtils.copyURLToFile(new URL(url), new File(path));
 
-    File file = null;
-    HttpURLConnection httpCon = null;
-    URLConnection con = null;
-    URL urlObj = null;
-    file = new File(path);
-    if (!file.exists()) {
-      file.createNewFile();
-    }
-    urlObj = new URL(url);
-    con = urlObj.openConnection();
-    httpCon = (HttpURLConnection) con;
-    httpCon.setConnectTimeout(5 * 1000);
-    httpCon.setReadTimeout(5 * 1000);
-
-    InputStream in = httpCon.getInputStream();
-    FileOutputStream fos = new FileOutputStream(file);
-    int responseCode = httpCon.getResponseCode();
-    if (responseCode != 200) {
-      throw new IOException("自动下载返回码：" + responseCode);
-    }
-    // 获取自己数组
-    byte[] getData = readInputStream(in);
-    fos.write(getData);
+//    File file = null;
+//    HttpURLConnection httpCon = null;
+//    URLConnection con = null;
+//    URL urlObj = null;
+//    file = new File(path);
+//    if (!file.exists()) {
+//      file.createNewFile();
+//    }
+//    urlObj = new URL(url);
+//    con = urlObj.openConnection();
+//    httpCon = (HttpURLConnection) con;
+//    httpCon.setConnectTimeout(5 * 1000);
+//    httpCon.setReadTimeout(5 * 1000);
+//
+//    InputStream in = httpCon.getInputStream();
+//    FileOutputStream fos = new FileOutputStream(file);
+//    int responseCode = httpCon.getResponseCode();
+//    if (responseCode != 200) {
+//      throw new IOException("自动下载返回码：" + responseCode);
+//    }
+//    // 获取自己数组
+//    byte[] getData = readInputStream(in);
+//    fos.write(getData);
   }
 
 
