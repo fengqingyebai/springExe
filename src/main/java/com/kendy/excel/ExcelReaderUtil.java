@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -24,6 +23,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
@@ -38,6 +39,7 @@ import com.kendy.other.Wrap;
 import com.kendy.service.MoneyService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.FileUtil;
+import com.kendy.util.FilterUtf8mb4;
 import com.kendy.util.NumUtil;
 import com.kendy.util.PathUtil;
 import com.kendy.util.ShowUtil;
@@ -63,7 +65,7 @@ public class ExcelReaderUtil {
   
 //  public static ExcelReaderUtil instance = new ExcelReaderUtil();
 
-  private  Logger log = Logger.getLogger(ExcelReaderUtil.class);
+  private  Logger log = LoggerFactory.getLogger(ExcelReaderUtil.class);
 
   private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -322,6 +324,25 @@ public class ExcelReaderUtil {
       ShowUtil.show("提示：总手数为0！");
     }
   }
+  
+  /*
+   * 获取级别
+   */
+  private String getLevel(String pathString) {
+    String level = "";
+    try {
+      String split = "\\";
+      if(!pathString.contains(split)) {
+        split = "/";
+      }
+      String fileaName = pathString.substring(pathString.lastIndexOf(split)+1, pathString.lastIndexOf("-"));
+      fileaName = FilterUtf8mb4.filterUtf8mb4(fileaName);
+      level = fileaName.substring(fileaName.indexOf("-")+1);
+    } catch (Exception e) {
+      log.error("通过{}获取级别失败！", pathString);
+    }
+    return level;
+  }
 
   /**
    * 导入战绩Excel
@@ -336,7 +357,7 @@ public class ExcelReaderUtil {
         ExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
     String tableId = FileUtil.getTableId(excelFilePath);
     // 补全每条记录的值
-    moneyService.fillGameRecords(gameRecords, tableId, LMType);
+    moneyService.fillGameRecords(gameRecords, tableId, getLevel(excelFilePath), LMType);
     // 判断总手数为0
     judgeSumHandsCount(gameRecords);
 

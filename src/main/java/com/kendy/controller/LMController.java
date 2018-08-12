@@ -8,13 +8,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,6 +26,7 @@ import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubQuota;
 import com.kendy.entity.ClubZhuofei;
+import com.kendy.entity.KeyValue;
 import com.kendy.entity.LMDetailInfo;
 import com.kendy.entity.LMSumInfo;
 import com.kendy.excel.ExportAllLMExcel;
@@ -103,6 +101,10 @@ public class LMController extends BaseController implements Initializable {
   @FXML private TableColumn<LMDetailInfo, String> lmDetailZJ;
   @FXML private TableColumn<LMDetailInfo, String> lmDetailInsure;
   @FXML private TableColumn<LMDetailInfo, String> lmDetailPersonCount;
+  // =====================================================================单个俱乐部详情表
+  @FXML private TableView<KeyValue> tableLevel;
+  @FXML private TableColumn<KeyValue, String> key;
+  @FXML private TableColumn<KeyValue, String> value;
 
 
   private Logger log = Logger.getLogger(LMController.class);
@@ -135,6 +137,9 @@ public class LMController extends BaseController implements Initializable {
 
     // 绑定代理查询中的合计表
     bindCellValueByTable(new LMDetailInfo(), tableLMDetail);
+    
+    // 绑定有效桌子表
+    bindCellValueByTable(new KeyValue(), tableLevel);
 
     // 绑定代理查询中的合计表
     tableLMSum.setEditable(true);
@@ -317,6 +322,10 @@ public class LMController extends BaseController implements Initializable {
     if (_clubListView.getItems() != null) {
       _clubListView.getSelectionModel().select(0);
     }
+    
+    //加载有效桌数
+    refreshTableLevel("联盟" + index);
+    
   }
 
   /**
@@ -1670,6 +1679,40 @@ public class LMController extends BaseController implements Initializable {
     }
     
   }
+  
+  
+  /******************************************************************
+   * 
+   *                    有效桌数表
+   *                    
+   ******************************************************************/
+  //删除表数据
+  @FXML
+  public void clearTableLevelAction(ActionEvent event) {
+    tableLevel.getItems().clear();
+  }
+  
+  //加载最新数据
+  @FXML
+  public void loadTableLevelAction(ActionEvent event) {
+    int currentLMType = getCurrentLMType();
+    refreshTableLevel("联盟" + currentLMType);
+    ShowUtil.show("刷新成功！", 2);
+  }
+  
+  private void refreshTableLevel(String currentLMType) {
+    Map<String, String> validLevelAndCount = dbUtil.getValidLevelAndCount(currentLMType);
+    ObservableList<KeyValue> obList = FXCollections.observableArrayList();
+    if(MapUtil.isHavaValue(validLevelAndCount)) {
+      validLevelAndCount.forEach((k,v) -> {
+        if(StringUtil.isNotBlank(k)) {
+          obList.add(new KeyValue(k, v));
+        }
+      });
+    }
+    tableLevel.setItems(obList);
+  }
+  
   
   @Override
   public Class<?> getSubClass() {

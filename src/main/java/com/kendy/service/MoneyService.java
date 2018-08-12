@@ -227,16 +227,16 @@ public class MoneyService{
    * @time 2018年7月8日
    * @param gameRecords
    */
-  public void fillGameRecords(List<GameRecord> gameRecords, String tableId, String LMType) {
+  public void fillGameRecords(List<GameRecord> gameRecords, String tableId, String level, String LMType) {
     for (GameRecord r : gameRecords) {
-      setSingleGameRecord(r, tableId, LMType);
+      setSingleGameRecord(r, tableId, level, LMType);
     }
   }
 
   /**
    * 补全单条记录的值
    */
-  private void setSingleGameRecord(GameRecord r, String tableId, String LMType) {
+  private void setSingleGameRecord(GameRecord r, String tableId, String level, String LMType) {
 
     String teamId = getTeamId(r.getPlayerId());
     // 计算收回险
@@ -269,7 +269,8 @@ public class MoneyService{
     r.setShouHuishui(shouHuishui);
     // 合利润
     r.setHeLirun(heLirun);
-
+    // 级别
+    r.setLevel(level);
     log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
   }
 

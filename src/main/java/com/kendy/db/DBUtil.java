@@ -62,7 +62,7 @@ public class DBUtil {
   private Connection con = null;
   private PreparedStatement ps = null;
   private String sql;
-  
+
   /**
    * 构造方法
    */
@@ -70,7 +70,7 @@ public class DBUtil {
     super();
     loger.info("正在初始化DBUtil构造方法");
   }
-  
+
   @PostConstruct
   public void inits() {
     loger.info("正在初始化DBUtil构造方法后的初始化");
@@ -799,11 +799,12 @@ public class DBUtil {
   /**
    * 锁定时保存所有缓存数据 备注：如果插入到一半失败了呢，后期考虑引入事务
    */
-  public int saveLastLockedData(int ju_size, String json_all_locked_data, int ju_size2, String  lastDataDetailJson) {
+  public int saveLastLockedData(int ju_size, String json_all_locked_data, int ju_size2,
+      String lastDataDetailJson) {
     int lockedIndex = 0;
-//    Map<String, String> lastLockedDataMap = dataConstants.getLockedDataMap();// 这里没有场次信息的数据了
-//    String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
-//    int ju_size = dataConstants.Index_Table_Id_Map.size();
+    // Map<String, String> lastLockedDataMap = dataConstants.getLockedDataMap();// 这里没有场次信息的数据了
+    // String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
+    // int ju_size = dataConstants.Index_Table_Id_Map.size();
     try {
       loger.info("================插入锁定数据进数据库...开始");
       con = DBConnection.getConnection();
@@ -847,10 +848,11 @@ public class DBUtil {
    */
   private void saveLastLockedDataDetail(int ju_size, String lastDataDetailJson) {
     try {
-//      int ju_size = dataConstants.Paiju_Index.get() - 1;
-//      loger.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
-//      Map<String, String> lastDataDetailMap = dataConstants.All_Locked_Data_Map.get(ju_size + "");
-//      String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
+      // int ju_size = dataConstants.Paiju_Index.get() - 1;
+      // loger.info("----------------------执行锁定时保存最后一场的详细数据：" + ju_size);
+      // Map<String, String> lastDataDetailMap = dataConstants.All_Locked_Data_Map.get(ju_size +
+      // "");
+      // String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
       sql = "replace into last_locked_data_detail values(?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, ju_size + "");
@@ -990,25 +992,19 @@ public class DBUtil {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
-      String sql ;
+      String sql;
 
-      
-      List<String> delTables = Arrays.asList(
-          "club_zhuofei", 
-          "game_record", 
-          "gudong_kaixiao", 
-          "last_locked_data", 
-          "last_locked_data_detail", 
-          "tg_lirun",
-          "history_bank_money",
-          "shangma_nextday");
-      
-      for(String tableName : delTables) {
+
+      List<String> delTables =
+          Arrays.asList("club_zhuofei", "game_record", "gudong_kaixiao", "last_locked_data",
+              "last_locked_data_detail", "tg_lirun", "history_bank_money", "shangma_nextday");
+
+      for (String tableName : delTables) {
         sql = "DELETE from " + tableName;
         ps = con.prepareStatement(sql);
         ps.execute();
       }
-      
+
       sql = "DELETE from yesterday_data where dateTime != '2017-01-01'";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2698,6 +2694,7 @@ public class DBUtil {
 
   /**
    * 删除对应的银行流水
+   * 
    * @param playerId
    */
   public void delBankFlowByType(final String bankName) {
@@ -2736,7 +2733,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql;
-      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, record.getSoftDate());
       ps.setString(2, record.getClubId());
@@ -2755,6 +2752,8 @@ public class DBUtil {
       ps.setString(15, record.getLmType());
       ps.setString(16, record.getFinisedTime());
       ps.setString(17, record.getIsJiesuaned());
+      ps.setString(18, record.getLevel());
+      ps.setString(19, record.getSumHandsCount());
       ps.execute();
     } catch (SQLException e) {
       throw new Exception("添加战绩记录失败", e);
@@ -2777,7 +2776,7 @@ public class DBUtil {
         addGameRecord(record);
       }
       long end = System.currentTimeMillis();
-      loger.info("导入{}条记录进数据库，耗时：{}毫秒", recordList.size(), (end - start));
+      loger.info("导入{}条白名单记录进数据库，耗时：{}毫秒", recordList.size(), (end - start));
     }
   }
 
@@ -2850,13 +2849,37 @@ public class DBUtil {
       record.setLmType(rs.getString(15));
       record.setFinisedTime(rs.getString(16));
       record.setIsJiesuaned(rs.getString(17));
+      record.setLevel(rs.getString(18));
+      record.setSumHandsCount(rs.getString(19));
       // 单独设置团队ID和俱乐部名称
-      record.setPlayerName(rs.getString(18));
-      record.setTeamId(StringUtil.nvl(rs.getString(19), "")); // 可能关联不到该人员
-      record.setClubName(rs.getString(20));
+      record.setPlayerName(rs.getString(20));
+      record.setTeamId(StringUtil.nvl(rs.getString(21), "")); // 可能关联不到该人员
+      record.setClubName(rs.getString(22));
       list.add(record);
     }
     return list;
+  }
+
+  /**
+   * 获取有效桌数统计
+   */
+  public Map<String, String> getValidLevelAndCount(String currentLMType) {
+    Map<String, String> map = new HashMap<>();
+    try {
+      con = DBConnection.getConnection();
+      String sql =
+          "SELECT max(LEVEL), count(1) FROM ( SELECT LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"+currentLMType+"' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        map.put(rs.getString(1), rs.getString(2));
+      }
+    } catch (SQLException e) {
+      ErrorUtil.err("获取有效桌数统计失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return map;
   }
 
   /**
@@ -2867,8 +2890,7 @@ public class DBUtil {
    * @param clubId
    * @return
    */
-  public List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime,
-      String clubId) {
+  public List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2932,9 +2954,9 @@ public class DBUtil {
     }
     return list;
   }
-  
-  
-  
+
+
+
   /**
    * 获取已锁定的战绩记录中最大的时间
    * 

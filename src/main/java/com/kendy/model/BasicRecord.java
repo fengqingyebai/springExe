@@ -9,7 +9,7 @@ import com.kendy.excel.excel4j.annotation.ExcelField;
  * @time 2018年7月7日 下午9:10:43
  */
 public class BasicRecord {
-
+  
   @ExcelField(title = "总手数", order = 8)
   private String sumHandsCount;
 

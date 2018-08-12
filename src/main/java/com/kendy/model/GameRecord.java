@@ -36,11 +36,16 @@ public class GameRecord extends BasicRecord {
    * 联盟类型
    */
   private String lmType;
-
+  
   /*
-   * 临时数据？？？
+   * 临时数据
    */
   private String personCount;
+
+  /*
+   * 级别
+   */
+  private String level;
 
 
   /**
@@ -83,12 +88,13 @@ public class GameRecord extends BasicRecord {
     this.lmType = lmType;
   }
 
-  public String getPersonCount() {
-    return personCount;
+  public String getLevel() {
+    return level;
   }
 
-  public void setPersonCount(String personCount) {
-    this.personCount = personCount;
+
+  public void setLevel(String level) {
+    this.level = level;
   }
 
 
@@ -159,6 +165,16 @@ public class GameRecord extends BasicRecord {
 
   public void setTeamId(String teamId) {
     this.teamId = teamId;
+  }
+
+
+  public String getPersonCount() {
+    return personCount;
+  }
+
+
+  public void setPersonCount(String personCount) {
+    this.personCount = personCount;
   }
 
 
