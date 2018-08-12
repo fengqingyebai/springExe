@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import java.net.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.media.*?>
@@ -78,7 +79,7 @@
                         <TableColumn fx:id="shangmaSumOfZJ" text="战绩总结算" />
                     </columns>
                   </TableView>
-                  <ScrollPane layoutX="47.0" layoutY="55.0" prefHeight="754.0" prefViewportHeight="849.0" prefViewportWidth="105.0" prefWidth="119.0">
+                  <ScrollPane layoutX="47.0" layoutY="70.0" prefHeight="739.0" prefViewportHeight="849.0" prefViewportWidth="105.0" prefWidth="127.0">
                      <content>
                         <VBox fx:id="shangmaVBox" layoutX="59.0" layoutY="6.0" prefHeight="1153.0" prefWidth="105.0">
                            <padding>
@@ -131,6 +132,11 @@
                   </Label>
                   <Button layoutX="197.0" layoutY="61.0" mnemonicParsing="false" onAction="#saveTeamYajinAndEduAction" prefHeight="25.0" prefWidth="49.0" text="保存" />
                   <CheckBox fx:id="smTeamShangmaCheckBox" layoutX="779.0" layoutY="51.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="团队上码" />
+            <JFXButton buttonType="RAISED" layoutX="47.0" layoutY="44.0" onAction="#setFilterTeamsAction" ripplerFill="#d78a77" text="点我过滤团队" textFill="#a17971">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </JFXButton>
                </children>
             </AnchorPane>
     </children>

@@ -1,13 +1,17 @@
 package com.kendy.controller;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.jfoenix.controls.JFXChipView;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
@@ -16,16 +20,20 @@ import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.WaizhaiInfo;
 import com.kendy.interfaces.Entity;
-import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
+import com.kendy.util.CollectUtil;
+import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -41,7 +49,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /**
@@ -78,6 +88,9 @@ public class SMController extends BaseController implements Initializable {
     logger.info("@PostConstruct SMController");
 
   }
+  
+  // 过滤团队
+  public static List<String> filterTeams = FXCollections.observableArrayList();
 
   // ===============================================================上码查询Tab
   @FXML public TableView<ShangmaInfo> tableShangma;
@@ -358,6 +371,43 @@ public class SMController extends BaseController implements Initializable {
    */
   public void saveTeamYajinAndEduAction(ActionEvent event) {
     shangmaService.updateTeamYajinAndEdu();
+  }
+  
+  /**
+   * 过滤团队
+   * 
+   * @param event
+   */
+  @FXML
+  public void setFilterTeamsAction(ActionEvent event) {
+    
+    JFXChipView<String> chipView = new JFXChipView<>();
+    chipView.getChips().addAll(filterTeams);
+    chipView.getSuggestions().addAll(dataConstants.huishuiMap.keySet());
+    chipView.setStyle("-fx-background-color: WHITE;");
+    chipView.clipProperty().addListener( e -> {
+      System.out.println(e.toString());
+    });
+
+    StackPane pane = new StackPane();
+    pane.getChildren().add(chipView);
+    StackPane.setMargin(chipView, new Insets(20));
+    pane.setStyle("-fx-background-color:white;");
+//    pane.setStyle("-fx-background-color:url(http://pic.58pic.com/58pic/14/55/95/31858PICxyH_1024.jpg)");
+
+    final Scene scene = new Scene(pane, 500, 500);
+//    scene.getStylesheets().add(SMController.class.getResource("/css/myCss.css").toExternalForm());
+    Stage stage = new Stage();
+    stage.setTitle("过滤团队【请输入后按回车键】");
+    ShowUtil.setIcon(stage);
+    stage.setScene(scene);
+    stage.show();
+    stage.setOnCloseRequest(e -> {
+      filterTeams = chipView.getChips();
+      //TODO 保存到数据库
+      
+      // 过滤界面
+    });
   }
 
   
