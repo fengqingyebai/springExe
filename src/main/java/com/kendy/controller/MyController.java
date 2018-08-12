@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -138,8 +136,6 @@ import javafx.util.Pair;
 @Component
 public class MyController extends BaseController implements Initializable {
 
-  Logger logger = Logger.getLogger(MyController.class);
-  
   @Autowired
   public DBUtil dbUtil;
   @Autowired
@@ -908,6 +904,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void importZJExcelAction(ActionEvent even) {
     String excelFilePath = getExcelPath();
+    String LMName = "";
     if(StringUtil.isBlank(excelFilePath)) {
       ShowUtil.show("亲，你还未导入E白名单呢！");
       return;
@@ -929,15 +926,21 @@ public class MyController extends BaseController implements Initializable {
         return;
       }
       if (hbox_autoTestMode.isVisible()) {
-        final_selected_LM_type = "联盟1";
-        selected_LM_type = "联盟1";
+        currentLMName = "联盟1";
       } else {
-        selectLM();
-        if (StringUtil.isBlank(selected_LM_type)) {
-          String msg = "导入战绩时没有选择对应的联盟，场次：" + tableId + " Excel不准导入！";
-          ShowUtil.show(msg);
+        try {
+          currentLMName = lmController.getLMByTableId(FileUtil.getPureTableId(excelFilePath));
+          logger.info("根据桌号{}获取到所属联盟：{}", tableId, currentLMName);
+        } catch (Exception e) {
+          ShowUtil.show(tableId + "不在联盟范围内，请到联盟对帐页面修改！");
           return;
         }
+//        selectLM();
+//        if (StringUtil.isBlank(selected_LM_type)) {
+//          String msg = "导入战绩时没有选择对应的联盟，场次：" + tableId + " Excel不准导入！";
+//          ShowUtil.show(msg);
+//          return;
+//        }
       }
       if (StringUtil.isBlank(userClubId)
           || dataConstants.Index_Table_Id_Map.containsValue(tableId)) {
@@ -948,7 +951,7 @@ public class MyController extends BaseController implements Initializable {
       try {
         // 将人员名单文件缓存起来
         List<GameRecord> gameRecords = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
-            selected_LM_type, getVersionType());
+            currentLMName, getVersionType());
         indexLabel.setText(tableId);
         importExcelData(tableId, gameRecords);
 
@@ -975,64 +978,63 @@ public class MyController extends BaseController implements Initializable {
   /**
    * 导入战绩后选择联盟
    */
-  private String selected_LM_type = "";// 选择后会被清空
-  private String final_selected_LM_type = "";// 选择后不会被清空，用于检测额度是否超出
+  private String currentLMName = "";// 选择后不会被清空，用于检测额度是否超出
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private void selectLM() {
-    Dialog dialog = FXUtil.getBasicDialog("请选择联盟:"); 
-    // 添加联盟按钮
-    GridPane grid = new GridPane();
-    grid.setPrefHeight(150);
-    grid.setPrefWidth(200);
-    grid.setHgap(10);
-    grid.setVgap(20);
-    grid.setPadding(new Insets(20, 15, 10, 10));
-    for (int i = 0; i < 3; i++) {
-      Button btn = new Button("联盟" + (i + 1));
-      btn.setPrefWidth(200);
-      btn.setOnAction(event -> {
-        selected_LM_type = btn.getText();
-        dialog.setTitle(selected_LM_type);
-        logger.info(selected_LM_type);
-      });
-      grid.add(btn, 0, i);
-    }
-    // 添加取消按钮
-    HBox hbox = new HBox();
-    hbox.setPadding(new Insets(0, 0, 0, 70));
-    hbox.setSpacing(10);
-    hbox.setStyle("-fx-background-color:#FFFFFF;");
-
-    Hyperlink cancleLink = new Hyperlink("取消");
-    cancleLink.setPrefWidth(100);
-    cancleLink.setOnAction(event -> {
-      selected_LM_type = "";
-      dialog.close();
-    });
-    hbox.getChildren().addAll(cancleLink);
-    grid.add(hbox, 0, 3);
-
-    // 添加确定按钮
-    ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
-    dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-
-    dialog.setOnCloseRequest(event -> {
-      final_selected_LM_type = StringUtil.nvl(selected_LM_type, "联盟1");
-      if ("".equals(selected_LM_type)) {
-        return;
-      }
-      if (AlertUtil.confirm("==== " + selected_LM_type + " ===, 确定??")) {
-        logger.info("最终选择:" + selected_LM_type);
-      } else {
-        selected_LM_type = "";
-        logger.info("selected_LM_type:" + selected_LM_type);
-      }
-    });
-
-    dialog.getDialogPane().setContent(grid);
-    dialog.showAndWait();
-  }
+//  @SuppressWarnings({"rawtypes", "unchecked"})
+//  private void selectLM() {
+//    Dialog dialog = FXUtil.getBasicDialog("请选择联盟:"); 
+//    // 添加联盟按钮
+//    GridPane grid = new GridPane();
+//    grid.setPrefHeight(150);
+//    grid.setPrefWidth(200);
+//    grid.setHgap(10);
+//    grid.setVgap(20);
+//    grid.setPadding(new Insets(20, 15, 10, 10));
+//    for (int i = 0; i < 3; i++) {
+//      Button btn = new Button("联盟" + (i + 1));
+//      btn.setPrefWidth(200);
+//      btn.setOnAction(event -> {
+//        selected_LM_type = btn.getText();
+//        dialog.setTitle(selected_LM_type);
+//        logger.info(selected_LM_type);
+//      });
+//      grid.add(btn, 0, i);
+//    }
+//    // 添加取消按钮
+//    HBox hbox = new HBox();
+//    hbox.setPadding(new Insets(0, 0, 0, 70));
+//    hbox.setSpacing(10);
+//    hbox.setStyle("-fx-background-color:#FFFFFF;");
+//
+//    Hyperlink cancleLink = new Hyperlink("取消");
+//    cancleLink.setPrefWidth(100);
+//    cancleLink.setOnAction(event -> {
+//      selected_LM_type = "";
+//      dialog.close();
+//    });
+//    hbox.getChildren().addAll(cancleLink);
+//    grid.add(hbox, 0, 3);
+//
+//    // 添加确定按钮
+//    ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
+//    dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+//
+//    dialog.setOnCloseRequest(event -> {
+//      final_selected_LM_type = StringUtil.nvl(selected_LM_type, "联盟1");
+//      if ("".equals(selected_LM_type)) {
+//        return;
+//      }
+//      if (AlertUtil.confirm("==== " + selected_LM_type + " ===, 确定??")) {
+//        logger.info("最终选择:" + selected_LM_type);
+//      } else {
+//        selected_LM_type = "";
+//        logger.info("selected_LM_type:" + selected_LM_type);
+//      }
+//    });
+//
+//    dialog.getDialogPane().setContent(grid);
+//    dialog.showAndWait();
+//  }
 
   /**
    * 导入合并ID模板 备注：后期要判断是否在父子ID是否在同一个团队里面
@@ -1680,7 +1682,7 @@ public class MyController extends BaseController implements Initializable {
           ErrorUtil.err(e.getMessage(), e);
         }
         lmController.refreshClubList();
-        lmController.checkOverEdu(final_selected_LM_type);// 检查俱乐部额度
+        lmController.checkOverEdu(currentLMName);// 检查俱乐部额度
 
 
         // 当局已结算的团队服务费之和 要置为0
@@ -2083,7 +2085,7 @@ public class MyController extends BaseController implements Initializable {
       // 备份到01场次
       try {
         // 如果以下三个有没有数据则可判断还没导入最新的Excel
-        selected_LM_type = "";
+//        selected_LM_type = "";
         if (tableTotalInfo.getItems() == null || tablePaiju.getItems() == null
             || tableTotalInfo.getItems().size() == 0 || tablePaiju.getItems().size() == 0) {
           ShowUtil.show("您还没有导入数据", 1);
@@ -2933,8 +2935,7 @@ public class MyController extends BaseController implements Initializable {
     List<GameRecord> blankDataList = new ArrayList<GameRecord>();
     // 存储数据 {场次=infoList...}
     dataConstants.zjMap.put(tableId, blankDataList);
-    final_selected_LM_type = "联盟1";
-    selected_LM_type = "联盟1";
+    currentLMName = "联盟1";
     lmController.currentRecordList = new ArrayList<>();
 
     indexLabel.setText("第" + tableId + "局");

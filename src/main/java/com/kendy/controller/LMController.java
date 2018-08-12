@@ -8,16 +8,21 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
@@ -30,8 +35,9 @@ import com.kendy.excel.ExportAllLMExcel;
 import com.kendy.excel.ExportLMExcel;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
-import com.kendy.util.ErrorUtil;
 import com.kendy.util.DialogUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -45,14 +51,12 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
@@ -148,6 +152,9 @@ public class LMController extends BaseController implements Initializable {
 
     // 同步所有俱乐部信息总列表
     refresh_eachClubList();
+    
+    // 加载联盟配范围置项
+    loadLMConfig();
 
     // 设置合计桌费（这个没多大影响）
     setNewSumOfZF();
@@ -1560,6 +1567,108 @@ public class LMController extends BaseController implements Initializable {
     int index =
         StringUtil.isBlank(currentType) ? 1 : Integer.valueOf(currentType.replaceAll("联盟", ""));
     return index;
+  }
+  
+  
+  /******************************************************************
+   * 
+   *                    新增联盟配置（导入白名单时自动选择Excel)
+   *                    
+   ******************************************************************/
+  @FXML
+  public TextField FieldLM1;
+  @FXML
+  public TextField FieldLM2;
+  @FXML
+  public TextField FieldLM3;
+  public static final String LM_CONFIG_KEY = "lmConfig";
+  public Map<Integer, LMRange> lmRangeMap = new HashMap<>();
+  
+  //保存配置
+  @FXML
+  public void saveLMConfigAction(ActionEvent event) {
+    String valueLM1 = StringUtil.nvl(FieldLM1.getText(),"");
+    String valueLM2 = StringUtil.nvl(FieldLM2.getText(),"");
+    String valueLM3 = StringUtil.nvl(FieldLM3.getText(),"");
+    lmRangeMap.put(1, new LMRange(1, valueLM1));
+    lmRangeMap.put(2, new LMRange(2, valueLM2));
+    lmRangeMap.put(3, new LMRange(3, valueLM3));
+    dbUtil.saveOrUpdateOthers(LM_CONFIG_KEY, JSON.toJSONString(lmRangeMap));
+    FXUtil.info("保存成功！");
+  }
+  //加载联盟范围配置项
+  private void loadLMConfig() {
+    String lmConfigJson = dbUtil.getValueByKey(LM_CONFIG_KEY);
+    if (lmConfigJson != null && lmConfigJson != "{}") {
+      lmRangeMap = JSON.parseObject(lmConfigJson, new TypeReference<Map<Integer, LMRange>>() {});
+      if (lmRangeMap.size() == 3) {
+        FieldLM1.setText(
+            lmRangeMap.values().stream().filter(e -> 1 == e.getType()).findFirst().get().getOriginalValue());
+        FieldLM2.setText(
+            lmRangeMap.values().stream().filter(e -> 2 == e.getType()).findFirst().get().getOriginalValue());
+        FieldLM3.setText(
+            lmRangeMap.values().stream().filter(e -> 3 == e.getType()).findFirst().get().getOriginalValue());
+        logger.info("从数据库回甘联盟范围配置项：" + lmRangeMap.values().stream().map(e->e.getOriginalValue()).collect(Collectors.joining(",")));
+      }
+    }else {
+      logger.info("当前数据库未有联盟范围配置项");
+    }
+  }
+  
+  // 当前导入的桌号是否在联盟范围内
+  public String getLMByTableId(String tableId) throws Exception {
+    Integer lmType = lmRangeMap.values().stream().filter(e -> e.contains(tableId)).findFirst()
+        .map(e -> e.getType()).orElseThrow(Exception::new);
+    return "联盟" + lmType;
+  }
+  
+  /**
+   * 单个联盟范围
+   *
+   */
+  public static class LMRange {
+    private int type;
+    private String originalValue;
+    
+    public LMRange() {
+      super();
+    }
+    
+    public LMRange(int type, String rangeString) {
+      super();
+      this.type = type;
+      this.originalValue = rangeString;
+    }
+    
+    public boolean contains(String tableId) {
+      if(StringUtil.isNotBlank(originalValue)) {
+        String[] rangeArr = originalValue.trim().split("#");
+        for(String singleRange : rangeArr) {
+          singleRange = singleRange.trim();
+          String[] singleRangeValue = singleRange.trim().split("-");
+          if(singleRangeValue != null && singleRangeValue.length == 2) {
+            int start = Integer.valueOf(singleRangeValue[0]);
+            int end = Integer.valueOf(singleRangeValue[1]);
+            int value = Integer.valueOf(tableId);
+            return value >= start && value <= end;
+          }
+        }
+      }
+      return false;
+    }
+    public int getType() {
+      return type;
+    }
+    public void setType(int type) {
+      this.type = type;
+    }
+    public String getOriginalValue() {
+      return originalValue;
+    }
+    public void setOriginalValue(String originalValue) {
+      this.originalValue = originalValue;
+    }
+    
   }
   
   @Override

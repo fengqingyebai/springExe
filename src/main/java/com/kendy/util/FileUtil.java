@@ -1,13 +1,7 @@
 package com.kendy.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -39,6 +33,12 @@ public class FileUtil {
     String tableId =
         pathString.substring(pathString.lastIndexOf("-") + 1, pathString.lastIndexOf("."));
     return "第" + tableId + "局";
+  }
+  
+  public static String getPureTableId(String pathString) {
+    String tableId =
+        pathString.substring(pathString.lastIndexOf("-") + 1, pathString.lastIndexOf("."));
+    return tableId;
   }
   
   /**

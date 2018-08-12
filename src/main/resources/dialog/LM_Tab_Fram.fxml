@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import java.net.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.media.*?>
@@ -22,17 +23,41 @@
           <items>
              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="355.0">
                 <children>
-                   <Button layoutX="104.0" layoutY="230.0" mnemonicParsing="false" onAction="#updateClubAction" prefHeight="23.0" prefWidth="170.0" text="修改俱乐部额度" />
-                   <Label layoutX="28.0" layoutY="126.0" prefHeight="24.0" prefWidth="156.0" text="俱乐部操作区：" />
-                   <Button layoutX="104.0" layoutY="168.0" mnemonicParsing="false" onAction="#updateClubNameAction" prefHeight="23.0" prefWidth="171.0" text="修改俱乐部名称" />
-                   <Button layoutX="111.0" layoutY="417.0" mnemonicParsing="false" onAction="#exportSingleClubAction" prefHeight="23.0" prefWidth="163.0" text="导出当前俱乐部帐单" />
-                   <Button layoutX="110.0" layoutY="521.0" mnemonicParsing="false" onAction="#exportAllClubAction" prefHeight="23.0" prefWidth="163.0" text="导出所有俱乐部总帐单" />
-                   <Label layoutX="25.0" layoutY="374.0" prefHeight="24.0" prefWidth="156.0" text="导出Excel文件：" />
-                  <Button layoutX="104.0" layoutY="294.0" mnemonicParsing="false" onAction="#change_club_gudong_Action" prefHeight="23.0" prefWidth="170.0" text="修改俱乐部股东" />
+                   <Button layoutX="102.0" layoutY="382.0" mnemonicParsing="false" onAction="#updateClubAction" prefHeight="23.0" prefWidth="170.0" text="修改俱乐部额度" />
+                   <Label layoutX="26.0" layoutY="300.0" prefHeight="24.0" prefWidth="156.0" text="俱乐部操作区：" />
+                   <Button layoutX="102.0" layoutY="342.0" mnemonicParsing="false" onAction="#updateClubNameAction" prefHeight="23.0" prefWidth="171.0" text="修改俱乐部名称" />
+                   <Button layoutX="100.0" layoutY="521.0" mnemonicParsing="false" onAction="#exportSingleClubAction" prefHeight="23.0" prefWidth="170.0" text="导出当前俱乐部帐单" />
+                   <Button layoutX="99.0" layoutY="608.0" mnemonicParsing="false" onAction="#exportAllClubAction" prefHeight="23.0" prefWidth="170.0" text="导出所有俱乐部总帐单" />
+                   <Label layoutX="14.0" layoutY="478.0" prefHeight="24.0" prefWidth="156.0" text="       导出文件：" />
+                  <Button layoutX="102.0" layoutY="426.0" mnemonicParsing="false" onAction="#change_club_gudong_Action" prefHeight="23.0" prefWidth="170.0" text="修改俱乐部股东" />
                   <Button layoutX="28.0" layoutY="69.0" mnemonicParsing="false" onAction="#LM1_Btn_Action" prefHeight="23.0" prefWidth="71.0" text="联盟1" />
                   <Button layoutX="118.0" layoutY="69.0" mnemonicParsing="false" onAction="#LM2_Btn_Action" prefHeight="23.0" prefWidth="71.0" text="联盟2" />
                   <Button layoutX="211.0" layoutY="69.0" mnemonicParsing="false" onAction="#LM3_Btn_Action" prefHeight="23.0" prefWidth="71.0" text="联盟3" />
-                  <Button layoutX="109.0" layoutY="468.0" mnemonicParsing="false" onAction="#exportClubOneKeyAction" prefHeight="23.0" prefWidth="163.0" text="一键导出俱乐部帐单" />
+                  <Button layoutX="98.0" layoutY="564.0" mnemonicParsing="false" onAction="#exportClubOneKeyAction" prefHeight="23.0" prefWidth="170.0" text="一键导出俱乐部帐单" />
+                  <Label layoutX="24.0" layoutY="128.0" prefHeight="24.0" prefWidth="136.0" text="导入白名单配置：" />
+                  <VBox layoutX="47.0" layoutY="165.0" spacing="10.0">
+                     <children>
+                        <HBox layoutX="34.0" layoutY="153.0">
+                           <children>
+                              <Label layoutX="34.0" layoutY="153.0" prefHeight="24.0" prefWidth="53.0" text="联盟1：" />
+                              <TextField fx:id="FieldLM1" layoutX="90.0" layoutY="154.0" />
+                           </children>
+                        </HBox>
+                        <HBox layoutX="36.0" layoutY="182.0">
+                           <children>
+                              <Label layoutX="36.0" layoutY="182.0" prefHeight="24.0" prefWidth="53.0" text="联盟2：" />
+                              <TextField fx:id="FieldLM2" layoutX="90.0" layoutY="183.0" />
+                           </children>
+                        </HBox>
+                        <HBox layoutX="35.0" layoutY="211.0">
+                           <children>
+                              <Label layoutX="35.0" layoutY="211.0" prefHeight="24.0" prefWidth="53.0" text="联盟3：" />
+                              <TextField fx:id="FieldLM3" layoutX="90.0" layoutY="212.0" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <JFXButton layoutX="138.0" layoutY="129.0" onAction="#saveLMConfigAction" text="点我保存" textFill="#2041ff" />
                 </children>
              </AnchorPane>
              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="783.0" prefWidth="897.0">

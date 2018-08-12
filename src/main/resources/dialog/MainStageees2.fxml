@@ -171,7 +171,7 @@
                                           <AnchorPane prefHeight="24.0" prefWidth="19.0" />
                                           <Button fx:id="checkExcelBtn" mnemonicParsing="false" onAction="#checkExcelAction" prefHeight="23.0" prefWidth="47.0" text="校验" />
                                           <AnchorPane prefHeight="24.0" prefWidth="19.0" />
-                                          <Button fx:id="importZJBtn1" mnemonicParsing="false" onAction="#openCancelAlertAction" prefHeight="23.0" prefWidth="65.0" text="撤销" visible="false" />
+                                          <Button fx:id="importZJBtn1" mnemonicParsing="false" onAction="#openCancelAlertAction" prefHeight="23.0" prefWidth="34.0" text="撤销" visible="false" />
                                           <AnchorPane prefHeight="24.0" prefWidth="19.0" />
                                           <Button fx:id="importZJBtn" mnemonicParsing="false" onAction="#importZJExcelAction" prefHeight="23.0" prefWidth="65.0" text="导入" />
                                        </children>
