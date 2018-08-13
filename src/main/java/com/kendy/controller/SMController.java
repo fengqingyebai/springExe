@@ -11,6 +11,8 @@ import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.jfoenix.controls.JFXChipView;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
@@ -19,6 +21,7 @@ import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.WaizhaiInfo;
+import com.kendy.enums.KeyEnum;
 import com.kendy.interfaces.Entity;
 import com.kendy.service.ShangmaService;
 import com.kendy.util.CollectUtil;
@@ -91,6 +94,7 @@ public class SMController extends BaseController implements Initializable {
   
   // 过滤团队
   public static List<String> filterTeams = FXCollections.observableArrayList();
+  private final String FILTER_TEAM_KEY = KeyEnum.SM_FILTER_TEAM_DB_KEY.getKeyName();
 
   // ===============================================================上码查询Tab
   @FXML public TableView<ShangmaInfo> tableShangma;
@@ -137,6 +141,9 @@ public class SMController extends BaseController implements Initializable {
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void initialize(URL location, ResourceBundle resources) {
+    
+    // 加载被过滤的团队
+    loadFilterTeams();
 
     // 绑定实时上码表
     bindCellValueByTable(new ShangmaInfo(), tableShangma);
@@ -171,6 +178,7 @@ public class SMController extends BaseController implements Initializable {
     
     // 实时上马系统
     shangmaService.initShangma();
+    
 
   }
   
@@ -374,6 +382,16 @@ public class SMController extends BaseController implements Initializable {
   }
   
   /**
+   * 加载被过滤的团队，进行缓存
+   */
+  private void loadFilterTeams() {
+    String jsonFilterTeams = dbUtil.getValueByKey(FILTER_TEAM_KEY);
+    if(StringUtil.isNotBlank(jsonFilterTeams) && !jsonFilterTeams.equals("{}")) {
+      filterTeams = JSON.parseObject(jsonFilterTeams, new TypeReference<List<String>>() {});
+    }
+  }
+  
+  /**
    * 过滤团队
    * 
    * @param event
@@ -404,10 +422,17 @@ public class SMController extends BaseController implements Initializable {
     stage.show();
     stage.setOnCloseRequest(e -> {
       filterTeams = chipView.getChips();
-      //TODO 保存到数据库
+      // 保存到数据库
+      String jsonString = JSON.toJSONString(filterTeams);
+      dbUtil.saveOrUpdateOthers(FILTER_TEAM_KEY, jsonString);
       
-      // 过滤界面
     });
+  }
+  
+  @FXML
+  public void refreshTeamsAction(ActionEvent event) {
+    // 刷新团队表（隐藏相应的团队）
+    shangmaService.initShangmaButton();
   }
 
   

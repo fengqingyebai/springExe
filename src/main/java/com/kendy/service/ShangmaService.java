@@ -190,7 +190,12 @@ public class ShangmaService{
     if (teamIdSet != null && teamIdSet.size() > 0) {
       List<String> list = new ArrayList<>();
       teamIdSet.forEach(teamId -> {
-        list.add(teamId);
+        boolean filterTeam = SMController.filterTeams.stream().anyMatch(e->teamId.equals(e));
+        if(filterTeam) {
+          // 不添加到list中
+        }else {
+          list.add(teamId);
+        }
       });
       Collections.sort(list);
       for (String teamId : list) {

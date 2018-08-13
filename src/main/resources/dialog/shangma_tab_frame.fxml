@@ -132,7 +132,12 @@
                   </Label>
                   <Button layoutX="197.0" layoutY="61.0" mnemonicParsing="false" onAction="#saveTeamYajinAndEduAction" prefHeight="25.0" prefWidth="49.0" text="保存" />
                   <CheckBox fx:id="smTeamShangmaCheckBox" layoutX="779.0" layoutY="51.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="团队上码" />
-            <JFXButton buttonType="RAISED" layoutX="47.0" layoutY="44.0" onAction="#setFilterTeamsAction" ripplerFill="#d78a77" text="点我过滤团队" textFill="#a17971">
+            <JFXButton buttonType="RAISED" layoutX="35.0" layoutY="44.0" onAction="#setFilterTeamsAction" ripplerFill="#d78a77" text="过滤团队" textFill="#a17971">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </JFXButton>
+            <JFXButton buttonType="RAISED" layoutX="120.0" layoutY="44.0" onAction="#refreshTeamsAction" prefHeight="23.0" prefWidth="66.0" ripplerFill="#d78a77" text="刷新团队" textFill="#a17971">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
