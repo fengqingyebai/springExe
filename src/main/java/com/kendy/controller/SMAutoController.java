@@ -1047,7 +1047,7 @@ public class SMAutoController extends BaseController implements Initializable {
   private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
     originalRoomName = originalRoomName.replace("/", "-").replace("%20", "-");
     originalRoomName = FilterUtf8mb4.filterUtf8mb4(originalRoomName);
-    return "战绩导出-" + originalRoomName + ".xls";
+    return finishedTime +"#战绩导出-" + originalRoomName + ".xls";
   }
 
   /**

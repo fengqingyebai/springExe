@@ -1652,6 +1652,7 @@ public class LMController extends BaseController implements Initializable {
     public boolean contains(String tableId) {
       if(StringUtil.isNotBlank(originalValue)) {
         String[] rangeArr = originalValue.trim().split("#");
+        boolean isContains = false;
         for(String singleRange : rangeArr) {
           singleRange = singleRange.trim();
           String[] singleRangeValue = singleRange.trim().split("-");
@@ -1659,7 +1660,10 @@ public class LMController extends BaseController implements Initializable {
             int start = Integer.valueOf(singleRangeValue[0]);
             int end = Integer.valueOf(singleRangeValue[1]);
             int value = Integer.valueOf(tableId);
-            return value >= start && value <= end;
+            isContains =  (value >= start && value <= end);
+            if(isContains) {
+              return true;
+            }
           }
         }
       }

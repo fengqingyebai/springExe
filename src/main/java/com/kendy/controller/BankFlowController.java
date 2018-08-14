@@ -357,7 +357,7 @@ public class BankFlowController extends BaseController implements Initializable 
   }
 
   /**
-   * 查看历史统计信息
+   * 下拉
    * 
    * @time 2018年7月1日
    * @param event
@@ -367,6 +367,11 @@ public class BankFlowController extends BaseController implements Initializable 
     scrollDates.setVvalue(scrollDates.getVmax());
   }
 
+  /**
+   * 返回
+   * 
+   * @param event
+   */
   @FXML
   public void seeDetailStaticAction(ActionEvent event) {
     scrollDates.setVvalue(scrollDates.getVmin());
