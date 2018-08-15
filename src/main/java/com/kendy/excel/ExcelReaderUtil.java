@@ -341,6 +341,9 @@ public class ExcelReaderUtil {
       if(level.contains("战绩导出")) {
         level = fileaName.substring(fileaName.indexOf("战绩导出")+5);
       }
+      if(level.length() > 18) {
+        throw new Exception("获取级别出错，战绩名称是：" + pathString);
+      }
     } catch (Exception e) {
       log.error("通过{}获取级别失败！", pathString);
     }
