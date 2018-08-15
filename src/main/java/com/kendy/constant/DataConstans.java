@@ -376,7 +376,7 @@ public class DataConstans {
     // 缓存120场次的所有锁定数据{页数第几局={...}}
     All_Locked_Data_Map = JSON.parseObject(map.get("All_Locked_Data_Map"),
         new TypeReference<Map<String, Map<String, String>>>() {});
-    logger.info("加载锁定数据：" + All_Locked_Data_Map == null ? "为null!" : "不为空");
+    logger.info("加载锁定数据：" + (All_Locked_Data_Map == null ? "为null!" : "不为空"));
 
     // 锁定后是第X局
     Paiju_Index = JSON.parseObject(map.get("Paiju_Index"), new TypeReference<AtomicInteger>() {});

@@ -338,6 +338,9 @@ public class ExcelReaderUtil {
       String fileaName = pathString.substring(pathString.lastIndexOf(split)+1, pathString.lastIndexOf("-"));
       fileaName = FilterUtf8mb4.filterUtf8mb4(fileaName);
       level = fileaName.substring(fileaName.indexOf("-")+1);
+      if(level.contains("战绩导出")) {
+        level = fileaName.substring(fileaName.indexOf("战绩导出")+5);
+      }
     } catch (Exception e) {
       log.error("通过{}获取级别失败！", pathString);
     }
