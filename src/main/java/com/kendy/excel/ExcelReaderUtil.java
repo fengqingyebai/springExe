@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.LMController;
+import com.kendy.controller.MyController;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.excel.excel4j.ExcelUtils;
@@ -53,19 +55,22 @@ import com.kendy.util.StringUtil;
  */
 @Component
 public class ExcelReaderUtil {
-  
+
+  @Autowired
+  private MyController myController;
+
   @Autowired
   private MoneyService moneyService;
-  
+
   @Autowired
   private DataConstans dataConstans;
-  
+
   @Autowired
   private LMController lmController;
-  
-//  public static ExcelReaderUtil instance = new ExcelReaderUtil();
 
-  private  Logger log = LoggerFactory.getLogger(ExcelReaderUtil.class);
+  // public static ExcelReaderUtil instance = new ExcelReaderUtil();
+
+  private Logger log = LoggerFactory.getLogger(ExcelReaderUtil.class);
 
   private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -78,11 +83,9 @@ public class ExcelReaderUtil {
     List<GameRecord> basicRecords =
         ExcelUtils.getInstance().readExcel2Objects(excelPath, GameRecord.class, 1, 0);
 
-    //log.info("finishes..." + basicRecords.size());
+    // log.info("finishes..." + basicRecords.size());
   }
-  
-  
-  
+
 
 
   /**
@@ -303,8 +306,8 @@ public class ExcelReaderUtil {
    * @param versionType
    * @return
    */
-  public List<GameRecord> readZJRecord(String excelFilePath, String userClubId,
-      String LMType, int versionType) throws Exception {
+  public List<GameRecord> readZJRecord(String excelFilePath, String userClubId, String LMType,
+      int versionType) throws Exception {
     if (0 == versionType) {
       return null;
     } else {
@@ -324,7 +327,7 @@ public class ExcelReaderUtil {
       ShowUtil.show("提示：总手数为0！");
     }
   }
-  
+
   /*
    * 获取级别
    */
@@ -332,16 +335,17 @@ public class ExcelReaderUtil {
     String level = "";
     try {
       String split = "\\";
-      if(!pathString.contains(split)) {
+      if (!pathString.contains(split)) {
         split = "/";
       }
-      String fileaName = pathString.substring(pathString.lastIndexOf(split)+1, pathString.lastIndexOf("-"));
+      String fileaName =
+          pathString.substring(pathString.lastIndexOf(split) + 1, pathString.lastIndexOf("-"));
       fileaName = FilterUtf8mb4.filterUtf8mb4(fileaName);
-      level = fileaName.substring(fileaName.indexOf("-")+1);
-      if(level.contains("战绩导出")) {
-        level = fileaName.substring(fileaName.indexOf("战绩导出")+5);
+      level = fileaName.substring(fileaName.indexOf("-") + 1);
+      if (level.contains("战绩导出")) {
+        level = fileaName.substring(fileaName.indexOf("战绩导出") + 5);
       }
-      if(level.length() > 18) {
+      if (level.length() > 18) {
         throw new Exception("获取级别出错，战绩名称是：" + pathString);
       }
     } catch (Exception e) {
@@ -361,6 +365,17 @@ public class ExcelReaderUtil {
     // 获取所有记录
     List<GameRecord> gameRecords =
         ExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
+
+    if (CollectUtil.isHaveValue(gameRecords)) {
+      Optional<GameRecord> noneExistPlayer =
+          gameRecords.stream().filter(e -> e.getClubId().equals(myController.getClubId()))
+              .filter(e -> dataConstans.membersMap.get(e.getPlayerId()) == null).findFirst();
+      if (noneExistPlayer.isPresent()) {
+        GameRecord gameRecord = noneExistPlayer.get();
+        throw new Exception(" 玩家【" + gameRecord.getPlayerName() + "】，ID【"
+            + gameRecord.getPlayerId() + "】不存在于系统中，请先建立该玩家信息！");
+      }
+    }
     String tableId = FileUtil.getTableId(excelFilePath);
     // 补全每条记录的值
     moneyService.fillGameRecords(gameRecords, tableId, getLevel(excelFilePath), LMType);
@@ -446,8 +461,7 @@ public class ExcelReaderUtil {
    * @throws Exception
    * 
    */
-  private Map<String, String> getMapByPosition(Sheet sheet, int x, int y, int x2)
-      throws Exception {
+  private Map<String, String> getMapByPosition(Sheet sheet, int x, int y, int x2) throws Exception {
     Map<String, String> resultMap = new LinkedHashMap<>();
     String key = "";
     for (int i = x; i <= x2; i++) {
@@ -565,33 +579,33 @@ public class ExcelReaderUtil {
 
     // 昨日留底总数据结构
     List<CombineID> combinIds = new ArrayList<>();
-    
+
     if (!file.exists() || !file.isFile()) {
       return combinIds;
     }
-    
-    try(FileInputStream is = new FileInputStream(file)){
+
+    try (FileInputStream is = new FileInputStream(file)) {
       log.info("开始导入合并ID模板Excel");
       List<List<String>> originalList = ExcelUtils.getInstance().readExcel2List(is, 1);
-      if(CollectUtil.isEmpty(originalList))
+      if (CollectUtil.isEmpty(originalList))
         return combinIds;
-      
-      //转换成想要的数据结构
-      Predicate<List<String>> filterBlank = e ->  {
+
+      // 转换成想要的数据结构
+      Predicate<List<String>> filterBlank = e -> {
         return e != null && StringUtil.isAllNotBlank(e.get(0), e.get(1));
       };
-      final String SPLIT = "#"; 
+      final String SPLIT = "#";
       originalList.stream().filter(filterBlank).forEach(e -> {
         String parentId = e.get(0);
         Set<String> subIdSet = new HashSet<>(Arrays.asList(e.get(1).split(SPLIT)));
         combinIds.add(new CombineID(parentId, subIdSet));
       });
-      
+
       log.info("结束导入合并ID模板Excel" + " ==size:" + combinIds.size());
-    }catch(Exception e) {
+    } catch (Exception e) {
       throw e;
     }
-    
+
     return combinIds;
   }
 

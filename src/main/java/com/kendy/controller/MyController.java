@@ -906,7 +906,7 @@ public class MyController extends BaseController implements Initializable {
     String excelFilePath = getExcelPath();
     String LMName = "";
     if(StringUtil.isBlank(excelFilePath)) {
-      ShowUtil.show("亲，你还未导入E白名单呢！");
+      ShowUtil.show("亲，你还未导入白名单呢！");
       return;
     }
     String userClubId = getClubId();

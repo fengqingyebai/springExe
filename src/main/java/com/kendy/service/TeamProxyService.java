@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -406,7 +407,7 @@ public class TeamProxyService {
         boolean isExist = false;
         for (GameRecord teamInfo : teamHuishuiList) {
           if (teamInfo.getTableId().equals(info.getTableId())
-              && teamInfo.getPlayerName().equals(info.getPlayerName())) {
+              && StringUtils.equals(teamInfo.getPlayerName(), info.getPlayerName())) {
             isExist = true;
           }
         }
