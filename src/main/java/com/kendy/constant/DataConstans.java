@@ -411,8 +411,12 @@ public class DataConstans {
 
   /**************************************************************************************
    * 
-   * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合 Map<String, List<GameRecord>> zjMap :
-   * 当前俱乐部的记录，以场次GroupBy Map<String,List<GameRecord>> Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy
+   * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合
+   * <p>
+   * Map<String, List<GameRecord>> zjMap : 当前俱乐部的记录，以场次GroupBy 
+   * <p>
+   * Map<String,List<GameRecord>> Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy
+   * <p>
    * Map<String,List<GameRecord>> Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
    * 
    **************************************************************************************/
