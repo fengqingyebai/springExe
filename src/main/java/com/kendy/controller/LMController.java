@@ -410,7 +410,8 @@ public class LMController extends BaseController implements Initializable {
       int sumOfEachClubPersonCount = 0;
       for (GameRecord record : list) {
         sumOfEachClubZJ += NumUtil.getNum(record.getYszj());
-        sumOfEachClubInsure += NumUtil.getNum(record.getSinegleInsurance());
+//        sumOfEachClubInsure += NumUtil.getNum(record.getSinegleInsurance());
+        sumOfEachClubInsure += NumUtil.getNum(record.getClubInsurance());
         sumOfEachClubPersonCount += NumUtil.getNum(record.getPersonCount());
       }
       info1.setLmSumZJ(NumUtil.digit0("" + sumOfEachClubZJ));
