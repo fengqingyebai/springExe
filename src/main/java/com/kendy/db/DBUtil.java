@@ -2761,6 +2761,36 @@ public class DBUtil {
       close(con, ps);
     }
   }
+  
+  /**
+   * 更改记录的已结算字段
+   * <P>
+   * 用于场次信息中的团队累积
+   * 
+   * @param softTime
+   * @param clubId
+   * @param teamId
+   */
+  public void updateRecordJiesuan(String softTime, String clubId, String teamId) {
+    try {
+      con = DBConnection.getConnection();
+      String sql = "update game_record r " 
+      + "left join members m on r.playerId = m.playerId " 
+      + "set isJiesuaned = '1' " 
+      + "where soft_time = ? and clubId= ? and m.teamId = ? and isJiesuaned = '0'";
+      ps = con.prepareStatement(sql);
+      ps.setString(1, softTime);
+      ps.setString(2, clubId);
+      ps.setString(3, teamId);
+      ps.execute();
+      loger.info("更改记录的已结算字段");
+    } catch (SQLException e) {
+      ErrorUtil.err("更改记录的已结算字段失败", e);
+    } finally {
+      close(con, ps);
+    }
+  }
+  
 
   /**
    * 联盟对帐批量插入战绩记录
@@ -2868,7 +2898,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql =
-          "SELECT max(LEVEL), count(1) FROM ( SELECT LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"+currentLMType+"' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
+          "SELECT max(LEVEL), count(DISTINCT tableId) FROM ( SELECT tableId,LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"+currentLMType+"' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {

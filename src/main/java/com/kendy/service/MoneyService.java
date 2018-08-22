@@ -16,6 +16,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,7 +183,7 @@ public class MoneyService{
 
       /*************************************************** 缓存各团队回水记录 *****************/
       teamId = teamId.toUpperCase();
-      if (!StringUtil.isBlank(teamId)) {
+      if (StringUtil.isNotBlank(teamId)) {
         // 缓存到当局团队战绩信息中
         dataConstants.Dangju_Team_Huishui_List.add(r);
 
@@ -190,10 +191,7 @@ public class MoneyService{
           relatedTeamIdSet.add(teamId);
         }
         // 缓存到总团队回水中(结算按钮后从中减少)
-        teamHuishuiList = dataConstants.Team_Huishui_Map.get(teamId);
-        if (teamHuishuiList == null) {
-          teamHuishuiList = new ArrayList<>();
-        }
+        teamHuishuiList = dataConstants.Team_Huishui_Map.getOrDefault(teamId, new ArrayList<>());
         teamHuishuiList.add(r);
         dataConstants.Team_Huishui_Map.put(teamId, teamHuishuiList);
       } else {
@@ -449,13 +447,16 @@ public class MoneyService{
     sum_teamHS_and_teamBS = 0;
     // 准备数据
     ObservableList<TeamInfo> list = FXCollections.observableArrayList();
+    Map<String, List<GameRecord>> test = dataConstants.Team_Huishui_Map;
     relatedTeamIdSet = dataConstants.Team_Huishui_Map.keySet();// 这是后期增加：查看所有团队
     relatedTeamIdSet.forEach(relatedTeamId -> {
       if (!"公司".equals(relatedTeamId)) {
         double sumOfZJ = 0.0;
         double sumOfHS = 0.0;
         double sumOfBS = 0.0;
-        List<GameRecord> teamLS = dataConstants.Team_Huishui_Map.get(relatedTeamId);
+        List<GameRecord> teamLS = dataConstants.Team_Huishui_Map.getOrDefault(relatedTeamId, new ArrayList<>());
+        //只获取未结算的数据
+        teamLS = teamLS.stream().filter(e->"0".equals(e.getIsJiesuaned())).collect(Collectors.toList());
         for (GameRecord info : teamLS) {
           sumOfZJ += Double.valueOf(info.getShishou());
           sumOfHS += Math.abs(Double.valueOf(info.getChuHuishui()));

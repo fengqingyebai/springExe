@@ -14,12 +14,12 @@ import javafx.stage.Stage;
 
 /**
  * 程序主窗口
- * 
+ *
  * @author 林泽涛
  * @time 2017年10月21日 下午10:01:39
  */
 public class Main extends Application {
-  
+
   public static final SpringFxmlLoader loader = new SpringFxmlLoader();
 
   private Logger log = LoggerFactory.getLogger(Main.class);
@@ -39,7 +39,7 @@ public class Main extends Application {
 //      scene.getStylesheets().add( 
 //          Main.class.getClassLoader().getResource("/dialog/myCss.css") 
 //          .toExternalForm()); 
-      scene.getStylesheets().add("css/myCss.css"); 
+      scene.getStylesheets().add("css/myCss.css");
 //      scene.getStylesheets().add("-fx-background-image: url(/images/blueBackground.jpg)"); 
       primaryStage.setScene(scene);
       primaryStage.show();
@@ -52,13 +52,7 @@ public class Main extends Application {
       e.printStackTrace();
     }
   }
-  
-  
-  
-  
-  
-  
-  
+
 //  @Override
 //  public void start(Stage primaryStage) {
 //    try {

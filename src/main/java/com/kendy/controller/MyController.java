@@ -1411,7 +1411,11 @@ public class MyController extends BaseController implements Initializable {
                           .valueOf(moneyService.digit0(totalSum - NumUtil.getNum(rowTeamSum))));
                     } ;
                     // 缓存中清空之前所加的团队回水，以便下次团队累计重新从0开始
-                    dataConstants.Team_Huishui_Map.remove(teamInfo.getTeamID());
+                    String teamID = teamInfo.getTeamID();
+                    //dataConstants.Team_Huishui_Map.remove(teamID);
+                    //结算时设置相关gameRecord记录为已结算
+                    setIsJiesuaned(teamID);
+                    System.out.println("==================结算删除：" + teamID + ", dataConstant :" + dataConstants.Team_Huishui_Map.get(teamID));
                     dataConstants.Team_Info_Pre_Map.remove(teamInfo.getTeamID());
 
                     // 2018-01-04 在实时金额栏中新增该团队减去团队服务费的记录
@@ -1431,6 +1435,26 @@ public class MyController extends BaseController implements Initializable {
           return cell;
         }
       };
+      
+  /**
+   * 结算时设置相关gameRecord记录为已结算
+   * <P>
+   * 解决中途继续后不能平帐的问题
+   * 
+   * @param teamId
+   */
+  public void setIsJiesuaned(String teamId) {
+    dataConstants.Team_Huishui_Map.remove(teamId);
+    String clubId = getClubId();
+    lmController.currentRecordList.stream().forEach(e->{
+      if(StringUtils.equals(e.getClubId(), clubId) 
+          && StringUtils.equals(e.getTeamId(), teamId)){
+        e.setIsJiesuaned("1");
+      }
+    });
+    
+    dbUtil.updateRecordJiesuan(getSoftDate(), clubId, teamId);
+  }
 
   public TeamInfo copyTeamInfo(TeamInfo info) {
     TeamInfo temp = new TeamInfo(info.getTeamID(), info.getTeamZJ(), info.getTeamHS(),
@@ -2920,6 +2944,7 @@ public class MyController extends BaseController implements Initializable {
    * 
    * @param event
    */
+  @FXML
   public void saveTeamYajinAndEduAction(ActionEvent event) {
     shangmaService.updateTeamYajinAndEdu();
   }
@@ -2930,6 +2955,7 @@ public class MyController extends BaseController implements Initializable {
    * @time 2018年2月25日
    * @param event
    */
+  @FXML
   public void importBlankExcelAction(ActionEvent event) {
     String tableId = RandomUtil.getRandomNumber(10000, 20000) + "";// 随机生成ID
     List<GameRecord> blankDataList = new ArrayList<GameRecord>();

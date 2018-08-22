@@ -440,7 +440,9 @@ public class DataConstans {
       Dangju_Team_Huishui_List = gameRecords;
 
       // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-      Team_Huishui_Map = gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTeamId));
+      Team_Huishui_Map = gameRecords.stream()
+          .filter(e->"0".equals(e.getIsJiesuaned()))
+          .collect(Collectors.groupingBy(GameRecord::getTeamId));
 
       // 这个不会被修改，是总的团队回水记录。用在团队回水当天查询
       Total_Team_Huishui_Map =
