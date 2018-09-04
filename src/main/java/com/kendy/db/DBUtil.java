@@ -79,25 +79,22 @@ public class DBUtil {
   /**
    * 积分查询
    */
-  public List<JifenInfo> getJifenQuery(String jifenValue, String teamId, String startTime,
+  public List<JifenInfo> getJifenQuery(String clubId, String jifenValue, String teamId, String startTime,
       String endTime, String limit) {
     List<JifenInfo> list = new LinkedList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = "SELECT " + "	(@i :=@i + 1) AS jfRankNo, " + "	hh.* " + "   FROM " + "	( "
-          + "		SELECT DISTINCT " + "			playerName, " + "			floor( "
-          + "				( " + "					sum(shouHuishui) - sum(chuHuishui) "
-          + "				) / ? " + "			) AS jifenValue " + "		FROM " + "			( "
-          + GAME_RECORD_SQL + "				WHERE " + "					m.teamId = ? "
-          + "				AND finished_time >= ? " + "				AND finished_time <= ? "
-          + "			) h " + "		GROUP BY " + "			playerId " + "		ORDER BY "
-          + "			jifenValue DESC " + "	) hh, " + "	(SELECT @i := 0) b " + "LIMIT ?";
+      String sql = new StringBuilder()
+          .append("SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor((sum(shouHuishui) - sum(chuHuishui)) / ")
+          .append(jifenValue).append(") AS jifenValue FROM 	( ")
+          .append(GAME_RECORD_SQL).append("	WHERE 	m.teamId = '").append(teamId)
+          .append("' AND finished_time >= '").append(startTime).append(" 00:00:00' ")
+          .append(" AND finished_time <= '").append(endTime).append(" 23:59:59' AND r.clubId = '")
+          .append(clubId).append("'	) h 	GROUP BY 	playerId 	ORDER BY jifenValue DESC ) hh, 	(SELECT @i := 0) b LIMIT ")
+          .append(limit)
+          .toString();
+      loger.info("积分：" + sql);
       ps = con.prepareStatement(sql);
-      ps.setInt(1, Integer.valueOf(jifenValue));
-      ps.setString(2, teamId);
-      ps.setString(3, startTime);
-      ps.setString(4, endTime);
-      ps.setInt(5, Integer.valueOf(limit));
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
         list.add(new JifenInfo(rs.getString(1), rs.getString(2), rs.getString(3)));
@@ -162,7 +159,7 @@ public class DBUtil {
    * 删除团队时顺带删除所有该团队的人
    * 
    * @time 2017年11月14日
-   * @param playerId
+   * @param teamId
    */
   public void delMembers_after_delTeam(final String teamId) {
     try {
@@ -471,8 +468,6 @@ public class DBUtil {
   /**
    * 查找最新的锁定数据
    * 
-   * @param dataTime
-   * @param preData
    */
   public Map<String, String> getLastLockedData() {
     Map<String, String> map = new HashMap<>();
@@ -687,9 +682,9 @@ public class DBUtil {
 
   /**
    * 修改代理查询中导出是否显示团队保险
-   * 
+   *
    * @param teamId
-   * @param teamHsRate
+   * @param showInsure
    * @return
    */
   public boolean updateTeamHsShowInsure(String teamId, String showInsure) {
@@ -1184,7 +1179,6 @@ public class DBUtil {
    * 添加新合并ID关系
    * 
    * @time 2017年11月4日
-   * @param superId 父ID
    * @param subIdJson 子IDJSON值
    * @param time 更新时间
    * @return
@@ -1214,7 +1208,7 @@ public class DBUtil {
    * 合并ID是否存在 根据父ID查询数据库中是否记录
    * 
    * @time 2017年10月31日
-   * @param playerId 玩家ID
+   * @param parentId 玩家ID
    * @return
    */
   public boolean isHasCombineId(String parentId) {
@@ -1363,7 +1357,6 @@ public class DBUtil {
    * 到新的一天重置俱乐部桌费为0
    * 
    * @time 2018年2月21日
-   * @param id
    */
   public void reset_clubZhuofei_to_0() {
     try {
@@ -1386,7 +1379,6 @@ public class DBUtil {
    * 
    * @time 2017年11月22日
    * @param club
-   * @param lmType 哪个联盟
    */
   public void addClub(final Club club) {
     try {
@@ -1508,7 +1500,6 @@ public class DBUtil {
    * 清空所有俱乐部桌费和已结算
    * 
    * @time 2017年11月26日
-   * @param player
    * @throws SQLException
    */
   public void clearAllClub_ZF_YiJiSuan() {
@@ -1532,7 +1523,6 @@ public class DBUtil {
    * 清空所有统计信息(record)
    * 
    * @time 2017年11月14日
-   * @param playerId
    */
   public void del_all_record() {
     try {
@@ -1554,7 +1544,6 @@ public class DBUtil {
    * 清空所有统计信息(record zhuofei kaixiao)
    * 
    * @time 2017年11月14日
-   * @param playerId
    */
   public void del_all_record_and_zhuofei_and_kaixiao() {
     try {
@@ -1836,7 +1825,6 @@ public class DBUtil {
    * 用户自行加载完次日数据后，将数据表中的type设置为1，表示已经加载过
    * 
    * @time 2018年2月5日
-   * @param bank
    * @return
    */
   public boolean setNextDayLoaded() {
@@ -1923,7 +1911,6 @@ public class DBUtil {
    * 删除所有的历史联盟桌费
    * 
    * @time 2018年2月11日
-   * @param key
    */
   public void del_all_club_zhuofei() {
     try {
@@ -2001,7 +1988,6 @@ public class DBUtil {
    * 删除所有的股东开销
    * 
    * @time 2018年2月21日
-   * @param key
    */
   public void del_all_gudong_kaixiao() {
     try {
@@ -2020,7 +2006,6 @@ public class DBUtil {
    * 根据ID删除股东开销
    * 
    * @time 2018年2月21日
-   * @param key
    */
   public void del_gudong_kaixiao_by_id(String kaixiaoID) {
     try {
@@ -2101,7 +2086,6 @@ public class DBUtil {
    * 删除所有的托管开销
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_all_tg_kaixiao() {
     try {
@@ -2120,7 +2104,6 @@ public class DBUtil {
    * 根据ID删除托管开销
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_tg_kaixiao_by_id(String kaixiaoID) {
     try {
@@ -2204,7 +2187,6 @@ public class DBUtil {
    * 删除所有的玩家备注
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_all_tg_comment() {
     try {
@@ -2223,7 +2205,6 @@ public class DBUtil {
    * 根据ID删除玩家备注
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_tg_comment_by_id(String commentID) {
     try {
@@ -2351,7 +2332,6 @@ public class DBUtil {
    * 删除所有的托管公司
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_all_tg_company() {
     try {
@@ -2391,7 +2371,6 @@ public class DBUtil {
    * 根据ID删除托管公司
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_tg_company_by_id(String companyName) {
     try {
@@ -2492,7 +2471,6 @@ public class DBUtil {
    * 删除所有的团队比例
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_all_tg_team() {
     try {
@@ -2511,7 +2489,6 @@ public class DBUtil {
    * 根据ID删除团队比例
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public void del_tg_team_by_id(String teamId) {
     try {
@@ -2596,7 +2573,6 @@ public class DBUtil {
    * 删除所有的托管日利润
    * 
    * @time 2018年3月4日
-   * @param key
    */
   public boolean del_all_tg_lirun() {
     boolean delOK = false;
@@ -2669,8 +2645,6 @@ public class DBUtil {
   /**
    * 获取所有银行流水
    * 
-   * @param tgCompany
-   * @return
    */
   public List<BankFlowModel> getAllHistoryBankMoney() {
     List<BankFlowModel> list = new ArrayList<>();
@@ -2695,7 +2669,7 @@ public class DBUtil {
   /**
    * 删除对应的银行流水
    * 
-   * @param playerId
+   * @param bankName
    */
   public void delBankFlowByType(final String bankName) {
     try {
@@ -2796,7 +2770,7 @@ public class DBUtil {
    * 联盟对帐批量插入战绩记录
    * 
    * @time 2017年11月19日
-   * @param map
+   * @param recordList
    * @throws Exception
    */
   public void addGameRecordList(final List<GameRecord> recordList) throws Exception {
@@ -2967,7 +2941,6 @@ public class DBUtil {
    * TODO 是否只获取当天的 获取最新的所有战绩记录列表（单位：天） 由于前面的会被删掉，帮只取最最后一天的数据
    * 
    * @time 2017年11月25日
-   * @param maxRecordTime
    */
   public List<GameRecord> getAllGameRecords() {
     List<GameRecord> list = new ArrayList<>();

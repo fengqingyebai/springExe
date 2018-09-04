@@ -92,7 +92,7 @@ public class JifenService{
    * @param jfTeamIDCombox 选择团队
    * @author 泽涛
    */
-  public void jifenQuery(TableView<JifenInfo> tableJifen, DatePicker jfStartTime,
+  public void jifenQuery(String clubId, TableView<JifenInfo> tableJifen, DatePicker jfStartTime,
       DatePicker jfEndTime, TextField jifenInput, TextField jifenRankLimit,
       ComboBox<String> jfTeamIDCombox) {
     // 获取各个值
@@ -103,7 +103,7 @@ public class JifenService{
     String limit = jifenRankLimit.getText();
     String teamId = jfTeamIDCombox.getSelectionModel().getSelectedItem();
     // 查询数据
-    List<JifenInfo> list = dbUtil.getJifenQuery(jfInput, teamId, startTime, endTime, limit);
+    List<JifenInfo> list = dbUtil.getJifenQuery(clubId, jfInput, teamId, startTime, endTime, limit);
     // 更新积分表
     tableJifen.setItems(null);
     if (list != null && !list.isEmpty()) {

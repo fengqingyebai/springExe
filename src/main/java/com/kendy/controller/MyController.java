@@ -2583,7 +2583,8 @@ public class MyController extends BaseController implements Initializable {
    * @param event
    */
   public void jfQueryAciton(ActionEvent event) {
-    jifenService.jifenQuery(tableJifen, jfStartTime, jfEndTime, jifenInput, jifenRankLimit,
+    String clubId = getClubId();
+    jifenService.jifenQuery(clubId, tableJifen, jfStartTime, jfEndTime, jifenInput, jifenRankLimit,
         jfTeamIDCombox);
   }
   /**
