@@ -337,15 +337,15 @@ public class MoneyService{
   }
 
   /**
-   * 计算合利润 公式：IF(收回水>0,收回水+出回水+回保+水后检,0)
+   * 计算合利润 公式：IF(收回水>0,收回水+出回水+水后检 - 回保, 0)
    * 
    */
   public String getHeLirun(String shouHuishui, String chuHuishui, String baohui,
       String shuihouxian) {
     double _shouHushui = NumUtil.getNum(shouHuishui);
     if (_shouHushui >= 0) {
-      return _shouHushui + NumUtil.getNum(chuHuishui) + NumUtil.getNum(baohui)
-          + NumUtil.getNum(shuihouxian) + "";
+      return _shouHushui + NumUtil.getNum(chuHuishui) + NumUtil.getNum(shuihouxian)
+          - NumUtil.getNum(baohui) + "";
     } else {
       return "0";
     }
