@@ -1,19 +1,5 @@
 package com.kendy.controller;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
@@ -39,16 +25,23 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -56,6 +49,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 股东贡献控制类
@@ -465,7 +461,7 @@ public class GDController extends BaseController implements Initializable {
    * @return
    */
   public Double getHeLirun(final GameRecord record) {
-    String playerId = record.getPlayerId();
+/*    String playerId = record.getPlayerId();
     String teamId = getTeamIdWithUperCase(playerId);
     String zhanji = record.getYszj();
     String baoxian = record.getSinegleInsurance();
@@ -476,7 +472,8 @@ public class GDController extends BaseController implements Initializable {
     String baohui = NumUtil.digit1(moneyService.getHuiBao(baoxian, teamId));
     String heLirun =
         NumUtil.digit2(moneyService.getHeLirun(shouHuishui, chuHuishui, shuihouxian, baohui));
-    return NumUtil.getNum(heLirun);
+    return NumUtil.getNum(heLirun);*/
+    return NumUtil.getNum(record.getHeLirun());
   }
 
 
