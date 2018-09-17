@@ -465,6 +465,7 @@ public class DBUtil {
     return map;
   }
 
+
   /**
    * 查找最新的锁定数据
    * 
@@ -479,8 +480,10 @@ public class DBUtil {
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       String res = "";
+      int recordCount = 0; // 当前最大记录数
       while (rs.next()) {
-        loger.info("中途加载的最大局是：" + rs.getString(1));
+        recordCount = rs.getInt(1);
+        loger.info("中途加载的最大局是：" + recordCount);
         res = rs.getString(2);
         break;
       }
@@ -491,7 +494,8 @@ public class DBUtil {
       }
       map = JSON.parseObject(res, new TypeReference<Map<String, String>>() {});
       // ======================================================把锁定的详细数据单独加进来
-      try {
+      // 2018-9-17 注释
+      /*try {
         sql = "select * from last_locked_data_detail ";
         ps = con.prepareStatement(sql);
         rs = ps.executeQuery();
@@ -504,7 +508,8 @@ public class DBUtil {
         loger.info("中途加载当天详细锁定数据,总局数：" + locked_data_detail_map.size());
       } catch (Exception e) {
         loger.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());
-      }
+      }*/
+
       // ======================================================
       // //资金
       // Map<String,String> zijinMap = _map.get("资金");
@@ -527,6 +532,33 @@ public class DBUtil {
     return map;
   }
 
+  /**
+   * 锁定的详细数据单独加进来<br/>
+   * 避免内存溢出<br>
+   * 只在中途继续时调用 ， 其他情况不调用
+   */
+  public Map<String, Map<String, String>> getAllLockedRecords(){
+    // ======================================================把锁定的详细数据单独加进来
+    Map<String, Map<String, String>> locked_data_detail_map = new HashMap<>();
+    try {
+      con = DBConnection.getConnection();
+      String sql =  "select * from last_locked_data_detail ";
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      rs = ps.executeQuery();
+      while (rs.next()) {
+        locked_data_detail_map.put(rs.getString(1),
+            JSON.parseObject(rs.getString(2), new TypeReference<Map<String, String>>() {}));
+      }
+      loger.info("中途加载当天详细锁定数据,总局数：" + locked_data_detail_map.size());
+    } catch (Exception e) {
+      loger.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());
+    } finally {
+      close(con, ps);
+    }
+    return locked_data_detail_map;
+    // ======================================================
+  }
   /**
    * 添加新团队回水
    * 

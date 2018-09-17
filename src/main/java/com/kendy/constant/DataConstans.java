@@ -363,20 +363,25 @@ public class DataConstans {
     // 从数据库加载记录
     recoveryGameRecords();
 
+    // 加载每一场的锁定数据
+    All_Locked_Data_Map = dbUtil.getAllLockedRecords();
+    logger.info("加载锁定数据：" + (All_Locked_Data_Map == null ? "为null!" : "不为空"));
+
     // 从数据库中获取上一次保存的锁定数据
     Map<String, String> map = dbUtil.getLastLockedData();
 
     // 玩家ID=上码详情列表（正在使用的值）
     SM_Detail_Map = JSON.parseObject(map.get("SM_Detail_Map"),
         new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
+
     // 玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
     SM_Detail_Map_Locked = JSON.parseObject(map.get("SM_Detail_Map_Locked"),
         new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
 
     // 缓存120场次的所有锁定数据{页数第几局={...}}
-    All_Locked_Data_Map = JSON.parseObject(map.get("All_Locked_Data_Map"),
-        new TypeReference<Map<String, Map<String, String>>>() {});
-    logger.info("加载锁定数据：" + (All_Locked_Data_Map == null ? "为null!" : "不为空"));
+//    All_Locked_Data_Map = JSON.parseObject(map.get("All_Locked_Data_Map"),
+//        new TypeReference<Map<String, Map<String, String>>>() {});
+//    logger.info("加载锁定数据：" + (All_Locked_Data_Map == null ? "为null!" : "不为空"));
 
     // 锁定后是第X局
     Paiju_Index = JSON.parseObject(map.get("Paiju_Index"), new TypeReference<AtomicInteger>() {});
@@ -448,6 +453,14 @@ public class DataConstans {
       Total_Team_Huishui_Map =
           gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTeamId));
     }
+
+  }
+
+  /**
+   * 锁定的每一局数据，单独恢复
+   */
+  public void recoveryAlllockedDetailMap(){
+
 
   }
 
