@@ -340,8 +340,8 @@ public class MoneyService{
    * 计算合利润 公式：IF(收回水>0,收回水+出回水+水后检 - 回保, 0)
    * 
    */
-  public String getHeLirun(String shouHuishui, String chuHuishui, String baohui,
-      String shuihouxian) {
+  public String getHeLirun(String shouHuishui, String chuHuishui,
+      String shuihouxian, String baohui) {
     double _shouHushui = NumUtil.getNum(shouHuishui);
     if (_shouHushui >= 0) {
       return _shouHushui + NumUtil.getNum(chuHuishui) + NumUtil.getNum(shuihouxian)
