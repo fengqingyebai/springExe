@@ -413,6 +413,7 @@ public class MyController extends BaseController implements Initializable {
     tableCurrentMoneyInfo.setEditable(true);
     bindCellValueByTable(new CurrentMoneyInfo(), tableCurrentMoneyInfo);
     cmSuperIdSum.setStyle(Constants.CSS_CENTER_BOLD);
+    cmSuperIdSum.setCellFactory(sumMoneyCellFactory);
     shishiJine.setCellFactory(TextFieldTableCell.forTableColumn());
     setSSJEEditOnCommit();
 
@@ -1551,6 +1552,36 @@ public class MyController extends BaseController implements Initializable {
               // 双击执行的代码
               ZijinInfo info = tableZijin.getItems().get(cell.getIndex());
               moneyService.openAddZijinDiag(tableZijin, info);
+            }
+          });
+          return cell;
+        }
+      };
+
+
+  /**
+   * 实时金额表总和双击
+   */
+  Callback<TableColumn<CurrentMoneyInfo, String>, TableCell<CurrentMoneyInfo, String>> sumMoneyCellFactory =
+      new Callback<TableColumn<CurrentMoneyInfo, String>, TableCell<CurrentMoneyInfo, String>>() {
+        @Override
+        public TableCell<CurrentMoneyInfo, String> call(TableColumn<CurrentMoneyInfo, String> param) {
+
+          TextFieldTableCell<CurrentMoneyInfo, String> cell = new TextFieldTableCell<>();
+          cell.setEditable(false);// 不让其可编辑
+          cell.setOnMouseClicked((MouseEvent t) -> {
+            // 鼠标双击事件
+            if (t.getClickCount() == 2) {
+              CurrentMoneyInfo item = tableCurrentMoneyInfo.getItems().get(cell.getIndex());
+              boolean isBlankRow = StringUtils
+                  .isAllBlank(item.getMingzi(), item.getShishiJine(), item.getWanjiaId());
+              boolean notSuperId = !dataConstants.Combine_Super_Id_Map.containsKey(item.getWanjiaId());
+
+              if ( notSuperId ) {
+                return;
+              }
+              // 双击执行的代码
+              moneyService.showSumPersonSSJE(tableCurrentMoneyInfo, cell.getIndex());
             }
           });
           return cell;

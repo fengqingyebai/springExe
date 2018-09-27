@@ -1,5 +1,41 @@
 package com.kendy.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.BankFlowController;
+import com.kendy.controller.GDController;
+import com.kendy.controller.MyController;
+import com.kendy.controller.SMAutoController;
+import com.kendy.db.DBUtil;
+import com.kendy.entity.CurrentMoneyInfo;
+import com.kendy.entity.DangjuInfo;
+import com.kendy.entity.Huishui;
+import com.kendy.entity.JiaoshouInfo;
+import com.kendy.entity.KaixiaoInfo;
+import com.kendy.entity.KeyValue;
+import com.kendy.entity.PingzhangInfo;
+import com.kendy.entity.Player;
+import com.kendy.entity.ProfitInfo;
+import com.kendy.entity.TeamInfo;
+import com.kendy.entity.TotalInfo;
+import com.kendy.entity.WanjiaInfo;
+import com.kendy.entity.ZijinInfo;
+import com.kendy.enums.ColumnType;
+import com.kendy.excel.ExportMembersExcel;
+import com.kendy.excel.ExportTeamhsExcel;
+import com.kendy.interfaces.Entity;
+import com.kendy.model.BankFlowModel;
+import com.kendy.model.GameRecord;
+import com.kendy.util.AlertUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
+import com.kendy.util.TableUtil;
+import com.kendy.util.TimeUtil;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,49 +53,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.kendy.constant.Constants;
-import com.kendy.constant.DataConstans;
-import com.kendy.controller.BankFlowController;
-import com.kendy.controller.GDController;
-import com.kendy.controller.MyController;
-import com.kendy.controller.SMAutoController;
-import com.kendy.db.DBUtil;
-import com.kendy.entity.CurrentMoneyInfo;
-import com.kendy.entity.DangjuInfo;
-import com.kendy.entity.Huishui;
-import com.kendy.entity.JiaoshouInfo;
-import com.kendy.entity.KaixiaoInfo;
-import com.kendy.entity.PingzhangInfo;
-import com.kendy.entity.Player;
-import com.kendy.entity.ProfitInfo;
-import com.kendy.entity.TeamInfo;
-import com.kendy.entity.TotalInfo;
-import com.kendy.entity.WanjiaInfo;
-import com.kendy.entity.ZijinInfo;
-import com.kendy.excel.ExportMembersExcel;
-import com.kendy.excel.ExportTeamhsExcel;
-import com.kendy.interfaces.Entity;
-import com.kendy.model.BankFlowModel;
-import com.kendy.model.GameRecord;
-import com.kendy.util.AlertUtil;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.FXUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
-import com.kendy.util.TableUtil;
-import com.kendy.util.TimeUtil;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextInputDialog;
 
 /**
  * 场次信息服务类
@@ -1661,6 +1672,90 @@ public class MoneyService{
       }
     }
   }
+
+  private Stage stage ;
+
+  /**
+   * 展示当前总的金额
+   *
+   * @param tableCurrentMoney
+   * @param rowIndex
+   */
+  public void showSumPersonSSJE(TableView<CurrentMoneyInfo> tableCurrentMoney, int rowIndex){
+    CurrentMoneyInfo item = tableCurrentMoneyInfo.getItems().get(rowIndex);
+    System.out.println("hello...." + item.getMingzi());
+    TableView<KeyValue> table = new TableView<>();
+    TableColumn<KeyValue, String> playerNameCol = getTableColumnCommon("玩家名称", "key", ColumnType.COLUMN_COMMON);
+    TableColumn<KeyValue, String> SSJECol = getTableColumnCommon("留存金额", "value", ColumnType.COLUMN_RED);
+    table.getColumns().addAll(playerNameCol, SSJECol);
+    table.setEditable(false);
+
+    // 获取值
+    List<KeyValue> list = new ArrayList<>();
+    int size = tableCurrentMoney.getItems().size();
+    double sumMoney = 0.0;
+    String playerName , ssje ;
+    for (int i = rowIndex; i < size; i++) {
+      CurrentMoneyInfo info = tableCurrentMoneyInfo.getItems().get(i);
+      playerName = info.getMingzi();
+      ssje = info.getShishiJine();
+      if(StringUtil.isAllNotBlank(info.getWanjiaId(), playerName)){
+        list.add(new KeyValue(playerName, ssje));
+        sumMoney += NumUtil.getNum(ssje);
+      }else{
+        break;
+      }
+    }
+    table.getItems().addAll(list);
+    table.getSelectionModel().clearSelection();
+
+    // 设置总金额
+    Label sumLabel = new Label();
+    sumLabel.setText("$"+NumUtil.digit0(sumMoney));
+    String color = sumMoney > 0 ? "#ff6d11" : "#d60812" ;
+    sumLabel.setTextFill(Color.web(color)); // 设置总金额颜色
+    sumLabel.setScaleX(3);
+    sumLabel.setScaleY(3);
+    sumLabel.setPrefHeight(250);
+    sumLabel.setPrefWidth(290);
+    sumLabel.setAlignment(Pos.CENTER);
+
+    if(stage == null){ // 共享一个舞台
+      stage = new Stage();
+    }
+    // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
+    ShowUtil.setIcon(stage);
+    stage.setTitle(item.getMingzi());
+    stage.setWidth(240);
+    stage.setHeight(300);
+
+    final VBox vbox = new VBox();
+    vbox.setSpacing(5);
+    vbox.setPadding(new Insets(2, 0, 0, 0));
+    vbox.getChildren().addAll(sumLabel, table);
+
+    Scene scene = new Scene(vbox);
+
+    stage.setScene(scene);
+    stage.show();
+
+  }
+
+  /**
+   * 动态生成列(不用红色字段的列)
+   */
+  private TableColumn<KeyValue, String> getTableColumnCommon(String colName, String colVal, ColumnType columnType) {
+    TableColumn<KeyValue, String> col = new TableColumn<>(colName);
+    col.setStyle(Constants.CSS_CENTER);
+    col.setPrefWidth(110);
+    col.setCellValueFactory(new PropertyValueFactory<KeyValue, String>(colVal));
+    if(columnType == ColumnType.COLUMN_RED){
+      col.setCellFactory(myController.getColorCellFactory(new KeyValue()));
+    }
+    col.setSortable(false);
+    return col;
+  }
+
 
 
   /**
