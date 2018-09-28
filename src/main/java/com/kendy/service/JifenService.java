@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.jfoenix.controls.JFXCheckBox;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -90,11 +91,12 @@ public class JifenService{
    * @param jifenInput 积分值 ，如1积分=10元
    * @param jifenRankLimit 限定查询前多少名
    * @param jfTeamIDCombox 选择团队
+   * @param isCheckTeamProfitBox 是否核算团队利润
    * @author 泽涛
    */
-  public void jifenQuery(String clubId, TableView<JifenInfo> tableJifen, DatePicker jfStartTime,
+  public void jifenQuery(String clubId, TableView <JifenInfo> tableJifen, DatePicker jfStartTime,
       DatePicker jfEndTime, TextField jifenInput, TextField jifenRankLimit,
-      ComboBox<String> jfTeamIDCombox) {
+      ComboBox <String> jfTeamIDCombox, boolean isCheckTeamProfitBox) {
     // 获取各个值
     ObservableList<JifenInfo> obList = FXCollections.observableArrayList();
     String startTime = getFormatTime(jfStartTime.getValue());
@@ -103,7 +105,7 @@ public class JifenService{
     String limit = jifenRankLimit.getText();
     String teamId = jfTeamIDCombox.getSelectionModel().getSelectedItem();
     // 查询数据
-    List<JifenInfo> list = dbUtil.getJifenQuery(clubId, jfInput, teamId, startTime, endTime, limit);
+    List<JifenInfo> list = dbUtil.getJifenQuery(clubId, jfInput, teamId, startTime, endTime, isCheckTeamProfitBox, limit);
     // 更新积分表
     tableJifen.setItems(null);
     if (list != null && !list.isEmpty()) {

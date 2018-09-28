@@ -1672,7 +1672,7 @@ public class MoneyService {
     TableView <KeyValue> table = new TableView <>();
     TableColumn <KeyValue, String> playerNameCol = getTableColumnCommon("玩家名称", "key",
         ColumnType.COLUMN_COMMON);
-    TableColumn <KeyValue, String> SSJECol = getTableColumnCommon("留存金额", "value",
+    TableColumn <KeyValue, String> SSJECol = getTableColumnCommon("资金", "value",
         ColumnType.COLUMN_RED);
     table.getColumns().addAll(playerNameCol, SSJECol);
     table.setEditable(false);
@@ -1698,7 +1698,7 @@ public class MoneyService {
 
     // 设置总金额
     Label sumLabel = new Label();
-    sumLabel.setText("$" + NumUtil.digit0(sumMoney));
+    sumLabel.setText("合计：" + NumUtil.digit0(sumMoney));
     final String orange = "#ff6d11";
     final String red = "#d60812";
     String color = sumMoney > 0 ? orange : red;
@@ -1730,7 +1730,8 @@ public class MoneyService {
   }
 
   /**
-   * 动态生成列(不用红色字段的列)
+   * 动态生成列
+   * @param columnType 红色和非红色
    */
   private TableColumn <KeyValue, String> getTableColumnCommon(String colName, String colVal,
       ColumnType columnType) {

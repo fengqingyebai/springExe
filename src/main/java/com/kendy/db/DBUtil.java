@@ -79,13 +79,15 @@ public class DBUtil {
   /**
    * 积分查询
    */
-  public List<JifenInfo> getJifenQuery(String clubId, String jifenValue, String teamId, String startTime,
-      String endTime, String limit) {
+  public List<JifenInfo> getJifenQuery(String clubId, String jifenValue, String teamId,
+      String startTime,
+      String endTime, boolean isCheckTeamProfitBox, String limit) {
     List<JifenInfo> list = new LinkedList<>();
     try {
       con = DBConnection.getConnection();
+      String subSql = isCheckTeamProfitBox ? "sum(shouHuishui) - sum(chuHuishui)" : "sum(shouHuishui)";
       String sql = new StringBuilder()
-          .append("SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor((sum(shouHuishui) - sum(chuHuishui)) / ")
+          .append("SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor(("+subSql+") / ")
           .append(jifenValue).append(") AS jifenValue FROM 	( ")
           .append(GAME_RECORD_SQL).append("	WHERE 	m.teamId = '").append(teamId)
           .append("' AND finished_time >= '").append(startTime).append(" 00:00:00' ")

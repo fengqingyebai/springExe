@@ -1,5 +1,6 @@
 package com.kendy.controller;
 
+import com.jfoenix.controls.JFXCheckBox;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -364,6 +365,7 @@ public class MyController extends BaseController implements Initializable {
   @FXML public ComboBox<String> jfTeamIDCombox;// 团队ID下拉框
   @FXML public TextField jifenInput;// 团队积分值
   @FXML public TextField jifenRankLimit;// 前50名
+  @FXML public JFXCheckBox isCheckTeamProfitBox;// 勾选框：是否核算团队利润
 
   // 保存到other数据表的key
   private final String KEY_GU_DONG = KeyEnum.GU_DONG.getKeyName();
@@ -1608,7 +1610,6 @@ public class MyController extends BaseController implements Initializable {
   /**
    * 更新开销表
    * 
-   * @param data
    */
   public void updateKaixiaoTable(KaixiaoInfo info) {
     // 获取ObserableList
@@ -1620,7 +1621,6 @@ public class MyController extends BaseController implements Initializable {
   /**
    * 更新实时金额表
    * 
-   * @param data
    */
   public void updateCurrentMoneyTable(Player player, String SSJE) {
     // 获取ObserableList
@@ -1633,7 +1633,6 @@ public class MyController extends BaseController implements Initializable {
   /**
    * 刷新同步,即平帐按钮
    * 
-   * @param data
    */
   public void refreshAction(ActionEvent event) {
     moneyService.refreshSumPane(tableTeam, tableZijin, tableKaixiao, tableProfit,
@@ -2615,8 +2614,9 @@ public class MyController extends BaseController implements Initializable {
    */
   public void jfQueryAciton(ActionEvent event) {
     String clubId = getClubId();
+    boolean isCheckTeamProfit = isCheckTeamProfitBox.isSelected();
     jifenService.jifenQuery(clubId, tableJifen, jfStartTime, jfEndTime, jifenInput, jifenRankLimit,
-        jfTeamIDCombox);
+        jfTeamIDCombox, isCheckTeamProfit);
   }
   /**
    * 导出人员表

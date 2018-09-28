@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import java.net.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.media.*?>
@@ -506,6 +507,7 @@
                         <Label layoutX="579.0" layoutY="197.0" prefHeight="28.0" prefWidth="43.0" text=" 名" />
                         <TextField fx:id="jifenRankLimit" layoutX="514.0" layoutY="199.0" prefHeight="23.0" prefWidth="63.0" text="50" />
                         <Label layoutX="474.0" layoutY="196.0" prefHeight="28.0" prefWidth="55.0" text="选择前" />
+                        <JFXCheckBox fx:id="isCheckTeamProfitBox" layoutX="168.0" layoutY="197.0" prefHeight="24.0" prefWidth="125.0" text="核算团队利润" />
                      </children>
                   </AnchorPane>
                </content>
