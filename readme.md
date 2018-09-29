@@ -19,6 +19,9 @@
 ![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/6.png)
 ![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/3.png)
 ![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/8.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/9.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/10.png)
+![](https://github.com/greatkendy123/springExe/raw/master/src/main/resources/images/11.png)
 
 ## 代码示例（自动配额）
 	/**
