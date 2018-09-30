@@ -90,9 +90,10 @@ public class DBUtil {
           .append("SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor(("+subSql+") / ")
           .append(jifenValue).append(") AS jifenValue FROM 	( ")
           .append(GAME_RECORD_SQL).append("	WHERE 	m.teamId = '").append(teamId)
-          .append("' AND finished_time >= '").append(startTime).append(" 00:00:00' ")
-          .append(" AND finished_time <= '").append(endTime).append(" 23:59:59' AND r.clubId = '")
-          .append(clubId).append("'	) h 	GROUP BY 	playerId 	ORDER BY jifenValue DESC ) hh, 	(SELECT @i := 0) b LIMIT ")
+          .append("' AND soft_time >= '").append(startTime)
+          .append("' AND soft_time <= '").append(endTime)
+          .append("' AND r.clubId = '").append(clubId)
+          .append("' )h 	GROUP BY 	playerId 	ORDER BY jifenValue DESC ) hh, 	(SELECT @i := 0) b LIMIT ")
           .append(limit)
           .toString();
       loger.info("积分：" + sql);

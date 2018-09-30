@@ -2608,7 +2608,7 @@ public class MyController extends BaseController implements Initializable {
 
 
   /**
-   * 查询会员积分排名
+   * 查询查询积分排名
    * 
    * @param event
    */
