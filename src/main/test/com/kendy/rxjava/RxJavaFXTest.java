@@ -1,26 +1,10 @@
 package com.kendy.rxjava;
 
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import io.reactivex.rxjavafx.observers.JavaFxObserver;
-import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
-import io.reactivex.schedulers.Schedulers;
 import javafx.application.Application;
-import javafx.beans.binding.Binding;
-import javafx.event.ActionEvent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 
 public class RxJavaFXTest extends Application {
 
-    private final Button incrementBttn;
+    /*private final Button incrementBttn;
     private final Label incrementLabel;
     private final Binding<String> binding1;
 
@@ -111,5 +95,5 @@ public class RxJavaFXTest extends Application {
         binding1.dispose();
         binding2.dispose();
         disposable.dispose();
-    }
+    }*/
 }

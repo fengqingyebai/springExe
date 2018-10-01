@@ -1603,7 +1603,7 @@ public class MyController extends BaseController implements Initializable {
       code = "GBK";
     }
     String html = Text2ImageUtil.getHtml(wj);
-    BufferedImage img = Text2ImageUtil.toImage(html, code);
+    BufferedImage img = Text2ImageUtil.toImage(html, code, 410, 100);
     ClipBoardUtil.setClipboardImage((Image) img);
   }
 

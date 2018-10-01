@@ -1,9 +1,5 @@
 package com.kendy.rxjava;
 
-import org.junit.Test;
-import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
-
 /**
  * rxjava测试
  * 
@@ -13,7 +9,7 @@ import io.reactivex.schedulers.Schedulers;
 public class RxjavaTest {
   
   
-  @Test
+  /*@Test
   public void test1() {
     Flowable.range(1, 10)
 //    .parallel()
@@ -23,6 +19,6 @@ public class RxjavaTest {
 //    .blockingSubscribe(System.out::println);
     .subscribe(System.out::println);
 
-  }
+  }*/
 
 }

@@ -29,13 +29,17 @@ import com.kendy.interfaces.Entity;
 import com.kendy.model.BankFlowModel;
 import com.kendy.model.GameRecord;
 import com.kendy.util.AlertUtil;
+import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
+import com.kendy.util.Text2ImageUtil;
 import com.kendy.util.TimeUtil;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +57,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -66,6 +71,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1698,7 +1704,8 @@ public class MoneyService {
 
     // 设置总金额
     Label sumLabel = new Label();
-    sumLabel.setText("合计：" + NumUtil.digit0(sumMoney));
+    String totalDesc = "合计：" + NumUtil.digit0(sumMoney);
+    sumLabel.setText(totalDesc);
     final String orange = "#ff6d11";
     final String red = "#d60812";
     String color = sumMoney > 0 ? orange : red;
@@ -1727,6 +1734,29 @@ public class MoneyService {
     stage.setScene(scene);
     stage.show();
 
+    try {
+      clipBord(list, totalDesc);
+      System.out.println("已经复制图像...");
+      Platform.runLater(()->{
+        Notifications.create().title("截图成功").darkStyle().text(item.getMingzi() + "\r\n " + totalDesc)
+            .position(Pos.BOTTOM_RIGHT).showInformation();
+      });
+    } catch (Exception e) {
+      Platform.runLater(()->{
+        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_RIGHT).showError();
+      });
+      e.printStackTrace();
+    }
+  }
+
+  private void clipBord(List <KeyValue> list, String totalDesc) throws Exception {
+    String code = myController.sysCode.getText();
+    if (StringUtil.isBlank(code)) {
+      code = "GBK";
+    }
+    String html = Text2ImageUtil.getHtml2(list, totalDesc);
+    BufferedImage img = Text2ImageUtil.toImage(html, code, 400, 700);
+    ClipBoardUtil.setClipboardImage((Image) img);
   }
 
   /**
