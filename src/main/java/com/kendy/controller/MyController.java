@@ -19,9 +19,11 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
+import javafx.geometry.Pos;
 import javax.annotation.PostConstruct;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -1604,7 +1606,21 @@ public class MyController extends BaseController implements Initializable {
     }
     String html = Text2ImageUtil.getHtml(wj);
     BufferedImage img = Text2ImageUtil.toImage(html, code, 410, 100);
-    ClipBoardUtil.setClipboardImage((Image) img);
+
+    //通知功能
+    try {
+      ClipBoardUtil.setClipboardImage((Image) img);
+      Platform.runLater(()->{
+        Notifications
+            .create().title("截图成功").darkStyle().text(wj.getWanjiaName() + System.lineSeparator()+ wj.getPaiju())
+            .showInformation();
+      });
+    } catch (Exception e) {
+      Platform.runLater(()->{
+        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_RIGHT).showError();
+      });
+      e.printStackTrace();
+    }
   }
 
   /**

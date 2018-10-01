@@ -1667,6 +1667,9 @@ public class MoneyService {
     }
   }
 
+  /**
+   * 共享同一个舞台
+   */
   private Stage stage;
 
   /**
@@ -1674,7 +1677,6 @@ public class MoneyService {
    */
   public void showSumPersonSSJE(TableView <CurrentMoneyInfo> tableCurrentMoney, int rowIndex) {
     CurrentMoneyInfo item = tableCurrentMoneyInfo.getItems().get(rowIndex);
-    System.out.println("hello...." + item.getMingzi());
     TableView <KeyValue> table = new TableView <>();
     TableColumn <KeyValue, String> playerNameCol = getTableColumnCommon("玩家名称", "key",
         ColumnType.COLUMN_COMMON);
@@ -1706,9 +1708,7 @@ public class MoneyService {
     Label sumLabel = new Label();
     String totalDesc = "合计：" + NumUtil.digit0(sumMoney);
     sumLabel.setText(totalDesc);
-    final String orange = "#ff6d11";
-    final String red = "#d60812";
-    String color = sumMoney > 0 ? orange : red;
+    String color = sumMoney > 0 ? Constants.ORANGE : Constants.RED;
     sumLabel.setTextFill(Color.web(color)); // 设置总金额颜色
     sumLabel.setScaleX(3);
     sumLabel.setScaleY(3);
@@ -1734,11 +1734,11 @@ public class MoneyService {
     stage.setScene(scene);
     stage.show();
 
+    //截图功能与通知功能
     try {
       clipBord(list, totalDesc);
-      System.out.println("已经复制图像...");
       Platform.runLater(()->{
-        Notifications.create().title("截图成功").darkStyle().text(item.getMingzi() + "\r\n " + totalDesc)
+        Notifications.create().title("截图成功").darkStyle().text(item.getMingzi() + System.lineSeparator()+ totalDesc)
             .position(Pos.BOTTOM_RIGHT).showInformation();
       });
     } catch (Exception e) {

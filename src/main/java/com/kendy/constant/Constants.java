@@ -37,6 +37,6 @@ public class Constants {
   public static final double FINAL_HS_RATE_0975 = 0.975; // 回水比例，这个是固定值
   public static double CURRENT_HS_RATE = 0.95;// 默认的回水比例，会根据选择而变化
 
-
-
+public static final String ORANGE = "#ff6d11";
+public static final String RED = "#d60812";
 }
