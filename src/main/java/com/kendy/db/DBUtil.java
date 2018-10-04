@@ -85,7 +85,7 @@ public class DBUtil {
     List<JifenInfo> list = new LinkedList<>();
     try {
       con = DBConnection.getConnection();
-      String subSql = isCheckTeamProfitBox ? "sum(shouHuishui) - sum(chuHuishui)" : "sum(shouHuishui)";
+      String subSql = isCheckTeamProfitBox ? "sum(shouHuishui) + sum(chuHuishui)" : "sum(shouHuishui)";
       String sql = new StringBuilder()
           .append("SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor(("+subSql+") / ")
           .append(jifenValue).append(") AS jifenValue FROM 	( ")

@@ -3027,7 +3027,11 @@ public class MyController extends BaseController implements Initializable {
    ********************************************************************************************/
 
   /**
-   * 根据原始战绩获取回水 1：出回水 2：收回水, 此时teamId非必要参数 备注：0.95版本：如果原始战绩为正数，则出回水和收回水都是0
+   * 根据原始战绩获取回水
+   * <p>
+   * 1：出回水 2：收回水, 此时teamId非必要参数
+   * <p>
+   * 备注：0.95版本：如果原始战绩为正数，则出回水和收回水都是0
    * 
    * @time 2018年5月19日
    * @param yszj
@@ -3058,18 +3062,18 @@ public class MyController extends BaseController implements Initializable {
    * 根据原始战绩获取回水 (共用)
    * 
    * @time 2018年5月19日
-   * @param yszjz
+   * @param yszj
    * @param teamId
    * @param type
    * @return
    */
   private String getByYSZJ(String yszj, String teamId, int type) {
-    Double zhanji = Double.valueOf(yszj);
+    double zhanji = Double.parseDouble(yszj);
     if (type == 1) {
       return NumUtil.digit1(moneyService.getChuhuishui(yszj, teamId));
     } else {
       return NumUtil
-          .digit1(Math.abs(Double.valueOf(zhanji)) * (1 - Constants.CURRENT_HS_RATE) + "");
+          .digit1(Math.abs(zhanji) * (1 - Constants.CURRENT_HS_RATE) + "");
     }
   }
   
