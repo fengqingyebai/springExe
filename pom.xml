@@ -17,7 +17,7 @@
     <spring.version>4.3.7.RELEASE</spring.version>
     <poi.version>3.17</poi.version>
     <main.path>com.kendy.application.Main</main.path>
-    <maven.build.timestamp.format>yyyy-MM-dd-HH时mm分</maven.build.timestamp.format>
+
   </properties>
 
   <dependencies>
@@ -245,6 +245,27 @@
           </transformers>
         </configuration>
       </plugin>
+      <!-- 打包时标注中国时间 -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>timestamp-property</id>
+            <goals>
+              <goal>timestamp-property</goal>
+            </goals>
+            <configuration>
+              <name>current.time</name>
+              <locale>zh_CN</locale>
+              <pattern>yyyy-MM-dd-HH时mm分</pattern>
+              <timeZone>GMT+8</timeZone>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- 使用launch4j进行打包成exe -->
       <plugin>
         <groupId>com.akathist.maven.plugins.launch4j</groupId>
         <artifactId>launch4j-maven-plugin</artifactId>
@@ -258,7 +279,7 @@
             <configuration>
               <headerType>gui</headerType>
               <jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>
-              <outfile>${project.build.directory}/账务软件${maven.build.timestamp}.exe</outfile>
+              <outfile>${project.build.directory}/账务软件${current.time}.exe</outfile>
               <downloadUrl>http://java.com/download</downloadUrl>
               <classPath>
                 <mainClass>${main.path}</mainClass>
