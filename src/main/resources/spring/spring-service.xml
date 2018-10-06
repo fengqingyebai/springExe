@@ -16,6 +16,10 @@
   <!--        <context:annotation-config /> -->
   <!--        <context:component-scan base-package="com.kendy" />      -->
 
+<!--  <context:annotation-config/>
+
+  <context:component-scan base-package="us.codecraft.jobhunter"/>-->
+
   <!-- spring的注入要调整，以下写法比较乱 -->
   <bean id="dbUtil" class="com.kendy.db.DBUtil"></bean>
   <bean id="dataConstants" class="com.kendy.constant.DataConstans"></bean>
@@ -25,4 +29,6 @@
   <bean id="customView" class="com.kendy.util.CustomView"></bean>
   <bean id="excelReaderUtil" class="com.kendy.excel.ExcelReaderUtil"></bean>
 
+
+  <import resource="classpath:spring/spring-dao.xml" />
 </beans>
