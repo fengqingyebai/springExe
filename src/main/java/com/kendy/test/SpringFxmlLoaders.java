@@ -11,8 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 
 public class SpringFxmlLoaders {
-  
-  private static  ApplicationContext applicationContext = null;
+
+  private static ApplicationContext applicationContext = null;
 //  static {
 //    try {
 //      // 生产环境可用
@@ -30,8 +30,7 @@ public class SpringFxmlLoaders {
 //      ErrorUtil.err("Spring组件初始化失败:" + e.getMessage());
 //    }
 //  }
-  
-  
+
 
   public Object load(String url) {
     try (InputStream fxmlStream = SpringFxmlLoaders.class.getResourceAsStream(url)) {
@@ -48,8 +47,8 @@ public class SpringFxmlLoaders {
       throw new RuntimeException(ioException);
     }
   }
-  
-  
+
+
   public static ApplicationContext getContext() {
     return applicationContext;
   }

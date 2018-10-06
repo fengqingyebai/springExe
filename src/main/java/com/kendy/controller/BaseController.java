@@ -14,15 +14,15 @@ import javafx.util.Callback;
 
 /**
  * 基础控制类
- * 
+ *
  * @author linzt
  * @time 2018年7月6日
  */
 @Component
-public class BaseController{
+public class BaseController {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
-  
+
   // // T指代表实体
   // private T entity;
 
@@ -31,7 +31,7 @@ public class BaseController{
   /**
    * 绑定多个表格的列,由子实例完成后自动触发
    */
-   public BaseController() {
+  public BaseController() {
 //     logger.info("正在初始化父类bindTableColumnValue方法....");
 //     Class<?> clz = getSubClass();
 //     if(clz != null) {
@@ -55,9 +55,7 @@ public class BaseController{
 //       }
 //       logger.info("------------------------------------------------<<<结束");
 //     }
-   }
-
-
+  }
 
 //  private static int count = 1;
 //  /**
@@ -70,8 +68,6 @@ public class BaseController{
 
   /**
    * 绑定多个表格的列
-   * 
-   * @param tables
    */
   public <T> void bindCellValueByTable(T entity, TableView<T> table) {
     try {
@@ -84,7 +80,7 @@ public class BaseController{
 
   /**
    * 绑定数据域
-   * 
+   *
    * @param colums TableColumn 可变参数
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -137,8 +133,6 @@ public class BaseController{
     };
   }
 
-
-
   //
   // public T getEntity() {
   // return entity;
@@ -148,11 +142,16 @@ public class BaseController{
   // this.entity = entity;
   // }
 
-   /**
+  /**
    * 父类获取子类Class
+   *
    * @author linzt
    */
-   public Class<?> getSubClass(){ return null;};
+  public Class<?> getSubClass() {
+    return null;
+  }
+
+  ;
   //
   // /**
   // * 父类获取子类的实例对象
@@ -160,7 +159,6 @@ public class BaseController{
   // * @author linzt
   // */
   // public abstract <T> T getSubClassInstance();
-
 
 
 }

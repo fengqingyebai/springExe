@@ -21,7 +21,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * 导出Excel公共方法
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:52:14
  */
@@ -97,7 +97,6 @@ public class ExportExcel {
       cellTiltle.setCellStyle(style);
       isManagedLabel.setCellValue("战绩是否代管理：" + (isManage ? YES : NO));
 
-
       // 定义所需列数
       int columnNum = rowName.length;
       HSSFRow rowRowNames = sheet.createRow(3); // 在索引2的位置创建行(最顶端的行开始的第二行)
@@ -111,7 +110,6 @@ public class ExportExcel {
         cellRowName.setCellValue(text); // 设置列头单元格的值
         cellRowName.setCellStyle(columnTopStyle); // 设置列头单元格样式
       }
-
 
       // 将查询出的数据设置到sheet对应的单元格中
       for (int i = 0; i < dataList.size(); i++) {
@@ -160,7 +158,6 @@ public class ExportExcel {
       sheet.setColumnWidth(rowName.length + 2, 3500);
       /****************************/
 
-
       if (workbook != null) {
         OutputStream out = null;
         try {
@@ -171,8 +168,9 @@ public class ExportExcel {
         } catch (IOException e) {
           e.printStackTrace();
         } finally {
-          if (out != null)
+          if (out != null) {
             out.close();
+          }
         }
       }
 
@@ -183,7 +181,6 @@ public class ExportExcel {
   }
 
 
-
   public static void main(String[] args) throws Exception {
     // String title = Message.getString("manifestIExportTitle");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -191,7 +188,7 @@ public class ExportExcel {
     String title = teamId + "-" + sdf.format(new Date());
     System.out.println(title);
 
-    String[] rowsName = new String[] {"玩家ID", "玩家名称", "原始战绩", "战绩", "保险", "回水", "回保", "场次"};
+    String[] rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "保险", "回水", "回保", "场次"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     // for (int i = 0; i < manifestIMainList.size(); i++) {
@@ -210,7 +207,6 @@ public class ExportExcel {
     // 时间
     // 团队ID 是否代管理
     // 总和信息
-
 
     //
     // String out = "D:/"+title+System.currentTimeMillis();

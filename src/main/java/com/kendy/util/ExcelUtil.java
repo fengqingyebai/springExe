@@ -49,19 +49,19 @@ import com.kendy.excel.excel4j.exceptions.TimeMatchFormatException;
  * <p>
  * POI 3.17
  * </p>
- * 
+ *
  * @author delegation by linzt
  */
 public enum ExcelUtil {
-  
+
   INSTANCE;
 
-  
+
   /**
    * 根据文件路径读取（指定从第几行读取内容）
    */
   public <T> List<T> readExcel2Objects(String excelPath, Class<T> clazz, int offsetLine)
-      throws Exception{
+      throws Exception {
     Workbook workbook = WorkbookFactory.create(new File(excelPath));
     return readExcel2ObjectsHandler(workbook, clazz, offsetLine);
   }
@@ -76,15 +76,17 @@ public enum ExcelUtil {
     Row row = sheet.getRow(offsetLine);
     List<T> list = new ArrayList<>();
     Map<Integer, ExcelHeader> maps = Utils.getHeaderMap(row, clazz);
-    if (maps == null || maps.size() <= 0)
+    if (maps == null || maps.size() <= 0) {
       throw new Exception(
           "The Excel format to read is not correct, and check to see if the appropriate rows are set");
+    }
     long maxLine = sheet.getLastRowNum();
 
     for (int i = offsetLine + 1; i <= maxLine; i++) {
       row = sheet.getRow(i);
-      if (null == row)
+      if (null == row) {
         continue;
+      }
       T obj;
       try {
         obj = clazz.newInstance();
@@ -94,8 +96,9 @@ public enum ExcelUtil {
       for (Cell cell : row) {
         int ci = cell.getColumnIndex();
         ExcelHeader header = maps.get(ci);
-        if (null == header)
+        if (null == header) {
           continue;
+        }
         String val = Utils.getCellValue(cell);
         Object value;
         String filed = header.getFiled();
@@ -109,6 +112,7 @@ public enum ExcelUtil {
   }
 
   /*---------------------------------------2.读取Excel操作无映射-------------------------------------------------*/
+
   /**
    * 读取Excel表格数据,返回{@code List[List[String]]}类型的数据集合
    *
@@ -119,7 +123,6 @@ public enum ExcelUtil {
    * @return 返回{@code List<List<String>>}类型的数据集合
    * @throws IOException 异常
    * @throws InvalidFormatException 异常
-   * 
    */
   public List<List<String>> readExcel2List(String excelPath, int offsetLine)
       throws IOException, InvalidFormatException {
@@ -130,7 +133,6 @@ public enum ExcelUtil {
 
   /**
    * 读取Excel表格数据(从文件流)
-   *
    */
   public List<List<String>> readExcel2List(InputStream is, int offsetLine)
       throws Exception, IOException, InvalidFormatException {
@@ -148,8 +150,9 @@ public enum ExcelUtil {
     for (int i = offsetLine; i <= maxLine; i++) {
       List<String> rows = new ArrayList<>();
       Row row = sheet.getRow(i);
-      if (null == row)
+      if (null == row) {
         continue;
+      }
       for (Cell cell : row) {
         String val = Utils.getCellValue(cell);
         rows.add(val);
@@ -161,6 +164,7 @@ public enum ExcelUtil {
 
 
   /*--------------------------------------基于注解导出---------------------------------------------------*/
+
   /**
    * 无模板、基于注解的数据导出
    *
@@ -172,7 +176,6 @@ public enum ExcelUtil {
    * @param targetPath 生成的Excel输出全路径
    * @throws Exception 异常
    * @throws IOException 异常
-   * 
    */
   public void exportObjects2Excel(List<?> data, Class<?> clazz, boolean isWriteHeader,
       String sheetName, boolean isXSSF, String targetPath) throws Exception, IOException {
@@ -184,7 +187,6 @@ public enum ExcelUtil {
   }
 
 
-
   /**
    * 无模板、基于注解的数据导出
    *
@@ -194,7 +196,6 @@ public enum ExcelUtil {
    * @param targetPath 生成的Excel输出全路径
    * @throws Exception 异常
    * @throws IOException 异常
-   * 
    */
   public void exportObjects2Excel(List<?> data, Class<?> clazz, boolean isWriteHeader,
       String targetPath) throws Exception, IOException {
@@ -212,7 +213,6 @@ public enum ExcelUtil {
    * @param targetPath 生成的Excel输出全路径
    * @throws Exception 异常
    * @throws IOException 异常
-   * 
    */
   public void exportObjects2Excel(List<?> data, Class<?> clazz, String targetPath)
       throws Exception, IOException {
@@ -323,7 +323,6 @@ public enum ExcelUtil {
 }
 
 
-
 /**
  * 基于注解导出的sheet包装类
  */
@@ -399,7 +398,6 @@ class SheetWrapper {
     this.sheetName = sheetName;
   }
 }
-
 
 
 /**
@@ -491,7 +489,6 @@ class ExcelHeader implements Comparable<ExcelHeader> {
     this.colWidth = colWidth;
   }
 }
-
 
 
 class Utils {
@@ -601,8 +598,9 @@ class Utils {
    * @return 转换后数据
    */
   public static Object str2TargetClass(String strField, Class<?> clazz) {
-    if (null == strField || "".equals(strField))
+    if (null == strField || "".equals(strField)) {
       return null;
+    }
     if ((Long.class == clazz) || (long.class == clazz)) {
       strField = matchDoneBigDecimal(strField);
       strField = RegularUtils.converNumByReg(strField);
@@ -664,8 +662,9 @@ class Utils {
   public static Method getterOrSetter(Class<?> clazz, String fieldName, FieldAccessType methodType)
       throws IntrospectionException {
 
-    if (null == fieldName || "".equals(fieldName))
+    if (null == fieldName || "".equals(fieldName)) {
       return null;
+    }
 
     BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
     PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
@@ -718,8 +717,9 @@ class Utils {
    */
   public static String getProperty(Object bean, String fieldName) throws Exception {
 
-    if (bean == null || fieldName == null)
+    if (bean == null || fieldName == null) {
       throw new IllegalArgumentException("Operating bean or filed class must not be null");
+    }
     Method method;
     Object object;
     try {
@@ -740,11 +740,13 @@ class Utils {
    */
   public static void copyProperty(Object bean, String name, Object value) throws Exception {
 
-    if (null == name || null == value)
+    if (null == name || null == value) {
       return;
+    }
     Field field = matchClassField(bean.getClass(), name);
-    if (null == field)
+    if (null == field) {
       return;
+    }
     Method method;
     try {
       method = getterOrSetter(bean.getClass(), name, FieldAccessType.SETTER);
@@ -978,7 +980,6 @@ class DateUtils {
 }
 
 
-
 /**
  * <p>
  * 正则匹配相关工具
@@ -1023,8 +1024,9 @@ class RegularUtils {
     List<String> matchGroups = new ArrayList<>();
     Pattern compile = Pattern.compile(reg);
     Matcher matcher = compile.matcher(pattern);
-    if (group > matcher.groupCount() || group < 0)
+    if (group > matcher.groupCount() || group < 0) {
       return Collections.EMPTY_LIST;
+    }
     while (matcher.find()) {
       matchGroups.add(matcher.group(group));
     }
@@ -1066,10 +1068,9 @@ class RegularUtils {
 }
 
 
-
 /**
  * 自定义Excel单元格样式
- * 
+ *
  * @author 林泽涛
  * @time 2018年7月1日 下午3:42:15
  */

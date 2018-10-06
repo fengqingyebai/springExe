@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.kendy.util;
 
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Http连接工具类
- * 
+ *
  * @author ChenXing www.10155.com
  * @version 2018年4月27日
  */
@@ -93,10 +93,9 @@ public class HttpUtils {
 
   /**
    * 获取实例
-   * 
+   *
    * @param route 需请求的URL
    * @param max 最大连接数
-   * @return
    */
   public static HttpUtils getInstance(String route, int max) {
     try {
@@ -114,23 +113,15 @@ public class HttpUtils {
   }
 
   /**
-   * @param url
    * @param charset 字符集
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult get(String url, Charset charset) throws URISyntaxException, IOException {
     return get(url, charset, -1);
   }
 
   /**
-   * @param url
    * @param charset 字符集
    * @param timeout 超时时间(毫秒)
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult get(String url, Charset charSet, int timeout)
       throws URISyntaxException, IOException {
@@ -138,12 +129,8 @@ public class HttpUtils {
   }
 
   /**
-   * @param url
    * @param charset 字符集
    * @param headers Http头
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult get(String url, Charset charset, Map<String, String> headers)
       throws URISyntaxException, IOException {
@@ -151,13 +138,9 @@ public class HttpUtils {
   }
 
   /**
-   * @param url
    * @param charset 字符集
    * @param headers Http头
    * @param timeout 超时时间(毫秒)
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult get(String url, Charset charset, Map<String, String> headers, int timeout)
       throws URISyntaxException, IOException {
@@ -171,13 +154,8 @@ public class HttpUtils {
   }
 
   /**
-   * @param url
    * @param charset 字符集
    * @param headers Http头
-   * @param requestConfig
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult get(String url, Charset charset, Map<String, String> headers,
       RequestConfig requestConfig) throws URISyntaxException, IOException {
@@ -185,15 +163,10 @@ public class HttpUtils {
   }
 
   /**
-   * 表单方式提交<br/>
-   * Content-Type=application/x-www-form-urlencoded
-   * 
-   * @param url
+   * 表单方式提交<br/> Content-Type=application/x-www-form-urlencoded
+   *
    * @param charset 字符集
    * @param form 表单参数
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, Map<String, String> form)
       throws URISyntaxException, IOException {
@@ -201,16 +174,11 @@ public class HttpUtils {
   }
 
   /**
-   * 表单方式提交<br/>
-   * Content-Type=application/x-www-form-urlencoded
-   * 
-   * @param url
+   * 表单方式提交<br/> Content-Type=application/x-www-form-urlencoded
+   *
    * @param charset 字符集
    * @param form 表单参数
    * @param timeout 超时时间(毫秒)
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, Map<String, String> form, int timeout)
       throws URISyntaxException, IOException {
@@ -234,15 +202,10 @@ public class HttpUtils {
   }
 
   /**
-   * 文本方式提交<br/>
-   * Content-Type=text/plain
-   * 
-   * @param url
+   * 文本方式提交<br/> Content-Type=text/plain
+   *
    * @param charset 字符集
    * @param body 文本body
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, String body)
       throws URISyntaxException, IOException {
@@ -250,16 +213,11 @@ public class HttpUtils {
   }
 
   /**
-   * 文本方式提交<br/>
-   * Content-Type=text/plain
-   * 
-   * @param url
+   * 文本方式提交<br/> Content-Type=text/plain
+   *
    * @param charset 字符集
    * @param body 文本body
    * @param timeout 超时时间(毫秒)
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, String body, int timeout)
       throws URISyntaxException, IOException {
@@ -267,13 +225,9 @@ public class HttpUtils {
   }
 
   /**
-   * @param url
    * @param charset 字符集
    * @param body entity
    * @param headers Http头
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, String body, Map<String, String> headers)
       throws URISyntaxException, IOException {
@@ -281,17 +235,12 @@ public class HttpUtils {
   }
 
   /**
-   * 文本方式提交<br/>
-   * Content-Type=text/plain
-   * 
-   * @param url
+   * 文本方式提交<br/> Content-Type=text/plain
+   *
    * @param charset 字符集
    * @param body 文本body
    * @param headers Http头
    * @param timeout 超时时间(毫秒)
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, String body, Map<String, String> headers,
       int timeout) throws URISyntaxException, IOException {
@@ -316,15 +265,10 @@ public class HttpUtils {
 
   /**
    * Content-Type取决于HttpEntity类型
-   * 
-   * @param url
+   *
    * @param charset 字符集
    * @param body entity
    * @param headers Http头
-   * @param requestConfig
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   public HttpResult post(String url, Charset charset, HttpEntity body, Map<String, String> headers,
       RequestConfig requestConfig) throws URISyntaxException, IOException {
@@ -334,17 +278,6 @@ public class HttpUtils {
 
   /**
    * 发送Request
-   * 
-   * @param method
-   * @param url
-   * @param charset
-   * @param body
-   * @param headers
-   * @param context
-   * @param config
-   * @return
-   * @throws URISyntaxException
-   * @throws IOException
    */
   private HttpResult request(String method, String url, Charset charset, HttpEntity body,
       Map<String, String> headers, HttpContext context, RequestConfig config)

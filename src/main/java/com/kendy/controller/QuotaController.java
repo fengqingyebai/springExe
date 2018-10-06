@@ -59,7 +59,7 @@ import javafx.scene.control.TableView;
 
 /**
  * 处理联盟配额的控制器
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
@@ -217,7 +217,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 设置单个联盟最新的结余
-   * 
+   *
    * @time 2017年12月18日
    */
   @SuppressWarnings("static-access")
@@ -261,10 +261,9 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 获取俱乐部的总战绩
-   * 
-   * @time 2017年12月17日
+   *
    * @param sumList 指导出全部俱乐部总和信息Excel时的某个俱乐部信息
-   * @return
+   * @time 2017年12月17日
    */
   public String getSumZJ(List<LMSumInfo> sumList) {
     return sumList.parallelStream().filter(sumInfo -> "当天总帐".equals(sumInfo.getLmSumName()))
@@ -273,7 +272,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 设置配额表数据
-   * 
+   *
    * @time 2017年12月18日
    */
   public void setTableData() {
@@ -289,7 +288,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 点击不同联盟时清空之前的表视图数据
-   * 
+   *
    * @time 2017年12月18日
    */
   private void clearTables() {
@@ -301,9 +300,8 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 联盟1按钮
-   * 
+   *
    * @time 2017年12月13日
-   * @param event
    */
   public void LM1_Btn_Action(ActionEvent event) {
     clearTables();
@@ -314,12 +312,10 @@ public class QuotaController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 联盟2按钮
-   * 
+   *
    * @time 2017年12月13日
-   * @param event
    */
   public void LM2_Btn_Action(ActionEvent event) {
     clearTables();
@@ -331,9 +327,8 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 联盟3按钮
-   * 
+   *
    * @time 2017年12月13日
-   * @param event
    */
   public void LM3_Btn_Action(ActionEvent event) {
     clearTables();
@@ -345,13 +340,14 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 联盟自动配额 这是本控制类最核心的代码 算法：找剩余值中的两个最大最小值进行一方清零，不断循环
-   * 
+   *
    * @time 2017年12月18日
    */
   public void autoQuota() {
 
-    if (TableUtil.isNullOrEmpty(tableQuota))
+    if (TableUtil.isNullOrEmpty(tableQuota)) {
       return;
+    }
 
     boolean isDone = false;
     int count = 0;
@@ -441,7 +437,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 配额最后还有剩余为负数的则全部结转到当前俱乐部
-   * 
+   *
    * @time 2017年12月18日
    */
   private void addNegativeRest2CurrentClub() {
@@ -463,22 +459,20 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 往结账表新增一条记录 应用场景：自动配额时，每配额一次就产生一条记录
-   * 
+   *
    * @time 2017年12月18日
-   * @param info
    */
   private void addRecord2TableQuotaPay(QuotaMoneyInfo info) {
     ObservableList<QuotaMoneyInfo> obList = tableQuotaPay.getItems();
-    if (obList == null)
+    if (obList == null) {
       obList = FXCollections.observableArrayList();
+    }
     obList.add(info);
     tableQuotaPay.setItems(obList);
   }
 
   /**
    * 获取剩余最大和最小的两行
-   * @param type
-   * @return
    */
   private ClubQuota getRecord(int type) {
 //    Stream<ClubQuota> stream = tableQuota.getItems().stream();
@@ -490,19 +484,20 @@ public class QuotaController extends BaseController implements Initializable {
 //        : stream.min((o1, o2) -> comparator.reversed().compare(o1, o2));
 //    
 //    return result.get();
-    
-    if (1 == type)
+
+    if (1 == type) {
       return tableQuota.getItems().parallelStream().max((o1, o2) -> NumUtil
           .getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))).get();
-    else
+    } else {
       return tableQuota.getItems().parallelStream().min((o1, o2) -> NumUtil
           .getNum(o1.getQuotaRest()).compareTo(NumUtil.getNum(o2.getQuotaRest()))).get();
+    }
   }
 
 
   /**
    * 设置该联盟所有俱乐部的银行卡信息
-   * 
+   *
    * @time 2017年12月19日
    */
   private void autoSetBankData() {
@@ -526,9 +521,8 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 获取当前联盟的索引 索引1表示联盟1
-   * 
+   *
    * @time 2017年12月14日
-   * @return
    */
   public int getCurrentLMType() {
     String currentType = currentLMLabels.getText();
@@ -539,9 +533,8 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 添加一个俱乐部银行卡记录
-   * 
+   *
    * @time 2017年12月19日
-   * @param event
    */
   public void addClubBankAction(ActionEvent event) {
     List<String> list = Arrays.asList("俱乐部ID", "移动类型", "姓名", "手机", "银行类型", "银行信息");
@@ -590,9 +583,8 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 往银行信息表添加一条记录
-   * 
+   *
    * @time 2017年12月19日
-   * @param model
    */
   private void addClubBank2Table(ClubBankModel model) {
     // 转为实体
@@ -636,22 +628,21 @@ public class QuotaController extends BaseController implements Initializable {
 
   /**
    * 获取选中的俱乐部银行卡记录
-   * 
+   *
    * @time 2017年12月19日
-   * @return
    */
   private ClubBankInfo getSelectClubBank() {
-    if (tableQuotaBank.getItems() != null)
+    if (tableQuotaBank.getItems() != null) {
       return tableQuotaBank.getSelectionModel().getSelectedItem();
+    }
 
     return null;
   }
 
   /**
    * 修改俱乐部银行卡记录
-   * 
+   *
    * @time 2017年12月19日
-   * @param event
    */
   public void updateClubBankAction(ActionEvent event) {
     ClubBankInfo item = getSelectClubBank();
@@ -705,9 +696,9 @@ public class QuotaController extends BaseController implements Initializable {
 
 
   /**********************************************************************************
-   * 
+   *
    * 导出Excel
-   * 
+   *
    ***********************************************************************************/
   public void exportClubPayExcel(ActionEvent event) {
     // 数据
@@ -720,7 +711,8 @@ public class QuotaController extends BaseController implements Initializable {
     // 标题
     String title = currentLMLabels.getText() + "俱乐部结账单-" + sdf.format(new Date());
     // 列名
-    String[] rowName = new String[] {"付款方", "收款方", "转账", "支付类型", "联系人", "手机", "银行卡信息"};;
+    String[] rowName = new String[]{"付款方", "收款方", "转账", "支付类型", "联系人", "手机", "银行卡信息"};
+    ;
     // 输出
     String out = "D:/" + title + System.currentTimeMillis();
     List<Object[]> dataList = new ArrayList<Object[]>();

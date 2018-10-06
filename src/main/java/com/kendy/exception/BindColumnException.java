@@ -2,7 +2,7 @@ package com.kendy.exception;
 
 /**
  * 绑定列值异常
- * 
+ *
  * @author linzt
  * @time 2018年7月6日
  */

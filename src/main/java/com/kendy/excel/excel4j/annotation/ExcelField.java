@@ -16,44 +16,44 @@ import com.kendy.excel.excel4j.converter.WriteConvertible;
 @Target(ElementType.FIELD)
 public @interface ExcelField {
 
-    /**
-     * 属性的标题名称
-     *
-     * @return 表头名
-     */
-    String title();
+  /**
+   * 属性的标题名称
+   *
+   * @return 表头名
+   */
+  String title();
 
-    /**
-     * 写数据转换器
-     *
-     * @return 写入Excel数据转换器
-     * @see WriteConvertible
-     */
-    Class<? extends WriteConvertible> writeConverter()
-            default DefaultConvertible.class;
+  /**
+   * 写数据转换器
+   *
+   * @return 写入Excel数据转换器
+   * @see WriteConvertible
+   */
+  Class<? extends WriteConvertible> writeConverter()
+      default DefaultConvertible.class;
 
-    /**
-     * 读数据转换器
-     *
-     * @return 读取Excel数据转换器
-     * @see ReadConvertible
-     */
-    Class<? extends ReadConvertible> readConverter()
-            default DefaultConvertible.class;
+  /**
+   * 读数据转换器
+   *
+   * @return 读取Excel数据转换器
+   * @see ReadConvertible
+   */
+  Class<? extends ReadConvertible> readConverter()
+      default DefaultConvertible.class;
 
-    /**
-     * 在excel的顺序
-     *
-     * @return 列表顺序
-     */
-    int order() default Integer.MAX_VALUE;
-    
-    
-    /**
-     * 在excel的列宽
-     *
-     * @return 列宽, 最长为 256 * 256
-     */
-    int colWidth() default 15;
-    
+  /**
+   * 在excel的顺序
+   *
+   * @return 列表顺序
+   */
+  int order() default Integer.MAX_VALUE;
+
+
+  /**
+   * 在excel的列宽
+   *
+   * @return 列宽, 最长为 256 * 256
+   */
+  int colWidth() default 15;
+
 }

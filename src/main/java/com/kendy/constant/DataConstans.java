@@ -34,11 +34,12 @@ import javafx.stage.Stage;
 
 /**
  * 模拟数据表的常量类 功能：缓存数据
- * 
+ *
  * @author 林泽涛
  */
 @Component
 public class DataConstans {
+
   private Logger logger = LoggerFactory.getLogger(DataConstans.class);
 
   @Autowired
@@ -46,7 +47,7 @@ public class DataConstans {
 
 
   /**
-   * 
+   *
    */
   public DataConstans() {
     super();
@@ -61,7 +62,7 @@ public class DataConstans {
    * Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupByMap<String,List<GameRecord>>
    * <p>
    * Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
-   * 
+   *
    **************************************************************************************/
 
   private Logger log = LoggerFactory.getLogger(DataConstans.class);
@@ -152,9 +153,8 @@ public class DataConstans {
 
   /**
    * 锁定时获取缓存数据 注意：人员，回水和合并ID不缓存，单独存储到数据
-   * 
+   *
    * @time 2017年11月4日
-   * @return
    */
   public Map<String, String> getLockedDataMap() {
     Map<String, String> lastLockedDataMap = new HashMap<>();
@@ -166,7 +166,6 @@ public class DataConstans {
     // 玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
     // public Map<String,List<ShangmaDetailInfo>> SM_Detail_Map_Locked= new HashMap<>();
     lastLockedDataMap.put("SM_Detail_Map_Locked", JSON.toJSONString(this.SM_Detail_Map_Locked));
-
 
     // **********************************************************以下四个不保存数据，中途开始时去数据表拿*********************************
     // 缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
@@ -212,7 +211,6 @@ public class DataConstans {
     // 缓存所有股东名称
     // public List<String> gudongList = new ArrayList<>();//撤销后不变
     lastLockedDataMap.put("gudongList", JSON.toJSONString(this.gudongList));
-
 
     // 导入战绩后缓存一些总和信息
     // public Map<String,Double> SumMap = new HashMap<>();
@@ -309,7 +307,7 @@ public class DataConstans {
 
   /**
    * 初始化合并ID关系
-   * 
+   *
    * @time 2017年11月4日
    */
   public void initCombineId() {
@@ -319,8 +317,9 @@ public class DataConstans {
     } else {
       this.Combine_Sub_Id_Map = new HashMap<>();
       this.Combine_Super_Id_Map.forEach((parentId, subIdSet) -> {
-        for (String subId : subIdSet)
+        for (String subId : subIdSet) {
           this.Combine_Sub_Id_Map.put(subId, parentId);
+        }
       });
     }
   }
@@ -337,7 +336,8 @@ public class DataConstans {
       // 从数据库中获取上一次保存的锁定数据
       if (!dbUtil.isPreData2017VeryFirst()) {
         Map<String, String> map = dbUtil.getLastLockedData();
-        SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {});
+        SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {
+        });
       }
     } catch (Exception e) {
       ShowUtil.show("警告：初始化昨日留底数据失败！原因：" + e.getMessage());
@@ -347,13 +347,12 @@ public class DataConstans {
 
   public Map<String, Map<String, String>> getPreData() {
 
-
     return null;
   }
 
   /**
    * 中途恢复缓存数据
-   * 
+   *
    * （人员和回水以及合并ID不在此处，在调用此方法前已经设置了）
    */
   public void recoveryAllCache() {
@@ -372,11 +371,13 @@ public class DataConstans {
 
     // 玩家ID=上码详情列表（正在使用的值）
     SM_Detail_Map = JSON.parseObject(map.get("SM_Detail_Map"),
-        new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
+        new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {
+        });
 
     // 玩家ID=上码详情列表（上一场所定的数据，用于撤销时恢复原数据）
     SM_Detail_Map_Locked = JSON.parseObject(map.get("SM_Detail_Map_Locked"),
-        new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {});
+        new TypeReference<Map<String, List<ShangmaDetailInfo>>>() {
+        });
 
     // 缓存120场次的所有锁定数据{页数第几局={...}}
 //    All_Locked_Data_Map = JSON.parseObject(map.get("All_Locked_Data_Map"),
@@ -384,38 +385,46 @@ public class DataConstans {
 //    logger.info("加载锁定数据：" + (All_Locked_Data_Map == null ? "为null!" : "不为空"));
 
     // 锁定后是第X局
-    Paiju_Index = JSON.parseObject(map.get("Paiju_Index"), new TypeReference<AtomicInteger>() {});
+    Paiju_Index = JSON.parseObject(map.get("Paiju_Index"), new TypeReference<AtomicInteger>() {
+    });
 
     // 缓存场次与局映射
     Index_Table_Id_Map = JSON.parseObject(map.get("Index_Table_Id_Map"),
-        new TypeReference<Map<String, String>>() {});
+        new TypeReference<Map<String, String>>() {
+        });
 
-    Root_Dir = JSON.parseObject(map.get("Root_Dir"), new TypeReference<String>() {});
+    Root_Dir = JSON.parseObject(map.get("Root_Dir"), new TypeReference<String>() {
+    });
     // 缓存实时开销
     kaixiaoMap =
-        JSON.parseObject(map.get("kaixiaoMap"), new TypeReference<Map<String, String>>() {});
+        JSON.parseObject(map.get("kaixiaoMap"), new TypeReference<Map<String, String>>() {
+        });
 
     // 缓存最新前一场数据
     preDataMap =
-        JSON.parseObject(map.get("preDataMap"), new TypeReference<Map<String, String>>() {});
+        JSON.parseObject(map.get("preDataMap"), new TypeReference<Map<String, String>>() {
+        });
 
     // 缓存所有股东名称
-    gudongList = JSON.parseObject(map.get("gudongList"), new TypeReference<List<String>>() {});
+    gudongList = JSON.parseObject(map.get("gudongList"), new TypeReference<List<String>>() {
+    });
 
     // 导入战绩后缓存一些总和信息
-    SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {});
+    SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {
+    });
 
     // 缓存上一场次已经锁定的团队记录{teamID=TeamInfo...},主要用于合并团队记录(好像也没必要了这个)
     Team_Info_Pre_Map = JSON.parseObject(map.get("Team_Info_Pre_Map"),
-        new TypeReference<Map<String, TeamInfo>>() {});
-    Date_Str = JSON.parseObject(map.get("Date_Str"), new TypeReference<String>() {});
+        new TypeReference<Map<String, TeamInfo>>() {
+        });
+    Date_Str = JSON.parseObject(map.get("Date_Str"), new TypeReference<String>() {
+    });
 
     log.info("==============中途恢复缓存数据。。。finishes");
   }
 
-
   /**************************************************************************************
-   * 
+   *
    * List<GameRecord> Dangju_Team_Huishui_List ：当前俱乐部的记录集合
    * <p>
    * Map<String, List<GameRecord>> zjMap : 当前俱乐部的记录，以场次GroupBy 
@@ -423,7 +432,7 @@ public class DataConstans {
    * Map<String,List<GameRecord>> Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy
    * <p>
    * Map<String,List<GameRecord>> Total_Team_Huishui_Map : 当前俱乐部的记录，以TeamId进行GroupBy， 不过不删除撤销的数据？
-   * 
+   *
    **************************************************************************************/
   /**
    * 中途继续恢复记录信息 主要是恢复 Dangju_Team_Huishui_List， zjMap，Team_Huishui_Map，Total_Team_Huishui_Map
@@ -446,7 +455,7 @@ public class DataConstans {
 
       // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
       Team_Huishui_Map = gameRecords.stream()
-          .filter(e->"0".equals(e.getIsJiesuaned()))
+          .filter(e -> "0".equals(e.getIsJiesuaned()))
           .collect(Collectors.groupingBy(GameRecord::getTeamId));
 
       // 这个不会被修改，是总的团队回水记录。用在团队回水当天查询
@@ -456,19 +465,14 @@ public class DataConstans {
 
   }
 
-
-
   /******************************************************************************************
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * ****************************************************************************************
    */
   /**
    * 获取LinkedHashMap的最后一个元素
-   * 
-   * @param map
-   * @return
    */
   public <K, V> Entry<K, V> getTail(LinkedHashMap<K, V> map) {
     Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
@@ -492,8 +496,9 @@ public class DataConstans {
 
   // 获取最新的SM_Detail_Map(上码表的个人详情）{玩家ID=List<ShangmaDetailInfo>}
   public void refresh_SM_Detail_Map() {
-    if (this.membersMap == null)
+    if (this.membersMap == null) {
       return;
+    }
 
     this.membersMap.forEach((playerId, player) -> {
       if (!StringUtil.isBlank(playerId) && this.SM_Detail_Map.get(playerId) == null) {
@@ -517,8 +522,6 @@ public class DataConstans {
 
   /**
    * 根据名称找玩家ID
-   * 
-   * @param name
    */
   @SuppressWarnings("unused")
   public String getPlayerIdByName(String name) {
@@ -678,7 +681,6 @@ public class DataConstans {
     // }).start();
   }
 
-
   // public DBUtil getDbUtil() {
   // return dbUtil;
   // }
@@ -688,7 +690,6 @@ public class DataConstans {
   // this.dbUtil = dbUtil;
   // }
 
-
   // public MyController getMyController() {
   // return myController;
   // }
@@ -697,7 +698,6 @@ public class DataConstans {
   // public void setMyController(MyController myController) {
   // this.myController = myController;
   // }
-
 
 
 }

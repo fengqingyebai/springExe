@@ -23,13 +23,13 @@ import javafx.scene.control.TextField;
 
 /**
  * 会员查询服务类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:51:39
  */
 @Component
-public class MemberService{
-  
+public class MemberService {
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired
@@ -73,7 +73,7 @@ public class MemberService{
 
   /**
    * 获取玩家ID 备注：名称可能含有空格，名称与ID也是用空格隔开。所以单独成方法。
-   * 
+   *
    * @param nameAndId 名称和ID 传过来肯定是不为空的，固不作空判断
    */
   public String getIdFromStr(String nameAndId) {
@@ -87,11 +87,8 @@ public class MemberService{
 
   /**
    * 更新人员表
-   * 
+   *
    * @time 2017年10月28日
-   * @param tableMemberZJ
-   * @param wanjiaId
-   * @param memberSumOfZJ
    */
   public void updateMemberTable(TableView<MemberZJInfo> tableMemberZJ, String wanjiaId,
       Label memberSumOfZJ) {

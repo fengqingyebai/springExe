@@ -85,7 +85,7 @@ import javafx.scene.layout.VBox;
 
 /**
  * 自动上码控制器
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
@@ -96,9 +96,9 @@ public class SMAutoController extends BaseController implements Initializable {
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
-  public CombineIDController combineIDController ;
+  public CombineIDController combineIDController;
   @Autowired
   public BaseController baseController; // 基本控制类
   @Autowired
@@ -119,41 +119,64 @@ public class SMAutoController extends BaseController implements Initializable {
   public MoneyService moneyService; // 配帐控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
-  
+
   @Autowired
   HttpService httpService;
 
-  @FXML public TextField smNextDayRangeFieldd; // 次日上码配置
+  @FXML
+  public TextField smNextDayRangeFieldd; // 次日上码配置
 
-  @FXML public TextArea tokenArea;// token值
-  @FXML public Label tokenStatus; // token状态
-  @FXML public ListView<String> logArea;
-  @FXML public ListView<String> excelArea;
-  @FXML public TextField sysCodeField;
-  @FXML public TextField sperateTimeField;// 每隔多久去刷新
-  @FXML public TextField filterPlayIdFields;// 上码过过滤人员（只给这些人上码）
+  @FXML
+  public TextArea tokenArea;// token值
+  @FXML
+  public Label tokenStatus; // token状态
+  @FXML
+  public ListView<String> logArea;
+  @FXML
+  public ListView<String> excelArea;
+  @FXML
+  public TextField sysCodeField;
+  @FXML
+  public TextField sperateTimeField;// 每隔多久去刷新
+  @FXML
+  public TextField filterPlayIdFields;// 上码过过滤人员（只给这些人上码）
 
   // =====================================================================自动上码日志记录表
-  @FXML public TableView<SMAutoInfo> tableSMAuto;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoDate;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoPlayerId;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoPlayerName;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoPaiju;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoApplyAccount;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoIsTeamAvailabel;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoIsCurrentDay;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoIsNextDay;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoIsAgree;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoIsAgreeSuccess;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoAvailabel;
-  @FXML private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
+  @FXML
+  public TableView<SMAutoInfo> tableSMAuto;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoDate;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoPlayerId;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoPlayerName;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoPaiju;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoApplyAccount;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoIsTeamAvailabel;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoIsCurrentDay;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoIsNextDay;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoIsAgree;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoIsAgreeSuccess;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoAvailabel;
+  @FXML
+  private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
 
-  @FXML public TextField downExcelPierodField;// 每隔多久去刷新
+  @FXML
+  public TextField downExcelPierodField;// 每隔多久去刷新
 
 
   private final String SM_AOTO_NEXT_DAY_DB_KEY =
       KeyEnum.SM_AOTO_NEXT_DAY_DB_KEY.getKeyName(); // 保存到数据库的key
-  private final String SM_AOTO_TOKEN_DB_KEY = KeyEnum.SM_AOTO_TOKEN_DB_KEY.getKeyName(); // 保存到数据库的key
+  private final String SM_AOTO_TOKEN_DB_KEY = KeyEnum.SM_AOTO_TOKEN_DB_KEY
+      .getKeyName(); // 保存到数据库的key
 
   private final String CONNECT_FAIL = "连接失败,失败码：";
 
@@ -209,7 +232,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 初始化次日上码范围
-   * 
+   *
    * @time 2018年3月28日
    */
   private void initNextDayRange() {
@@ -225,7 +248,6 @@ public class SMAutoController extends BaseController implements Initializable {
    * 加载次日上码范围
    *
    * @time 2018年3月31日
-   * @param event
    */
   public void loadNextDayAction(ActionEvent event) {
     initNextDayRange();
@@ -234,9 +256,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 保存Token
-   * 
+   *
    * @time 2018年3月31日
-   * @param event
    */
   public void saveTokenAction(ActionEvent event) {
     String token = tokenArea.getText();
@@ -250,9 +271,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 加载Token
-   * 
+   *
    * @time 2018年3月31日
-   * @param event
    */
   public void loadTokenAction(ActionEvent event) {
     String token = dbUtil.getValueByKeyWithoutJson(SM_AOTO_TOKEN_DB_KEY);
@@ -264,9 +284,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 测试token
-   * 
-   * @throws Exception
-   * 
+   *
    * @time 2018年3月26日
    */
   public void tokenTestAction(ActionEvent event) {
@@ -308,9 +326,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 记录日志
-   * 
+   *
    * @time 2018年3月26日
-   * @param description
    */
   private void logInfo(String description) {
     synchronized (lock) {
@@ -327,20 +344,19 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 清空右边日志框内容ListView
-   * 
+   *
    * @time 2018年3月26日
-   * @param event
    */
   public void removeLogAreaAction(ActionEvent event) {
-    if (logArea.getItems() != null)
+    if (logArea.getItems() != null) {
       logArea.getItems().clear();
+    }
   }
 
   /**
    * 获取token
-   * 
+   *
    * @time 2018年3月26日
-   * @return
    */
   public String getToken() {
     return StringUtil.nvl(tokenArea.getText(), "");
@@ -348,9 +364,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 保存次日上码的配置
-   * 
+   *
    * @time 2018年3月26日
-   * @param evet
    */
   public void saveNextDayConfigAction(ActionEvent evet) {
     String smNextDayRange = smNextDayRangeFieldd.getText();
@@ -364,15 +379,15 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 判断是否今日上码
-   * 
+   *
    * @time 2018年3月27日
-   * @return
    */
   public boolean judgeIsTodaySM(String paijuString) {
     Integer paiju = Integer.valueOf(paijuString);
     String rangStr = smNextDayRangeFieldd.getText();
-    if (StringUtil.isBlank(rangStr))
+    if (StringUtil.isBlank(rangStr)) {
       return true;
+    }
 
     String[] list = rangStr.split("##");
     // List<String> list = Arrays.asList("01-90","8001-8090","9001-9090");
@@ -389,9 +404,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 开始爬取后台数据
-   * 
+   *
    * @time 2018年3月26日
-   * @param evet
    */
   public void startSpiderAction(ActionEvent evet) {
     if (this.timer != null) {
@@ -453,9 +467,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 处理自动上码的逻辑（核心代码） 备注：申请数量过两道关之后程序会去实时上码Tab中自动上码
-   * 
+   *
    * @time 2018年3月26日
-   * @param buyinList
    */
   public synchronized void handleAutoShangma(List<WanjiaApplyInfo> buyinList) {
 
@@ -481,7 +494,8 @@ public class SMAutoController extends BaseController implements Initializable {
       String selectTeamAvailabel = huishui.getTeamAvailabel(); // 是否勾选了团队上码：1是 0否
 
       logInfo(playerName + "正在模拟更新实时上码...");
-      SMResultModel resultModel = shangmaService.getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
+      SMResultModel resultModel = shangmaService
+          .getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
       logInfo(playerName + "模拟更新实时上码结束");
       ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
       if (selectedSMInfo == null) {
@@ -490,9 +504,11 @@ public class SMAutoController extends BaseController implements Initializable {
       }
 
       String teamAvailabel = resultModel.getTeamTotalAvailabel(); // 获取团队可上码
-      String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId, playerName); // 获取可上码
+      String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId,
+          playerName); // 获取可上码
       boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
-      boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel, calcAvailable); // 是否同意
+      boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel,
+          calcAvailable); // 是否同意
 
       /****************************************/
       boolean addOK = false;
@@ -500,9 +516,10 @@ public class SMAutoController extends BaseController implements Initializable {
       if (passCheck) {
         List<String> testList = new ArrayList<>();
 
-        if (hasFilterPlayerIds())
+        if (hasFilterPlayerIds()) {
           testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##"))
               .collect(Collectors.toList());
+        }
 
         if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
           // 添加上码到软件中，同时发送后台请求
@@ -524,21 +541,21 @@ public class SMAutoController extends BaseController implements Initializable {
           passCheck ? "是" : "否", // smAutoIsAgree
           (passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
       );
-      logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo) );
+      logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
       addItem(smAutoInfo);
     }
   }
 
   /**
    * 本类核心 ：添加上码到软件中，同时发送后台请求
-   * 
-   * @time 2018年3月28日
+   *
    * @param isTodaySM 是否今日上码
    * @param passCheck 是否审核通过
    * @param paijuString 第几局
    * @param buyStack 上码值
    * @param userUuid 后台用户ID
    * @param roomId 房间号
+   * @time 2018年3月28日
    */
   public boolean addShangma(SMResultModel resultModel, boolean isTodaySM, String playerId,
       String playerName, String paijuString, String buyStack, Long userUuid, Long roomId) {
@@ -578,15 +595,13 @@ public class SMAutoController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 判断a 是否在区间范围[b,c]
-   * 
-   * @time 2018年3月28日
+   *
    * @param a 申请数量
    * @param b 团队可上码
    * @param c 个人可上码
-   * @return
+   * @time 2018年3月28日
    */
   private boolean checkInRange(String selectedTeamAvailabel, String a, String b, String c) {
     Double A = NumUtil.getNum(a);
@@ -601,9 +616,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 自动上码时获取玩家的可上码总接口 包括各种情况（如已勾选团队上码
-   * 
+   *
    * @time 2018年3月27日
-   * @return
    */
   private String getAvailable(SMResultModel resultModel, String selectTeamAvailabel,
       String playerId, String playerName) {
@@ -629,10 +643,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 联合额度
-   * 
+   *
    * @time 2018年3月27日
-   * @param playerId
-   * @return
    */
   public String getLianheAvailabel(List<ShangmaInfo> smList, String playerId) {
     String superId = dataConstants.Combine_Super_Id_Map.containsKey(playerId) ? playerId
@@ -651,10 +663,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 私人可上码（非父非子ID）
-   * 
+   *
    * @time 2018年3月27日
-   * @param playerId
-   * @return
    */
   public String getOnePersonAvailabel(List<ShangmaInfo> smList, String playerId) {
     String availaibel = smList.stream().filter(info -> playerId.equals(info.getShangmaPlayerId()))
@@ -667,24 +677,22 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 往日志表添加记录
-   * 
+   *
    * @time 2018年3月27日
-   * @param smAutoInfo
    */
   public void addItem(SMAutoInfo smAutoInfo) {
     if (TableUtil.isNullOrEmpty(tableSMAuto)) {
       tableSMAuto.setItems(FXCollections.observableArrayList());
-    } 
+    }
     tableSMAuto.getItems().add(smAutoInfo);
-    
+
     tableSMAuto.refresh();
   }
 
   /**
    * 停止爬取后台数据
-   * 
+   *
    * @time 2018年3月26日
-   * @param evet
    */
   public void stopSpiderAction(ActionEvent evet) {
     if (this.timer == null) {
@@ -699,9 +707,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 清空界面日志表
-   * 
+   *
    * @time 2018年3月26日
-   * @param evet
    */
   public void clearTableDataAction(ActionEvent evet) {
     TableUtil.clear(tableSMAuto);
@@ -710,10 +717,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 判断是否私人节点（非父非子）
-   * 
+   *
    * @time 2018年3月31日
-   * @param playerId
-   * @return
    */
   private boolean not_supter_not_sub(String playerId) {
     boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(playerId);
@@ -723,9 +728,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 是否有过滤节点
-   * 
+   *
    * @time 2018年3月31日
-   * @return
    */
   private boolean hasFilterPlayerIds() {
     return StringUtil.isNotBlank(filterPlayIdFields.getText());
@@ -733,9 +737,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 导出有上码的记录
-   * 
+   *
    * @time 2018年3月31日
-   * @param event
    */
   public void exportSMAction(ActionEvent event) {
     List<SMAutoInfo> autoShangmas = getAutoShangmas(1);
@@ -743,7 +746,7 @@ public class SMAutoController extends BaseController implements Initializable {
       ShowUtil.show("没有可供导出的数据！");
       return;
     }
-    String[] rowsName = new String[] {"爬取时间", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码",
+    String[] rowsName = new String[]{"爬取时间", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码",
         "勾选团队", "当天", "次日", "同意审核", "审核结果"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
@@ -779,10 +782,9 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 获取相应的自动上码记录
-   * 
-   * @time 2018年3月31日
+   *
    * @param type 1:审核结果非“-” 2：所有记录
-   * @return
+   * @time 2018年3月31日
    */
   @SuppressWarnings("unchecked")
   public List<SMAutoInfo> getAutoShangmas(int type) {
@@ -800,9 +802,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 测试模式时加载六个人
-   * 
+   *
    * @time 2018年3月31日
-   * @param event
    */
   public void load6PlayerIdsAction(ActionEvent event) {
     filterPlayIdFields
@@ -816,15 +817,17 @@ public class SMAutoController extends BaseController implements Initializable {
   }
 
 
-
   /************************************************************************************************
-   * 
+   *
    * 自动下载区域<a href=> http://cms.pokermanager.club/cms-api/game/exportGame?roomId=28739668&token=...
-   * 
+   *
    *************************************************************************************************/
-  @FXML private DatePicker datePicker; // dateLabel.setText(dataConstants.Date_Str);
-  @FXML private TextField firstDayStartTimeField;
-  @FXML private TextField secondDayEndTimeField;
+  @FXML
+  private DatePicker datePicker; // dateLabel.setText(dataConstants.Date_Str);
+  @FXML
+  private TextField firstDayStartTimeField;
+  @FXML
+  private TextField secondDayEndTimeField;
 
   private final String EN_MH = ":";
   private final String CN_MH = "：";
@@ -866,9 +869,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 检查时间有效性 包括选择日期，开始时间和结束时间
-   * 
+   *
    * @time 2018年5月4日
-   * @return
    */
   private boolean checkTime() {
     LocalDate selectDate = datePicker.getValue();
@@ -883,10 +885,9 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 获取时间戳
-   * 
-   * @time 2018年5月4日
+   *
    * @param timeStr 有效的时：分， 如10：00，中文冒号和英文冒号都支持
-   * @return
+   * @time 2018年5月4日
    */
   private String getFinalTimeStr(String timeStr, int type) {
     timeStr = timeStr.replace(CN_MH, EN_MH);
@@ -947,7 +948,8 @@ public class SMAutoController extends BaseController implements Initializable {
           log.info("rsp json : " + respString);
         }
         parseObject = (RespResult<GameRoomModel>) JSON.parseObject(respString,
-            new TypeReference<RespResult<GameRoomModel>>() {});
+            new TypeReference<RespResult<GameRoomModel>>() {
+            });
         excelInfo(houtai + "房间数量：" + parseObject.getResult().getTotal());
       }
     } catch (Exception e) {
@@ -1027,15 +1029,14 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 获取房间列表后，检查与上次的对比
-   * 
+   *
    * @time 2018年4月15日
-   * @param roomList
-   * @return
    */
   @SuppressWarnings("unchecked")
   private List<GameRoomModel> updatedList(final List<GameRoomModel> roomList) {
-    if (CollectUtil.isEmpty(roomList))
+    if (CollectUtil.isEmpty(roomList)) {
       return Collections.EMPTY_LIST;
+    }
 
     List<GameRoomModel> updateList = roomList.stream().filter(info -> {
       String name = getDownLoadFilterName(info.getCreatetime(), info.getRoomname());
@@ -1047,15 +1048,14 @@ public class SMAutoController extends BaseController implements Initializable {
   private String getDownLoadFilterName(String finishedTime, String originalRoomName) {
     originalRoomName = originalRoomName.replace("/", "-").replace("%20", "-");
     originalRoomName = FilterUtf8mb4.filterUtf8mb4(originalRoomName);
-    return finishedTime +"#战绩导出-" + originalRoomName + ".xls";
+    return finishedTime + "#战绩导出-" + originalRoomName + ".xls";
   }
 
   /**
    * 获取自动下载战绩Excel的参数
-   * 
-   * @time 2018年4月15日
+   *
    * @param downType //1 普通 2奥马哈 3 4
-   * @return
+   * @time 2018年4月15日
    */
   private Map<String, String> getParams(String downType) {
     String clubId = myController.currentClubId.getText();
@@ -1078,26 +1078,25 @@ public class SMAutoController extends BaseController implements Initializable {
     String start = getFirstDayStartMillTime();
     String end = getSecondDayEndMillTime();
 
-    String[] timeRange = new String[] {start, end};
+    String[] timeRange = new String[]{start, end};
     return timeRange;
   }
 
   /**
    * 清空战绩Excel下载记录
-   * 
+   *
    * @time 2018年4月14日
-   * @param event
    */
   public void removeExcelAreaAction(ActionEvent event) {
-    if (excelArea.getItems() != null)
+    if (excelArea.getItems() != null) {
       excelArea.getItems().clear();
+    }
   }
 
   /**
    * 查看已下载的Excel记录
-   * 
+   *
    * @time 2018年4月14日
-   * @param event
    */
   @SuppressWarnings("rawtypes")
   public void seeHasDownExcelListCacheAction(ActionEvent event) {
@@ -1145,9 +1144,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 删除本地文件并重新下载
-   * 
+   *
    * @time 2018年4月15日
-   * @param event
    */
   public void reAutoDownAction(ActionEvent event) {
     String content = "你即将删除本地文件【" + downloadCache.size() + "个】并重新下载 , 确定?";
@@ -1185,9 +1183,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 开始下载Excel按钮
-   * 
+   *
    * @time 2018年4月29日
-   * @param evet
    */
   public void startDownloadTimerAction(ActionEvent evet) {
     if (!checkTime()) {
@@ -1244,7 +1241,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 下载时记录下载范围
-   * 
+   *
    * @time 2018年5月5日
    */
   private void setTimeRange() {
@@ -1272,9 +1269,8 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 停止下载Excel
-   * 
+   *
    * @time 2018年4月29日
-   * @param evet
    */
   public void stopAutoDownExcelAction(ActionEvent evet) {
     if (this.excelTimer == null) {

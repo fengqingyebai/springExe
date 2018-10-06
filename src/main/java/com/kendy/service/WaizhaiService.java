@@ -40,7 +40,7 @@ import javafx.scene.layout.HBox;
 
 /**
  * 外债信息服务类
- * 
+ *
  * @author 林泽涛
  * @version 1.0
  */
@@ -55,27 +55,22 @@ public class WaizhaiService {
   @Autowired
   public MoneyService moneyService; // 
   @Autowired
-  public BaseController baseController ;
-  
-  
-  
+  public BaseController baseController;
+
+
   public DecimalFormat df = new DecimalFormat("#.00");
 
   /**
    * 自动生成外债信息表
-   * 
-   * @param tableWaizhai
-   * @param hbox
-   * @param tableCurrentMoneyInfo
-   * @param tableTeam
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void generateWaizhaiTables(TableView<WaizhaiInfo> tableWaizhai, HBox hbox,
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo, TableView<TeamInfo> tableTeam) {
     // 清空数据
     ObservableList<Node> allTables = hbox.getChildren();
-    if (allTables != null && allTables.size() > 0)
+    if (allTables != null && allTables.size() > 0) {
       hbox.getChildren().remove(0, allTables.size());
+    }
 
     if (dataConstants.Index_Table_Id_Map.size() == 0) {
       ShowUtil.show("你当前还未锁定任意一局，查询没有数据!", 2);
@@ -85,7 +80,6 @@ public class WaizhaiService {
     Map<String, List<CurrentMoneyInfo>> gudongMap =
         get_SSJE_Gudong_Map(tableCurrentMoneyInfo, tableTeam);
     Map<String, String> sumMap = getSum(gudongMap);
-
 
     int gudongMapSize = gudongMap.size();
     if (gudongMapSize == 0) {
@@ -138,9 +132,8 @@ public class WaizhaiService {
 
   /**
    * 设置外债信息总和
-   * 
+   *
    * @time 2017年10月28日
-   * @param tableWaizhai
    */
   public void setWaizhaiSum(TableView<WaizhaiInfo> tableWaizhai) {
     Double sum = 0d;
@@ -157,9 +150,6 @@ public class WaizhaiService {
 
   /**
    * 计算每个股东的外债总和
-   * 
-   * @param gudongMap
-   * @return
    */
   public Map<String, String> getSum(Map<String, List<CurrentMoneyInfo>> gudongMap) {
     final Map<String, String> map = new HashMap<>();
@@ -177,11 +167,8 @@ public class WaizhaiService {
 
   /**
    * 获取每个股东的实时金额 包括个人和存在于左边的团队
-   * 
+   *
    * @time 2017年12月27日
-   * @param tableCurrentMoneyInfo
-   * @param tableTeam
-   * @return
    */
   public Map<String, List<CurrentMoneyInfo>> get_SSJE_Gudong_Map(
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo, TableView<TeamInfo> tableTeam) {
@@ -207,9 +194,11 @@ public class WaizhaiService {
     // 情况2：从最新的锁定表中获取数据
     else {
       CurrentMoneyInfoList = JSON.parseObject(moneyService.getJsonString(map, "实时金额"),
-          new TypeReference<List<CurrentMoneyInfo>>() {});
+          new TypeReference<List<CurrentMoneyInfo>>() {
+          });
       teamInfoList = JSON.parseObject(moneyService.getJsonString(map, "团队回水"),
-          new TypeReference<List<TeamInfo>>() {});
+          new TypeReference<List<TeamInfo>>() {
+          });
     }
     List<CurrentMoneyInfo> SSJE_obList = new LinkedList<>();
     for (CurrentMoneyInfo infos : CurrentMoneyInfoList) {
@@ -316,14 +305,16 @@ public class WaizhaiService {
         List<CurrentMoneyInfo> eachList = entry.getValue();
         // List<CurrentMoneyInfo> tempEachList = copyListCurrentMoneyInfo(eachList);//深层复制
         // 过滤掉没有负数团队的股东,过滤掉没有联合ID的股东
-        if (CollectUtil.isEmpty(eachList))
+        if (CollectUtil.isEmpty(eachList)) {
           continue;
+        }
         // if(eachList.stream().filter(cmi->cmi.getMingzi().startsWith("团队")).count() == 0)
         // continue;
         if (eachList.stream()
             .filter(cmi -> dataConstants.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId()))
-            .count() == 0)
+            .count() == 0) {
           continue;
+        }
         // 处理包含有负数团队的股东（既有联合ID,又有负数团队）
         ListIterator<CurrentMoneyInfo> ite = eachList.listIterator();
         while (ite.hasNext()) {
@@ -394,9 +385,8 @@ public class WaizhaiService {
 
   /**
    * 获取实时金额表中的映射{玩家ID ： 金额信息}
-   * 
+   *
    * @time 2017年12月28日
-   * @param SSJE_obList
    */
   private Map<String, CurrentMoneyInfo> get_SSJE_Map(List<CurrentMoneyInfo> SSJE_obList) {
     Map<String, CurrentMoneyInfo> ssje_map = new HashMap<>();
@@ -408,11 +398,8 @@ public class WaizhaiService {
 
   /**
    * 判断父类ID是否存在于实时金额表中
-   * 
+   *
    * @time 2017年12月28日
-   * @param playerId
-   * @param ssje_map
-   * @return
    */
   private boolean isExistIn_SSJE(String playerId, Map<String, CurrentMoneyInfo> ssje_map) {
     return ssje_map.containsKey(playerId);
@@ -420,17 +407,15 @@ public class WaizhaiService {
 
   /**
    * 处理个人外债和有联合额度的外债
-   * 
+   *
    * @time 2017年12月28日
-   * @param gudongMap
-   * @param ssje_map
    */
   private void handlePersonWaizhai(Map<String, List<CurrentMoneyInfo>> gudongMap,
       Map<String, CurrentMoneyInfo> ssje_map) {
 
-
-    if (MapUtil.isNullOrEmpty(gudongMap))
+    if (MapUtil.isNullOrEmpty(gudongMap)) {
       return;
+    }
 
     Map<String, CurrentMoneyInfo> tempSuperInfoMap = new HashMap<>();// {父ID : 复制的CurrentMoneyInfo}
 
@@ -496,11 +481,8 @@ public class WaizhaiService {
 
   /**
    * 复制一个实时金额表的记录
-   * 
+   *
    * @time 2017年12月29日
-   * @param info
-   * @param tempSuperInfoMap
-   * @return
    */
   private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),

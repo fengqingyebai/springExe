@@ -1,15 +1,15 @@
 package com.kendy.model;
 
 import com.kendy.excel.excel4j.annotation.ExcelField;
+
 /**
- * 新版本战绩记录（统一） 
- * 备注：保险是整个牌局的保险合计的总和 而保险合计只是单个玩家单条记录的保险
- * 
+ * 新版本战绩记录（统一） 备注：保险是整个牌局的保险合计的总和 而保险合计只是单个玩家单条记录的保险
+ *
  * @author 林泽涛
  * @time 2018年7月7日 下午9:10:43
  */
 public class BasicRecord {
-  
+
   @ExcelField(title = "总手数", order = 8)
   private String sumHandsCount;
 
@@ -173,7 +173,6 @@ public class BasicRecord {
   public void setFinisedTime(String finisedTime) {
     this.finisedTime = finisedTime;
   }
-
 
 
 }

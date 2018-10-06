@@ -21,16 +21,15 @@ import tk.mybatis.mapper.common.Mapper;
 
 /**
  * 子类覆盖save,update及insert方法时请加上@Transactional,否则会失去事务管理
- * 
+ *
  * 摘自 @author chenxing21 www.10155.com
+ *
  * @version 2017年8月10日
- * @param <D>
- * @param <E>
- * @param <K>
  */
 
 public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends GenericEntity, K extends Serializable>
     implements GenericService<E, K> {
+
   /**
    * Log variable for all child classes. Uses LoggerFactory.getLogger(getClass()) from Commons
    * Logging
@@ -59,7 +58,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
         }
         if (actualTypeArgument instanceof Class<?>
             && (Mapper.class.isAssignableFrom((Class<?>) actualTypeArgument)
-                || GenericDao.class.isAssignableFrom((Class<?>) actualTypeArgument))) {
+            || GenericDao.class.isAssignableFrom((Class<?>) actualTypeArgument))) {
           // 获取SQL命名空间
           // 无法通过dao.getClass().getName()获取,dao已被代理,获取到的是proxy$xxxx
           sqlNameSpace = clazz.getName();
@@ -78,8 +77,6 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /**
    * 获取数据库Dao
-   * 
-   * @return
    */
   protected D getDao() {
     return dao;
@@ -213,7 +210,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see cn.womusic.bp.db.service.GenericService#update(java.lang.Object)
    */
   @Override
@@ -235,7 +232,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see cn.womusic.bp.db.service.GenericService#updateNotNull(java.lang.Object)
    */
   @Override
@@ -246,7 +243,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see cn.womusic.bp.db.service.GenericService#getByExample(java.lang.Object)
    */
   @Override
@@ -256,7 +253,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see cn.womusic.bp.db.service.GenericService#count(java.lang.Object)
    */
   @Override
@@ -266,10 +263,6 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /**
    * 根据SqlId删除,如有业务缓存,请自行删除
-   * 
-   * @param sqlId
-   * @param parameter
-   * @return
    */
   @Transactional
   protected int deleteBySqlId(String sqlId, Object parameter) {
@@ -280,10 +273,6 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /**
    * 根据SqlId更新,如有业务缓存,请自行删除
-   * 
-   * @param sqlId
-   * @param parameter
-   * @return
    */
   @Transactional
   protected int updateBySqlId(String sqlId, Object parameter) {
@@ -294,10 +283,6 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
 
   /**
    * 根据SqlId查询
-   * 
-   * @param sqlId
-   * @param parameter
-   * @return
    */
   @Transactional
   protected List<E> selectBySqlId(String sqlId, Object parameter) {
@@ -307,13 +292,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
   }
 
   /**
-   * 如果返回值不为空,则会在get时自动放入业务缓存,remove及update时自动清理缓存 <br />
-   * <br />
-   * 子类重写此方法并返回cacheKey即可享受统一业务缓存
-   * 
-   * @param key
-   * @param entity
-   * @return
+   * 如果返回值不为空,则会在get时自动放入业务缓存,remove及update时自动清理缓存 <br /> <br /> 子类重写此方法并返回cacheKey即可享受统一业务缓存
    */
   protected String getCacheKey(K key, E entity) {
     return null;

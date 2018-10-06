@@ -4,54 +4,49 @@ import com.kendy.interfaces.Entity;
 
 import javafx.beans.property.SimpleStringProperty;
 
-public class PingzhangInfo implements Entity{
+public class PingzhangInfo implements Entity {
 
-	private SimpleStringProperty pingZhangType = new SimpleStringProperty();//类型
-	private SimpleStringProperty pingZhangMoney = new SimpleStringProperty();//金额
-	
-	public PingzhangInfo() {
-		super();
-	}
+  private SimpleStringProperty pingZhangType = new SimpleStringProperty();//类型
+  private SimpleStringProperty pingZhangMoney = new SimpleStringProperty();//金额
 
-	public PingzhangInfo(String pingZhangType, String pingZhangMoney) {
-		this.pingZhangType = new SimpleStringProperty(pingZhangType);
-		this.pingZhangMoney = new SimpleStringProperty(pingZhangMoney);
-	}
-	
+  public PingzhangInfo() {
+    super();
+  }
 
-	public SimpleStringProperty pingZhangTypeProperty() {
-		return this.pingZhangType;
-	}
-	
+  public PingzhangInfo(String pingZhangType, String pingZhangMoney) {
+    this.pingZhangType = new SimpleStringProperty(pingZhangType);
+    this.pingZhangMoney = new SimpleStringProperty(pingZhangMoney);
+  }
 
 
-	public String getPingzhangType() {
-		return this.pingZhangTypeProperty().get();
-	}
-	
+  public SimpleStringProperty pingZhangTypeProperty() {
+    return this.pingZhangType;
+  }
 
 
-	public void setPingzhangType(final String pingZhangType) {
-		this.pingZhangTypeProperty().set(pingZhangType);
-	}
-	
+  public String getPingzhangType() {
+    return this.pingZhangTypeProperty().get();
+  }
 
 
-	public SimpleStringProperty pingZhangMoneyProperty() {
-		return this.pingZhangMoney;
-	}
-	
+  public void setPingzhangType(final String pingZhangType) {
+    this.pingZhangTypeProperty().set(pingZhangType);
+  }
 
 
-	public String getPingzhangMoney() {
-		return this.pingZhangMoneyProperty().get();
-	}
-	
+  public SimpleStringProperty pingZhangMoneyProperty() {
+    return this.pingZhangMoney;
+  }
 
 
-	public void setPingzhangMoney(final String pingZhangMoney) {
-		this.pingZhangMoneyProperty().set(pingZhangMoney);
-	}
+  public String getPingzhangMoney() {
+    return this.pingZhangMoneyProperty().get();
+  }
+
+
+  public void setPingzhangMoney(final String pingZhangMoney) {
+    this.pingZhangMoneyProperty().set(pingZhangMoney);
+  }
 
 
 }

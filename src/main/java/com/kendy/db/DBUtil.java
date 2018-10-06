@@ -48,15 +48,15 @@ import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
 
 
-
 /**
  * 数据库操作类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:17
  */
 @Component
 public class DBUtil {
+
   private Logger loger = LoggerFactory.getLogger(DBUtil.class);
 
   private Connection con = null;
@@ -85,15 +85,19 @@ public class DBUtil {
     List<JifenInfo> list = new LinkedList<>();
     try {
       con = DBConnection.getConnection();
-      String subSql = isCheckTeamProfitBox ? "sum(shouHuishui) + sum(chuHuishui)" : "sum(shouHuishui)";
+      String subSql =
+          isCheckTeamProfitBox ? "sum(shouHuishui) + sum(chuHuishui)" : "sum(shouHuishui)";
       String sql = new StringBuilder()
-          .append("SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor(("+subSql+") / ")
+          .append(
+              "SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor(("
+                  + subSql + ") / ")
           .append(jifenValue).append(") AS jifenValue FROM 	( ")
           .append(GAME_RECORD_SQL).append("	WHERE 	m.teamId = '").append(teamId)
           .append("' AND soft_time >= '").append(startTime)
           .append("' AND soft_time <= '").append(endTime)
           .append("' AND r.clubId = '").append(clubId)
-          .append("' )h 	GROUP BY 	playerId 	ORDER BY jifenValue DESC ) hh, 	(SELECT @i := 0) b LIMIT ")
+          .append(
+              "' )h 	GROUP BY 	playerId 	ORDER BY jifenValue DESC ) hh, 	(SELECT @i := 0) b LIMIT ")
           .append(limit)
           .toString();
       loger.info("积分：" + sql);
@@ -113,9 +117,6 @@ public class DBUtil {
 
   /**
    * 会员历史战绩查询
-   * 
-   * @param playerId
-   * @return
    */
   public String getTotalZJByPId(String playerId) {
     try {
@@ -140,7 +141,6 @@ public class DBUtil {
   }
 
 
-
   // 删除一条人员名单---未测试
   public void delMember(final String playerId) {
     try {
@@ -160,9 +160,8 @@ public class DBUtil {
 
   /**
    * 删除团队时顺带删除所有该团队的人
-   * 
+   *
    * @time 2017年11月14日
-   * @param teamId
    */
   public void delMembers_after_delTeam(final String teamId) {
     try {
@@ -221,15 +220,14 @@ public class DBUtil {
 
   /**
    * 根据玩家ID查询玩家信息
-   * 
+   *
    * @time 2017年10月26日
-   * @param playerId
-   * @return
    */
   public Player getMemberById(String playerId) {
     Player player = new Player();
-    if (StringUtil.isBlank(playerId))
+    if (StringUtil.isBlank(playerId)) {
       return player;
+    }
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -258,9 +256,9 @@ public class DBUtil {
 
   /**
    * 保存或者修改玩家信息
-   * 
-   * @time 2017年10月31日
+   *
    * @param player 玩家信息
+   * @time 2017年10月31日
    */
   public void saveOrUpdate(final Player player) {
 
@@ -274,10 +272,9 @@ public class DBUtil {
 
   /**
    * 玩家是否存在
-   * 
-   * @time 2017年10月31日
+   *
    * @param playerId 玩家ID
-   * @return
+   * @time 2017年10月31日
    */
   public boolean isHasMember(String playerId) {
     boolean hasMember = false;
@@ -327,9 +324,8 @@ public class DBUtil {
 
   /**
    * 导入人员名单
-   * 
+   *
    * @time 2017年11月19日
-   * @param map
    */
   public void insertMembers(final Map<String, Player> map) {
     if (map != null && map.size() > 0) {
@@ -405,7 +401,6 @@ public class DBUtil {
         return;
       }
 
-
       sql = "insert into yesterday_data values(?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, dataTime);
@@ -421,7 +416,7 @@ public class DBUtil {
 
   /**
    * 查找最新的昨日留底数据
-   * 
+   *
    * @author 小林
    */
   public String Load_Date = "";
@@ -448,7 +443,8 @@ public class DBUtil {
         ShowUtil.show("获取昨日留底数据失败！原因：数据库中没有昨日留底数据！");
         return map;
       }
-      map = JSON.parseObject(res, new TypeReference<Map<String, String>>() {});
+      map = JSON.parseObject(res, new TypeReference<Map<String, String>>() {
+      });
       // //资金
       // Map<String,String> zijinMap = _map.get("资金");
       // //实时开销(可以实时金额那里拿)
@@ -471,7 +467,6 @@ public class DBUtil {
 
   /**
    * 查找最新的锁定数据
-   * 
    */
   public Map<String, String> getLastLockedData() {
     Map<String, String> map = new HashMap<>();
@@ -495,7 +490,8 @@ public class DBUtil {
         ShowUtil.show("没有可供中途需要加载的锁定数据！");
         return map;
       }
-      map = JSON.parseObject(res, new TypeReference<Map<String, String>>() {});
+      map = JSON.parseObject(res, new TypeReference<Map<String, String>>() {
+      });
       // ======================================================把锁定的详细数据单独加进来
       // 2018-9-17 注释
       /*try {
@@ -536,22 +532,21 @@ public class DBUtil {
   }
 
   /**
-   * 锁定的详细数据单独加进来<br/>
-   * 避免内存溢出<br>
-   * 只在中途继续时调用 ， 其他情况不调用
+   * 锁定的详细数据单独加进来<br/> 避免内存溢出<br> 只在中途继续时调用 ， 其他情况不调用
    */
-  public Map<String, Map<String, String>> getAllLockedRecords(){
+  public Map<String, Map<String, String>> getAllLockedRecords() {
     // ======================================================把锁定的详细数据单独加进来
     Map<String, Map<String, String>> locked_data_detail_map = new HashMap<>();
     try {
       con = DBConnection.getConnection();
-      String sql =  "select * from last_locked_data_detail ";
+      String sql = "select * from last_locked_data_detail ";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       rs = ps.executeQuery();
       while (rs.next()) {
         locked_data_detail_map.put(rs.getString(1),
-            JSON.parseObject(rs.getString(2), new TypeReference<Map<String, String>>() {}));
+            JSON.parseObject(rs.getString(2), new TypeReference<Map<String, String>>() {
+            }));
       }
       loger.info("中途加载当天详细锁定数据,总局数：" + locked_data_detail_map.size());
     } catch (Exception e) {
@@ -562,12 +557,11 @@ public class DBUtil {
     return locked_data_detail_map;
     // ======================================================
   }
+
   /**
    * 添加新团队回水
-   * 
+   *
    * @time 2017年11月12日
-   * @param hs
-   * @return
    */
   public boolean addTeamHS(final Huishui hs) {
     boolean isOK = true;
@@ -602,11 +596,8 @@ public class DBUtil {
 
   /**
    * 修改团队回水比例
-   * 
+   *
    * @time 2017年11月17日
-   * @param teamId
-   * @param teamHsRate
-   * @return
    */
   public boolean updateTeamHsRate(String teamId, String teamHsRate) {
     teamId = teamId.toUpperCase();
@@ -631,11 +622,8 @@ public class DBUtil {
 
   /**
    * 修改团队保险比例
-   * 
+   *
    * @time 2018年2月8日
-   * @param teamId
-   * @param teamHsRate
-   * @return
    */
   public boolean updateTeamHsBaoxianRate(String teamId, String teamHsRate) {
     teamId = teamId.toUpperCase();
@@ -659,10 +647,6 @@ public class DBUtil {
 
   /**
    * 修改团队股东
-   * 
-   * @param teamId
-   * @param teamGD
-   * @return
    */
   public boolean updateTeamHsGudong(String teamId, String teamGD) {
     teamId = teamId.toUpperCase();
@@ -686,11 +670,6 @@ public class DBUtil {
 
   /**
    * 修改团队押金与额度
-   * 
-   * @param teamId
-   * @param teamYajin
-   * @param teamEdu
-   * @return
    */
   public boolean updateTeamYajinAndEdu(String teamId, String teamYajin, String teamEdu,
       String teamAvailabel) {
@@ -717,10 +696,6 @@ public class DBUtil {
 
   /**
    * 修改代理查询中导出是否显示团队保险
-   *
-   * @param teamId
-   * @param showInsure
-   * @return
    */
   public boolean updateTeamHsShowInsure(String teamId, String showInsure) {
     teamId = teamId.toUpperCase();
@@ -744,9 +719,8 @@ public class DBUtil {
 
   /**
    * 团队回水修改
-   * 
+   *
    * @time 2018年1月5日
-   * @param hs
    */
   public void updateTeamHS(final Huishui hs) {
     try {
@@ -779,9 +753,8 @@ public class DBUtil {
 
   /**
    * 团队回水入库
-   * 
+   *
    * @time 2017年11月19日
-   * @param map
    */
   public void insertTeamHS(final Map<String, Huishui> map) {
     if (map != null && map.size() > 0) {
@@ -873,7 +846,7 @@ public class DBUtil {
 
   /**
    * 锁定时保存最后一场的详细数据
-   * 
+   *
    * @time 2018年4月30日
    */
   private void saveLastLockedDataDetail(int ju_size, String lastDataDetailJson) {
@@ -908,8 +881,6 @@ public class DBUtil {
 
   /**
    * 获取所有的人员名单
-   * 
-   * @return
    */
   public List<Player> getAllMembers() {
     List<Player> result = new ArrayList<Player>();
@@ -937,11 +908,8 @@ public class DBUtil {
   }
 
 
-
   /**
    * 获取所有的团队回水
-   * 
-   * @return
    */
   public List<Huishui> getAllTeamHS() {
     List<Huishui> result = new ArrayList<Huishui>();
@@ -976,7 +944,6 @@ public class DBUtil {
     }
     return result;
   }
-
 
 
   /******************************************************** 关闭流 ******/
@@ -1015,15 +982,12 @@ public class DBUtil {
 
   /**
    * 清空并恢复到最开始的数据
-   * 
-   * @return
    */
   public boolean clearAllData() {
     boolean isOK = true;
     try {
       con = DBConnection.getConnection();
       String sql;
-
 
       List<String> delTables =
           Arrays.asList("club_zhuofei", "game_record", "gudong_kaixiao", "last_locked_data",
@@ -1053,8 +1017,6 @@ public class DBUtil {
 
   /**
    * 结束今天统计时把last_locked_data设置ju = 0
-   * 
-   * @return
    */
   public boolean handle_last_locked_data() {
     boolean isOK = true;
@@ -1124,9 +1086,8 @@ public class DBUtil {
 
   /**
    * 打开软件时获取合并ID的数据
-   * 
+   *
    * @time 2017年11月4日
-   * @return
    */
   public Map<String, Set<String>> getCombineData() {
     Map<String, Set<String>> combineMap = new HashMap<>();
@@ -1140,7 +1101,8 @@ public class DBUtil {
       while (rs.next()) {
         parentId = rs.getString(1);
         subIdJson = rs.getString(2);
-        Set<String> subIdSet = JSON.parseObject(subIdJson, new TypeReference<Set<String>>() {});
+        Set<String> subIdSet = JSON.parseObject(subIdJson, new TypeReference<Set<String>>() {
+        });
         combineMap.put(parentId, subIdSet);
       }
 
@@ -1156,10 +1118,9 @@ public class DBUtil {
    * 保存或更新合并ID关系
    * <P>
    * 后面提供批量插入功能
-   * 
-   * @time 2017年11月4日
+   *
    * @param parentId 父ID
-   * @return
+   * @time 2017年11月4日
    */
   public boolean saveOrUpdateCombineId(String parentId, Set<String> subIdSet) {
     boolean hasCombineRelation = isHasCombineId(parentId);
@@ -1169,8 +1130,9 @@ public class DBUtil {
     }
     String subIdJson = JSON.toJSONString(subIdSet);
     String time = TimeUtil.getTime();
-    if (StringUtil.isBlank(parentId) || StringUtil.isBlank(subIdJson))
+    if (StringUtil.isBlank(parentId) || StringUtil.isBlank(subIdJson)) {
       return false;
+    }
 
     if (hasCombineRelation) {
       return updateCombineId(parentId, subIdJson, time);
@@ -1181,12 +1143,11 @@ public class DBUtil {
 
   /**
    * 更新合并ID关系
-   * 
-   * @time 2017年11月4日
+   *
    * @param superId 父ID
    * @param subIdJson 子IDJSON值
    * @param time 更新时间
-   * @return
+   * @time 2017年11月4日
    */
   public boolean updateCombineId(String superId, String subIdJson, String time) {
     boolean isOK = true;
@@ -1212,11 +1173,10 @@ public class DBUtil {
 
   /**
    * 添加新合并ID关系
-   * 
-   * @time 2017年11月4日
+   *
    * @param subIdJson 子IDJSON值
    * @param time 更新时间
-   * @return
+   * @time 2017年11月4日
    */
   public boolean addNewCombineId(String parentId, String subIdJson, String time) {
     boolean isOK = true;
@@ -1241,10 +1201,9 @@ public class DBUtil {
 
   /**
    * 合并ID是否存在 根据父ID查询数据库中是否记录
-   * 
-   * @time 2017年10月31日
+   *
    * @param parentId 玩家ID
-   * @return
+   * @time 2017年10月31日
    */
   public boolean isHasCombineId(String parentId) {
     boolean hasCombineId = false;
@@ -1271,9 +1230,8 @@ public class DBUtil {
 
   /**
    * 解除合并ID关系
-   * 
+   *
    * @time 2017年11月4日
-   * @param parentId
    */
   public void cancelCombineId(String parentId) {
     if (isHasCombineId(parentId)) {
@@ -1293,9 +1251,9 @@ public class DBUtil {
 
   /**
    * 是否应该点击开始新一天统计按钮 场景：上一场已经结束今日统计后，下一场应该只能开始新一天按钮，而不应该是中途继续
-   * 
-   * @time 2017年11月12日
+   *
    * @return 1:开始新一天按钮 2:中途继续按钮
+   * @time 2017年11月12日
    */
   public int newStaticOrContinue() {
     int buttonCode = 1;
@@ -1320,17 +1278,15 @@ public class DBUtil {
     return buttonCode;
   }
 
-
   /***********************************************************************************
-   * 
+   *
    * 小工具CRUD
-   * 
+   *
    **********************************************************************************/
   /**
    * 从数据库获取所有俱乐部信息
-   * 
+   *
    * @time 2017年11月24日
-   * @return
    */
   public Map<String, Club> getAllClub() {
     Map<String, Club> map = new HashMap<>();
@@ -1365,9 +1321,9 @@ public class DBUtil {
 
   /**
    * 删除俱乐部
-   * 
-   * @time 2017年11月22日
+   *
    * @param id 俱乐部ID
+   * @time 2017年11月22日
    */
   public void delClub(final String id) {
     try {
@@ -1379,7 +1335,6 @@ public class DBUtil {
         ps.execute();
         // 是否需要删除对应的人员？
 
-
       }
     } catch (SQLException e) {
       ErrorUtil.err("根据ID(" + id + ")删除俱乐部失败", e);
@@ -1390,7 +1345,7 @@ public class DBUtil {
 
   /**
    * 到新的一天重置俱乐部桌费为0
-   * 
+   *
    * @time 2018年2月21日
    */
   public void reset_clubZhuofei_to_0() {
@@ -1411,9 +1366,8 @@ public class DBUtil {
 
   /**
    * 添加新俱乐部
-   * 
+   *
    * @time 2017年11月22日
-   * @param club
    */
   public void addClub(final Club club) {
     try {
@@ -1443,18 +1397,16 @@ public class DBUtil {
   }
 
 
-
   /**
    * 俱乐部是否存在
-   * 
-   * @time 2017年10月31日
+   *
    * @param id 俱乐部ID
-   * @return
-   * @throws Exception
+   * @time 2017年10月31日
    */
   public boolean isHasClub(String id) throws Exception {
-    if (StringUtil.isBlank(id))
+    if (StringUtil.isBlank(id)) {
       return false;
+    }
 
     boolean hsRecord = false;
     try {
@@ -1481,10 +1433,8 @@ public class DBUtil {
 
   /**
    * 更新俱乐部额度
-   * 
+   *
    * @time 2017年11月22日
-   * @param club
-   * @return
    */
   public boolean updateClub(final Club club) {
     boolean isOK = true;
@@ -1518,10 +1468,8 @@ public class DBUtil {
 
   /**
    * 新增或修改俱乐部信息
-   * 
+   *
    * @time 2017年11月22日
-   * @param club
-   * @throws Exception
    */
   public void saveOrUpdateClub(final Club club) throws Exception {
     if (isHasClub(club.getClubId())) {
@@ -1533,9 +1481,8 @@ public class DBUtil {
 
   /**
    * 清空所有俱乐部桌费和已结算
-   * 
+   *
    * @time 2017年11月26日
-   * @throws SQLException
    */
   public void clearAllClub_ZF_YiJiSuan() {
     try {
@@ -1556,7 +1503,7 @@ public class DBUtil {
 
   /**
    * 清空所有统计信息(record)
-   * 
+   *
    * @time 2017年11月14日
    */
   public void del_all_record() {
@@ -1577,7 +1524,7 @@ public class DBUtil {
 
   /**
    * 清空所有统计信息(record zhuofei kaixiao)
-   * 
+   *
    * @time 2017年11月14日
    */
   public void del_all_record_and_zhuofei_and_kaixiao() {
@@ -1600,9 +1547,9 @@ public class DBUtil {
   }
 
   /****************************************************************
-   * 
+   *
    * 俱乐部银行卡信息表操作 数据表：clubBank 数据模型：ClubBankModel
-   * 
+   *
    ****************************************************************/
   /**
    * 增加或修改俱乐部银行卡信息
@@ -1634,9 +1581,8 @@ public class DBUtil {
 
   /**
    * 获取所有俱乐部银行卡信息
-   * 
+   *
    * @time 2017年12月18日
-   * @return
    */
   public Map<String, ClubBankModel> getAllClubBanks() {
     Map<String, ClubBankModel> map = new HashMap<>();
@@ -1665,16 +1611,15 @@ public class DBUtil {
   }
 
   /***************************************************************************
-   * 
+   *
    * others表
-   * 
+   *
    **************************************************************************/
 
   /**
    * 获取others表记录，根据key
-   * 
+   *
    * @time 2018年2月3日
-   * @return
    */
   public String getValueByKey(final String key) {
     String value = "{}";
@@ -1715,9 +1660,8 @@ public class DBUtil {
 
   /**
    * 根据key删除value
-   * 
+   *
    * @time 2018年1月29日
-   * @param key
    */
   public void delValueByKey(final String key) {
     try {
@@ -1737,11 +1681,8 @@ public class DBUtil {
 
   /**
    * 保存others记录 如股东贡献值中的客服记录
-   * 
+   *
    * @time 2018年2月3日
-   * @param key
-   * @param value
-   * @return
    */
   public boolean saveOrUpdateOthers(final String key, final String value) {
     boolean isOK = false;
@@ -1765,10 +1706,8 @@ public class DBUtil {
 
   /**
    * others表添加记录
-   * 
+   *
    * @time 2018年1月30日
-   * @param key
-   * @param value
    */
   public void addValue(final String key, final String value) {
     try {
@@ -1787,18 +1726,15 @@ public class DBUtil {
     }
   }
 
-
   /***************************************************************************
-   * 
+   *
    * 次日上码表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存次日上码
-   * 
+   *
    * @time 2018年2月5日
-   * @param nextday
-   * @return
    */
   public boolean saveOrUpdate_SM_nextday(final ShangmaNextday nextday) {
     boolean isOK = false;
@@ -1827,9 +1763,8 @@ public class DBUtil {
 
   /**
    * 获取玩家的次日数据
-   * 
+   *
    * @time 2018年2月5日
-   * @return
    */
   public List<ShangmaNextday> getAllSM_nextday() {
     List<ShangmaNextday> list = new ArrayList<>();
@@ -1858,9 +1793,8 @@ public class DBUtil {
 
   /**
    * 用户自行加载完次日数据后，将数据表中的type设置为1，表示已经加载过
-   * 
+   *
    * @time 2018年2月5日
-   * @return
    */
   public boolean setNextDayLoaded() {
     boolean isOK = false;
@@ -1881,16 +1815,14 @@ public class DBUtil {
   }
 
   /***************************************************************************
-   * 
+   *
    * 桌费表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改历史桌费
-   * 
+   *
    * @time 2018年2月11日
-   * @param zhuofei
-   * @return
    */
   public boolean saveOrUpdate_club_zhuofei(final ClubZhuofei zhuofei) {
     boolean isOK = false;
@@ -1916,9 +1848,8 @@ public class DBUtil {
 
   /**
    * 获取联盟1的所有历史桌费
-   * 
+   *
    * @time 2018年2月11日
-   * @return
    */
   public List<ClubZhuofei> get_LM1_all_club_zhuofei() {
     List<ClubZhuofei> list = new ArrayList<>();
@@ -1944,7 +1875,7 @@ public class DBUtil {
 
   /**
    * 删除所有的历史联盟桌费
-   * 
+   *
    * @time 2018年2月11日
    */
   public void del_all_club_zhuofei() {
@@ -1961,13 +1892,12 @@ public class DBUtil {
   }
 
   /***************************************************************************
-   * 
+   *
    * 股东开销表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改股东开销
-   * 
    */
   public boolean saveOrUpdate_gudong_kaixiao(final KaixiaoInfo kaixiao) {
     boolean isOK = false;
@@ -1995,9 +1925,8 @@ public class DBUtil {
 
   /**
    * 获取所有股东开销
-   * 
+   *
    * @time 2018年2月21日
-   * @return
    */
   public List<KaixiaoInfo> get_all_gudong_kaixiao() {
     List<KaixiaoInfo> list = new ArrayList<>();
@@ -2021,7 +1950,7 @@ public class DBUtil {
 
   /**
    * 删除所有的股东开销
-   * 
+   *
    * @time 2018年2月21日
    */
   public void del_all_gudong_kaixiao() {
@@ -2039,7 +1968,7 @@ public class DBUtil {
 
   /**
    * 根据ID删除股东开销
-   * 
+   *
    * @time 2018年2月21日
    */
   public void del_gudong_kaixiao_by_id(String kaixiaoID) {
@@ -2055,16 +1984,13 @@ public class DBUtil {
     }
   }
 
-
-
   /***************************************************************************
-   * 
+   *
    * 托管开销表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改托管开销表
-   * 
    */
   public boolean saveOrUpdate_tg_kaixiao(final TGKaixiaoInfo kaixiao) {
     boolean isOK = false;
@@ -2093,9 +2019,8 @@ public class DBUtil {
 
   /**
    * 获取所有托管开销
-   * 
+   *
    * @time 2018年3月4日
-   * @return
    */
   public List<TGKaixiaoInfo> get_all_tg_kaixiao() {
     List<TGKaixiaoInfo> list = new ArrayList<>();
@@ -2119,7 +2044,7 @@ public class DBUtil {
 
   /**
    * 删除所有的托管开销
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_all_tg_kaixiao() {
@@ -2137,7 +2062,7 @@ public class DBUtil {
 
   /**
    * 根据ID删除托管开销
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_tg_kaixiao_by_id(String kaixiaoID) {
@@ -2154,13 +2079,12 @@ public class DBUtil {
   }
 
   /***************************************************************************
-   * 
+   *
    * 托管玩家备注表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改玩家备注表
-   * 
    */
   public boolean saveOrUpdate_tg_comment(final TGCommentInfo comment) {
     boolean isOK = false;
@@ -2192,9 +2116,8 @@ public class DBUtil {
 
   /**
    * 获取所有玩家备注
-   * 
+   *
    * @time 2018年3月4日
-   * @return
    */
   public List<TGCommentInfo> get_all_tg_comment() {
     List<TGCommentInfo> list = new ArrayList<>();
@@ -2220,7 +2143,7 @@ public class DBUtil {
 
   /**
    * 删除所有的玩家备注
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_all_tg_comment() {
@@ -2238,7 +2161,7 @@ public class DBUtil {
 
   /**
    * 根据ID删除玩家备注
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_tg_comment_by_id(String commentID) {
@@ -2255,13 +2178,12 @@ public class DBUtil {
   }
 
   /***************************************************************************
-   * 
+   *
    * 托管公司表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改托管公司表
-   * 
    */
   public boolean saveOrUpdate_tg_company(final TGCompanyModel company) {
     boolean isOK = false;
@@ -2294,9 +2216,8 @@ public class DBUtil {
 
   /**
    * 获取所有托管公司
-   * 
+   *
    * @time 2018年3月4日
-   * @return
    */
   public List<TGCompanyModel> get_all_tg_company() {
     List<TGCompanyModel> list = new ArrayList<>();
@@ -2327,10 +2248,8 @@ public class DBUtil {
 
   /**
    * 根据俱乐部ID获取托管公司
-   * 
+   *
    * @time 2018年3月24日
-   * @param clubId
-   * @return
    */
   public List<TGCompanyModel> get_all_tg_company_By_clubId(String clubId) {
     List<TGCompanyModel> list = new ArrayList<>();
@@ -2365,7 +2284,7 @@ public class DBUtil {
 
   /**
    * 删除所有的托管公司
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_all_tg_company() {
@@ -2404,7 +2323,7 @@ public class DBUtil {
 
   /**
    * 根据ID删除托管公司
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_tg_company_by_id(String companyName) {
@@ -2420,16 +2339,13 @@ public class DBUtil {
     }
   }
 
-
-
   /***************************************************************************
-   * 
+   *
    * 托管团队比例表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改团队比例表
-   * 
    */
   public boolean saveOrUpdate_tg_team(final TGTeamModel team) {
     boolean isOK = false;
@@ -2457,9 +2373,8 @@ public class DBUtil {
 
   /**
    * 获取所有团队比例
-   * 
+   *
    * @time 2018年3月4日
-   * @return
    */
   public List<TGTeamModel> get_all_tg_team() {
     List<TGTeamModel> list = new ArrayList<>();
@@ -2504,7 +2419,7 @@ public class DBUtil {
 
   /**
    * 删除所有的团队比例
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_all_tg_team() {
@@ -2522,7 +2437,7 @@ public class DBUtil {
 
   /**
    * 根据ID删除团队比例
-   * 
+   *
    * @time 2018年3月4日
    */
   public void del_tg_team_by_id(String teamId) {
@@ -2539,13 +2454,12 @@ public class DBUtil {
   }
 
   /***************************************************************************
-   * 
+   *
    * 托管日利润表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存或修改托管日利润表
-   * 
    */
   public boolean saveOrUpdate_tg_lirun(final TGLirunInfo lirun) {
     boolean isOK = false;
@@ -2579,9 +2493,8 @@ public class DBUtil {
 
   /**
    * 获取所有托管日利润
-   * 
+   *
    * @time 2018年3月4日
-   * @return
    */
   public List<TGLirunInfo> get_all_tg_lirun(String tgCompany) {
     List<TGLirunInfo> list = new ArrayList<>();
@@ -2606,7 +2519,7 @@ public class DBUtil {
 
   /**
    * 删除所有的托管日利润
-   * 
+   *
    * @time 2018年3月4日
    */
   public boolean del_all_tg_lirun() {
@@ -2628,7 +2541,7 @@ public class DBUtil {
 
   /**
    * 清空所有详细的锁定数据
-   * 
+   *
    * @time 2018年4月30日
    */
   public void del_all_locked_data_details() {
@@ -2645,11 +2558,10 @@ public class DBUtil {
     }
   }
 
-
   /***************************************************************************
-   * 
+   *
    * 银行流水表
-   * 
+   *
    **************************************************************************/
   /**
    * 保存银行流水表
@@ -2679,7 +2591,6 @@ public class DBUtil {
 
   /**
    * 获取所有银行流水
-   * 
    */
   public List<BankFlowModel> getAllHistoryBankMoney() {
     List<BankFlowModel> list = new ArrayList<>();
@@ -2703,8 +2614,6 @@ public class DBUtil {
 
   /**
    * 删除对应的银行流水
-   * 
-   * @param bankName
    */
   public void delBankFlowByType(final String bankName) {
     try {
@@ -2724,10 +2633,10 @@ public class DBUtil {
 
 
   /************************************************************************************************
-   * 
+   *
    * GameRecord表 注意： 1、本表不保存teamId和clubName, 查询时自动去关联members表和club表，
    * 2、但是缓存中是有这两个数据的，更新玩家名称、俱乐部名称和团队时请更新相应数据表和缓存，不修改本表
-   * 
+   *
    ***********************************************************************************************/
 
   private final String GAME_RECORD_SQL =
@@ -2735,8 +2644,6 @@ public class DBUtil {
 
   /**
    * 插入记录 注意：批量插入有性能问题，需要后期优化 不插入团队ID, 玩家名称， 和俱乐部名称，需要时自动去关联查询
-   * 
-   * @throws Exception
    */
   public void addGameRecord(final GameRecord record) throws Exception {
     try {
@@ -2770,23 +2677,19 @@ public class DBUtil {
       close(con, ps);
     }
   }
-  
+
   /**
    * 更改记录的已结算字段
    * <P>
    * 用于场次信息中的团队累积
-   * 
-   * @param softTime
-   * @param clubId
-   * @param teamId
    */
   public void updateRecordJiesuan(String softTime, String clubId, String teamId) {
     try {
       con = DBConnection.getConnection();
-      String sql = "update game_record r " 
-      + "left join members m on r.playerId = m.playerId " 
-      + "set isJiesuaned = '1' " 
-      + "where soft_time = ? and clubId= ? and m.teamId = ? and isJiesuaned = '0'";
+      String sql = "update game_record r "
+          + "left join members m on r.playerId = m.playerId "
+          + "set isJiesuaned = '1' "
+          + "where soft_time = ? and clubId= ? and m.teamId = ? and isJiesuaned = '0'";
       ps = con.prepareStatement(sql);
       ps.setString(1, softTime);
       ps.setString(2, clubId);
@@ -2799,14 +2702,12 @@ public class DBUtil {
       close(con, ps);
     }
   }
-  
+
 
   /**
    * 联盟对帐批量插入战绩记录
-   * 
+   *
    * @time 2017年11月19日
-   * @param recordList
-   * @throws Exception
    */
   public void addGameRecordList(final List<GameRecord> recordList) throws Exception {
     if (CollectUtil.isHaveValue(recordList)) {
@@ -2821,9 +2722,8 @@ public class DBUtil {
 
   /**
    * 获取已锁定的战绩记录中最大的时间
-   * 
+   *
    * @time 2017年11月25日
-   * @return
    */
   public String getMaxGameRecordTime() {
     String maxRecordTime = "";
@@ -2845,10 +2745,8 @@ public class DBUtil {
 
   /**
    * 获取最新的战绩记录列表（单位：天）
-   * 
+   *
    * @time 2018年7月9日
-   * @param maxRecordTime
-   * @return
    */
   public List<GameRecord> getGameRecordsByMaxTime(String maxRecordTime) {
     List<GameRecord> list = new ArrayList<>();
@@ -2907,7 +2805,9 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql =
-          "SELECT max(LEVEL), count(DISTINCT tableId) FROM ( SELECT tableId,LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"+currentLMType+"' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
+          "SELECT max(LEVEL), count(DISTINCT tableId) FROM ( SELECT tableId,LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"
+              + currentLMType
+              + "' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2923,17 +2823,15 @@ public class DBUtil {
 
   /**
    * 获取最新的战绩记录列表（单位：当天某俱乐部）
-   * 
+   *
    * @time 2018年7月9日
-   * @param maxRecordTime
-   * @param clubId
-   * @return
    */
   public List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL + " where r.soft_time =  ? and r.clubId = ? "; // and r.lmType='联盟1'
+      String sql =
+          GAME_RECORD_SQL + " where r.soft_time =  ? and r.clubId = ? "; // and r.lmType='联盟1'
       ps = con.prepareStatement(sql);
       ps.setString(1, maxRecordTime);
       ps.setString(2, clubId);
@@ -2949,10 +2847,8 @@ public class DBUtil {
 
   /**
    * TODO 关联部分未设值
-   * 
+   *
    * @time 2018年7月9日
-   * @param clubId
-   * @return
    */
   public List<GameRecord> getGameRecordsByClubId(String clubId) {
     List<GameRecord> list = new ArrayList<>();
@@ -2974,7 +2870,7 @@ public class DBUtil {
 
   /**
    * TODO 是否只获取当天的 获取最新的所有战绩记录列表（单位：天） 由于前面的会被删掉，帮只取最最后一天的数据
-   * 
+   *
    * @time 2017年11月25日
    */
   public List<GameRecord> getAllGameRecords() {
@@ -2994,12 +2890,10 @@ public class DBUtil {
   }
 
 
-
   /**
    * 获取已锁定的战绩记录中最大的时间
-   * 
+   *
    * @time 2017年11月25日
-   * @return
    */
   public String getMaxBankFlowTime() {
     String maxRecordTime = "";

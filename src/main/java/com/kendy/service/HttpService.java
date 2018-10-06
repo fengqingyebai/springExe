@@ -34,7 +34,7 @@ import com.kendy.util.StringUtil;
 
 /**
  * 爬取网站后台接口数据
- * 
+ *
  * @author kendy
  */
 @Component
@@ -47,7 +47,7 @@ public class HttpService {
 
   @Autowired
   SMAutoController smAutoController;
-  
+
   public final String CHARSET = "UTF-8";
 
   private final CloseableHttpClient httpclient;
@@ -94,7 +94,6 @@ public class HttpService {
       String token =
           "305c300d06092a864886f70d0101010500034b003048024100991d6650cde25eb73ae1b65465b86443dc57574bfc31f194ab0192f733912631c2a86d191a64300d14e67e0385c9b0a3ddbaf947d88d9f50aecfcf0df0f485b70203010001";
 
-
       List<WanjiaApplyInfo> buyinList = getBuyinList(token);
       if (buyinList == null) {
         System.out.println("申请列表为null！");
@@ -127,7 +126,6 @@ public class HttpService {
     }
     System.out.println("finishes...");
 
-
     // 玩家信息
     // {
     // "showId":"2162968366",
@@ -148,10 +146,8 @@ public class HttpService {
 
   /**
    * 发起请求：爬取后台的玩家列表
-   * 
+   *
    * @time 2018年3月29日
-   * @param token
-   * @return
    */
   public WanjiaListResult getWanjiaListResult(String token) {
     WanjiaListResult wanjiaListResult = null;
@@ -179,11 +175,8 @@ public class HttpService {
 
   /**
    * 爬取后台的玩家列表
-   * 
+   *
    * @time 2018年3月29日
-   * @param token
-   * @return
-   * @throws Exception
    */
   public List<WanjiaApplyInfo> getBuyinList(String token) throws Exception {
     WanjiaListResult wanjiaListResult = getWanjiaListResult(token);
@@ -198,13 +191,6 @@ public class HttpService {
 
   /**
    * 申请买入
-   * 
-   * @param userUuid
-   * @param roomId
-   * @param token
-   * @return
-   * @throws ClientProtocolException
-   * @throws IOException
    */
   public boolean acceptBuy(Long userUuid, Long roomId, String token)
       throws ClientProtocolException, IOException {
@@ -219,16 +205,8 @@ public class HttpService {
   }
 
 
-
   /**
    * POST请求后台数据
-   * 
-   * @param url
-   * @param params
-   * @param token
-   * @return
-   * @throws ClientProtocolException
-   * @throws IOException
    */
   public String sendPost(String url, Map<String, String> params, String token)
       throws ClientProtocolException, IOException {
@@ -263,7 +241,6 @@ public class HttpService {
       return null;
     }
   }
-
 
 
 }

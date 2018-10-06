@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 
 /**
  * 剪切板工具类 功能：用于复制按钮到QQ窗口
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月25日 下午1:21:24
  */
@@ -39,7 +39,7 @@ public class ClipBoardUtil {
   public static void setClipboardImage(final Image image) {
     Transferable trans = new Transferable() {
       public DataFlavor[] getTransferDataFlavors() {
-        return new DataFlavor[] {DataFlavor.imageFlavor};
+        return new DataFlavor[]{DataFlavor.imageFlavor};
       }
 
       public boolean isDataFlavorSupported(DataFlavor flavor) {
@@ -48,15 +48,15 @@ public class ClipBoardUtil {
 
       public Object getTransferData(DataFlavor flavor)
           throws UnsupportedFlavorException, IOException {
-        if (isDataFlavorSupported(flavor))
+        if (isDataFlavorSupported(flavor)) {
           return image;
+        }
         throw new UnsupportedFlavorException(flavor);
       }
 
     };
     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(trans, null);
   }
-
 
 
   /**
@@ -67,7 +67,6 @@ public class ClipBoardUtil {
     Transferable tText = new StringSelection(writeMe);
     clip.setContents(tText, null);
   }
-
 
 
 }

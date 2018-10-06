@@ -19,7 +19,7 @@ import javax.mail.internet.MimeMultipart;
 
 /**
  * 邮件工具类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:57:33
  */

@@ -16,12 +16,12 @@ import com.kendy.controller.SMAutoController;
 
 /**
  * 自动下载服务类
- * 
+ *
  * @author 林泽涛
  * @time 2018年7月6日 下午9:40:36
  */
 @Component
-public class AutoDownloadZJExcelService{
+public class AutoDownloadZJExcelService {
 
   @Autowired
   public SMAutoController smAutoController; // 托管控制类
@@ -53,17 +53,12 @@ public class AutoDownloadZJExcelService{
 
   /**
    * 下载网络文件
-   * 
+   *
    * @time 2018年4月10日
-   * @param url
-   * @param path
-   * @throws IOException
-   * @throws Exception
    */
 //  @SuppressWarnings("resource")
   public void download(String url, String path) throws IOException {
-    
-    
+
     FileUtils.copyURLToFile(new URL(url), new File(path));
 
 //    File file = null;
@@ -94,10 +89,6 @@ public class AutoDownloadZJExcelService{
 
   /**
    * 从输入流中获取字节数组
-   * 
-   * @param inputStream
-   * @return
-   * @throws IOException
    */
   public byte[] readInputStream(InputStream inputStream) throws IOException {
     byte[] buffer = new byte[1024 * 4];
@@ -109,7 +100,6 @@ public class AutoDownloadZJExcelService{
     bos.close();
     return bos.toByteArray();
   }
-
 
 
 }

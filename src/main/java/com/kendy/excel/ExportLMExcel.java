@@ -21,7 +21,7 @@ import com.kendy.util.StringUtil;
 
 /**
  * 导出Excel公共方法
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:52:22
  */
@@ -97,7 +97,6 @@ public class ExportLMExcel {
     // 团队ID
     HSSFRow teamRow = sheet.createRow(2);
 
-
     // 定义所需列数
     int columnNum = rowName.length;
     HSSFRow rowRowNames = sheet.createRow(3); // 在索引2的位置创建行(最顶端的行开始的第二行)
@@ -111,7 +110,6 @@ public class ExportLMExcel {
       cellRowName.setCellValue(text); // 设置列头单元格的值
       cellRowName.setCellStyle(columnTopStyle); // 设置列头单元格样式
     }
-
 
     // 将查询出的数据设置到sheet对应的单元格中
     for (int i = 0; i < dataList.size(); i++) {
@@ -188,8 +186,9 @@ public class ExportLMExcel {
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
-        if (out != null)
+        if (out != null) {
           out.close();
+        }
       }
     }
 

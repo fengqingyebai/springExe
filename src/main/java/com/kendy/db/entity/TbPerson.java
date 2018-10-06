@@ -4,54 +4,55 @@ import javax.persistence.*;
 
 @Table(name = "tb_person")
 public class TbPerson extends GenericEntity {
-    @Id
-    @Column(name = "person_id")
-    private String personId;
 
-    @Column(name = "person_name")
-    private String personName;
+  @Id
+  @Column(name = "person_id")
+  private String personId;
 
-    private Integer age;
+  @Column(name = "person_name")
+  private String personName;
 
-    /**
-     * @return person_id
-     */
-    public String getPersonId() {
-        return personId;
-    }
+  private Integer age;
 
-    /**
-     * @param personId
-     */
-    public void setPersonId(String personId) {
-        this.personId = personId == null ? null : personId.trim();
-    }
+  /**
+   * @return person_id
+   */
+  public String getPersonId() {
+    return personId;
+  }
 
-    /**
-     * @return person_name
-     */
-    public String getPersonName() {
-        return personName;
-    }
+  /**
+   * @param personId
+   */
+  public void setPersonId(String personId) {
+    this.personId = personId == null ? null : personId.trim();
+  }
 
-    /**
-     * @param personName
-     */
-    public void setPersonName(String personName) {
-        this.personName = personName == null ? null : personName.trim();
-    }
+  /**
+   * @return person_name
+   */
+  public String getPersonName() {
+    return personName;
+  }
 
-    /**
-     * @return age
-     */
-    public Integer getAge() {
-        return age;
-    }
+  /**
+   * @param personName
+   */
+  public void setPersonName(String personName) {
+    this.personName = personName == null ? null : personName.trim();
+  }
 
-    /**
-     * @param age
-     */
-    public void setAge(Integer age) {
-        this.age = age;
-    }
+  /**
+   * @return age
+   */
+  public Integer getAge() {
+    return age;
+  }
+
+  /**
+   * @param age
+   */
+  public void setAge(Integer age) {
+    this.age = age;
+  }
 }

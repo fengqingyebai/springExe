@@ -37,7 +37,7 @@ import javafx.scene.input.KeyEvent;
 
 /**
  * 删除控制器
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:02
  */
@@ -47,7 +47,7 @@ public class DelController extends BaseController implements Initializable {
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TGController tgController; // 托管控制类
   @Autowired
@@ -58,19 +58,27 @@ public class DelController extends BaseController implements Initializable {
   public CombineIDController combineIDController; // 配帐控制类
   @Autowired
   public MoneyService moneyService; // 配帐控制类
-  
+
   @Autowired
   public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================删除人员对话框
-  @FXML private TextField memberName;
-  @FXML private TextField memberId;
-  @FXML private ListView<String> delMemberListView;
-  @FXML private ListView<String> detailListView;
-  @FXML private TextField newPlayerName;
-  @FXML private TextField newPlayerEdu;
-  @FXML private TextField newTeamId;
-  @FXML private TextField newGudong;
+  @FXML
+  private TextField memberName;
+  @FXML
+  private TextField memberId;
+  @FXML
+  private ListView<String> delMemberListView;
+  @FXML
+  private ListView<String> detailListView;
+  @FXML
+  private TextField newPlayerName;
+  @FXML
+  private TextField newPlayerEdu;
+  @FXML
+  private TextField newTeamId;
+  @FXML
+  private TextField newGudong;
 
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -108,7 +116,6 @@ public class DelController extends BaseController implements Initializable {
       }
     });
   }
-
 
 
   public void queryDelMember() {
@@ -154,9 +161,8 @@ public class DelController extends BaseController implements Initializable {
 
   /**
    * 删除人员
-   * 
+   *
    * @time 2017年11月12日
-   * @param event
    */
   public void delMemberAction(ActionEvent event) {
     String selectedMemberName = (String) delMemberListView.getFocusModel().getFocusedItem();
@@ -165,7 +171,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    boolean confirmYes = AlertUtil.confirm(selectedMemberName 
+    boolean confirmYes = AlertUtil.confirm(selectedMemberName
         + " 你确定要删除该人员吗?\r\n若是父节点会连同所有子节点都删除!");
     if (confirmYes) {
       if (!StringUtil.isBlank(selectedMemberName)) {
@@ -225,7 +231,7 @@ public class DelController extends BaseController implements Initializable {
 
   /**
    * 获取玩家ID 备注：名称可能含有空格，名称与ID也是用空格隔开。所以单独成方法。
-   * 
+   *
    * @param nameAndId 名称和ID 传过来肯定是不为空的，固不作空判断
    */
   public static String getIdFromStr(String nameAndId) {
@@ -236,9 +242,8 @@ public class DelController extends BaseController implements Initializable {
 
   /**
    * 新增修改用户名称功能
-   * 
+   *
    * @time 2017年10月29日
-   * @param event
    */
   public void updatePlayerNamerAction(ActionEvent event) {
     String newName = newPlayerName.getText();
@@ -254,7 +259,8 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    boolean confirmYes = AlertUtil.confirm("警告", selectedMemberName + " 哥，你确定要修改该玩家名称为" + newName + "??");
+    boolean confirmYes = AlertUtil
+        .confirm("警告", selectedMemberName + " 哥，你确定要修改该玩家名称为" + newName + "??");
     if (confirmYes) {
       try {
         String playerId = getIdFromStr(selectedMemberName);
@@ -290,9 +296,8 @@ public class DelController extends BaseController implements Initializable {
 
   /**
    * 修改用户额度功能
-   * 
+   *
    * @time 2017年10月29日
-   * @param event
    */
   public void updateNewPlayerEduAction(ActionEvent event) {
     String newEdu = newPlayerEdu.getText();
@@ -349,9 +354,8 @@ public class DelController extends BaseController implements Initializable {
 
   /**
    * 修改用户团队ID
-   * 
+   *
    * @time 2017年10月29日
-   * @param event
    */
   public void updateNewTeamIdAction(ActionEvent event) {
     String newTeam = newTeamId.getText();
@@ -430,7 +434,6 @@ public class DelController extends BaseController implements Initializable {
 
         // 5 修改其他所设及的玩家或数据缓存，如父子ID TODO
 
-
         ShowUtil.show("修改成功", 2);
 
       } catch (Exception e) {
@@ -439,6 +442,7 @@ public class DelController extends BaseController implements Initializable {
       }
     }
   }
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

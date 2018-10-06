@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  * 时间工具类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:56:51
  */
@@ -33,9 +33,8 @@ public class TimeUtil {
 
   /**
    * 获取时间 注意这个方法是线程不安全的 若考虑线程安全，建议直接采用JDK8自带的时间API
-   * 
+   *
    * @time 2017年11月30日
-   * @return
    */
   public static String getDateTime() {
     SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -52,12 +51,10 @@ public class TimeUtil {
   }
 
 
-
   /**
    * 获取当前日期
-   * 
+   *
    * @time 2018年2月11日
-   * @return
    */
   public static String getDateString() {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -78,9 +75,8 @@ public class TimeUtil {
 
   /**
    * 根据当天起始时间点获取范围
-   * 
+   *
    * @time 2018年4月14日
-   * @return
    */
   public static long[] getTimeRange() {
     LocalDate now = LocalDate.now();
@@ -91,7 +87,7 @@ public class TimeUtil {
     long start = atStartOfDay.toInstant(ZoneOffset.of("+8")).toEpochMilli();
     long end = todayTime24.toInstant(ZoneOffset.of("+8")).toEpochMilli();
 
-    long[] timeRange = new long[] {start, end};
+    long[] timeRange = new long[]{start, end};
     return timeRange;
   }
 

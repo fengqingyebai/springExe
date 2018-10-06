@@ -20,7 +20,7 @@ import com.kendy.entity.TGExcelModel;
 
 /**
  * 导出托管Excel
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月18日 下午11:03:18
  */
@@ -40,7 +40,6 @@ public class ExportTGExcel {
     super();
     this.excelList = excelList;
   }
-
 
 
   /*
@@ -87,7 +86,6 @@ public class ExportTGExcel {
         cellName.setCellStyle(columnTopStyle); // 设置列头单元格样式
       }
 
-
       // 将查询出的数据设置到sheet对应的单元格中
       int dataSize = columnData.size();
       for (int i = 0; i < dataSize; i++) {
@@ -129,7 +127,6 @@ public class ExportTGExcel {
       sheet.setColumnWidth(columnNum + 2, 3500);
       /****************************/
 
-
       // 让列宽随着导出的列长自动适应
       for (int colNum = 0; colNum < columnNum; colNum++) {
         sheet.setColumnWidth(colNum, 4000);
@@ -152,8 +149,9 @@ public class ExportTGExcel {
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
-        if (out != null)
+        if (out != null) {
           out.close();
+        }
       }
     }
 
@@ -161,10 +159,8 @@ public class ExportTGExcel {
 
   /**
    * 设置外债的Excel数据
-   * 
+   *
    * @time 2018年3月20日
-   * @param workbook
-   * @param excelModel
    */
   private void setWaizhaiData(HSSFWorkbook workbook, TGExcelModel excelModel) {
     HSSFSheet sheet = workbook.createSheet(excelModel.getSheetName());
@@ -173,13 +169,13 @@ public class ExportTGExcel {
     CellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);// 获取列头样式对象
     CellStyle style = ExcelCss.getStyle(workbook); // 单元格样式对象
 
-
     int index = 1;// 第几个表
     for (Map.Entry<String, List<Object[]>> entry : waizhaiMap.entrySet()) {
 
       HSSFRow r = sheet.getRow(1);
-      if (r == null)
+      if (r == null) {
         r = sheet.createRow(1);
+      }
       int start = (index - 1) * 3;
       int end = (index - 1) * 3 + 1;
       // 标题
@@ -195,7 +191,6 @@ public class ExportTGExcel {
       text = new HSSFRichTextString(teamString.split("#")[1]);
       cellName.setCellValue(text);
       cellName.setCellStyle(columnTopStyle);
-
 
       // 外债明细
       int i = 1;
@@ -225,13 +220,10 @@ public class ExportTGExcel {
   }
 
 
-
   /**
    * 程序测试入口
-   * 
+   *
    * @time 2018年3月18日
-   * @param strings
-   * @throws Exception
    */
   public static void main(String... strings) throws Exception {
     List<TGExcelModel> exportList = new ArrayList<>();
@@ -252,7 +244,6 @@ public class ExportTGExcel {
     sumDataList.add(sumDataObj2);
     excelModel.setColumnSumList(sumTitleList);
     excelModel.setDataSum(sumDataList);
-
 
     List<String> columnList = new ArrayList<>();
     columnList.add("列标题 ");
@@ -276,7 +267,6 @@ public class ExportTGExcel {
     excelModel.setColumnList(columnList);
     excelModel.setData(dataList);
     exportList.add(excelModel);
-
 
     ExportTGExcel excelCreator = new ExportTGExcel(exportList);
     excelCreator.export();

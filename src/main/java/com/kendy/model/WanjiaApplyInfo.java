@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 
 /**
  * 玩家申请相关
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月24日 上午10:55:37
  */
@@ -107,7 +107,6 @@ public class WanjiaApplyInfo {
         + ", buyStack=" + buyStack + ", uuid=" + uuid + ", totalBuyin=" + totalBuyin
         + ", totalProfit=" + totalProfit + "]";
   }
-
 
 
 }

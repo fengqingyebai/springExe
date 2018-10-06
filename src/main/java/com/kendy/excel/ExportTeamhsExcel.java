@@ -20,7 +20,7 @@ import org.apache.poi.ss.usermodel.CellType;
 
 /**
  * 导出回水
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:53:17
  */
@@ -39,11 +39,6 @@ public class ExportTeamhsExcel {
 
   /**
    * 构造方法，传入要导出的数据
-   * 
-   * @param title
-   * @param rowName
-   * @param dataList
-   * @param out
    */
   public ExportTeamhsExcel(String title, String[] rowName, List<Object[]> dataList, String out) {
     this.title = title;
@@ -85,7 +80,6 @@ public class ExportTeamhsExcel {
         cellRowName.setCellValue(text); // 设置列头单元格的值
         cellRowName.setCellStyle(columnTopStyle); // 设置列头单元格样式
       }
-
 
       // 将查询出的数据设置到sheet对应的单元格中
       for (int i = 0; i < dataList.size(); i++) {
@@ -142,8 +136,9 @@ public class ExportTeamhsExcel {
         } catch (IOException e) {
           e.printStackTrace();
         } finally {
-          if (out != null)
+          if (out != null) {
             out.close();
+          }
         }
       }
 
@@ -154,14 +149,13 @@ public class ExportTeamhsExcel {
   }
 
 
-
   public static void main(String[] args) throws Exception {
     // String title = Message.getString("manifestIExportTitle");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "回水" + sdf.format(new Date());
     System.out.println(title);
     // 团队ID 团队名字 比例 保险比例 股东 战绩是否代管理 备注 回水比例 回保比例 服务费判定 服务费判定
-    String[] rowsName = new String[] {"团队ID", "团队名字", "比例", "保险比例", "股东", "战绩是否代管理", "备注", "回水比例",
+    String[] rowsName = new String[]{"团队ID", "团队名字", "比例", "保险比例", "股东", "战绩是否代管理", "备注", "回水比例",
         "回保比例", "服务费判定", "服务费判定", "",};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;

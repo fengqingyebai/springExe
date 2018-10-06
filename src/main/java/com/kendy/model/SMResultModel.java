@@ -6,7 +6,7 @@ import com.kendy.entity.ShangmaInfo;
 
 /**
  * 根据玩家ID
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月31日 下午11:58:50
  */
@@ -50,7 +50,6 @@ public class SMResultModel {
   }
 
   private ShangmaInfo selectedSMInfo;
-
 
 
   public String getTeamTotalAvailabel() {

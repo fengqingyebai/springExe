@@ -33,26 +33,26 @@ import javafx.scene.control.TableView;
 
 /**
  * 托管公司的服务费
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月13日 下午6:58:18
  */
 @Component
-public class TGFwfService{
+public class TGFwfService {
 
   @Autowired
   private DBUtil dbUtil;
   @Autowired
-  private TGController tgController ;
-  
+  private TGController tgController;
+
   public void inits() {
-    if(dbUtil == null) {
+    if (dbUtil == null) {
       dbUtil = SpringFxmlLoader.getContext().getBean(DBUtil.class);
       tgController = SpringFxmlLoader.getContext().getBean(TGController.class);
     }
   }
-  
-  
+
+
   public void setFwfDetail(String tgCompany, TableView<TGFwfinfo> tableTGFwf,
       TableView<TypeValueInfo> tableTGFwfSum) {
     if (StringUtil.isBlank(tgCompany)) {
@@ -118,11 +118,12 @@ public class TGFwfService{
       double teamFwfRate = tgController.getTgTeamFwfRate(teamID);
 
       TGFwfinfo fwfInfo =
-          new TGFwfinfo(tgCompany, teamID, NumUtil.digit2(zjRate25Sum - zjRateUnknowSum + ""), // 服务回水
-                                                                                               // =
-                                                                                               // 战绩2.5%
-                                                                                               // -
-                                                                                               // 战绩未知
+          new TGFwfinfo(tgCompany, teamID, NumUtil.digit2(zjRate25Sum - zjRateUnknowSum + ""),
+              // 服务回水
+              // =
+              // 战绩2.5%
+              // -
+              // 战绩未知
               NumUtil.digit2(huibaoDouble + ""), // 服务回保 = 保险 - 回保
               NumUtil.digit2(zjProfitSum + ""), // 单个总利润
               NumUtil.digit2(zjRateUnknowSum + ""), // 服务返水
@@ -130,7 +131,7 @@ public class TGFwfService{
               NumUtil.digit2(zjRate25Sum + ""), // 服务全水
               NumUtil.digit2(zjBaoxianSum + ""), // 服务全保
               NumUtil.digit2((zjRate25Sum + zjBaoxianSum) * teamFwfRate + "") // 服务合计
-      );
+          );
       tgFwfInfoList.add(fwfInfo);
 
     });
@@ -145,9 +146,8 @@ public class TGFwfService{
 
   /**
    * 排序
-   * 
+   *
    * @time 2018年3月15日
-   * @param tgFwfInfoList
    */
   private void sort(List<TGFwfinfo> tgFwfInfoList) {
     try {
@@ -172,10 +172,8 @@ public class TGFwfService{
 
   /**
    * 设置总和表
-   * 
+   *
    * @time 2018年3月15日
-   * @param tableTGFwf
-   * @param tableTGFwfSum
    */
   private void setTableTGFwfSumData(TableView<TGFwfinfo> tableTGFwf,
       TableView<TypeValueInfo> tableTGFwfSum, int renci) {
@@ -210,14 +208,10 @@ public class TGFwfService{
   }
 
 
-
   /**
    * 代理查询中的数据转成托管中的团队信息数据
-   * 
+   *
    * @time 2018年3月7日
-   * @param teamId
-   * @param proxyTeamInfoList
-   * @return
    */
   private List<TGTeamInfo> convert2TGTeamInfo(List<ProxyTeamInfo> proxyTeamInfoList) {
     List<TGTeamInfo> list = new ArrayList<>();

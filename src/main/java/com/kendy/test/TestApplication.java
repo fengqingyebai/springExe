@@ -8,16 +8,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class TestApplication extends Application {
-  
+
   private Logger logger = LoggerFactory.getLogger(getClass());
 
   private static final SpringFxmlLoaders loader = new SpringFxmlLoaders();
 
   @Override
   public void start(Stage primaryStage) {
-    
+
     logger.info("start method is starting... ");
-    
+
     Parent root = (Parent) loader.load("search.fxml");
     Scene scene = new Scene(root, 768, 480);
     primaryStage.setScene(scene);

@@ -49,7 +49,7 @@ import javafx.scene.control.TextField;
 
 /**
  * 新增托管公司控制类
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
@@ -59,7 +59,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TGController tgController; // 托管控制类
   @Autowired
@@ -93,7 +93,6 @@ public class TGAddCompanyController extends BaseController implements Initializa
   private static Map<String, List<Huishui>> gudongTeamMap = new HashMap<>();
 
 
-
   @Override
   public void initialize(URL location, ResourceBundle resources) {
 
@@ -108,7 +107,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 清空表数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initListViews() {
@@ -118,7 +117,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 初始化股东所拥有的团队
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initGudongTeamMap() {
@@ -130,7 +129,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 初始化股东列表（赋值和监听）
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initGudongChoice() {
@@ -155,9 +154,8 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 移除托管团队（左表转到右表）
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void removeTGTeamAction(ActionEvent event) {
     String selectedTeam = tg_team_view.getSelectionModel().getSelectedItem();
@@ -176,12 +174,10 @@ public class TGAddCompanyController extends BaseController implements Initializa
   }
 
 
-
   /**
    * 增加托管团队（右表转到左表）
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addTGTeamAction(ActionEvent event) {
     String selectedTeam = gudong_team_view.getSelectionModel().getSelectedItem();
@@ -201,9 +197,8 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 检验参数
-   * 
+   *
    * @time 2018年3月3日
-   * @return
    */
   private boolean hasAnyParamBlank() {
     return StringUtil.isAnyBlank(tg_company_field.getText(), companyRateField.getText(),
@@ -213,9 +208,8 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 获取待提交的数据
-   * 
+   *
    * @time 2018年3月3日
-   * @return
    */
   private TGCompanyModel getSubmitData() {
     TGCompanyModel tgCompnayModel = new TGCompanyModel(tg_company_field.getText().trim(),
@@ -233,9 +227,8 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
   /**
    * 按钮：确认添加新托管公司
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addNewTGCompanyOKBtnAction(ActionEvent event) {
     // 检验参数
@@ -252,8 +245,8 @@ public class TGAddCompanyController extends BaseController implements Initializa
 
     tgController.loadDataLastest();
   }
-  
-  
+
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

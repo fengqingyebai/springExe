@@ -20,12 +20,12 @@ import javafx.scene.control.TextField;
 
 /**
  * 积分服务类
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月12日 上午3:07:21
  */
 @Component
-public class JifenService{
+public class JifenService {
 
   @Autowired
   public DBUtil dbUtil;
@@ -58,12 +58,11 @@ public class JifenService{
    */
   public void addNewTeamId(String teamId) {
     if (teamIDCombox != null && teamIDCombox.getItems() != null) {
-      if (!StringUtil.isBlank(teamId))
+      if (!StringUtil.isBlank(teamId)) {
         teamIDCombox.getItems().add(teamId);
+      }
     }
   }
-
-
 
   // @SuppressWarnings("unchecked")
   // public void init_JFTeamSelect_Action(ComboBox<String> teamIDCombox,TextField
@@ -84,7 +83,7 @@ public class JifenService{
 
   /**
    * 积分查询功能
-   * 
+   *
    * @param tableJifen 积分表
    * @param jfStartTime 开始时间 eg.2017-09-01
    * @param jfEndTime 结束时间 eg.2017-09-20
@@ -94,9 +93,9 @@ public class JifenService{
    * @param isCheckTeamProfitBox 是否核算团队利润
    * @author 泽涛
    */
-  public void jifenQuery(String clubId, TableView <JifenInfo> tableJifen, DatePicker jfStartTime,
+  public void jifenQuery(String clubId, TableView<JifenInfo> tableJifen, DatePicker jfStartTime,
       DatePicker jfEndTime, TextField jifenInput, TextField jifenRankLimit,
-      ComboBox <String> jfTeamIDCombox, boolean isCheckTeamProfitBox) {
+      ComboBox<String> jfTeamIDCombox, boolean isCheckTeamProfitBox) {
     // 获取各个值
     ObservableList<JifenInfo> obList = FXCollections.observableArrayList();
     String startTime = getFormatTime(jfStartTime.getValue());
@@ -105,7 +104,8 @@ public class JifenService{
     String limit = jifenRankLimit.getText();
     String teamId = jfTeamIDCombox.getSelectionModel().getSelectedItem();
     // 查询数据
-    List<JifenInfo> list = dbUtil.getJifenQuery(clubId, jfInput, teamId, startTime, endTime, isCheckTeamProfitBox, limit);
+    List<JifenInfo> list = dbUtil
+        .getJifenQuery(clubId, jfInput, teamId, startTime, endTime, isCheckTeamProfitBox, limit);
     // 更新积分表
     tableJifen.setItems(null);
     if (list != null && !list.isEmpty()) {
@@ -120,9 +120,6 @@ public class JifenService{
 
   /**
    * 格式化日历控件的用户选择的日期
-   * 
-   * @param date
-   * @return
    */
   public String getFormatTime(LocalDate date) {
     String pattern = "yyyy-MM-dd";

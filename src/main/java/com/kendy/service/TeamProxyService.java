@@ -45,7 +45,7 @@ import javafx.scene.layout.HBox;
 
 /**
  * 代理查询服务类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:49:57
  */
@@ -57,12 +57,12 @@ public class TeamProxyService {
   public DBUtil dbUtil;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
-//  @Autowired
+  //  @Autowired
 //  public TeamProxyController teamProxyController ;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
-  public MoneyService moneyService ;
+  public MoneyService moneyService;
 
   public DecimalFormat df = new DecimalFormat("#.00");
 
@@ -77,8 +77,8 @@ public class TeamProxyService {
   public TextField proxyHSRate;// 回水比例
   public TextField proxyHBRate;// 回保比例
   public TextField proxyFWF;// 服务费大于多少有效
-  
-  
+
+
   @PostConstruct
   public void init() {
     log.info("@PostConstruct TeamProxyService" + System.currentTimeMillis());
@@ -122,9 +122,8 @@ public class TeamProxyService {
 
   /**
    * 初始化
-   * 
+   *
    * @time 2017年10月28日
-   * @param teamIDCombox
    */
   public void initTeamSelectAndZjManage(ComboBox<String> teamIDCombox) {
     ObservableList<String> options = FXCollections.observableArrayList();
@@ -138,9 +137,8 @@ public class TeamProxyService {
 
   /**
    * 添加新团队后自动更新到代理查询的团队下拉框中
-   * 
+   *
    * @time 2017年11月11日
-   * @param teamId
    */
   public void addNewTeamId(String teamId) {
     if (teamIDCombox != null && teamIDCombox.getItems() != null) {
@@ -208,10 +206,8 @@ public class TeamProxyService {
 
   /**
    * 获取最新的团队服务费(点击结算时)
-   * 
+   *
    * @time 2018年1月4日
-   * @param teamId
-   * @return
    */
   public String get_TeamFWF_byTeamId(String teamId) {
     String fwf = "0";
@@ -229,12 +225,13 @@ public class TeamProxyService {
 
   /**
    * 刷新两个表，共用代码(选择团下拉框和点击刷新按钮时共用的代码)
-   * 
+   *
    * @param newValue teamID
    */
   public void refresh_TableTeamProxy_TableProxySum(Object newValue) {
-    if (newValue == null)
+    if (newValue == null) {
       return;
+    }
     Huishui hs = dataConstants.huishuiMap.get(newValue);
     if (hs != null) {
       if ("否".equals(hs.getZjManaged())) {
@@ -261,7 +258,8 @@ public class TeamProxyService {
     if (teamList != null) {
       for (GameRecord info : teamList) {
         obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerId(), info.getPlayerName(),
-            info.getYszj(), info.getShishou(), NumUtil.getNum(info.getChuHuishui()) * (-1) + "", // 出回水是否等于回水
+            info.getYszj(), info.getShishou(), NumUtil.getNum(info.getChuHuishui()) * (-1) + "",
+            // 出回水是否等于回水
             info.getHuiBao(), // 保险是否等于回保
             info.getTableId(), info.getSinegleInsurance()// 保险
         ));
@@ -328,15 +326,13 @@ public class TeamProxyService {
 
   /**
    * 股东贡献值用到（根据团队ID获取团队服务费）
-   * 
+   *
    * @time 2018年1月20日
-   * @param teamId
-   * @param list
-   * @return
    */
   public String getTeamFWF_GD(String teamId, List<GameRecord> list) {
-    if (StringUtil.isBlank(teamId))
+    if (StringUtil.isBlank(teamId)) {
       return "0";
+    }
     Huishui hs = dataConstants.huishuiMap.get(teamId);
     if (hs == null) {
       ErrorUtil.err(String.format("根据团队ID%s获取团队服务费出错！", teamId));
@@ -358,11 +354,8 @@ public class TeamProxyService {
 
   /**
    * 新增：股东贡献值的团队服务费 备注：之前是该团队的所有历史数据都参与计算，现在改为该团队的每天服务费相加
-   * 
+   *
    * @time 2018年5月18日
-   * @param teamId
-   * @param list
-   * @return
    */
   private String getTeamFWF_GD_EveryDay(String teamId, List<GameRecord> teamEveryDayList,
       Huishui hs) {
@@ -422,9 +415,8 @@ public class TeamProxyService {
 
   /**
    * add 深层克隆Total_Team_Huishui_Map对象
-   * 
+   *
    * @time 2017年10月29日
-   * @return
    */
   private Map<String, List<GameRecord>> copy_Total_Team_Huishui_Map() {
     Map<String, List<GameRecord>> teamMap = new HashMap<>();
@@ -533,9 +525,8 @@ public class TeamProxyService {
 
   /**
    * 隐藏今日无数据的团队
-   * 
+   *
    * @time 2018年1月1日
-   * @param event
    */
   public void proxyHideNoDataTeam() {
     try {
@@ -577,7 +568,7 @@ public class TeamProxyService {
 
   /**
    * 导出无团队保险比例的Excel
-   * 
+   *
    * @time 2018年2月8日
    */
   public void exportExcel_with_has_teamBaoxianRate() {
@@ -605,7 +596,7 @@ public class TeamProxyService {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     String title = teamId + "-" + sdf.format(new Date());
 
-    String[] rowsName = new String[] {"玩家ID", "玩家名称", "原始战绩", "战绩", "保险", "回水", "回保", "场次"};
+    String[] rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "保险", "回水", "回保", "场次"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (ProxyTeamInfo info : list) {
@@ -621,7 +612,7 @@ public class TeamProxyService {
       dataList.add(objs);
     }
 
-    String[] rowsName2 = new String[] {"合计", "0"};
+    String[] rowsName2 = new String[]{"合计", "0"};
     List<Object[]> sumList = new ArrayList<>();
     Object[] sumObjs = null;
     ObservableList<ProxySumInfo> ob_List = tableProxySum.getItems();
@@ -639,8 +630,6 @@ public class TeamProxyService {
       rowsName2[1] = sum;
     }
 
-
-
     String out = getOutPath(title, rowsName2[1]);
     ExportExcel ex =
         new ExportExcel(teamId, time, isManage, title, rowsName, dataList, out, rowsName2, sumList);
@@ -654,7 +643,7 @@ public class TeamProxyService {
 
   /**
    * 导出有团队保险比例的Excel
-   * 
+   *
    * @time 2018年2月8日
    */
   public void exportExcel_with_no_teamBaoxianRate() {
@@ -682,7 +671,7 @@ public class TeamProxyService {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     String title = teamId + "-" + sdf.format(new Date());
 
-    String[] rowsName = new String[] {"玩家ID", "玩家名称", "原始战绩", "战绩", "回水", "场次"};
+    String[] rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "回水", "场次"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (ProxyTeamInfo info : list) {
@@ -696,7 +685,7 @@ public class TeamProxyService {
       dataList.add(objs);
     }
 
-    String[] rowsName2 = new String[] {"合计", "0"};
+    String[] rowsName2 = new String[]{"合计", "0"};
     List<Object[]> sumList = new ArrayList<>();
     Object[] sumObjs = null;
     ObservableList<ProxySumInfo> ob_List = tableProxySum.getItems();
@@ -759,11 +748,8 @@ public class TeamProxyService {
 
   /**
    * 计算导出Excel时的合计 小胖：总人次不计入，服务费要减掉
-   * 
+   *
    * @time 2018年2月11日
-   * @param ob_List
-   * @param filters
-   * @return
    */
   private String getExportHejiSum(ObservableList<ProxySumInfo> ob_List,
       List<String> filters) {
@@ -780,9 +766,8 @@ public class TeamProxyService {
 
   /**
    * 获取需要过滤的合计项
-   * 
+   *
    * @time 2018年2月9日
-   * @return
    */
   private List<String> getHejiFilters() {
     List<String> totalFilters = new ArrayList<>();
@@ -794,7 +779,6 @@ public class TeamProxyService {
     }
     return totalFilters;
   }
-
 
 
 }

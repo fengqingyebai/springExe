@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring/spring-dao.xml")
-public class TestDB{
+public class TestDB {
 
   @Autowired
   private TbPersonDao pDao;
@@ -28,7 +28,7 @@ public class TestDB{
   private ManService manService;
 
   @Test
-  public void testInsert(){
+  public void testInsert() {
 
     /*Man man = dao.getMan();
 
@@ -54,8 +54,6 @@ public class TestDB{
     int insert = pDao.insert(p);
 
     String a_gir_i_love = "ss";
-
-
 
     System.out.println("finishes..." + insert);
   }

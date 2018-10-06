@@ -2,7 +2,7 @@ package com.kendy.util;
 
 /**
  * 字符串处理类
- * 
+ *
  * @author 林泽涛
  * @time 2017年10月7日 下午4:02:08
  */
@@ -35,8 +35,9 @@ public class StringUtil {
 
   // 是否其中一个为空
   public static boolean isAnyBlank(String... strings) {
-    if (strings == null || strings.length == 0)
+    if (strings == null || strings.length == 0) {
       return true;
+    }
 
     for (String str : strings) {
       if (isBlank(str)) {
@@ -45,14 +46,11 @@ public class StringUtil {
     }
     return false;
   }
-  
+
   /**
    * 判断是否都不为空
-   * 
-   * @param strings
-   * @return
    */
-  public static boolean isAllNotBlank(String...strings) {
+  public static boolean isAllNotBlank(String... strings) {
     return !isAnyBlank(strings);
   }
 

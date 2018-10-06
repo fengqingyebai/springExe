@@ -51,7 +51,7 @@ import javafx.scene.control.TextInputDialog;
 
 /**
  * 新增玩家备注控制类
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
@@ -62,15 +62,13 @@ public class TGAddCommentController extends BaseController implements Initializa
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TGController tgController; // 托管控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
-  
-  
-  
-  
+
+
   @FXML
   private TextField searchField; // 玩家名称(模糊搜索)
 
@@ -127,7 +125,7 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 获取人员数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initPlayers() {
@@ -139,7 +137,7 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 添加文本框监听(监听输入框和ListView点击框)
-   * 
+   *
    * @time 2018年3月3日
    */
   private void addListener() {
@@ -155,13 +153,14 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 初始化类别数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initTypeChoice() {
     String typeItemsJson = dbUtil.getValueByKey(TG_WANGJIA_COMMENT_DB_KEY);
     if (StringUtil.isNotBlank(typeItemsJson) && !"{}".equals(typeItemsJson)) {
-      typeItems = JSON.parseObject(typeItemsJson, new TypeReference<List<String>>() {});
+      typeItems = JSON.parseObject(typeItemsJson, new TypeReference<List<String>>() {
+      });
     } else {
       if (typeItems == null || typeItems.isEmpty()) {
         typeItems = new ArrayList<>(Arrays.asList("推荐玩家", "改号", "小号"));
@@ -173,7 +172,7 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 初始化托管公司名称项目数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initTGCompanyChoice() {
@@ -190,9 +189,8 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 添加类别选项
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addTypeItemAction(ActionEvent event) {
     TextInputDialog dialog = new TextInputDialog();
@@ -221,7 +219,7 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 保存类别选项到数据库
-   * 
+   *
    * @time 2018年3月3日
    */
   private void saveTypeItem() {
@@ -231,9 +229,8 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 检验参数
-   * 
+   *
    * @time 2018年3月3日
-   * @return
    */
   private boolean hasAnyParamBlank() {
     return StringUtil.isAnyBlank(FinalPlaerNameField.getText(), FinalPlaerIdField.getText(),
@@ -242,9 +239,8 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 获取待提交的数据
-   * 
+   *
    * @time 2018年3月3日
-   * @return
    */
   private TGCommentInfo getSubmitData() {
     // 获取当前托管公司
@@ -260,12 +256,10 @@ public class TGAddCommentController extends BaseController implements Initializa
   }
 
 
-
   /**
    * 按钮：确定提交托管开销数据
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addTGCommentBtnAction(ActionEvent event) {
     // 检验参数
@@ -275,13 +269,14 @@ public class TGAddCommentController extends BaseController implements Initializa
     }
     // 传递给主控制类处理逻辑 TODO
     TGCommentInfo tgCommentInfo = getSubmitData();
-   // TGController tgController = MyController.tgController;
+    // TGController tgController = MyController.tgController;
 
     // 保存到数据库
     dbUtil.saveOrUpdate_tg_comment(tgCommentInfo);
     // 刷新界面
-    if (equalsCurrentCompany())
+    if (equalsCurrentCompany()) {
       tgController.refreshTableTGComment();
+    }
 
     ShowUtil.show("添加完成", 1);
   }
@@ -289,9 +284,8 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 添加开销时判断是否添加的公司与当前公司是否一致，一致则刷新当前页面
-   * 
+   *
    * @time 2018年3月24日
-   * @return
    */
   private boolean equalsCurrentCompany() {
     //TGController tgController = MyController.tgController;
@@ -302,9 +296,8 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 设置第一个
-   * 
+   *
    * @time 2018年3月22日
-   * @param event
    */
   public void setFirstDataAction(ActionEvent event) {
     String text = playersView.getSelectionModel().getSelectedItem();
@@ -319,9 +312,8 @@ public class TGAddCommentController extends BaseController implements Initializa
 
   /**
    * 设置第二个
-   * 
+   *
    * @time 2018年3月22日
-   * @param event
    */
   public void setSecondDataAction(ActionEvent event) {
     String text = playersView.getSelectionModel().getSelectedItem();

@@ -7,9 +7,8 @@ import org.apache.log4j.Logger;
 
 /**
  * 数据转换计算工具类
- * 
- * @author kendy
  *
+ * @author kendy
  */
 public class NumUtil {
 
@@ -127,7 +126,7 @@ public class NumUtil {
 
   /**
    * 判断是否为数字
-   * 
+   *
    * @time 2017年12月7日
    * @param str
    * @return
@@ -135,8 +134,9 @@ public class NumUtil {
   private static Pattern pattern = Pattern.compile("(-)?[0-9]*");
 
   public static boolean isNumeric(String str) {
-    if (str == null || "".equals(str.trim()))
+    if (str == null || "".equals(str.trim())) {
       return false;
+    }
     // str = str.trim();
     Matcher isNum = pattern.matcher(str);
     if (!isNum.matches()) {
@@ -156,26 +156,24 @@ public class NumUtil {
 
   /**
    * 获取总和（可变参数）
-   * 
+   *
    * @time 2018年1月9日
-   * @param strings
-   * @return
    */
   public static String getSum(String... strings) {
     Double sum = 0d;
-    if (strings.length > 0)
-      for (String str : strings)
+    if (strings.length > 0) {
+      for (String str : strings) {
         sum += NumUtil.getNum(str);
+      }
+    }
 
     return NumUtil.digit0(sum) + "";
   }
 
   /**
    * 获取乘积
-   * 
+   *
    * @time 2018年1月28日
-   * @param strings
-   * @return
    */
   public static Double getNumTimes(String str1, String str2) {
     Double a = 0.0;
@@ -195,11 +193,8 @@ public class NumUtil {
 
   /**
    * 两数相除
-   * 
+   *
    * @time 2018年2月20日
-   * @param d1
-   * @param d2
-   * @return
    */
   public static Double getNumDivide(Double d1, Double d2) {
     if (d1.compareTo(0d) == 0 || d2.compareTo(0d) == 0 || d1.compareTo(-0d) == 0

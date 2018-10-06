@@ -14,20 +14,20 @@ import javafx.util.Callback;
 
 /**
  * 由SpringFxmlLoader代理FxmlLoader去加载FXML文件
- * 
+ *
  * @author linzt
  * @time 2018年7月18日
  */
 public class SpringFxmlLoader {
-  
+
 
   public static Logger logger = null;
-  
+
   /*
    * Spring IOC 容器
    */
-  private static  ApplicationContext applicationContext = null;
-  
+  private static ApplicationContext applicationContext = null;
+
   /*
    * 加载日志
    * 注意：必须在Spring容器初始化之前手动加载日志
@@ -42,7 +42,7 @@ public class SpringFxmlLoader {
       ErrorUtil.err("日志组件初始化失败");
     }
   }
-  
+
   /*
    * 加载Spring容器
    */
@@ -54,12 +54,12 @@ public class SpringFxmlLoader {
       ErrorUtil.err("Spring组件初始化失败:" + e.getMessage());
     }
   }
-  
+
 
   /**
    * 加载FXML文件
+   *
    * @param url FXML 文件路径
-   * @return
    */
   public Object load(String url) {
     try (InputStream fxmlStream = SpringFxmlLoader.class.getResourceAsStream(url)) {
@@ -76,10 +76,9 @@ public class SpringFxmlLoader {
       throw new RuntimeException(ioException);
     }
   }
-  
+
   /**
    * 自定义返回Spring容器
-   * @return
    */
   public static ApplicationContext getContext() {
     return applicationContext;

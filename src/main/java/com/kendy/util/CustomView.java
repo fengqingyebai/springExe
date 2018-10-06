@@ -12,11 +12,11 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 public class CustomView {
-  
-  private  Logger logger = LoggerFactory.getLogger(getClass());
-  
+
+  private Logger logger = LoggerFactory.getLogger(getClass());
+
   public static CustomView instance = new CustomView();
-  
+
   @Autowired
   DataConstans dataConstants;
 

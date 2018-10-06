@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 /**
  * 操作错误工具类
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月12日 上午12:42:17
  */
@@ -14,10 +14,8 @@ public class ErrorUtil {
 
   /**
    * 错误提示及日志入库
-   * 
+   *
    * @time 2017年11月12日
-   * @param msg
-   * @param e
    */
   public static void err(String msg, Throwable e) {
     msg += ",原因：" + e.getMessage();
@@ -29,9 +27,8 @@ public class ErrorUtil {
 
   /**
    * 错误简单提示及日志入库
-   * 
+   *
    * @time 2017年11月12日
-   * @param msg
    */
   public static void err(String msg) {
     // 弹框提示

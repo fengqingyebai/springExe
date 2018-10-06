@@ -40,12 +40,12 @@ import javafx.scene.layout.HBox;
 
 /**
  * 托管外债
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月8日 下午8:49:07
  */
 @Component
-public class TgWaizhaiService{
+public class TgWaizhaiService {
 
   private Logger log = Logger.getLogger(TgWaizhaiService.class);
   @Autowired
@@ -53,10 +53,10 @@ public class TgWaizhaiService{
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired
-  public TGController tgController ;
+  public TGController tgController;
   @Autowired
-  public BaseController baseController ;
-  
+  public BaseController baseController;
+
 
   private final String UNKNOW_TG_TEAM = "未知托管团队";
   public DecimalFormat df = new DecimalFormat("#.00");
@@ -64,9 +64,8 @@ public class TgWaizhaiService{
 
   /**
    * 获取托管团队ID
-   * 
+   *
    * @time 2018年3月8日
-   * @return
    */
   public Set<String> getTGTeamId() {
     Set<String> tgTeamSet = new HashSet<>();
@@ -87,11 +86,6 @@ public class TgWaizhaiService{
 
   /**
    * 自动生成外债信息表
-   * 
-   * @param tableWaizhai
-   * @param hbox
-   * @param tableCurrentMoneyInfo
-   * @param tableTeam
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void generateWaizhaiTables(TableView<TypeValueInfo> tableWaizhai, HBox hbox,
@@ -101,8 +95,9 @@ public class TgWaizhaiService{
 
     // 清空数据
     ObservableList<Node> allTables = hbox.getChildren();
-    if (allTables != null && allTables.size() > 0)
+    if (allTables != null && allTables.size() > 0) {
       hbox.getChildren().remove(0, allTables.size());
+    }
 
     if (dataConstants.Index_Table_Id_Map.size() == 0) {
       ShowUtil.show("你当前还未锁定任意一局，查询没有数据!", 2);
@@ -111,7 +106,6 @@ public class TgWaizhaiService{
     ObservableList<CurrentMoneyInfo> CurrentMoneyInfo_OB_List = FXCollections.observableArrayList();
     Map<String, List<CurrentMoneyInfo>> tgTeamIdMap = get_SSJE_Gudong_Map(tableCurrentMoneyInfo);
     Map<String, String> sumMap = getSum(tgTeamIdMap);
-
 
     int tgTeamIdMapSize = tgTeamIdMap.size();
     if (tgTeamIdMapSize == 0) {
@@ -166,9 +160,8 @@ public class TgWaizhaiService{
 
   /**
    * 设置外债信息总和
-   * 
+   *
    * @time 2017年10月28日
-   * @param tableWaizhai
    */
   public void setWaizhaiSum(TableView<TypeValueInfo> tableWaizhai) {
     Double sum = 0d;
@@ -185,9 +178,6 @@ public class TgWaizhaiService{
 
   /**
    * 计算每个股东的外债总和
-   * 
-   * @param tgTeamIdMap
-   * @return
    */
   public Map<String, String> getSum(Map<String, List<CurrentMoneyInfo>> tgTeamIdMap) {
     final Map<String, String> map = new HashMap<>();
@@ -205,7 +195,6 @@ public class TgWaizhaiService{
 
   /**
    * 获取每个托管团队的实时金额 备注：不包括个人和存在于左边的团队
-   * 
    */
   public Map<String, List<CurrentMoneyInfo>> get_SSJE_Gudong_Map(
       TableView<CurrentMoneyInfo> tableCurrentMoneyInfo) {
@@ -267,7 +256,6 @@ public class TgWaizhaiService{
           }
         }));
 
-
     // 步骤2：处理个人外债和有联合额度的外债
     tgTeamCMIMap = getFinalTGTeamMap(SSJE_obList);
     return tgTeamCMIMap;
@@ -275,10 +263,8 @@ public class TgWaizhaiService{
 
   /**
    * 处理托管团队数据
-   * 
+   *
    * @time 2018年3月8日
-   * @param tgTeamMap
-   * @return
    */
   @SuppressWarnings("unchecked")
   private Map<String, List<CurrentMoneyInfo>> getFinalTGTeamMap(
@@ -329,7 +315,6 @@ public class TgWaizhaiService{
           return p.getTeamName();
         }));
 
-
     return finalList;
   }
 
@@ -347,11 +332,8 @@ public class TgWaizhaiService{
 
   /**
    * 复制一个实时金额表的记录
-   * 
+   *
    * @time 2017年12月29日
-   * @param info
-   * @param tempSuperInfoMap
-   * @return
    */
   private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),

@@ -16,40 +16,34 @@ import javafx.stage.Stage;
  * Javafx Util
  */
 public class FXUtil {
-  
+
   public static Stage stage;
-  
+
   // 成功信息
   public static ImageView okImg = new ImageView("images/ok.png");
-  
-  
+
+
   /**
    * 选择一个文件夹
-   * 
-   * @return
    */
   public static File chooseDirFile() {
     DirectoryChooser chooser = new DirectoryChooser();
     chooser.setInitialDirectory(SystemUtil.getUserFile());
     return chooser.showDialog(stage);
   }
-  
-  
+
+
   /**
    * 选择一个Excel文件
-   * 
-   * @param title
-   * @param stage
-   * @return
    */
   public static File chooseExcelFile() {
     FileChooser fileChooser = new FileChooser();// 文件选择器
     fileChooser.setTitle("选择Excel文件");// 标题
     fileChooser.setInitialDirectory(SystemUtil.getUserFile());// 初始化根目标
     fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("excel", "*.xls?"));
-    return  fileChooser.showOpenDialog(stage);
+    return fileChooser.showOpenDialog(stage);
   }
-  
+
   public static Dialog<?> getBasicDialog(String title) {
     Dialog<?> dialog = new Dialog<>();
     dialog.setTitle(title);
@@ -57,7 +51,7 @@ public class FXUtil {
     ShowUtil.setIcon(dialog);
     return dialog;
   }
-  
+
   public static Alert getBasicAlert(String content) {
     Alert alert = new Alert(AlertType.INFORMATION);
     alert.setTitle("提示");
@@ -71,12 +65,9 @@ public class FXUtil {
     }
     return alert;
   }
-  
+
   /**
    * 弹框确认
-   * @param title
-   * @param content
-   * @return
    */
   public static boolean confirm(String title, String content) {
     Alert alert = getBasicAlert(content);
@@ -90,15 +81,14 @@ public class FXUtil {
     }
     return Boolean.FALSE;
   }
-  
+
   public static boolean confirm(String content) {
     return confirm(null, content);
   }
-  
-  
+
+
   /**
    * 成功信息
-   * @param content
    */
   public static void info(String content) {
     Alert alert = getBasicAlert(content);
@@ -106,7 +96,6 @@ public class FXUtil {
     alert.setGraphic(okImg);
     alert.show();
   }
-  
-  
+
 
 }

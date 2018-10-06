@@ -73,19 +73,19 @@ import javafx.util.Pair;
 
 /**
  * 处理联盟配额的控制器
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月24日 下午9:31:04
  */
 @Component
 public class TGController extends BaseController implements Initializable {
 
-  private   Logger log = Logger.getLogger(TGController.class);
-  
+  private Logger log = Logger.getLogger(TGController.class);
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TeamProxyService teamProxyService; // 配帐控制类
   @Autowired
@@ -100,108 +100,185 @@ public class TGController extends BaseController implements Initializable {
   public DataConstans dataConstants; // 数据控制类
 
   //====================================================================
-  @FXML public VBox TG_Company_VBox; // 托管公司（按钮）
-  @FXML public VBox TG_Team_VBox; // 托管公司的内部托管团队
-  @FXML public Label currentTGCompanyLabel; // 当前托管公司
-  @FXML public Label currentTGTeamLabel; // 当前托管团队
-  @FXML public TextField tgTeamHSRate; // 托管团队回水比例
-  @FXML public TextField tgTeamHBRate; // 托管团队回保比例
-  @FXML public TextField tgTeamFwfRate; // 托管团队服务费比例
-  @FXML public TextField tgCompanyYajin; // 托管公司押金
-  @FXML public TextField tgCompanyEdu; // 托管公司额度
-  @FXML public TextField tgYifenhong; // 托管公司已分红
-  @FXML public Label totalWaizhai; // 总外债
-  @FXML public Label tgTotalProfit; // 总利润
-  @FXML public Label tgAvailable; // 总可分配
-  @FXML public Label tgTeamFwfLabel; // 团队服务费
-  @FXML public CheckBox teamProxyCheckBox;// 是否托管团队代理
+  @FXML
+  public VBox TG_Company_VBox; // 托管公司（按钮）
+  @FXML
+  public VBox TG_Team_VBox; // 托管公司的内部托管团队
+  @FXML
+  public Label currentTGCompanyLabel; // 当前托管公司
+  @FXML
+  public Label currentTGTeamLabel; // 当前托管团队
+  @FXML
+  public TextField tgTeamHSRate; // 托管团队回水比例
+  @FXML
+  public TextField tgTeamHBRate; // 托管团队回保比例
+  @FXML
+  public TextField tgTeamFwfRate; // 托管团队服务费比例
+  @FXML
+  public TextField tgCompanyYajin; // 托管公司押金
+  @FXML
+  public TextField tgCompanyEdu; // 托管公司额度
+  @FXML
+  public TextField tgYifenhong; // 托管公司已分红
+  @FXML
+  public Label totalWaizhai; // 总外债
+  @FXML
+  public Label tgTotalProfit; // 总利润
+  @FXML
+  public Label tgAvailable; // 总可分配
+  @FXML
+  public Label tgTeamFwfLabel; // 团队服务费
+  @FXML
+  public CheckBox teamProxyCheckBox;// 是否托管团队代理
 
 
   // =====================================================================
-  @FXML public TabPane tabs;
+  @FXML
+  public TabPane tabs;
 
   // =====================================================================团队战绩表
-  @FXML public TableView<TGTeamInfo> tableTGZhanji;
-  @FXML public TableColumn<TGTeamInfo, String> tgPlayerId;
-  @FXML public TableColumn<TGTeamInfo, String> tgPlayerName;
-  @FXML public TableColumn<TGTeamInfo, String> tgYSZJ;
-  @FXML public TableColumn<TGTeamInfo, String> tgZJ25;
-  @FXML public TableColumn<TGTeamInfo, String> tgZJUnknow;
-  @FXML public TableColumn<TGTeamInfo, String> tgProfit;
-  @FXML public TableColumn<TGTeamInfo, String> tgHuiBao;
-  @FXML public TableColumn<TGTeamInfo, String> tgBaoxian;
-  @FXML public TableColumn<TGTeamInfo, String> tgChangci;
+  @FXML
+  public TableView<TGTeamInfo> tableTGZhanji;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgPlayerId;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgPlayerName;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgYSZJ;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgZJ25;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgZJUnknow;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgProfit;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgHuiBao;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgBaoxian;
+  @FXML
+  public TableColumn<TGTeamInfo, String> tgChangci;
 
   // =====================================================================托管团队战绩总和表
-  @FXML public TableView<TypeValueInfo> tableZJSum;
-  @FXML public TableColumn<TypeValueInfo, String> tgZJSumType;
-  @FXML public TableColumn<TypeValueInfo, String> tgZJSumValue;
+  @FXML
+  public TableView<TypeValueInfo> tableZJSum;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgZJSumType;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgZJSumValue;
 
   // =====================================================================托管团队映射表
-  @FXML public TableView<TypeValueInfo> tableTGTeamRate;
-  @FXML public TableColumn<TypeValueInfo, String> tgTeamId;
-  @FXML public TableColumn<TypeValueInfo, String> tgTeamRate;
+  @FXML
+  public TableView<TypeValueInfo> tableTGTeamRate;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgTeamId;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgTeamRate;
 
   // =====================================================================托管开销表
-  @FXML public TableView<TGKaixiaoInfo> tableTGKaixiao;
-  @FXML public TableColumn<TGKaixiaoInfo, String> tgKaixiaoDate;
-  @FXML public TableColumn<TGKaixiaoInfo, String> tgKaixiaoPlayerName;
-  @FXML public TableColumn<TGKaixiaoInfo, String> tgKaixiaoPayItem;
-  @FXML public TableColumn<TGKaixiaoInfo, String> tgKaixiaoMoney;
-  @FXML public TableColumn<TGKaixiaoInfo, String> tgKaixiaoCompany;
-  @FXML public ListView<String> tgKaixiaoSumView; // 开销合计
+  @FXML
+  public TableView<TGKaixiaoInfo> tableTGKaixiao;
+  @FXML
+  public TableColumn<TGKaixiaoInfo, String> tgKaixiaoDate;
+  @FXML
+  public TableColumn<TGKaixiaoInfo, String> tgKaixiaoPlayerName;
+  @FXML
+  public TableColumn<TGKaixiaoInfo, String> tgKaixiaoPayItem;
+  @FXML
+  public TableColumn<TGKaixiaoInfo, String> tgKaixiaoMoney;
+  @FXML
+  public TableColumn<TGKaixiaoInfo, String> tgKaixiaoCompany;
+  @FXML
+  public ListView<String> tgKaixiaoSumView; // 开销合计
   // =====================================================================托管玩家备注表
-  @FXML public TableView<TGCommentInfo> tableTGComment;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentDate;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentPlayerId;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentPlayerName;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentType;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentId;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentName;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentBeizhu;
-  @FXML public TableColumn<TGCommentInfo, String> tgCommentCompany;
-  @FXML public ListView<String> tgCommentSumView; // 玩家备注合计
+  @FXML
+  public TableView<TGCommentInfo> tableTGComment;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentDate;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentPlayerId;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentPlayerName;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentType;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentId;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentName;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentBeizhu;
+  @FXML
+  public TableColumn<TGCommentInfo, String> tgCommentCompany;
+  @FXML
+  public ListView<String> tgCommentSumView; // 玩家备注合计
 
   // =====================================================================托管团队外债表
-  @FXML public TableView<TypeValueInfo> tgWZTeam;
-  @FXML public TableColumn<TypeValueInfo, String> tgWZTeamId;
-  @FXML public TableColumn<TypeValueInfo, String> tgWZTeamValue;
+  @FXML
+  public TableView<TypeValueInfo> tgWZTeam;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgWZTeamId;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgWZTeamValue;
 
-  @FXML public HBox tgWZTeamHBox; // 存储动态的团队外债数据表
+  @FXML
+  public HBox tgWZTeamHBox; // 存储动态的团队外债数据表
 
   //=====================================================================托管服务费表
-  @FXML public TableView<TGFwfinfo> tableTGFwf;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfCompany;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfTeamId;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfHuishui;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfHuiBao;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfProfit;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfFanshui;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfFanbao;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfQuanshui;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfQuanbao;
-  @FXML public TableColumn<TGFwfinfo, String> tgFwfHeji;
+  @FXML
+  public TableView<TGFwfinfo> tableTGFwf;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfCompany;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfTeamId;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfHuishui;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfHuiBao;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfProfit;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfFanshui;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfFanbao;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfQuanshui;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfQuanbao;
+  @FXML
+  public TableColumn<TGFwfinfo, String> tgFwfHeji;
 
 
   //=====================================================================托管服务费总和表
-  @FXML public TableView<TypeValueInfo> tableTGFwfSum;
-  @FXML public TableColumn<TypeValueInfo, String> tgFwfType;
-  @FXML public TableColumn<TypeValueInfo, String> tgFwfValue;
+  @FXML
+  public TableView<TypeValueInfo> tableTGFwfSum;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgFwfType;
+  @FXML
+  public TableColumn<TypeValueInfo, String> tgFwfValue;
 
   //=====================================================================托管利润表表
-  @FXML public TableView<TGLirunInfo> tableTGLirun;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunDate;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunTotalProfit;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunTotalKaixiao;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunATMCompany;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunTGCompany;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunTeamProfit;
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunRestHeji;// 合计
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunHeji;// 托管合计
-  @FXML public TableColumn<TGLirunInfo, String> tgLirunCompanyName;// 托管公司
+  @FXML
+  public TableView<TGLirunInfo> tableTGLirun;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunDate;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunTotalProfit;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunTotalKaixiao;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunATMCompany;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunTGCompany;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunTeamProfit;
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunRestHeji;// 合计
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunHeji;// 托管合计
+  @FXML
+  public TableColumn<TGLirunInfo, String> tgLirunCompanyName;// 托管公司
 
 
-  private   final String TG_TEAM_RATE_DB_KEY = "tg_team_rate"; // 保存到数据库的key
+  private final String TG_TEAM_RATE_DB_KEY = "tg_team_rate"; // 保存到数据库的key
 
   /**
    * DOM加载完后的事件
@@ -222,7 +299,7 @@ public class TGController extends BaseController implements Initializable {
     binCellValueDiff(tgFwfType, "type");
     binCellValueDiff(tgFwfValue, "value");
     bindCellValueByTable(new TGTeamInfo(), tableTGZhanji);
-    
+
     // tabs切换事件
     tabsAction();
 
@@ -246,7 +323,6 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * tabs切换事件
-   * 
    */
   private void tabsAction() {
     tabs.getSelectionModel().selectedItemProperty().addListener(info -> {
@@ -257,7 +333,7 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 选择托管公司按钮 或 手动点击小tab时自动刷新界面数据
-   * 
+   *
    * @time 2018年3月16日
    */
   private void refreshSmallTabData() {
@@ -288,10 +364,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取当前托管公司的值
-   * 
+   *
    * @time 2018年3月4日
-   * 
-   * @return
    */
   public String getCurrentTGCompany() {
     return currentTGCompanyLabel.getText();
@@ -300,30 +374,30 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 新增托管公司
-   * 
+   *
    * @time 2018年3月2日
-   * @param event
    */
   public void addNewTGCompanyAction(ActionEvent event) {
     myController.openBasedDialog("TG_add_company_frame.fxml",
         "新增托管公司(当前俱乐部" + myController.currentClubId.getText() + ")", Constants.ADD_COMPANY_FRAME);
   }
-  
+
   /**
    * 新增托管开销
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addKaixiaoAction(ActionEvent event) {
-    myController.openBasedDialog("TG_add_kaixiao_frame.fxml", "新增托管开销", Constants.ADD_TG_KAIXIAAO_FRAME);
+    myController
+        .openBasedDialog("TG_add_kaixiao_frame.fxml", "新增托管开销", Constants.ADD_TG_KAIXIAAO_FRAME);
   }
 
   /**
    * 新增托管开销
    */
   public void addPlayerCommentAction(ActionEvent event) {
-    myController.openBasedDialog("TG_add_player_comment_frame.fxml", "新增玩家备注", Constants.ADD_TG_KAIXIAAO_FRAME);
+    myController.openBasedDialog("TG_add_player_comment_frame.fxml", "新增玩家备注",
+        Constants.ADD_TG_KAIXIAAO_FRAME);
   }
 
   /**
@@ -491,10 +565,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取一个动态的公司按钮
-   * 
+   *
    * @time 2018年3月7日
-   * @param companyEntity
-   * @return
    */
   private Button getCompanyButton(TGCompanyModel companyEntity) {
     String company = companyEntity.getTgCompanyName();
@@ -507,7 +579,6 @@ public class TGController extends BaseController implements Initializable {
       // 修改当前托管公司名称
       currentTGCompanyLabel.setText(company);
       currentTGTeamLabel.setText("");
-
 
       // 清空表数据
       clearTableTGTeamDataAndSum();
@@ -528,9 +599,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 加载动态的按钮列表图
-   * 
+   *
    * @time 2018年3月7日
-   * @param teamList
    */
   private void loadTeamBtnView(List<String> teamList) {
     ObservableList<Node> teamBtns = TG_Team_VBox.getChildren();
@@ -563,10 +633,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取动态的团队按钮
-   * 
+   *
    * @time 2018年3月7日
-   * @param teamId
-   * @return
    */
   private Button getTeamButton(String teamId) {
     Button teamBtn = new Button(teamId);
@@ -603,7 +671,7 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 点击托管团队按钮后先清空相应值
-   * 
+   *
    * @time 2018年3月11日
    */
   private void clearWhenChangeTeamBtn() {
@@ -615,9 +683,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 设置公司的托管押金、额度。其他？
-   * 
+   *
    * @time 2018年3月11日
-   * @param teamId
    */
   private void setTGCompanyInfo(String tgCompany) {
     TGCompanyModel tgCompanyModel = dbUtil.get_tg_company_by_id(tgCompany);
@@ -634,9 +701,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 设置团队的托管回水比例、回保比例、服务费
-   * 
+   *
    * @time 2018年3月11日
-   * @param teamId
    */
   private void setTGTeamRateInfo(String teamId) {
     TGTeamModel tgTeamModel = dbUtil.get_tg_team_by_id(teamId);
@@ -664,9 +730,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取团队服务费 = (战绩2.5合计 + 保险合计) * 服务费比例
-   * 
+   *
    * @time 2018年3月21日
-   * @return
    */
   private String getTGTeamFwf() {
 
@@ -701,11 +766,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 代理查询中的数据转成托管中的团队信息数据
-   * 
+   *
    * @time 2018年3月7日
-   * @param teamId
-   * @param proxyTeamInfoList
-   * @return
    */
   private List<TGTeamInfo> convert2TGTeamInfo(String teamId,
       List<ProxyTeamInfo> proxyTeamInfoList) {
@@ -756,10 +818,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取每一行的利润 公式 = 原始战绩 * （2.5% - unknow%） + 保险 * （-Constants.HS_RATE） - 回保
-   * 
+   *
    * @time 2018年3月7日
-   * @param info
-   * @return
    */
   public String getRecordProfit(TGTeamInfo info) {
     String teamRate25 = info.getTgZJ25();
@@ -773,15 +833,13 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 模拟获取代理查询中的团队数据
-   * 
+   *
    * @time 2018年3月6日
-   * @param teamId
-   * @return
    */
   public List<ProxyTeamInfo> getProxyTeamInfoList(String teamId) {
 
     List<ProxyTeamInfo> proxyTeamList = new ArrayList<>();
-    boolean noValue = teamProxyService.teamIDCombox == null 
+    boolean noValue = teamProxyService.teamIDCombox == null
         || CollectUtil.isEmpty(teamProxyService.teamIDCombox.getItems());
     if (noValue) {
       ShowUtil.show("小林提示：代理查询团队下拉框没有数据！", 2);
@@ -809,10 +867,10 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取十六进制的颜色代码.例如 "#6E36B4" , For HTML ,
-   * 
+   *
    * @return String
    */
-  public   String getRandColorCode() {
+  public String getRandColorCode() {
     String r, g, b;
     Random random = new Random();
     r = Integer.toHexString(random.nextInt(256)).toUpperCase();
@@ -829,9 +887,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取托管团队的托管回水比例和回保比例
-   * 
+   *
    * @time 2018年3月17日
-   * @return
    */
   public Map<String, TGTeamModel> getTgTeamModelMap() {
     List<TGTeamModel> tableTGTeams = dbUtil.get_all_tg_team();
@@ -851,9 +908,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取托管团队表内容
-   * 
+   *
    * @time 2018年3月6日
-   * @return
    */
   public List<TypeValueInfo> getTableTGTeams() {
     ObservableList<TypeValueInfo> tgTeamRates = tableTGTeamRate.getItems();
@@ -863,14 +919,15 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 刷新托管团队表
-   * 
+   *
    * @time 2018年3月3日
    */
   private void refreshTableTGTeam() {
     List<TypeValueInfo> list;
     String teamsJson = dbUtil.getValueByKey(TG_TEAM_RATE_DB_KEY);
     if (StringUtil.isNotBlank(teamsJson) && !"{}".equals(teamsJson)) {
-      list = JSON.parseObject(teamsJson, new TypeReference<List<TypeValueInfo>>() {});
+      list = JSON.parseObject(teamsJson, new TypeReference<List<TypeValueInfo>>() {
+      });
     } else {
       // list = new ArrayList<>();
       list = getMoniTGTeamRate();
@@ -1006,7 +1063,7 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 刷新外债Tab
-   * 
+   *
    * @time 2018年3月8日
    */
   public void refreshTabTGWaizhai() {
@@ -1018,7 +1075,7 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 保存托管团的各个比例
-   * 
+   *
    * @time 2018年3月11日
    */
   public void saveTGTeamAction() {
@@ -1043,9 +1100,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取该托管团队是否代理
-   * 
+   *
    * @time 2018年3月21日
-   * @return
    */
   public String getTeamProxyChecked() {
     return teamProxyCheckBox.isSelected() ? "1" : "0";
@@ -1053,9 +1109,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 保存或修改公司信息（押金和额度）
-   * 
+   *
    * @time 2018年3月11日
-   * @param event
    */
   public void saveCompanyInfoAction(ActionEvent event) {
     String tgCompany = currentTGCompanyLabel.getText();
@@ -1085,7 +1140,7 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 刷新月利润表
-   * 
+   *
    * @time 2018年3月17日
    */
   public void refreshProfitTab() {
@@ -1113,8 +1168,6 @@ public class TGController extends BaseController implements Initializable {
       list.addAll(liruns);
     }
     refreshFwfTab();// 刷新服务费
-
-
 
     // 获取日期（日期与当前托管公司为主键）
     String dateString = getDateString();
@@ -1186,9 +1239,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取总外债
-   * 
+   *
    * @time 2018年3月17日
-   * @return
    */
   private String getTotalTeamWaizhai() {
     String totalWaizhai = tgWZTeamValue.getText();
@@ -1202,9 +1254,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取总利润（就是月利润中的总利润）
-   * 
+   *
    * @time 2018年3月17日
-   * @return
    */
   private String getTotalTGProfit() {
     double sum = tableTGLirun.getItems().stream().map(TGLirunInfo::getTgLirunHeji)
@@ -1214,9 +1265,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 获取总利润（就是月利润中的总利润）
-   * 
+   *
    * @time 2018年3月17日
-   * @return
    */
   private String getTotalAvailable() {
     // 总外债
@@ -1234,9 +1284,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 导出当前托管公司的所有数据
-   * 
+   *
    * @time 2018年3月2日
-   * @param event
    */
   public void exportTGExcelAction(ActionEvent event) {
     TGExportExcelService exportExcelService = new TGExportExcelService(this);
@@ -1245,7 +1294,7 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 结束今天统计时删除托管中的开销和玩家备注
-   * 
+   *
    * @time 2018年3月19日
    */
   public void deleteKaixiaoAndComment() {
@@ -1256,9 +1305,8 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 保存当前托管公司的日利润数据
-   * 
+   *
    * @time 2018年3月19日
-   * @param event
    */
   public void saveCurrentTGCompanyLirnAction(ActionEvent event) {
     String tgCompany = currentTGCompanyLabel.getText();
@@ -1266,7 +1314,7 @@ public class TGController extends BaseController implements Initializable {
       ShowUtil.show("请选择托管公司！", 2);
       return;
     }
-    boolean confirmYes = 
+    boolean confirmYes =
         AlertUtil.confirm("确定这是最后一场了吗，将保存本场最后一条记录进数据库，确定数据正确了吗？");
     if (confirmYes) {
       int size = tableTGLirun.getItems().size();
@@ -1336,7 +1384,7 @@ public class TGController extends BaseController implements Initializable {
     return 0.0;
   }
 
-  public   String getDateString() {
+  public String getDateString() {
     String date_Str = dataConstants.Date_Str;
     if (StringUtil.isBlank(date_Str)) {
       ShowUtil.show("当前没有确定的系统时间！将以1971-01-01代替！");
@@ -1355,7 +1403,7 @@ public class TGController extends BaseController implements Initializable {
     }
     ObservableList<TGLirunInfo> monthLiruns = tableTGLirun.getItems();
     String[] rowsName =
-        new String[] {"日期", "托管公司", "总利润", "总开销", "合计", "公司占股", "托管公司占股", "团队利润", "托管合计"};
+        new String[]{"日期", "托管公司", "总利润", "总开销", "合计", "公司占股", "托管公司占股", "团队利润", "托管合计"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (TGLirunInfo info : monthLiruns) {
@@ -1386,14 +1434,13 @@ public class TGController extends BaseController implements Initializable {
   }
 
   /*******************************************************************************************
-   * 
+   *
    * 0.95与0.975切换版本
-   * 
+   *
    ********************************************************************************************/
 
   /**
    * 根据原始战绩获取利润
-   * 
    */
   public String getLirunByYSZJ_TG(String yszj, String teamUnknowValue, TGTeamInfo tgTeam,
       int type) {
@@ -1419,12 +1466,11 @@ public class TGController extends BaseController implements Initializable {
 
   /**
    * 根据原始战绩获取利润 (共用)
-   * 
+   *
    * @param yszj 原始战绩
    * @param teamUnknowValue 团队未知，用于获取(战绩0%)的值
    * @param tgTeam 指TGTeamInfo
    * @param type 1、战绩2.5%，即满水 2、战绩0% 3、一行的利润
-   * @return
    */
   private String getByYSZJ_TG(String yszj, String teamUnknowValue, TGTeamInfo tgTeam, int type) {
     if (type == 1) {

@@ -3,63 +3,52 @@ package com.kendy.entity;
 import com.kendy.interfaces.Entity;
 import javafx.beans.property.SimpleStringProperty;
 
-public class ZijinInfo implements Entity{
+public class ZijinInfo implements Entity {
 
-	public SimpleStringProperty zijinType = new SimpleStringProperty();//资金类型
-	public SimpleStringProperty zijinAccount = new SimpleStringProperty();//金额
-	
-	
-	public ZijinInfo() {
-		super();
-	}
+  public SimpleStringProperty zijinType = new SimpleStringProperty();//资金类型
+  public SimpleStringProperty zijinAccount = new SimpleStringProperty();//金额
 
 
-	public ZijinInfo(String zijinType, String zijinAccount) {
-		super();
-		this.zijinType = new SimpleStringProperty(zijinType);
-		this.zijinAccount = new SimpleStringProperty(zijinAccount);
-	}
+  public ZijinInfo() {
+    super();
+  }
 
 
-	public SimpleStringProperty zijinTypeProperty() {
-		return this.zijinType;
-	}
-	
+  public ZijinInfo(String zijinType, String zijinAccount) {
+    super();
+    this.zijinType = new SimpleStringProperty(zijinType);
+    this.zijinAccount = new SimpleStringProperty(zijinAccount);
+  }
 
 
-	public String getZijinType() {
-		return this.zijinTypeProperty().get();
-	}
-	
+  public SimpleStringProperty zijinTypeProperty() {
+    return this.zijinType;
+  }
 
 
-	public void setZijinType(final String zijinType) {
-		this.zijinTypeProperty().set(zijinType);
-	}
-	
+  public String getZijinType() {
+    return this.zijinTypeProperty().get();
+  }
 
 
-	public SimpleStringProperty zijinAccountProperty() {
-		return this.zijinAccount;
-	}
-	
+  public void setZijinType(final String zijinType) {
+    this.zijinTypeProperty().set(zijinType);
+  }
 
 
-	public String getZijinAccount() {
-		return this.zijinAccountProperty().get();
-	}
-	
+  public SimpleStringProperty zijinAccountProperty() {
+    return this.zijinAccount;
+  }
 
 
-	public void setZijinAccount(final String zijinAccount) {
-		this.zijinAccountProperty().set(zijinAccount);
-	}
-	
-	
-	
-	
-	
-	
-	
-	
+  public String getZijinAccount() {
+    return this.zijinAccountProperty().get();
+  }
+
+
+  public void setZijinAccount(final String zijinAccount) {
+    this.zijinAccountProperty().set(zijinAccount);
+  }
+
+
 }

@@ -55,7 +55,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * 股东贡献控制类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月14日 下午6:12:15
  */
@@ -63,11 +63,11 @@ import org.springframework.stereotype.Component;
 public class GDController extends BaseController implements Initializable {
 
   private Logger log = Logger.getLogger(GDController.class);
-  
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TGController tgController; // 托管控制类
   @Autowired
@@ -209,7 +209,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 初始化dataList 备注：获取当天保存到数据库的当前俱乐部记录List<Record>
-   * 
+   *
    * @time 2018年1月18日
    */
   private void initDataList() {
@@ -224,7 +224,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 初始化GudongKaixiaoDataList
-   * 
+   *
    * @time 2018年2月21日
    */
   private void initGudongKaixiaoDataList() {
@@ -236,12 +236,13 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 将原始数据转换成特定的数据结构 {股东ID:{团队ID:List<Record}}
-   * 
+   *
    * @time 2018年1月19日
    */
   private void initGudongTeamMap() {
-    if (CollectUtil.isEmpty(dataList))
+    if (CollectUtil.isEmpty(dataList)) {
       return;
+    }
     gudongTeamMap = dataList.stream().collect(Collectors.groupingBy(// 先按股东分
         record -> getGudongByGameRecord((GameRecord) record), Collectors.groupingBy(info -> {
           return StringUtil.nvl(info.getTeamId(), UN_KNOWN);
@@ -258,34 +259,35 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 将原始数据转换成特定的数据结构 {股东ID:List<KaixiaoInfo>}
-   * 
+   *
    * @time 2018年1月19日
    */
   private void initGudongKaixiaoMap() {
-    if (CollectUtil.isEmpty(gudongKaixiao_dataList))
+    if (CollectUtil.isEmpty(gudongKaixiao_dataList)) {
       return;
+    }
     gudongKaixiaoMap = gudongKaixiao_dataList.stream().collect(Collectors
-        .groupingBy(info -> StringUtil.nvl(((KaixiaoInfo) info).getKaixiaoGudong(), UN_KNOWN)));// 按团队分
+        .groupingBy(
+            info -> StringUtil.nvl(((KaixiaoInfo) info).getKaixiaoGudong(), UN_KNOWN)));// 按团队分
   }
 
   /**
    * 将原始数据转换成特定的数据结构 {团队ID:List<Record}
-   * 
+   *
    * @time 2018年1月19日
    */
   private void initTeamMap() {
-    if (CollectUtil.isEmpty(dataList))
+    if (CollectUtil.isEmpty(dataList)) {
       return;
+    }
     teamMap = dataList.stream()
         .collect(Collectors.groupingBy(info -> StringUtil.nvl(info.getTeamId(), UN_KNOWN)));// 按团队分
   }
 
   /**
    * 根据玩家Id获取
-   * 
+   *
    * @time 2018年1月20日
-   * @param playerId
-   * @return
    */
   private String getGudongByPlayerId(String playerId) {
 
@@ -299,10 +301,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 根据记录获取股东
-   * 
+   *
    * @time 2018年1月20日
-   * @param record
-   * @return
    */
   private String getGudongByGameRecord(GameRecord record) {
     String playerId = record.getPlayerId();
@@ -311,7 +311,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置计算总利润与场次总利润的差额
-   * 
+   *
    * @time 2018年1月25日
    */
   public void refreshDifTatalValue() {
@@ -327,9 +327,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 从锁定的数据中获取最后的总利润
-   * 
+   *
    * @time 2018年1月25日
-   * @return
    */
   private String getLastProfit() {
     String lockedProfit = myController.getChangciTotalProfit();
@@ -337,16 +336,16 @@ public class GDController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 准备所有数据
-   * 
+   *
    * @time 2018年1月20日
    */
   public void prepareAllData() {
     initData();
-    if (CollectUtil.isEmpty(dataList))
+    if (CollectUtil.isEmpty(dataList)) {
       return;
+    }
     Map<String, List<GameRecord>> gudongRecordList = dataList.stream()
         .collect(Collectors.groupingBy(record -> getGudongByGameRecord((GameRecord) record)));
     // 计算总利润
@@ -400,9 +399,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取联盟1的所有桌费 问题：如果用户在同一天插入相同的记录，存在被覆盖一条的隐患（TODO）
-   * 
+   *
    * @time 2018年2月11日
-   * @return
    */
   private Double getLM1TotalZhuofei() {
     List<ClubZhuofei> LM1_all_club_zhuofei = dbUtil.get_LM1_all_club_zhuofei();
@@ -423,9 +421,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取联盟1的所有桌费 问题：如果用户在同一天插入相同的记录，存在被覆盖一条的隐患（TODO）
-   * 
+   *
    * @time 2018年2月11日
-   * @return
    */
   private Double getTotalGudongKaixiao() {
     Double totalGudongKaixiao = gudongKaixiao_dataList.stream().map(KaixiaoInfo::getKaixiaoMoney)
@@ -443,10 +440,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 计算多行战绩的利润(可以计算所有战绩的利润)
-   * 
+   *
    * @time 2018年1月20日
-   * @param recordList
-   * @return
    */
   public Double getHelirun(final List<GameRecord> recordList) {
     return CollectUtil.isEmpty(recordList) ? 0d
@@ -455,10 +450,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 计算每一行战绩的利润 备注：摘抄自场次信息的第一个表的计算步骤
-   * 
+   *
    * @time 2018年1月20日
-   * @param record
-   * @return
    */
   public Double getHeLirun(final GameRecord record) {
 /*    String playerId = record.getPlayerId();
@@ -477,13 +470,10 @@ public class GDController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 获取团队（非公司）的个人利润（区别于合利润） 团队个人利润= 收回水+出回水 + 水后险 - 回保
-   * 
+   *
    * @time 2018年1月31日
-   * @param record
-   * @return
    */
   public Double getTeamPersonProfit(final GameRecord record) {
     String playerId = record.getPlayerId();
@@ -502,10 +492,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 根据玩家ID获取玩家所属的团队ID
-   * 
+   *
    * @time 2018年1月20日
-   * @param playerId
-   * @return
    */
   public String getTeamIdWithUperCase(String playerId) {
     String findFirst = dataList.stream().filter(record -> record.getPlayerId() == playerId)
@@ -537,7 +525,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 绑定三个表的数据
-   * 
+   *
    * @time 2018年1月27日
    */
   private void bind3TableColumns() {
@@ -551,7 +539,6 @@ public class GDController extends BaseController implements Initializable {
     YS_rate.setStyle("-fx-alignment: CENTER;");
     YS_value.setCellValueFactory(new PropertyValueFactory<GDInputInfo, String>("value"));
     YS_value.setStyle("-fx-alignment: CENTER;");
-
 
     // 股东奖励股表
     tableEncourageGu.setEditable(true);
@@ -579,14 +566,14 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 三个表模拟数据
-   * 
+   *
    * @time 2018年1月26日
-   * @param tables
    */
   private void setTableMockData(TableView<GDInputInfo> table, int mockRows) {
     ObservableList<GDInputInfo> obList = FXCollections.observableArrayList();
-    if (table.getItems() != null && !table.getItems().isEmpty())
+    if (table.getItems() != null && !table.getItems().isEmpty()) {
       return;
+    }
     if (mockRows != 9) {
       for (int i = 1; i <= mockRows; i++) {
         obList.add(new GDInputInfo("客服" + i, getRandomRate()));
@@ -604,7 +591,6 @@ public class GDController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 获取人次 1人次 = XX利润
    */
@@ -614,10 +600,9 @@ public class GDController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 生成动态股东表
-   * 
+   *
    * @time 2018年1月20日
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -674,7 +659,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置主表数据 每生成一个动态表就往左边的股东表中添加记录
-   * 
+   *
    * @time 2018年1月20日
    */
   public void setDataToSumTable(TableView<GudongRateInfo> dynamicTable) {
@@ -689,10 +674,10 @@ public class GDController extends BaseController implements Initializable {
   /**
    * 设置单个动态表的数据 注意： 1、公司的计入对应的股东客； 2、团队服务费问题：目前是直接引用代理查询表的数据，但最好重新计算！！！已经重新算了 3、后期加入联盟桌费！！！！已经加入了
    * 4、后期加入股东开销
-   * 
-   * @time 2018年1月20日
+   *
    * @param table 单个动态表
    * @param teamMap 单个动态表的团队数据，不包括联盟
+   * @time 2018年1月20日
    */
   private void setDynamicTableData(TableView<GudongRateInfo> table,
       Map<String, List<GameRecord>> teamMap, List<KaixiaoInfo> kaixiaoList, String gudong) {
@@ -721,9 +706,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 修改该表的利润占比百分比
-   * 
+   *
    * @time 2018年1月27日
-   * @param table
    */
   private void setColumnSum(TableView<GudongRateInfo> table) {
     if (TableUtil.isNullOrEmpty(table)) {
@@ -747,10 +731,10 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 计算每个股东的人次 计算公式：人次总值 = 1人次的利润值 * 人次
-   * 
-   * @time 2018年1月25日
+   *
    * @param table 需要改变的表格
    * @param teamMap 用于计算生活中的人次
+   * @time 2018年1月25日
    */
   @SuppressWarnings("unused")
   private void setGudongRenci(TableView<GudongRateInfo> table,
@@ -766,13 +750,10 @@ public class GDController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 设置单个动态表的数据(联盟桌费部分)
-   * 
+   *
    * @time 2018年1月21日
-   * @param table
-   * @param gudong
    */
   private void setDynamicTableData_team_part(TableView<GudongRateInfo> table, String gudong) {
     Double LM1Zhuofei = getLM1TotalZhuofei(gudong) * (-1);
@@ -784,10 +765,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置单个动态表的数据(股东开销部分)
-   * 
+   *
    * @time 2018年2月21日
-   * @param table
-   * @param gudong
    */
   private void setDynamicTableData_gudong_kaixiao_part(TableView<GudongRateInfo> table,
       String gudong) {
@@ -800,10 +779,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置单个动态表的数据(团队部分) 1、公司的计入X客，如股东A,就计入A客 2、团队服务费问题：目前是直接引用代理查询表的数据，但最好重新计算！！！（已经重算了）
-   * 
+   *
    * @time 2018年1月20日
-   * @param table
-   * @param teamId
    */
   private void setDynamicTableData_team_not_comanpy_part(TableView<GudongRateInfo> table,
       String teamId, List<GameRecord> teamList, String gudong) {
@@ -826,10 +803,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取团队利润 备注：小胖新增 团队个人利润= 收回水+出回水 + 水后险 - 回保
-   * 
+   *
    * @time 2018年1月31日
-   * @param teamList
-   * @return
    */
   private Double getTeamProfit(List<GameRecord> teamList) {
     return CollectUtil.isEmpty(teamList) ? 0d
@@ -839,7 +814,6 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置单个动态表的数据(团队中的公司部分) 公司利润计算公式：收回水+水后险，这里计成合利润
-   * 
    */
   private void setDynamicTableData_team_company_part(TableView<GudongRateInfo> table, String teamId,
       List<GameRecord> teamList, String gudong) {
@@ -858,9 +832,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取计算总利润值
-   * 
+   *
    * @time 2018年1月27日
-   * @return
    */
   public Double getComputeTotalProfit() {
     return NumUtil.getNum(computeTotalProfit.getText());
@@ -869,23 +842,18 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取分配的总利润值（ = 计算总利润 - 客服工资 ）
-   * 
+   *
    * @time 2018年1月27日
-   * @return
    */
   public Double getComputeTotalProfit_mins_totalSalary() {
     return NumUtil.getNum(computeTotalProfit.getText()) - get_KF_total_salary();
   }
 
 
-
   /**
    * 获取最终的团队名称
-   * 
+   *
    * @time 2018年1月21日
-   * @param teamId
-   * @param gudong
-   * @return
    */
   private String getFinalTeamId(String teamId, String gudong) {
     return "团队" + ("公司".equals(teamId) ? gudong + "客" : teamId);
@@ -894,9 +862,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 股东贡献值即时刷新按钮
-   * 
+   *
    * @time 2018年1月14日
-   * @param event
    */
   public void GDContributeRefreshAction(ActionEvent event) {
     detailMap.clear();
@@ -933,7 +900,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置总彩池值 备注：在股东奖励值设置数据后执行此代码
-   * 
+   *
    * @time 2018年2月3日
    */
   private void setTotalPoolText() {
@@ -944,7 +911,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 设置人次总利润（所有数据，包含银河股东）
-   * 
+   *
    * @time 2018年2月3日
    */
   private void setTotalRenciProfit() {
@@ -955,7 +922,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 股东奖励值设置数据
-   * 
+   *
    * @time 2018年1月28日
    */
   private void setGudongMoneyBelow() {
@@ -978,7 +945,7 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 将缓存中的数据设置到明细表中
-   * 
+   *
    * @time 2018年1月28日
    */
   private void setTable_detail() {
@@ -1022,9 +989,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取非银河的股东的所有人次利润
-   * 
+   *
    * @time 2018年2月2日
-   * @return
    */
   private Double getRenciTotalProfit_not_yinhe() {
 
@@ -1043,8 +1009,9 @@ public class GDController extends BaseController implements Initializable {
    */
   private void setTable_JLGu_data() {
     // 股东及股东的记录数，一个记录数就是一个人次
-    Map<String, List<GameRecord>> gudongSizeMap = dataList.stream().collect(Collectors.groupingBy(// 按股东分
-        record -> getGudongByGameRecord((GameRecord) record)));
+    Map<String, List<GameRecord>> gudongSizeMap = dataList.stream()
+        .collect(Collectors.groupingBy(// 按股东分
+            record -> getGudongByGameRecord((GameRecord) record)));
     ObservableList<String> gudongList = myController.getGudongList();
     for (String gudong : gudongList) {
       if (!gudongSizeMap.keySet().contains(gudong)) {
@@ -1092,9 +1059,8 @@ public class GDController extends BaseController implements Initializable {
   /**
    * 获取可分配的奖励池 奖励池 = （总利润 - 原始股 — 客服股）* 可分配比例，原始股实际上就是银河股东的利润 奖励池=（总利润 - 财物分红 - 奖罚 - 银河股东）*70%
    * 可分配比例默认是70% 财物分红 and 奖罚 即客服表的总和
-   * 
+   *
    * @time 2018年1月28日
-   * @return
    */
   private Double getJLPoolAvailable() {
     // 总利润
@@ -1119,25 +1085,25 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 可分配比例,即股东奖励值比
-   * 
+   *
    * @time 2018年1月28日
-   * @return
    */
   private Double getCurrageRate() {
     String currageRate = gd_currage_money.getText();
     if (StringUtil.isBlank(currageRate)) {
       return 0.7d;
     } else {
-      if (currageRate.contains("%"))
+      if (currageRate.contains("%")) {
         return NumUtil.getNumByPercent(currageRate);
-      else
+      } else {
         return 0.7d;
+      }
     }
   }
 
   /**
    * 设置第一次股东原始股
-   * 
+   *
    * @time 2018年1月28日
    */
   private void setTable_YSGu_data_first() {
@@ -1151,18 +1117,17 @@ public class GDController extends BaseController implements Initializable {
         || StringUtil.isBlank(tableYSGu.getItems().get(0).getType())) {
       tableGDSum.getItems().stream().filter(info -> !info.getGudongName().contains("银河"))
           .map(info -> new GDInputInfo(info.getGudongName(), "", "")).forEach(info -> {
-            obList.add(info);
-          });
+        obList.add(info);
+      });
       tableYSGu.setItems(obList);
       tableYSGu.refresh();
     }
 
-
     // 根据股东比例计算各股东的原始利润
     tableYSGu.getItems().forEach(info -> {
-      if (!StringUtil.isAnyBlank(info.getType(), info.getRate()))
+      if (!StringUtil.isAnyBlank(info.getType(), info.getRate())) {
         info.setValue(NumUtil.digit0(NumUtil.getNumByPercent(info.getRate()) * yinheProfit));
-      else {
+      } else {
         // info.setType("");
         // info.setRate("");
         info.setValue("");
@@ -1182,22 +1147,22 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 获取银河股东的利润
-   * 
+   *
    * @time 2018年1月28日
-   * @return
    */
   private Double getYinheProfit() {
     Optional<GudongRateInfo> gudongRateInfoOpt = tableGDSum.getItems().stream()
         .filter(info -> info.getGudongName().contains("银河")).findFirst();
-    if (gudongRateInfoOpt.isPresent())
+    if (gudongRateInfoOpt.isPresent()) {
       return NumUtil.getNum(gudongRateInfoOpt.get().getGudongProfit());
-    else
+    } else {
       return 0d;
+    }
   }
 
   /**
    * 设置客服股数据
-   * 
+   *
    * @time 2018年1月28日
    */
   private void setTable_KFGu_data() {
@@ -1221,9 +1186,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 股东贡献值清空按钮
-   * 
+   *
    * @time 2018年1月14日
-   * @param event
    */
   @SuppressWarnings("unchecked")
   public void clearDataAction(ActionEvent event) {
@@ -1232,15 +1196,17 @@ public class GDController extends BaseController implements Initializable {
     gudongKaixiao_dataList.clear();
 
     // 清空总和表
-    if (tableGDSum.getItems() != null)
+    if (tableGDSum.getItems() != null) {
       tableGDSum.getItems().clear();
+    }
 
     // 清空三个表
     setTableDataEmpty(tableYSGu, tableEncourageGu, tablekfGu);
 
     // 清空明细表
-    if (tableGDDetail.getItems() != null)
+    if (tableGDDetail.getItems() != null) {
       tableGDDetail.getItems().clear();
+    }
 
     // 清空动态表
     contributionHBox.getChildren().clear();
@@ -1257,9 +1223,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 清空三个表
-   * 
+   *
    * @time 2018年1月30日
-   * @param tables
    */
   @SuppressWarnings("unchecked")
   private void setTableDataEmpty(TableView<GDInputInfo>... tables) {
@@ -1267,7 +1232,7 @@ public class GDController extends BaseController implements Initializable {
       if (TableUtil.isNullOrEmpty(table)) {
 
       } else {
-        if (table.getItems() != null)
+        if (table.getItems() != null) {
           table.getItems().forEach(info -> {
             // info.setDescription("");
             info.setId("");
@@ -1275,6 +1240,7 @@ public class GDController extends BaseController implements Initializable {
             // info.setType("");
             info.setValue("");
           });
+        }
       }
 
     }
@@ -1282,9 +1248,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 输入人次利润比后回车直接查询数据
-   * 
+   *
    * @time 2018年1月20日
-   * @param even
    */
   public void renciEnterAction(ActionEvent even) {
     GDRefreshBtn.fire();
@@ -1292,9 +1257,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 客服栏的底薪总计
-   * 
+   *
    * @time 2018年2月26日
-   * @return
    */
   private Double get_KF_total_salary() {
     Double KF_Total_Salary = 0d;
@@ -1304,13 +1268,12 @@ public class GDController extends BaseController implements Initializable {
     }
     return KF_Total_Salary;
   }
-  
-  
+
+
   /**
    * 手动删除所有Record数据
-   * 
+   *
    * @time 2018年2月25日
-   * @param event
    */
   public void clear_all_records_Action(ActionEvent event) {
     if (AlertUtil.confirm("警告", "确定要手动删除数据库中所有白名单数据？")) {
@@ -1327,15 +1290,15 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 加载客服数据（按钮）
-   * 
+   *
    * @time 2018年2月3日
-   * @param even
    */
   public void load_KF_data_Action(ActionEvent even) {
     // 从数据库获取客服数据
     String kfValue = dbUtil.getValueByKey(TABLE_KF_DATA_KEY);
     Map<String, String> kfMap =
-        JSON.parseObject(kfValue, new TypeReference<Map<String, String>>() {});
+        JSON.parseObject(kfValue, new TypeReference<Map<String, String>>() {
+        });
 
     if (MapUtil.isNullOrEmpty(kfMap)) {
       ShowUtil.show("数据库中无客服数据！");
@@ -1353,7 +1316,6 @@ public class GDController extends BaseController implements Initializable {
       });
     }
 
-
     // 保证有20条记录
     ObservableList<GDInputInfo> obList = FXCollections.observableArrayList();
     kfMap.forEach((name, rate) -> {
@@ -1361,8 +1323,9 @@ public class GDController extends BaseController implements Initializable {
     });
     Integer restEmptyCountRowSize = KF_SIZE - kfMap.size();// 不满足20行的补空行
     if (restEmptyCountRowSize > 0) {
-      for (int i = 0; i < restEmptyCountRowSize; i++)
+      for (int i = 0; i < restEmptyCountRowSize; i++) {
         obList.add(new GDInputInfo());
+      }
     }
 
     // 刷新客服表
@@ -1373,17 +1336,17 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 保存客服数据（按钮）
-   * 
+   *
    * @time 2018年2月3日
-   * @param even
    */
   public void save_KF_data_Action(ActionEvent even) {
     if (TableUtil.isHasValue(tablekfGu)) {
       Map<String, String> kfMap = new HashMap<>();
       tablekfGu.getItems().forEach(info -> {
         String kfName = info.getType();
-        if (StringUtil.isNotBlank(kfName))
+        if (StringUtil.isNotBlank(kfName)) {
           kfMap.put(kfName, info.getRate());
+        }
       });
       // 保存到数据库
       dbUtil.saveOrUpdateOthers(TABLE_KF_DATA_KEY, JSON.toJSONString(kfMap));
@@ -1401,9 +1364,8 @@ public class GDController extends BaseController implements Initializable {
 
   /**
    * 一键配额
-   * 
+   *
    * @time 2018年2月25日
-   * @param event
    */
   public void quotar_money_oneKey_Action(ActionEvent event) {
     if (has_quotar_oneKey) {
@@ -1425,16 +1387,16 @@ public class GDController extends BaseController implements Initializable {
         String money = StringUtil.nvl(info.getTotal(), "0");
         String name = date + "#" + info.getName() + "#" + money;
         CurrentMoneyInfo cmi = new CurrentMoneyInfo(name, money, "", ""); // mingzi,
-                                                                          // shishiJine,String
-                                                                          // wanjiaId,String cmiEdu
+        // shishiJine,String
+        // wanjiaId,String cmiEdu
         tableMoney.getItems().add(cmi);
       }
       // 添加总利润差额
       String dif = difTotalProfit.getText();
       String name = date + "#贡献值差额#" + dif;
       CurrentMoneyInfo difCMI = new CurrentMoneyInfo(name, dif, "", ""); // mingzi,
-                                                                         // shishiJine,String
-                                                                         // wanjiaId,String cmiEdu
+      // shishiJine,String
+      // wanjiaId,String cmiEdu
       tableMoney.getItems().add(difCMI);
       tableMoney.refresh();
       tableProfit.refresh();
@@ -1442,7 +1404,7 @@ public class GDController extends BaseController implements Initializable {
 
     }
   }
-  
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

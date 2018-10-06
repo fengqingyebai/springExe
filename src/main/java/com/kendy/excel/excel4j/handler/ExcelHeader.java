@@ -8,116 +8,116 @@ import com.kendy.excel.excel4j.converter.WriteConvertible;
  */
 public class ExcelHeader implements Comparable<ExcelHeader> {
 
-    /**
-     * excel的标题名称
-     */
-    private String title;
+  /**
+   * excel的标题名称
+   */
+  private String title;
 
-    /**
-     * 每一个标题的顺序
-     */
-    private int order;
+  /**
+   * 每一个标题的顺序
+   */
+  private int order;
 
-    /**
-     * 写数据转换器
-     */
-    private WriteConvertible writeConverter;
+  /**
+   * 写数据转换器
+   */
+  private WriteConvertible writeConverter;
 
-    /**
-     * 读数据转换器
-     */
-    private ReadConvertible readConverter;
+  /**
+   * 读数据转换器
+   */
+  private ReadConvertible readConverter;
 
-    /**
-     * 注解域
-     */
-    private String filed;
+  /**
+   * 注解域
+   */
+  private String filed;
 
-    /**
-     * 属性类型
-     */
-    private Class<?> filedClazz;
-    
-    /**
-     * 每一个标题的宽度(自定义)
-     */
-    private int colWidth;
+  /**
+   * 属性类型
+   */
+  private Class<?> filedClazz;
 
-    public String getTitle() {
-        return title;
-    }
+  /**
+   * 每一个标题的宽度(自定义)
+   */
+  private int colWidth;
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public int getOrder() {
-        return order;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
+  public int getOrder() {
+    return order;
+  }
 
-    public WriteConvertible getWriteConverter() {
-        return writeConverter;
-    }
+  public void setOrder(int order) {
+    this.order = order;
+  }
 
-    public void setWriteConverter(WriteConvertible writeConverter) {
-        this.writeConverter = writeConverter;
-    }
+  public WriteConvertible getWriteConverter() {
+    return writeConverter;
+  }
 
-    public ReadConvertible getReadConverter() {
-        return readConverter;
-    }
+  public void setWriteConverter(WriteConvertible writeConverter) {
+    this.writeConverter = writeConverter;
+  }
 
-    public void setReadConverter(ReadConvertible readConverter) {
-        this.readConverter = readConverter;
-    }
+  public ReadConvertible getReadConverter() {
+    return readConverter;
+  }
 
-    public String getFiled() {
-        return filed;
-    }
+  public void setReadConverter(ReadConvertible readConverter) {
+    this.readConverter = readConverter;
+  }
 
-    public void setFiled(String filed) {
-        this.filed = filed;
-    }
+  public String getFiled() {
+    return filed;
+  }
 
-    public Class<?> getFiledClazz() {
-        return filedClazz;
-    }
+  public void setFiled(String filed) {
+    this.filed = filed;
+  }
 
-    public void setFiledClazz(Class<?> filedClazz) {
-        this.filedClazz = filedClazz;
-    }
-    
-    
-    public int getColWidth() {
-		return colWidth;
-	}
+  public Class<?> getFiledClazz() {
+    return filedClazz;
+  }
 
-	public void setColWidth(int colWidth) {
-		this.colWidth = colWidth;
-	}
+  public void setFiledClazz(Class<?> filedClazz) {
+    this.filedClazz = filedClazz;
+  }
 
-	@Override
-    public int compareTo(ExcelHeader o) {
-        return order - o.order;
-    }
 
-    public ExcelHeader() {
-        super();
-    }
+  public int getColWidth() {
+    return colWidth;
+  }
 
-    public ExcelHeader(String title, int order, WriteConvertible writeConverter,
-                       ReadConvertible readConverter, String filed, Class<?> filedClazz, int colWidth) {
-        super();
-        this.title = title;
-        this.order = order;
-        this.writeConverter = writeConverter;
-        this.readConverter = readConverter;
-        this.filed = filed;
-        this.filedClazz = filedClazz;
-        this.colWidth = colWidth;
-    }
+  public void setColWidth(int colWidth) {
+    this.colWidth = colWidth;
+  }
+
+  @Override
+  public int compareTo(ExcelHeader o) {
+    return order - o.order;
+  }
+
+  public ExcelHeader() {
+    super();
+  }
+
+  public ExcelHeader(String title, int order, WriteConvertible writeConverter,
+      ReadConvertible readConverter, String filed, Class<?> filedClazz, int colWidth) {
+    super();
+    this.title = title;
+    this.order = order;
+    this.writeConverter = writeConverter;
+    this.readConverter = readConverter;
+    this.filed = filed;
+    this.filedClazz = filedClazz;
+    this.colWidth = colWidth;
+  }
 }

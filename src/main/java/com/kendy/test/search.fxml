@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
- 
+
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.control.*?>
@@ -7,47 +7,66 @@
 <?import javafx.scene.control.cell.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
- 
-<StackPane id="StackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="com.kendy.test.SearchController">
+
+<StackPane id="StackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+  minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml"
+  fx:controller="com.kendy.test.SearchController">
   <children>
-    <SplitPane dividerPositions="0.39195979899497485" focusTraversable="true" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+    <SplitPane dividerPositions="0.39195979899497485" focusTraversable="true" orientation="VERTICAL"
+      prefHeight="200.0" prefWidth="160.0">
       <items>
         <GridPane fx:id="grid" prefHeight="91.0" prefWidth="598.0">
           <children>
-<!--      <fx:include source="menu.fxml"/> -->
-            <GridPane prefHeight="47.0" prefWidth="486.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+            <!--      <fx:include source="menu.fxml"/> -->
+            <GridPane prefHeight="47.0" prefWidth="486.0" GridPane.columnIndex="1"
+              GridPane.rowIndex="5">
               <children>
-                <Button fx:id="clear" cancelButton="true" mnemonicParsing="false" onAction="#clear" text="Clear" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <Button fx:id="search" defaultButton="true" mnemonicParsing="false" onAction="#search" text="Search" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                <Button fx:id="clear" cancelButton="true" mnemonicParsing="false" onAction="#clear"
+                  text="Clear" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                <Button fx:id="search" defaultButton="true" mnemonicParsing="false"
+                  onAction="#search" text="Search" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
               </children>
               <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="338.0" minWidth="10.0" prefWidth="338.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="0.0" prefWidth="67.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="10.0" prefWidth="81.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="338.0" minWidth="10.0"
+                  prefWidth="338.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="0.0"
+                  prefWidth="67.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="175.0" minWidth="10.0"
+                  prefWidth="81.0"/>
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="72.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="110.0" minHeight="10.0" prefHeight="10.0"
+                  vgrow="SOMETIMES"/>
+                <RowConstraints maxHeight="72.0" minHeight="10.0" prefHeight="40.0"
+                  vgrow="SOMETIMES"/>
               </rowConstraints>
             </GridPane>
-            <Label alignment="CENTER_RIGHT" prefHeight="21.0" prefWidth="101.0" text="Product name:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <TextField fx:id="productName" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label alignment="CENTER_RIGHT" prefWidth="101.0" text="Min price:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <Label alignment="CENTER_RIGHT" prefWidth="101.0" text="Max price:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <TextField fx:id="minPrice" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <TextField fx:id="maxPrice" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label alignment="CENTER_RIGHT" prefHeight="21.0" prefWidth="101.0" text="Product name:"
+              GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="productName" prefWidth="200.0" GridPane.columnIndex="1"
+              GridPane.rowIndex="1"/>
+            <Label alignment="CENTER_RIGHT" prefWidth="101.0" text="Min price:"
+              GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label alignment="CENTER_RIGHT" prefWidth="101.0" text="Max price:"
+              GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <TextField fx:id="minPrice" prefWidth="200.0" GridPane.columnIndex="1"
+              GridPane.rowIndex="2"/>
+            <TextField fx:id="maxPrice" prefWidth="200.0" GridPane.columnIndex="1"
+              GridPane.rowIndex="3"/>
           </children>
           <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="246.0" minWidth="10.0" prefWidth="116.0" />
-            <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="537.0" minWidth="10.0" prefWidth="482.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="246.0" minWidth="10.0"
+              prefWidth="116.0"/>
+            <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="537.0" minWidth="10.0"
+              prefWidth="482.0"/>
           </columnConstraints>
           <rowConstraints>
-            <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="68.0" minHeight="0.0" prefHeight="22.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="68.0" minHeight="10.0" prefHeight="22.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="68.0" minHeight="10.0" prefHeight="22.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="167.0" minHeight="10.0" prefHeight="14.0" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="167.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="44.0" vgrow="SOMETIMES"/>
+            <RowConstraints maxHeight="68.0" minHeight="0.0" prefHeight="22.0" vgrow="SOMETIMES"/>
+            <RowConstraints maxHeight="68.0" minHeight="10.0" prefHeight="22.0" vgrow="SOMETIMES"/>
+            <RowConstraints maxHeight="68.0" minHeight="10.0" prefHeight="22.0" vgrow="SOMETIMES"/>
+            <RowConstraints maxHeight="167.0" minHeight="10.0" prefHeight="14.0" vgrow="SOMETIMES"/>
+            <RowConstraints maxHeight="167.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES"/>
           </rowConstraints>
         </GridPane>
         <StackPane prefHeight="196.0" prefWidth="598.0">
@@ -56,32 +75,32 @@
               <columns>
                 <TableColumn prefWidth="120.0" resizable="true" text="OrderId">
                   <cellValueFactory>
-                    <PropertyValueFactory property="orderId" />
+                    <PropertyValueFactory property="orderId"/>
                   </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="120.0" text="CustomerId">
                   <cellValueFactory>
-                    <PropertyValueFactory property="customerId" />
+                    <PropertyValueFactory property="customerId"/>
                   </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="120.0" text="#products">
                   <cellValueFactory>
-                    <PropertyValueFactory property="productsCount" />
+                    <PropertyValueFactory property="productsCount"/>
                   </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="120.0" text="Delivered">
                   <cellValueFactory>
-                    <PropertyValueFactory property="delivered" />
+                    <PropertyValueFactory property="delivered"/>
                   </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="120.0" text="Delivery days">
                   <cellValueFactory>
-                    <PropertyValueFactory property="deliveryDays" />
+                    <PropertyValueFactory property="deliveryDays"/>
                   </cellValueFactory>
                 </TableColumn>
                 <TableColumn prefWidth="150.0" text="Total order price">
                   <cellValueFactory>
-                    <PropertyValueFactory property="totalOrderPrice" />
+                    <PropertyValueFactory property="totalOrderPrice"/>
                   </cellValueFactory>
                 </TableColumn>
               </columns>

@@ -22,7 +22,7 @@ import com.kendy.util.TimeUtil;
 
 /**
  * 导出Excel模板
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月31日 下午12:32:36
  */
@@ -39,7 +39,6 @@ public class ExportExcelTemplate {
   private List<Object[]> dataList = new ArrayList<Object[]>(); // 数据源
 
   private String out = "D:/"; // 导出路径
-
 
 
   /**
@@ -67,7 +66,6 @@ public class ExportExcelTemplate {
     this.columnWidths = columnWidths;
     this.dataList = dataList;
   }
-
 
 
   /*
@@ -103,7 +101,6 @@ public class ExportExcelTemplate {
         cellRowName.setCellValue(text); // 设置列头单元格的值
         cellRowName.setCellStyle(columnTopStyle); // 设置列头单元格样式
       }
-
 
       // 将查询出的数据设置到sheet对应的单元格中
       for (int i = 0; i < dataList.size(); i++) {
@@ -152,8 +149,9 @@ public class ExportExcelTemplate {
         } catch (IOException e) {
           e.printStackTrace();
         } finally {
-          if (out != null)
+          if (out != null) {
             out.close();
+          }
         }
       }
 
@@ -164,14 +162,13 @@ public class ExportExcelTemplate {
   }
 
 
-
   public static void main(String[] args) throws Exception {
     // String title = Message.getString("manifestIExportTitle");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "自动上码-" + TimeUtil.getDateTime();
     System.out.println(title);
     // 团队ID 团队名字 比例 保险比例 股东 战绩是否代管理 备注 回水比例 回保比例 服务费判定 服务费判定
-    String[] rowsName = new String[] {"时间", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码", "勾选团队",
+    String[] rowsName = new String[]{"时间", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码", "勾选团队",
         "当天", "次日", "同意审核", "审核结果"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;

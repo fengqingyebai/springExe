@@ -29,19 +29,17 @@ import javafx.scene.control.TableView;
 
 /**
  * 导出TGExcel
- * 
+ *
  * @author linzt
  * @time 2018年3月19日 下午2:49:16
  */
 @Component
-public class TGExportExcelService{
+public class TGExportExcelService {
 
   private TGController tgController;
 
   /**
    * 构造方法
-   * 
-   * @param tgController
    */
   public TGExportExcelService(TGController tgController) {
     this.tgController = tgController;
@@ -72,9 +70,8 @@ public class TGExportExcelService{
 
   /**
    * 开销ExcelModel
-   * 
+   *
    * @time 2018年3月18日
-   * @return
    */
   private TGExcelModel getKaixiaoExcelModel() {
     TGExcelModel excelModel = new TGExcelModel();
@@ -116,9 +113,8 @@ public class TGExportExcelService{
 
   /**
    * 玩家备注ExcelModel
-   * 
+   *
    * @time 2018年3月18日
-   * @return
    */
   private TGExcelModel getPlayerCommentExcelModel() {
     TGExcelModel excelModel = new TGExcelModel();
@@ -164,9 +160,8 @@ public class TGExportExcelService{
 
   /**
    * 月利润ExcelModel
-   * 
+   *
    * @time 2018年3月19日
-   * @return
    */
   private TGExcelModel getMonthLirunExcelModel() {
     TGExcelModel excelModel = new TGExcelModel();
@@ -227,7 +222,6 @@ public class TGExportExcelService{
     obj[1] = availabel;
     dataSum.add(obj);
 
-
     excelModel.setColumnList(titleList);
     excelModel.setData(data);
     excelModel.setColumnSumList(titleSumList);
@@ -238,8 +232,6 @@ public class TGExportExcelService{
 
   /**
    * 导出服务费明细
-   * 
-   * @return
    */
   private TGExcelModel getFwfExcelModel() {
     TGExcelModel excelModel = new TGExcelModel();
@@ -287,8 +279,6 @@ public class TGExportExcelService{
 
   /**
    * 导出战绩明细
-   * 
-   * @return
    */
   private TGExcelModel getTeamZJExcelModel(String teamId, String hsRate) {
     TGExcelModel excelModel = new TGExcelModel();
@@ -334,17 +324,15 @@ public class TGExportExcelService{
   }
 
 
-
   /**
    * 导出战绩明细(所有)
-   * 
-   * @return
    */
   private List<TGExcelModel> getTGTeamZhanjiExcelModels() {
     List<TGExcelModel> excelLsit = new ArrayList<>();
     ObservableList<Node> teamBtns = tgController.TG_Team_VBox.getChildren();
-    if (CollectUtil.isEmpty(teamBtns))
+    if (CollectUtil.isEmpty(teamBtns)) {
       return excelLsit;
+    }
 
     for (Node node : teamBtns) {
       Button teamBtn = (Button) node;
@@ -362,8 +350,6 @@ public class TGExportExcelService{
 
   /**
    * 导出托管公司的团队外债与团队外债明细
-   * 
-   * @return
    */
   @SuppressWarnings("unchecked")
   private TGExcelModel getTGWaizhaiExcelModel() {
@@ -414,7 +400,6 @@ public class TGExportExcelService{
     excelModel.setWaizhaiMap(teamMap);
     return excelModel;
   }
-
 
 
 }

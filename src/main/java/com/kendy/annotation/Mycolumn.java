@@ -10,7 +10,7 @@ import com.kendy.excel.excel4j.converter.WriteConvertible;
 
 /**
  * 自定义列注解
- * 
+ *
  * @author linzt
  * @time 2018年7月6日
  */

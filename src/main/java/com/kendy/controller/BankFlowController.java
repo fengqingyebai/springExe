@@ -37,14 +37,14 @@ import javafx.scene.layout.VBox;
 
 /**
  * 银行流水控制类
- * 
+ *
  * @author linzt
  * @time 2018年6月27日
  */
 @Component
 public class BankFlowController extends BaseController implements Initializable {
 
-  private  Logger log = LoggerFactory.getLogger(getClass());
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   @Autowired
   public DBUtil dbUtil;
@@ -82,8 +82,9 @@ public class BankFlowController extends BaseController implements Initializable 
 
     // 初始化数据
     initData();
-    if (CollectUtil.isEmpty(totalBankFlowList))
+    if (CollectUtil.isEmpty(totalBankFlowList)) {
       return;
+    }
 
     // 动态生成表
     generateAllTables();
@@ -91,8 +92,6 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 设置银行流水日期
-   * 
-   * @param softTime
    */
   public void setBankFlowTitle(String softTime) {
     bankFlowTitle.setText(TITLE + softTime);
@@ -101,7 +100,7 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 动态生成表
-   * 
+   *
    * @time 2018年7月1日
    */
   public void generateAllTables() {
@@ -136,7 +135,7 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 初始化数据
-   * 
+   *
    * @time 2018年7月1日
    */
   private void initData() {
@@ -168,7 +167,7 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 添加统计信息：今日汇总 & 历史汇总
-   * 
+   *
    * @param isToday 是否为今日汇总
    * @param dataMap {银行：该银行相应的流水记录}
    */
@@ -205,9 +204,8 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 添加详情统计信息
-   * 
+   *
    * @time 2018年6月30日
-   * @param todayMap
    */
   private void addDetailStaticInfo(final Map<String, List<BankFlowModel>> todayMap) {
     addStaticInfo(true, todayMap);
@@ -253,17 +251,16 @@ public class BankFlowController extends BaseController implements Initializable 
   }
 
 
-
   /**
    * 设置动态表的数据
-   * 
-   * @param table
+   *
    * @param todayMap {银行类型 ： 上码列表}
    */
   private void setTableData(String dateString, TableView<BankFlowInfo> table,
       Map<String, List<BankFlowModel>> todayMap) {
-    if (MapUtil.isNullOrEmpty(todayMap))
+    if (MapUtil.isNullOrEmpty(todayMap)) {
       return;
+    }
     int loopTimes = todayMap.values().stream().mapToInt(Collection::size).max().orElseGet(() -> 0);
     if (loopTimes > 0) {
       ObservableList<BankFlowInfo> obList = FXCollections.observableArrayList();
@@ -297,12 +294,11 @@ public class BankFlowController extends BaseController implements Initializable 
    * <p>
    * 此方法会调用很多次
    * </p>
-   * 
-   * @time 2018年6月30日
+   *
    * @param index 序号，与当天银行的对应列表进行比较，便于取流水
    * @param bankEnum 银行类型
    * @param todayMap 当天所有银行的流水
-   * @return
+   * @time 2018年6月30日
    */
   private String getBankFlowValue(int index, BankEnum bankEnum,
       Map<String, List<BankFlowModel>> todayMap) {
@@ -358,9 +354,8 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 下拉
-   * 
+   *
    * @time 2018年7月1日
-   * @param event
    */
   @FXML
   public void seeHistoryStaticAction(ActionEvent event) {
@@ -369,8 +364,6 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 返回
-   * 
-   * @param event
    */
   @FXML
   public void seeDetailStaticAction(ActionEvent event) {
@@ -380,10 +373,8 @@ public class BankFlowController extends BaseController implements Initializable 
 
   /**
    * 获取月份和日， 如2018-06-01 ==> 6-1
-   * 
+   *
    * @time 2018年7月1日
-   * @param dateString
-   * @return
    */
   // private final String getSimpleDateString(String dateString) {
   // if (StringUtil.isNotBlank(dateString) && dateString.length() > 6) {
@@ -394,7 +385,6 @@ public class BankFlowController extends BaseController implements Initializable 
   // }
   // return dateString;
   // }
-
   @Override
   public Class<?> getSubClass() {
     return getClass();

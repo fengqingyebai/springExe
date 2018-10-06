@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 
 /**
  * 展示工具类
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月18日 下午11:16:28
  */
@@ -25,10 +25,8 @@ public class ShowUtil {
 
   /**
    * 带有自动关闭功能的提示框
-   * 
+   *
    * @time 2017年11月18日
-   * @param message
-   * @param time
    */
   public static void show(String message, int time) {
     int sleepTime = time * 1000;
@@ -57,9 +55,8 @@ public class ShowUtil {
 
   /**
    * 错误信息提示框
-   * 
+   *
    * @time 2017年11月18日
-   * @param message
    */
   public static void show(String message) {
     Alert alert = new Alert(AlertType.ERROR);
@@ -73,9 +70,8 @@ public class ShowUtil {
 
   /**
    * 警告信息
-   * 
+   *
    * @time 2017年11月19日
-   * @param message
    */
   public static void warn(String message) {
     Alert alert = new Alert(AlertType.WARNING);
@@ -86,13 +82,12 @@ public class ShowUtil {
     alert.showAndWait();
 
   }
-  
-  
+
+
   /**
    * 设置弹框图标
-   * 
+   *
    * @time 2018年7月22日
-   * @param stage
    */
   public static void setIcon(Stage stage) {
     try {
@@ -100,15 +95,14 @@ public class ShowUtil {
     } catch (Exception e) {
     }
   }
-  
+
   /**
    * 针对Dialog类型的弹框图标设置
-   * 
+   *
    * @time 2018年7月22日
-   * @param dialog
    */
   public static void setIcon(Dialog<?> dialog) {
-    if(dialog instanceof TextInputDialog || dialog instanceof Alert) {
+    if (dialog instanceof TextInputDialog || dialog instanceof Alert) {
       dialog.initOwner(FXUtil.stage);
     } else {
       Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();

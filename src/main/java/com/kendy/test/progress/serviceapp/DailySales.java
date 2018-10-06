@@ -7,40 +7,41 @@ package com.kendy.test.progress.serviceapp;
 import java.util.Date;
 
 public class DailySales {
-   private Integer dailySalesId;
-    private Integer quantity;
-    private Date date;
 
-    public DailySales() {
-    }
+  private Integer dailySalesId;
+  private Integer quantity;
+  private Date date;
 
-    public DailySales(int id, int qty, Date date) {
-        this.dailySalesId = id;
-        this.quantity = qty;
-        this.date = date;
-    }
+  public DailySales() {
+  }
 
-    public Integer getDailySalesId() {
-        return dailySalesId;
-    }
+  public DailySales(int id, int qty, Date date) {
+    this.dailySalesId = id;
+    this.quantity = qty;
+    this.date = date;
+  }
 
-    public void setDailySalesId(Integer dailySalesId) {
-        this.dailySalesId = dailySalesId;
-    }
+  public Integer getDailySalesId() {
+    return dailySalesId;
+  }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
+  public void setDailySalesId(Integer dailySalesId) {
+    this.dailySalesId = dailySalesId;
+  }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
+  public Integer getQuantity() {
+    return quantity;
+  }
 
-    public Date getDate() {
-        return date;
-    }
+  public void setQuantity(Integer quantity) {
+    this.quantity = quantity;
+  }
 
-    public void setDate(Date date) {
-        this.date = date;
-    } 
+  public Date getDate() {
+    return date;
+  }
+
+  public void setDate(Date date) {
+    this.date = date;
+  }
 }

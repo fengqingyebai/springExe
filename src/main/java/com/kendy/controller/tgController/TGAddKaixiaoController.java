@@ -54,7 +54,7 @@ import javafx.scene.control.TextInputDialog;
 
 /**
  * 新增托管开销控制类
- * 
+ *
  * @author 林泽涛
  * @time 2018年3月3日 下午2:25:46
  */
@@ -64,7 +64,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TGController tgController; // 托管控制类
   @Autowired
@@ -116,7 +116,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 获取人员数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initPlayers() {
@@ -128,7 +128,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 添加文本框监听(监听输入框和ListView点击框)
-   * 
+   *
    * @time 2018年3月3日
    */
   private void addListener() {
@@ -154,13 +154,14 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 初始化支出项目数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initPayItemChoice() {
     String payItemsJson = dbUtil.getValueByKey(PAY_ITEMS_DB_KEY);
     if (StringUtil.isNotBlank(payItemsJson) && !"{}".equals(payItemsJson)) {
-      payItems = JSON.parseObject(payItemsJson, new TypeReference<List<String>>() {});
+      payItems = JSON.parseObject(payItemsJson, new TypeReference<List<String>>() {
+      });
     } else {
       if (payItems == null || payItems.isEmpty()) {
         payItems = new ArrayList<>(Arrays.asList("推荐奖励", "金币", "打牌奖励"));
@@ -172,7 +173,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 初始化托管公司名称项目数据
-   * 
+   *
    * @time 2018年3月3日
    */
   private void initTGCompanyChoice() {
@@ -189,9 +190,8 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 添加支出项目
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addPayItemAction(ActionEvent event) {
     TextInputDialog dialog = new TextInputDialog();
@@ -220,7 +220,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 保存支出项目到数据库
-   * 
+   *
    * @time 2018年3月3日
    */
   private void savePayItem() {
@@ -230,9 +230,8 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 检验参数
-   * 
+   *
    * @time 2018年3月3日
-   * @return
    */
   private boolean hasAnyParamBlank() {
     return StringUtil.isAnyBlank(FinalPlaerNameField.getText(), kaixiaoMoneyField.getText(),
@@ -242,9 +241,8 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
 
   /**
    * 获取待提交的数据
-   * 
+   *
    * @time 2018年3月3日
-   * @return
    */
   private TGKaixiaoInfo getSubmitData() {
 
@@ -258,12 +256,10 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
   }
 
 
-
   /**
    * 按钮：确定提交托管开销数据
-   * 
+   *
    * @time 2018年3月3日
-   * @param event
    */
   public void addTGKaixiaoBtnAction(ActionEvent event) {
     // 检验参数
@@ -277,17 +273,17 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
     // 保存到数据库
     dbUtil.saveOrUpdate_tg_kaixiao(TGKaixiaoEntity);
     // 刷新界面
-    if (equalsCurrentCompany())
+    if (equalsCurrentCompany()) {
       tgController.refreshTableTGKaixiao();
+    }
 
     ShowUtil.show("添加完成", 1);
   }
 
   /**
    * 添加开销时判断是否添加的公司与当前公司是否一致，一致则刷新当前页面
-   * 
+   *
    * @time 2018年3月24日
-   * @return
    */
   private boolean equalsCurrentCompany() {
     //TGController tgController = MyController.tgController;
@@ -295,8 +291,8 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
     String selectedCompany = tgCompanyChoice.getSelectionModel().getSelectedItem();
     return tgCompany.equals(selectedCompany);
   }
-  
-  
+
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

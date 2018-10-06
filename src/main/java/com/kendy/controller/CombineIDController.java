@@ -43,7 +43,7 @@ import javafx.scene.input.KeyEvent;
 
 /**
  * 合并ID控制器
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:54
  */
@@ -53,7 +53,7 @@ public class CombineIDController extends BaseController implements Initializable
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TGController tgController; // 托管控制类
   @Autowired
@@ -71,10 +71,15 @@ public class CombineIDController extends BaseController implements Initializable
 
   // =====================================================================合并ID对话框
   public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
-  @FXML private TextField combineName; // 模糊查询的名称
-  @FXML private TextField parentIdField;
-  @FXML private ListView<String> leftPlayerListView;
-  @FXML private ListView<String> rightPlayerListView;
+  @FXML
+  private TextField combineName; // 模糊查询的名称
+  @FXML
+  private TextField parentIdField;
+  @FXML
+  private ListView<String> leftPlayerListView;
+  @FXML
+  private ListView<String> rightPlayerListView;
+
   @Override
   public void initialize(URL location, ResourceBundle resources) {
 
@@ -100,7 +105,7 @@ public class CombineIDController extends BaseController implements Initializable
       return;
     } else {
       if (AlertUtil.confirm(parentNameAndId, "你确定要解散该合并ID吗?\r\n父ID：" + parentNameAndId)) {
-        
+
         String parentId = getIdFromStr(parentNameAndId);
         Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(parentId);
         if (subIdSet == null) {
@@ -161,7 +166,6 @@ public class CombineIDController extends BaseController implements Initializable
   }
 
 
-
   /**
    * 搜索可能符合的人员
    * <p>
@@ -176,7 +180,7 @@ public class CombineIDController extends BaseController implements Initializable
             || mPlayer.getPlayerName().toLowerCase().contains(searchText.trim().toLowerCase())
             || mPlayer.getPlayerName().toUpperCase().contains(searchText.trim().toUpperCase())
             || StringUtils.contains(mId, searchText)
-            ) {
+        ) {
           set.add(mPlayer);
         }
       });
@@ -210,8 +214,6 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 加载父ID和名称
-   * 
-   * @param event
    */
   public void select2parentAction(ActionEvent event) {
     String selectedMemberName = (String) leftPlayerListView.getFocusModel().getFocusedItem();
@@ -287,8 +289,6 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 合并父子ID
-   * 
-   * @param event
    */
   public void combinePlayerIDAction(ActionEvent event) {
     try {
@@ -309,7 +309,6 @@ public class CombineIDController extends BaseController implements Initializable
           return;
         }
       } // 判断是否同个团队结束
-
 
       Set<String> subIdSets = dataConstants.Combine_Super_Id_Map.get(parentId);
       if (subIdSets == null) {
@@ -345,7 +344,7 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 获取玩家ID 备注：名称可能含有空格，名称与ID也是用空格隔开。所以单独成方法。
-   * 
+   *
    * @param nameAndId 名称和ID 传过来肯定是不为空的，固不作空判断
    */
   public String getIdFromStr(String nameAndId) {
@@ -356,7 +355,7 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 获取十六进制的颜色代码.例如 "#6E36B4" , For HTML ,
-   * 
+   *
    * @return String
    */
   public String getRandColorCode() {
@@ -376,10 +375,10 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 判断一个ID是否有合并ID关系
-   * 
-   * @time 2017年11月12日
+   *
    * @param id 玩家ID
    * @return 父ID
+   * @time 2017年11月12日
    */
   public String hasCombineIdRelation(String id) {
     String superId = null;
@@ -396,7 +395,7 @@ public class CombineIDController extends BaseController implements Initializable
 
   /**
    * 检测合并ID
-   * 
+   *
    * @time 2017年12月2日
    */
   public List<String> checkCombineId() {
@@ -414,8 +413,9 @@ public class CombineIDController extends BaseController implements Initializable
     String playerId = "";
     for (Map.Entry<String, String> entry : subIdMap.entrySet()) { // 子ID
       playerId = entry.getKey();
-      if (StringUtil.isBlank(playerId))
+      if (StringUtil.isBlank(playerId)) {
         continue;
+      }
       if (!memberIdMap.containsKey(playerId)) {
         resList.add("检测到子ID(" + playerId + ")没有对应的人员信息,请检查！其父ID是" + entry.getValue());
       }
@@ -426,8 +426,9 @@ public class CombineIDController extends BaseController implements Initializable
     }
     for (Map.Entry<String, Set<String>> entry : superIdMap.entrySet()) { // 父ID
       playerId = entry.getKey();
-      if (StringUtil.isBlank(playerId))
+      if (StringUtil.isBlank(playerId)) {
         continue;
+      }
       if (!memberIdMap.containsKey(playerId)) {
         resList.add("检测到父ID(" + playerId + ")没有对应的人员信息,请检查！");
       }

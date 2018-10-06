@@ -7,12 +7,12 @@ import javafx.scene.control.Alert.AlertType;
 
 /**
  * 封装Alert组件
- * 
+ *
  * @author 林泽涛
  * @time 2018年7月22日 下午12:44:50
  */
 public class AlertUtil {
-  
+
 
   public static boolean confirm(String title, String content) {
     Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -34,13 +34,11 @@ public class AlertUtil {
     }
     return Boolean.FALSE;
   }
-  
-  
+
+
   public static boolean confirm(String content) {
     return confirm(null, content);
   }
-  
-  
-  
-  
+
+
 }

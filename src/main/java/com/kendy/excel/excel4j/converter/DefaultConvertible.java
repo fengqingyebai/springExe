@@ -5,13 +5,13 @@ package com.kendy.excel.excel4j.converter;
  */
 public class DefaultConvertible implements WriteConvertible, ReadConvertible {
 
-    @Override
-    public Object execRead(String object) {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public Object execRead(String object) {
+    throw new UnsupportedOperationException();
+  }
 
-    @Override
-    public Object execWrite(Object object) {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public Object execWrite(Object object) {
+    throw new UnsupportedOperationException();
+  }
 }

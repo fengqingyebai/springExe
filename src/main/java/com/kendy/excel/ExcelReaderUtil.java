@@ -49,7 +49,7 @@ import com.kendy.util.StringUtil;
 
 /**
  * 读取Excel
- * 
+ *
  * @author 林泽涛
  * @time 2017年10月7日 下午3:54:05
  */
@@ -87,14 +87,10 @@ public class ExcelReaderUtil {
   }
 
 
-
   /**
    * 创建 Excel 2003 或2007工作簿对象
-   * 
+   *
    * @time 2017年10月7日
-   * @param filename
-   * @return
-   * @throws IOException
    */
   public Workbook getWeebWork(String filename) throws Exception {
     Workbook workbook = null;
@@ -113,10 +109,8 @@ public class ExcelReaderUtil {
 
   /**
    * 导入人员名单
-   * 
+   *
    * @time 2017年10月7日
-   * @param file
-   * @return
    */
   public Map<String, Player> readMembersRecord(File file) throws Exception {
 
@@ -173,9 +167,6 @@ public class ExcelReaderUtil {
 
   /**
    * 导入回水
-   * 
-   * @param file
-   * @return
    */
   public Wrap readHuishuiRecord(File file) {
 
@@ -220,8 +211,9 @@ public class ExcelReaderUtil {
             String value = cell.getStringCellValue();
             if (i == 1) {
               // 团ID====="+value);
-              if (!StringUtil.isBlank(value))
+              if (!StringUtil.isBlank(value)) {
                 value = value.toUpperCase();
+              }
               teamId = value;
             } else if (i == 2) {
               // 团队名字====="+value);
@@ -281,9 +273,10 @@ public class ExcelReaderUtil {
               jfPercent = NumUtil.getPercentStr(Double.valueOf(value));
             }
           }
-          if (!StringUtil.isBlank(teamId))
+          if (!StringUtil.isBlank(teamId)) {
             huishuiMap.put(teamId, new Huishui(teamId, teamName, huishuiRate, insuranceRate, gudong,
                 zjManage, beizhu, proxyHsRate, proxyHbRate, proxyFWF));
+          }
         }
       }
       is.close();
@@ -298,13 +291,8 @@ public class ExcelReaderUtil {
 
   /**
    * 读取新-旧战绩
-   * 
+   *
    * @time 2018年1月10日
-   * @param file
-   * @param userClubId
-   * @param LMType
-   * @param versionType
-   * @return
    */
   public List<GameRecord> readZJRecord(String excelFilePath, String userClubId, String LMType,
       int versionType) throws Exception {
@@ -314,7 +302,6 @@ public class ExcelReaderUtil {
       return readZJRecord_NewVersion(excelFilePath, userClubId, LMType);
     }
   }
-
 
 
   /*
@@ -356,7 +343,7 @@ public class ExcelReaderUtil {
 
   /**
    * 导入战绩Excel
-   * 
+   *
    * 两个功能： A:导入到场次信息 B:导入到联盟Tab
    */
   public List<GameRecord> readZJRecord_NewVersion(String excelFilePath, String userClubId,
@@ -396,11 +383,8 @@ public class ExcelReaderUtil {
   }
 
 
-
   /**
    * 导入昨日留底Excel
-   * 
-   * @throws IOException,Exception
    */
   public Map<String, String> readPreDataRecord(File file) throws IOException, Exception {
 
@@ -453,13 +437,11 @@ public class ExcelReaderUtil {
 
   /**
    * 根据位置获取相应领域的Map值
-   * 
+   *
    * @param sheet 昨日留底的电子表
    * @param x 起始行（都0开始）
    * @param y 超始列
    * @param x2 结束行
-   * @throws Exception
-   * 
    */
   private Map<String, String> getMapByPosition(Sheet sheet, int x, int y, int x2) throws Exception {
     Map<String, String> resultMap = new LinkedHashMap<>();
@@ -504,16 +486,13 @@ public class ExcelReaderUtil {
   }
 
 
-
   /**
    * 根据位置获取相应领域的Map值(实时金额)
-   * 
+   *
    * @param sheet 昨日留底的电子表
    * @param x 起始行（都0开始）
    * @param y 超始列
    * @param x2 结束行
-   * @throws Exception
-   * 
    */
   private Map<String, String> getMapByPosition_SSJE(Sheet sheet, int x, int y, int x2)
       throws Exception {
@@ -572,8 +551,6 @@ public class ExcelReaderUtil {
 
   /**
    * 导入合并ID模板Excel
-   * 
-   * @throws IOException,Exception
    */
   public List<CombineID> readCombineIdRecord(File file) throws Exception {
 
@@ -587,8 +564,9 @@ public class ExcelReaderUtil {
     try (FileInputStream is = new FileInputStream(file)) {
       log.info("开始导入合并ID模板Excel");
       List<List<String>> originalList = ExcelUtils.getInstance().readExcel2List(is, 1);
-      if (CollectUtil.isEmpty(originalList))
+      if (CollectUtil.isEmpty(originalList)) {
         return combinIds;
+      }
 
       // 转换成想要的数据结构
       Predicate<List<String>> filterBlank = e -> {
@@ -608,7 +586,6 @@ public class ExcelReaderUtil {
 
     return combinIds;
   }
-
 
 
 }

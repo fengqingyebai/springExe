@@ -11,7 +11,7 @@ import com.kendy.util.ErrorUtil;
 
 /**
  * 连接数据库
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:27
  */
@@ -28,7 +28,7 @@ public class DBConnection {
   public DBConnection() {
     connection = null;
   }
-  
+
   public static Connection getConnection() {
     try {
       Class.forName("com.mysql.jdbc.Driver");
@@ -46,7 +46,7 @@ public class DBConnection {
   }
 
   public static void main(String[] args) {
-    if(getConnection() == null) {
+    if (getConnection() == null) {
       System.out.println("fail to connect the database..");
     }
     System.out.println("success.." + System.currentTimeMillis());

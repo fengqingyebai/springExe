@@ -9,13 +9,12 @@ import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombi
 
 /**
  * 拼音工具类
- * 
  */
 public class PinyinUtil {
 
   /**
    * 将文字转为汉语拼音
-   * 
+   *
    * @param chineselanguage 要转成拼音的中文
    */
   public String toHanyuPinyin(String ChineseLanguage) {
@@ -111,7 +110,8 @@ public class PinyinUtil {
       String str = String.valueOf(cl_chars[0]);
       if (str.matches("[\u4e00-\u9fa5]+")) {// 如果字符是中文,则将中文转为汉语拼音,并取第一个字母
         hanyupinyin =
-            PinyinHelper.toHanyuPinyinStringArray(cl_chars[0], defaultFormat)[0].substring(0, 1);;
+            PinyinHelper.toHanyuPinyinStringArray(cl_chars[0], defaultFormat)[0].substring(0, 1);
+        ;
       } else if (str.matches("[0-9]+")) {// 如果字符是数字,取数字
         hanyupinyin += cl_chars[0];
       } else if (str.matches("[a-zA-Z]+")) {// 如果字符是字母,取字母

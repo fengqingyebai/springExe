@@ -6,7 +6,7 @@ import com.kendy.entity.ShangmaInfo;
 
 /**
  * 银行流水模型
- * 
+ *
  * @author linzt
  * @time 2018年6月28日
  */

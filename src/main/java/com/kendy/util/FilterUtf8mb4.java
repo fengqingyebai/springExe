@@ -16,10 +16,8 @@ public class FilterUtf8mb4 {
 
   /**
    * 过滤掉字符串中的utf8mb4表情
-   * 
+   *
    * @time 2018年4月4日
-   * @param str
-   * @return
    */
   public static String filterUtf8mb4(String str) {
 

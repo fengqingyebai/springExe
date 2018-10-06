@@ -36,18 +36,18 @@ import javafx.stage.Stage;
 
 /**
  * 添加团队回水的控制器
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:54:46
  */
 @Component
 public class AddController extends BaseController implements Initializable {
-  
+
   private static Logger log = Logger.getLogger(AddController.class);
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TeamProxyController teamProxyController; // 代理控制类
   @Autowired
@@ -68,29 +68,48 @@ public class AddController extends BaseController implements Initializable {
   public DataConstans dataConstants; // 数据控制类
 
   // =====================================================================新增团队回水对话框
-  @FXML private TextField gudong2Field; // 股东
-  @FXML private TextField beizhu2Field; // 股东
-  @FXML private TextField teamIdField; // 新增团队ID
-  @FXML private TextField teamNameField; // 新增团队名称
-  @FXML private TextField huishui; // 新增团队回水
-  @FXML private TextField insuranceRate; // 新增保险比例
+  @FXML
+  private TextField gudong2Field; // 股东
+  @FXML
+  private TextField beizhu2Field; // 股东
+  @FXML
+  private TextField teamIdField; // 新增团队ID
+  @FXML
+  private TextField teamNameField; // 新增团队名称
+  @FXML
+  private TextField huishui; // 新增团队回水
+  @FXML
+  private TextField insuranceRate; // 新增保险比例
   // =====================================================================新增人员名单对话框
-  @FXML private TextField gameIdField;// 团ID
-  @FXML private TextField gudongField;// 股东
-  @FXML private TextField teamField;// 团队名称
-  @FXML private TextField playerNameField;// 玩家名称
-  @FXML private TextField beizhuField;// 备注
+  @FXML
+  private TextField gameIdField;// 团ID
+  @FXML
+  private TextField gudongField;// 股东
+  @FXML
+  private TextField teamField;// 团队名称
+  @FXML
+  private TextField playerNameField;// 玩家名称
+  @FXML
+  private TextField beizhuField;// 备注
 
   // =====================================================================新增实时开销对话框
-  @FXML private TextField kaixiaoTypes;// 名称
-  @FXML private TextField kaixiaoMoneys;// 开销金额
-  @FXML private ChoiceBox<String> gudongChoice;// 股东下拉框
-  @FXML private CheckBox needComputeBox;// 是否需要纳入股东贡献值
+  @FXML
+  private TextField kaixiaoTypes;// 名称
+  @FXML
+  private TextField kaixiaoMoneys;// 开销金额
+  @FXML
+  private ChoiceBox<String> gudongChoice;// 股东下拉框
+  @FXML
+  private CheckBox needComputeBox;// 是否需要纳入股东贡献值
   // =====================================================================新增实时金额对话框
-  @FXML private TextField cmName;// 名称
-  @FXML private TextField cmMoney;// 实时金额
-  @FXML private TextField cmPlayerId;
-  @FXML private TextField cmEdu;// 额度
+  @FXML
+  private TextField cmName;// 名称
+  @FXML
+  private TextField cmMoney;// 实时金额
+  @FXML
+  private TextField cmPlayerId;
+  @FXML
+  private TextField cmEdu;// 额度
 
   public static final String ALL_COMPANY = "全公司参与";
 
@@ -106,19 +125,18 @@ public class AddController extends BaseController implements Initializable {
     if (!copyGudongList.contains(ALL_COMPANY)) {
       copyGudongList.add(ALL_COMPANY);
     }
-    if (gudongChoice != null)
+    if (gudongChoice != null) {
       gudongChoice.setItems(copyGudongList);
+    }
 
 
   }
-
 
 
   /**
    * 增加团队回水
    */
   public void addHuishuiOKAction(ActionEvent event) {
-
 
     Huishui hs = new Huishui();
     hs.setTeamId(teamIdField.getText());
@@ -214,7 +232,8 @@ public class AddController extends BaseController implements Initializable {
           if (ALL_COMPANY.equals(kxGudong)) {
             // N个股东平摊（包括银河股东）
             ObservableList<String> gudongList = myController.getGudongList();
-            String averageKaixiaoMoney = getAverageKaixiaoMoney(kxMoney, gudongList.size());// 股东平摊的开销值
+            String averageKaixiaoMoney = getAverageKaixiaoMoney(kxMoney,
+                gudongList.size());// 股东平摊的开销值
             // 有几个股东就保存几条开销记录进数据库
             int i = 0;
             for (String gudongName : gudongList) {
@@ -242,11 +261,8 @@ public class AddController extends BaseController implements Initializable {
 
   /**
    * 获取股东平摊的值
-   * 
+   *
    * @time 2018年2月22日
-   * @param kxMoney
-   * @param gudongSize
-   * @return
    */
   private String getAverageKaixiaoMoney(String kxMoney, Integer gudongSize) {
     Double money = NumUtil.getNum(kxMoney);
@@ -293,9 +309,8 @@ public class AddController extends BaseController implements Initializable {
 
   /**
    * 增加临时实时金额（非人员金额）
-   * 
+   *
    * @time 2017年11月9日
-   * @param event
    */
   public void add_SSJE_other_Action(ActionEvent event) {
     // 先对名称进行判断
@@ -316,14 +331,13 @@ public class AddController extends BaseController implements Initializable {
     moneyService.flush_SSJE_table();
     moneyService.scrolByName(name);
 
-
     // 获取到新增人员窗口的实例
     Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
     dataConstants.framesNameMap.remove(Constants.ADD_CURRENT_MONEY_FRAME);
     addNewPlayerStage.close();
   }
 
-  
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

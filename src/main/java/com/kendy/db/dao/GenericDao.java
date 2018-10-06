@@ -6,10 +6,11 @@ import org.apache.ibatis.session.RowBounds;
 
 /**
  * 摘自@author chenxing21 www.10155.com
+ *
  * @version 2017年8月9日
- * @param <E>
  */
 public interface GenericDao<E> {
+
   int deleteByPrimaryKey(Object id);
 
   int delete(E record);

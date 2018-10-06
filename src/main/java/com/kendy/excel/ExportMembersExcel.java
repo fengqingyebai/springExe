@@ -20,7 +20,7 @@ import org.apache.poi.ss.usermodel.CellType;
 
 /**
  * 导出Excel公共方法
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:52:31
  */
@@ -39,11 +39,6 @@ public class ExportMembersExcel {
 
   /**
    * 构造方法，传入要导出的数据
-   * 
-   * @param title
-   * @param rowName
-   * @param dataList
-   * @param out
    */
   public ExportMembersExcel(String title, String[] rowName, List<Object[]> dataList, String out) {
     this.title = title;
@@ -85,7 +80,6 @@ public class ExportMembersExcel {
         cellRowName.setCellValue(text); // 设置列头单元格的值
         cellRowName.setCellStyle(columnTopStyle); // 设置列头单元格样式
       }
-
 
       // 将查询出的数据设置到sheet对应的单元格中
       for (int i = 0; i < dataList.size(); i++) {
@@ -145,8 +139,9 @@ public class ExportMembersExcel {
         } catch (IOException e) {
           e.printStackTrace();
         } finally {
-          if (out != null)
+          if (out != null) {
             out.close();
+          }
         }
       }
 
@@ -157,13 +152,12 @@ public class ExportMembersExcel {
   }
 
 
-
   public static void main(String[] args) throws Exception {
     // String title = Message.getString("manifestIExportTitle");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "名单登记表-德扑圈" + sdf.format(new Date());
     System.out.println(title);
-    String[] rowsName = new String[] {"玩家ID", "股东", "团队", "游戏名字", "额度"};
+    String[] rowsName = new String[]{"玩家ID", "股东", "团队", "游戏名字", "额度"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     // for (int i = 0; i < manifestIMainList.size(); i++) {

@@ -5,7 +5,7 @@ package com.kendy.model;
  * <p>
  * 记录了一个玩家一场记录的相关金额信息
  * </p>
- * 
+ *
  * @author linzt
  * @time 2018年8月1日
  */
@@ -36,7 +36,7 @@ public class GameRecord extends BasicRecord {
    * 联盟类型
    */
   private String lmType;
-  
+
   /*
    * 临时数据
    */
@@ -49,7 +49,7 @@ public class GameRecord extends BasicRecord {
 
 
   /**
-   * 
+   *
    */
   public GameRecord() {
     super();
@@ -176,7 +176,6 @@ public class GameRecord extends BasicRecord {
   public void setPersonCount(String personCount) {
     this.personCount = personCount;
   }
-
 
 
 }

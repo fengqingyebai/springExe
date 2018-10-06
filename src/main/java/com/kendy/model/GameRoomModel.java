@@ -68,7 +68,6 @@ public class GameRoomModel {
   private String maxplayer;
 
 
-
   public static void main(String[] args) {
     String json =
         "{\"result\":{\"total\":1,\"list\":[{\"createtime\":1523188779115,\"roomid\":28707389,\"gameroomtype\":3,\"createuser\":\"银河ATM\",\"bigblind\":10,\"roomname\":\"🏧520-2k-238\",\"hands\":233,\"smallblind\":5,\"players\":136,\"iAnte\":5,\"leagueid\":21375883,\"maxplayer\":8}]},\"iErrCode\":0}";
@@ -79,11 +78,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getCreatetime() {
     return createtime;
   }
-
 
 
   public void setCreatetime(String createtime) {
@@ -91,11 +88,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getRoomid() {
     return roomid;
   }
-
 
 
   public void setRoomid(String roomid) {
@@ -103,11 +98,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getGameroomtype() {
     return gameroomtype;
   }
-
 
 
   public void setGameroomtype(String gameroomtype) {
@@ -115,11 +108,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getCreateuser() {
     return createuser;
   }
-
 
 
   public void setCreateuser(String createuser) {
@@ -127,11 +118,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getBigblind() {
     return bigblind;
   }
-
 
 
   public void setBigblind(String bigblind) {
@@ -139,11 +128,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getRoomname() {
     return roomname;
   }
-
 
 
   public void setRoomname(String roomname) {
@@ -151,11 +138,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getHands() {
     return hands;
   }
-
 
 
   public void setHands(String hands) {
@@ -163,11 +148,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getSmallblind() {
     return smallblind;
   }
-
 
 
   public void setSmallblind(String smallblind) {
@@ -175,11 +158,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getPlayers() {
     return players;
   }
-
 
 
   public void setPlayers(String players) {
@@ -187,11 +168,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getiAnte() {
     return iAnte;
   }
-
 
 
   public void setiAnte(String iAnte) {
@@ -199,11 +178,9 @@ public class GameRoomModel {
   }
 
 
-
   public String getLeagueid() {
     return leagueid;
   }
-
 
 
   public void setLeagueid(String leagueid) {
@@ -211,17 +188,14 @@ public class GameRoomModel {
   }
 
 
-
   public String getMaxplayer() {
     return maxplayer;
   }
 
 
-
   public void setMaxplayer(String maxplayer) {
     this.maxplayer = maxplayer;
   }
-
 
 
 }

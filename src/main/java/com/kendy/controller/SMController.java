@@ -59,7 +59,7 @@ import javafx.util.Callback;
 
 /**
  * 上码控制器
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:48
  */
@@ -67,11 +67,11 @@ import javafx.util.Callback;
 public class SMController extends BaseController implements Initializable {
 
   Logger logger = Logger.getLogger(SMController.class);
-  
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public MyController myController ;
+  public MyController myController;
   @Autowired
   public TeamProxyController teamProxyController; // 代理控制类
   @Autowired
@@ -84,64 +84,95 @@ public class SMController extends BaseController implements Initializable {
     super();
     logger.info("执行SMController构造方法");
   }
-  
-  
+
+
   @PostConstruct
   public void inits() {
     logger.info("@PostConstruct SMController");
 
   }
-  
+
   // 过滤团队
   public static List<String> filterTeams = FXCollections.observableArrayList();
   private final String FILTER_TEAM_KEY = KeyEnum.SM_FILTER_TEAM_DB_KEY.getKeyName();
 
   // ===============================================================上码查询Tab
-  @FXML public TableView<ShangmaInfo> tableShangma;
-  @FXML public TableColumn<ShangmaInfo, String> shangmaName;
-  @FXML public TableColumn<ShangmaInfo, String> shangmaEdu;
-  @FXML public TableColumn<ShangmaInfo, String> shangmaAvailableEdu;
-  @FXML public TableColumn<ShangmaInfo, String> shangmaYCJF;// 已存积分=实时金额
-  @FXML public TableColumn<ShangmaInfo, String> shangmaYiSM;// 已上码
-  @FXML public TableColumn<ShangmaInfo, String> shangmaSumOfZJ;
-  @FXML public TableColumn<ShangmaInfo, String> shangmaPlayerId;
-  @FXML public TableColumn<ShangmaInfo, String> shangmaLianheEdu;
-  @FXML public VBox shangmaVBox;// 用于初始化团队ID按钮
-  @FXML public Label shangmaTeamId;// 显示栏上的团队ID
-  @FXML public Label shangmaZSM;// 团队总上码
-  @FXML public Label shangmaZZJ;// 团队总战绩
-  @FXML public TextField shangmaSearch;// 上码的输入框
+  @FXML
+  public TableView<ShangmaInfo> tableShangma;
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaName;
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaEdu;
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaAvailableEdu;
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaYCJF;// 已存积分=实时金额
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaYiSM;// 已上码
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaSumOfZJ;
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaPlayerId;
+  @FXML
+  public TableColumn<ShangmaInfo, String> shangmaLianheEdu;
+  @FXML
+  public VBox shangmaVBox;// 用于初始化团队ID按钮
+  @FXML
+  public Label shangmaTeamId;// 显示栏上的团队ID
+  @FXML
+  public Label shangmaZSM;// 团队总上码
+  @FXML
+  public Label shangmaZZJ;// 团队总战绩
+  @FXML
+  public TextField shangmaSearch;// 上码的输入框
 
-  @FXML public TextField teamYajin;// 团队押金
-  @FXML public TextField teamEdu;// 团队额度
-  @FXML public Label teamShangmaAvailable;// 团队可上码
-  @FXML public CheckBox smTeamShangmaCheckBox;// 团队可上码CheckBox
+  @FXML
+  public TextField teamYajin;// 团队押金
+  @FXML
+  public TextField teamEdu;// 团队额度
+  @FXML
+  public Label teamShangmaAvailable;// 团队可上码
+  @FXML
+  public CheckBox smTeamShangmaCheckBox;// 团队可上码CheckBox
 
-  @FXML public TableView<ShangmaDetailInfo> tableShangmaDetail;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaDetailName;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaJu;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaSM;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaShishou;
+  @FXML
+  public TableView<ShangmaDetailInfo> tableShangmaDetail;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaDetailName;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaJu;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaSM;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaShishou;
 
-  @FXML public TableView<ShangmaDetailInfo> tableShangmaNextDay;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaNextDayName;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaNextDayJu;
-  @FXML public TableColumn<ShangmaDetailInfo, String> shangmaNextDaySM;
+  @FXML
+  public TableView<ShangmaDetailInfo> tableShangmaNextDay;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaNextDayName;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaNextDayJu;
+  @FXML
+  public TableColumn<ShangmaDetailInfo, String> shangmaNextDaySM;
 
   // ===============================================================外债
-  @FXML public TableView<WaizhaiInfo> tableWaizhai;
-  @FXML public TableColumn<WaizhaiInfo, String> waizhaiType;
-  @FXML public TableColumn<WaizhaiInfo, String> waizhaiMoney;
-  @FXML public HBox waizhaiHBox;// 里面包含多个表
+  @FXML
+  public TableView<WaizhaiInfo> tableWaizhai;
+  @FXML
+  public TableColumn<WaizhaiInfo, String> waizhaiType;
+  @FXML
+  public TableColumn<WaizhaiInfo, String> waizhaiMoney;
+  @FXML
+  public HBox waizhaiHBox;// 里面包含多个表
 
 
   /**
-   * 节点加载完后需要进行的一些初始化操作 
+   * 节点加载完后需要进行的一些初始化操作
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void initialize(URL location, ResourceBundle resources) {
-    
+
     // 加载被过滤的团队
     loadFilterTeams();
 
@@ -153,7 +184,7 @@ public class SMController extends BaseController implements Initializable {
         return new TableRowControl(tableShangma);
       }
     });
-    
+
     // 绑定上码个人信息表
     tableShangmaDetail.setEditable(true);
     bindCellValue(new ShangmaDetailInfo(), shangmaDetailName, shangmaJu, shangmaSM, shangmaShishou);
@@ -175,16 +206,15 @@ public class SMController extends BaseController implements Initializable {
     shangmaNextDaySM.setCellFactory(ShangmaNameNextdayCellFactory);
     setColumnCenter(shangmaNextDayName, shangmaNextDayJu, shangmaNextDaySM);
 
-    
     // 实时上马系统
     shangmaService.initShangma();
-    
+
 
   }
-  
+
   /**
    * 点击实时上码Tab时加载数据
-   * 
+   *
    * @time 2018年7月22日
    */
   public void loadWhenClickTab() {
@@ -192,7 +222,8 @@ public class SMController extends BaseController implements Initializable {
     shangmaService.refreshTeamIdAndPlayerId();
 
     // 获取最新的实时金额Map {玩家ID={}}
-    Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();;
+    Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();
+    ;
     ObservableList<CurrentMoneyInfo> obList = myController.tableCurrentMoneyInfo.getItems();
     if (obList != null) {
       String pId = "";
@@ -217,7 +248,7 @@ public class SMController extends BaseController implements Initializable {
         shangmaTeamIdValue = "公司";
         shangmaTeamId.setText("公司");
       } else {
-        shangmaTeamIdValue = ((Button)shangmaVBox.getChildren().get(0)).getText();
+        shangmaTeamIdValue = ((Button) shangmaVBox.getChildren().get(0)).getText();
       }
     }
     shangmaService.loadShangmaTable(shangmaTeamIdValue, tableShangma);
@@ -239,8 +270,9 @@ public class SMController extends BaseController implements Initializable {
             shangmaService.loadSMDetailTable(playerId);
             shangmaService.loadSMNextDayTable(playerId);
           }
-        } else
+        } else {
           tableShangmaDetail.setItems(null);
+        }
       }
     });
   }
@@ -248,8 +280,6 @@ public class SMController extends BaseController implements Initializable {
 
   /**
    * 单独设置列居中
-   * 
-   * @param colums
    */
   @SuppressWarnings("unchecked")
   public <T extends Entity> void setColumnCenter(TableColumn<T, ?>... colums) {
@@ -279,7 +309,7 @@ public class SMController extends BaseController implements Initializable {
           return cell;
         }
       };
-      
+
   /**
    * 上码详情表添加双击名称事件
    */
@@ -304,9 +334,9 @@ public class SMController extends BaseController implements Initializable {
 
   /**
    * 解决上码主表行双击事件
-   * 
    */
   private class TableRowControl<T> extends TableRow<T> {
+
     public TableRowControl(TableView<T> tableView) {
       super();
       this.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -323,7 +353,7 @@ public class SMController extends BaseController implements Initializable {
       });
     }
   }
-  
+
   /**
    * 上码搜索(按钮)
    */
@@ -354,9 +384,8 @@ public class SMController extends BaseController implements Initializable {
 
   /**
    * 实时上码开始新的一天由用户自行点击加载次日的数据
-   * 
+   *
    * @time 2018年2月4日
-   * @param event
    */
   public void loadNextDayDataAction(ActionEvent event) {
     shangmaService.loadNextDayDataAction();
@@ -364,9 +393,8 @@ public class SMController extends BaseController implements Initializable {
 
   /**
    * 实时上码新增次日上码
-   * 
+   *
    * @time 2018年2月4日
-   * @param event
    */
   public void addNextDaySMDetailAction(ActionEvent event) {
     shangmaService.addNextDaySMDetailAction();
@@ -374,36 +402,33 @@ public class SMController extends BaseController implements Initializable {
 
   /**
    * 保存实时上码中的团队押金与团队额度修改
-   * 
-   * @param event
    */
   public void saveTeamYajinAndEduAction(ActionEvent event) {
     shangmaService.updateTeamYajinAndEdu();
   }
-  
+
   /**
    * 加载被过滤的团队，进行缓存
    */
   private void loadFilterTeams() {
     String jsonFilterTeams = dbUtil.getValueByKey(FILTER_TEAM_KEY);
-    if(StringUtil.isNotBlank(jsonFilterTeams) && !jsonFilterTeams.equals("{}")) {
-      filterTeams = JSON.parseObject(jsonFilterTeams, new TypeReference<List<String>>() {});
+    if (StringUtil.isNotBlank(jsonFilterTeams) && !jsonFilterTeams.equals("{}")) {
+      filterTeams = JSON.parseObject(jsonFilterTeams, new TypeReference<List<String>>() {
+      });
     }
   }
-  
+
   /**
    * 过滤团队
-   * 
-   * @param event
    */
   @FXML
   public void setFilterTeamsAction(ActionEvent event) {
-    
+
     JFXChipView<String> chipView = new JFXChipView<>();
     chipView.getChips().addAll(filterTeams);
     chipView.getSuggestions().addAll(dataConstants.huishuiMap.keySet());
     chipView.setStyle("-fx-background-color: WHITE;");
-    chipView.clipProperty().addListener( e -> {
+    chipView.clipProperty().addListener(e -> {
       System.out.println(e.toString());
     });
 
@@ -425,17 +450,17 @@ public class SMController extends BaseController implements Initializable {
       // 保存到数据库
       String jsonString = JSON.toJSONString(filterTeams);
       dbUtil.saveOrUpdateOthers(FILTER_TEAM_KEY, jsonString);
-      
+
     });
   }
-  
+
   @FXML
   public void refreshTeamsAction(ActionEvent event) {
     // 刷新团队表（隐藏相应的团队）
     shangmaService.initShangmaButton();
   }
 
-  
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

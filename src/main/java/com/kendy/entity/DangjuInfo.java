@@ -4,48 +4,47 @@ import com.kendy.interfaces.Entity;
 
 import javafx.beans.property.SimpleStringProperty;
 
-public class DangjuInfo implements Entity{
+public class DangjuInfo implements Entity {
 
-	private SimpleStringProperty type = new SimpleStringProperty();//类型
-	private SimpleStringProperty money = new SimpleStringProperty();//金额
-	
-	public DangjuInfo() {
-		super();
-	}
+  private SimpleStringProperty type = new SimpleStringProperty();//类型
+  private SimpleStringProperty money = new SimpleStringProperty();//金额
 
-	public DangjuInfo(String type, String money) {
-		this.type = new SimpleStringProperty(type);
-		this.money = new SimpleStringProperty(money);
-	}
-	
+  public DangjuInfo() {
+    super();
+  }
 
-	public SimpleStringProperty typeProperty() {
-		return this.type;
-	}
-	public String getType() {
-		return this.typeProperty().get();
-	}
-	public void setType(final String type) {
-		this.typeProperty().set(type);
-	}
-	
+  public DangjuInfo(String type, String money) {
+    this.type = new SimpleStringProperty(type);
+    this.money = new SimpleStringProperty(money);
+  }
 
 
-	public SimpleStringProperty moneyProperty() {
-		return this.money;
-	}
-	
+  public SimpleStringProperty typeProperty() {
+    return this.type;
+  }
+
+  public String getType() {
+    return this.typeProperty().get();
+  }
+
+  public void setType(final String type) {
+    this.typeProperty().set(type);
+  }
 
 
-	public String getMoney() {
-		return this.moneyProperty().get();
-	}
-	
+  public SimpleStringProperty moneyProperty() {
+    return this.money;
+  }
 
 
-	public void setMoney(final String money) {
-		this.moneyProperty().set(money);
-	}
+  public String getMoney() {
+    return this.moneyProperty().get();
+  }
+
+
+  public void setMoney(final String money) {
+    this.moneyProperty().set(money);
+  }
 
 
 }

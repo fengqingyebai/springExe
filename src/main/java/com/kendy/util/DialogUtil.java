@@ -21,7 +21,7 @@ import javafx.util.Pair;
 
 /**
  * 自定义的输入对话框
- * 
+ *
  * @author 林泽涛
  * @time 2017年11月19日 上午12:10:35
  */
@@ -31,16 +31,12 @@ public class DialogUtil {
   private TextInputDialog textDialog;
 
 
-
   public DialogUtil() {
     super();
   }
 
   /**
    * 两个输入文字的对话框
-   * 
-   * @param keyText1
-   * @param keyText2
    */
   public DialogUtil(String title, String keyText1, String keyText2) {
 
@@ -100,7 +96,6 @@ public class DialogUtil {
     // ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
     ButtonType loginButtonType = new ButtonType("确定", ButtonData.APPLY);
 
-
     multyDialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
 
     // Create the username and password labels and fields.
@@ -129,8 +124,6 @@ public class DialogUtil {
       grid.add(textFieldArr[row], 1, row);
     }
 
-
-
     // Enable/Disable login button depending on whether a username was entered.
     Node loginButton = multyDialog.getDialogPane().lookupButton(loginButtonType);
 
@@ -155,10 +148,9 @@ public class DialogUtil {
 
   /**
    * 适用于修改窗口
-   * 
-   * @time 2017年12月19日
-   * @param title
+   *
    * @param paramMap 参数Map,最好是linkedHashMap
+   * @time 2017年12月19日
    */
   public void InputMultyDialog(String title, Map<String, String> paramMap) {
 
@@ -203,8 +195,6 @@ public class DialogUtil {
       grid.add(textFieldArr[row], 1, row);
     }
 
-
-
     // Enable/Disable login button depending on whether a username was entered.
     Node loginButton = multyDialog.getDialogPane().lookupButton(loginButtonType);
 
@@ -229,10 +219,8 @@ public class DialogUtil {
 
   /**
    * 下拉框(后面修改和测试)
-   * 
+   *
    * @time 2018年1月21日
-   * @param title
-   * @param paramMap
    */
   public void selectionDialog(String title, Map<String, String> paramMap) {
 
@@ -277,8 +265,6 @@ public class DialogUtil {
       grid.add(textFieldArr[row], 1, row);
     }
 
-
-
     // Enable/Disable login button depending on whether a username was entered.
     Node loginButton = multyDialog.getDialogPane().lookupButton(loginButtonType);
 
@@ -303,8 +289,6 @@ public class DialogUtil {
 
   /**
    * 一个输入文字的对话框
-   * 
-   * @param keyText
    */
   public DialogUtil(String title, String keyText) {
 
@@ -329,7 +313,7 @@ public class DialogUtil {
 
   /**
    * 测试
-   * 
+   *
    * @time 2017年12月19日
    */
   public static void main() {
@@ -340,7 +324,6 @@ public class DialogUtil {
     Optional<Map<String, String>> resultMap = dlg.getMultyResult();
     System.out.println(resultMap.toString());
   }
-
 
 
 }

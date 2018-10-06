@@ -47,11 +47,8 @@ public class AutoDownloadTest {
 
   /**
    * 下载网络文件
-   * 
+   *
    * @time 2018年4月10日
-   * @param url
-   * @param path
-   * @throws Exception
    */
   public static void download(String url, String path) throws Exception {
     long start = System.currentTimeMillis();
@@ -92,10 +89,6 @@ public class AutoDownloadTest {
 
   /**
    * 从输入流中获取字节数组
-   * 
-   * @param inputStream
-   * @return
-   * @throws IOException
    */
   public static byte[] readInputStream(InputStream inputStream) throws IOException {
     byte[] buffer = new byte[1024 * 4];

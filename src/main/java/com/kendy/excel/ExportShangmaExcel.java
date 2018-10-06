@@ -18,7 +18,7 @@ import org.apache.poi.ss.usermodel.CellType;
 
 /**
  * 实时上码导出
- * 
+ *
  * @author 林泽涛
  * @time 2017年12月20日 下午9:02:55
  */
@@ -37,7 +37,7 @@ public class ExportShangmaExcel {
 
   /**
    * 构造方法 传入要导出的数据
-   * 
+   *
    * @param title 标题
    * @param rowName 列名数组
    * @param dataList 数据源
@@ -147,8 +147,9 @@ public class ExportShangmaExcel {
         } catch (IOException e) {
           e.printStackTrace();
         } finally {
-          if (out != null)
+          if (out != null) {
             out.close();
+          }
         }
       }
 

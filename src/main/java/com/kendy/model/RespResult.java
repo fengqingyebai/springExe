@@ -4,10 +4,9 @@ import java.util.List;
 
 /**
  * Experimental : 封装返回数据
- * 
+ *
  * @author 林泽涛
  * @time 2018年4月8日 下午9:42:31
- * @param <T>
  */
 public class RespResult<T> {
 
@@ -39,6 +38,7 @@ public class RespResult<T> {
 
 
   public static class Result<T> {
+
     private String total;
     private List<T> list;
 

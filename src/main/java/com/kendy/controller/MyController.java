@@ -132,7 +132,7 @@ import javafx.util.Pair;
 
 /**
  * 财务软件主界面的组件控制器
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:55:48
  */
@@ -142,7 +142,7 @@ public class MyController extends BaseController implements Initializable {
   @Autowired
   public DBUtil dbUtil;
   @Autowired
-  public CombineIDController combineIDController ;
+  public CombineIDController combineIDController;
   @Autowired
   public SMAutoController smAutoController; // 上码控制类
   @Autowired
@@ -184,190 +184,318 @@ public class MyController extends BaseController implements Initializable {
 
   // 自动导入下一场战绩Excel的缓存队列
   private ArrayBlockingQueue<File> excelQueue = new ArrayBlockingQueue<>(2500);
-  
+
   public MyController() {
     super();
     logger.info("执行MyController构造方法");
   }
-  
-  
+
+
   @PostConstruct
   public void inits() {
     logger.info("@PostConstruct MyController");
 
   }
 
-  @FXML public TextField sysCode; // 系统编码
-  @FXML public TextField membersDir; // 人员名单Excel路径
-  @FXML public TextField huishuiDir; // 回水Excel路径
-  @FXML public TextField preDataDir; // 回水Excel路径
-  @FXML public TextField excelDir; // excel文件夹路径
-  @FXML public Label currentClubId; // 当前俱乐部ID
-  @FXML public TextField teamIdField; // 新增团队ID
-  @FXML public TextField teamNameField; // 新增团队名称
-  @FXML public TextField huishui; // 新增团队回水
-  @FXML public TextField insuranceRate; // 新增保险比例
-  @FXML public TextField gudongInput; // 新增股东名称
-  @FXML public ListView<String> gudongListView; // 所有股东名称
-  @FXML public Label indexLabel;// 第几局
-  @FXML public Label dbConnectionState;// 数据库连接状态
-  @FXML public TextField searchText;//
-  @FXML public Button importHuishuiBtn;
-  @FXML public Button importMembersBtn;
-  @FXML public Button importPreDataBtn;
-  @FXML public Hyperlink delCurrentMoneyBtn;
-  @FXML public TextField combineIdDir;
-  @FXML public RadioButton whiteVersionOld;
-  @FXML public RadioButton whiteVersionNew;
-  @FXML public RadioButton radio_autoTest_yes;
-  @FXML public RadioButton radio_autoTest_no;
-  @FXML public RadioButton radio_rate_0975;
-  @FXML public RadioButton radio_rate_095;
-  @FXML public HBox hbox_autoTestMode;
+  @FXML
+  public TextField sysCode; // 系统编码
+  @FXML
+  public TextField membersDir; // 人员名单Excel路径
+  @FXML
+  public TextField huishuiDir; // 回水Excel路径
+  @FXML
+  public TextField preDataDir; // 回水Excel路径
+  @FXML
+  public TextField excelDir; // excel文件夹路径
+  @FXML
+  public Label currentClubId; // 当前俱乐部ID
+  @FXML
+  public TextField teamIdField; // 新增团队ID
+  @FXML
+  public TextField teamNameField; // 新增团队名称
+  @FXML
+  public TextField huishui; // 新增团队回水
+  @FXML
+  public TextField insuranceRate; // 新增保险比例
+  @FXML
+  public TextField gudongInput; // 新增股东名称
+  @FXML
+  public ListView<String> gudongListView; // 所有股东名称
+  @FXML
+  public Label indexLabel;// 第几局
+  @FXML
+  public Label dbConnectionState;// 数据库连接状态
+  @FXML
+  public TextField searchText;//
+  @FXML
+  public Button importHuishuiBtn;
+  @FXML
+  public Button importMembersBtn;
+  @FXML
+  public Button importPreDataBtn;
+  @FXML
+  public Hyperlink delCurrentMoneyBtn;
+  @FXML
+  public TextField combineIdDir;
+  @FXML
+  public RadioButton whiteVersionOld;
+  @FXML
+  public RadioButton whiteVersionNew;
+  @FXML
+  public RadioButton radio_autoTest_yes;
+  @FXML
+  public RadioButton radio_autoTest_no;
+  @FXML
+  public RadioButton radio_rate_0975;
+  @FXML
+  public RadioButton radio_rate_095;
+  @FXML
+  public HBox hbox_autoTestMode;
 
 
   // =================================================TabPane
-  @FXML public TabPane tabs;
+  @FXML
+  public TabPane tabs;
 
   // =================================================第一个tableView
-  @FXML public TableView<TotalInfo> tableTotalInfo;
+  @FXML
+  public TableView<TotalInfo> tableTotalInfo;
 
-  @FXML public TableColumn<TotalInfo, String> tuan;// 团
-  @FXML public TableColumn<TotalInfo, String> wanjiaId;// ID
-  @FXML public TableColumn<TotalInfo, String> wanjia;// 玩家
-  @FXML public TableColumn<TotalInfo, String> jifen;// 计分
-  @FXML public TableColumn<TotalInfo, String> shishou;// 实收
-  @FXML public TableColumn<TotalInfo, String> baoxian;// 保险
-  @FXML public TableColumn<TotalInfo, String> chuHuishui;// 出回水
-  @FXML public TableColumn<TotalInfo, String> baohui;// 保回
+  @FXML
+  public TableColumn<TotalInfo, String> tuan;// 团
+  @FXML
+  public TableColumn<TotalInfo, String> wanjiaId;// ID
+  @FXML
+  public TableColumn<TotalInfo, String> wanjia;// 玩家
+  @FXML
+  public TableColumn<TotalInfo, String> jifen;// 计分
+  @FXML
+  public TableColumn<TotalInfo, String> shishou;// 实收
+  @FXML
+  public TableColumn<TotalInfo, String> baoxian;// 保险
+  @FXML
+  public TableColumn<TotalInfo, String> chuHuishui;// 出回水
+  @FXML
+  public TableColumn<TotalInfo, String> baohui;// 保回
 
-  @FXML public TableColumn<TotalInfo, String> shuihouxian;// 水后险
-  @FXML public TableColumn<TotalInfo, String> shouHuishui;// 收回水
-  @FXML public TableColumn<TotalInfo, String> heLirun;// 合利润
+  @FXML
+  public TableColumn<TotalInfo, String> shuihouxian;// 水后险
+  @FXML
+  public TableColumn<TotalInfo, String> shouHuishui;// 收回水
+  @FXML
+  public TableColumn<TotalInfo, String> heLirun;// 合利润
 
   // =================================================实时金额表tableView
-  @FXML public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
+  @FXML
+  public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
 
-  @FXML public TableColumn<CurrentMoneyInfo, String> cmSuperIdSum;// 总和
-  @FXML public TableColumn<CurrentMoneyInfo, String> mingzi;// 名字
-  @FXML public TableColumn<CurrentMoneyInfo, String> shishiJine;// 实时金额
-  @FXML public TableColumn<CurrentMoneyInfo, String> cmiEdu;// 实时金额
+  @FXML
+  public TableColumn<CurrentMoneyInfo, String> cmSuperIdSum;// 总和
+  @FXML
+  public TableColumn<CurrentMoneyInfo, String> mingzi;// 名字
+  @FXML
+  public TableColumn<CurrentMoneyInfo, String> shishiJine;// 实时金额
+  @FXML
+  public TableColumn<CurrentMoneyInfo, String> cmiEdu;// 实时金额
 
   // =================================================资金表tableView
-  @FXML public TableView<ZijinInfo> tableZijin;
+  @FXML
+  public TableView<ZijinInfo> tableZijin;
 
-  @FXML public TableColumn<ZijinInfo, String> zijinType;
-  @FXML public TableColumn<ZijinInfo, String> zijinAccount;
+  @FXML
+  public TableColumn<ZijinInfo, String> zijinType;
+  @FXML
+  public TableColumn<ZijinInfo, String> zijinAccount;
   // =================================================利润表tableView
-  @FXML public TableView<ProfitInfo> tableProfit;
+  @FXML
+  public TableView<ProfitInfo> tableProfit;
 
-  @FXML public TableColumn<ProfitInfo, String> profitType;
-  @FXML public TableColumn<ProfitInfo, String> profitAccount;
+  @FXML
+  public TableColumn<ProfitInfo, String> profitType;
+  @FXML
+  public TableColumn<ProfitInfo, String> profitAccount;
   // =================================================开销表tableView
-  @FXML public TableView<KaixiaoInfo> tableKaixiao;
+  @FXML
+  public TableView<KaixiaoInfo> tableKaixiao;
 
-  @FXML public TableColumn<KaixiaoInfo, String> kaixiaoType;
-  @FXML public TableColumn<KaixiaoInfo, String> kaixiaoMoney;
+  @FXML
+  public TableColumn<KaixiaoInfo, String> kaixiaoType;
+  @FXML
+  public TableColumn<KaixiaoInfo, String> kaixiaoMoney;
   // =================================================当局表tableView
-  @FXML public TableView<DangjuInfo> tableDangju;
+  @FXML
+  public TableView<DangjuInfo> tableDangju;
 
-  @FXML public TableColumn<DangjuInfo, String> type;
-  @FXML public TableColumn<DangjuInfo, String> money;
+  @FXML
+  public TableColumn<DangjuInfo, String> type;
+  @FXML
+  public TableColumn<DangjuInfo, String> money;
   // =================================================交收表tableView
-  @FXML public TableView<JiaoshouInfo> tableJiaoshou;
+  @FXML
+  public TableView<JiaoshouInfo> tableJiaoshou;
 
-  @FXML public TableColumn<JiaoshouInfo, String> jiaoshouType;
-  @FXML public TableColumn<JiaoshouInfo, String> jiaoshouMoney;
+  @FXML
+  public TableColumn<JiaoshouInfo, String> jiaoshouType;
+  @FXML
+  public TableColumn<JiaoshouInfo, String> jiaoshouMoney;
   // =================================================交收表tableView
-  @FXML public TableView<PingzhangInfo> tablePingzhang;
+  @FXML
+  public TableView<PingzhangInfo> tablePingzhang;
 
-  @FXML public TableColumn<PingzhangInfo, String> pingzhangType;
-  @FXML public TableColumn<PingzhangInfo, String> pingzhangMoney;
+  @FXML
+  public TableColumn<PingzhangInfo, String> pingzhangType;
+  @FXML
+  public TableColumn<PingzhangInfo, String> pingzhangMoney;
 
   // =================================================牌局表tableView
-  @FXML public TableView<WanjiaInfo> tablePaiju;
+  @FXML
+  public TableView<WanjiaInfo> tablePaiju;
 
-  @FXML public TableColumn<WanjiaInfo, String> paiju;// 名字
-  @FXML public TableColumn<WanjiaInfo, String> wanjiaName;// 实时金额
-  @FXML public TableColumn<WanjiaInfo, String> zhangji;// 实时金额
-  @FXML public TableColumn<WanjiaInfo, String> yicunJifen;// 实时金额
-  @FXML public TableColumn<WanjiaInfo, String> heji;// 实时金额
-  @FXML public TableColumn<WanjiaInfo, String> pay;// 支付
-  @FXML public TableColumn<WanjiaInfo, String> copy;// 复制
+  @FXML
+  public TableColumn<WanjiaInfo, String> paiju;// 名字
+  @FXML
+  public TableColumn<WanjiaInfo, String> wanjiaName;// 实时金额
+  @FXML
+  public TableColumn<WanjiaInfo, String> zhangji;// 实时金额
+  @FXML
+  public TableColumn<WanjiaInfo, String> yicunJifen;// 实时金额
+  @FXML
+  public TableColumn<WanjiaInfo, String> heji;// 实时金额
+  @FXML
+  public TableColumn<WanjiaInfo, String> pay;// 支付
+  @FXML
+  public TableColumn<WanjiaInfo, String> copy;// 复制
 
   // =================================================牌局表tableView
-  @FXML public TableView<TeamInfo> tableTeam;
+  @FXML
+  public TableView<TeamInfo> tableTeam;
 
-  @FXML public TableColumn<TeamInfo, String> teamID;// 团ID
-  @FXML public TableColumn<TeamInfo, String> teamZJ;// 团战绩
-  @FXML public TableColumn<TeamInfo, String> teamHS;// 团回水
-  @FXML public TableColumn<TeamInfo, String> teamBS;// 团保险
-  @FXML public TableColumn<TeamInfo, String> teamSum;// 行总和
-  @FXML public TableColumn<TeamInfo, String> teamJiesuan;// 结算按钮
+  @FXML
+  public TableColumn<TeamInfo, String> teamID;// 团ID
+  @FXML
+  public TableColumn<TeamInfo, String> teamZJ;// 团战绩
+  @FXML
+  public TableColumn<TeamInfo, String> teamHS;// 团回水
+  @FXML
+  public TableColumn<TeamInfo, String> teamBS;// 团保险
+  @FXML
+  public TableColumn<TeamInfo, String> teamSum;// 行总和
+  @FXML
+  public TableColumn<TeamInfo, String> teamJiesuan;// 结算按钮
 
 
   // ===========================================联盟对帐
-  @FXML public Button lianmengBtn;
-  @FXML public Label LMLabel;
+  @FXML
+  public Button lianmengBtn;
+  @FXML
+  public Label LMLabel;
 
   // ===========================================分页控件
-  @FXML public TextField pageInput;
+  @FXML
+  public TextField pageInput;
 
-  @FXML public Button refreshBtn;
-  @FXML public Button lockDangjuBtn;
-  @FXML public Button openKaixiaoDialogBtn;
-  @FXML public Button importZJBtn;
-  @FXML public Button delKaixiaoBtn;
-  @FXML public HBox importZJHBox;
+  @FXML
+  public Button refreshBtn;
+  @FXML
+  public Button lockDangjuBtn;
+  @FXML
+  public Button openKaixiaoDialogBtn;
+  @FXML
+  public Button importZJBtn;
+  @FXML
+  public Button delKaixiaoBtn;
+  @FXML
+  public HBox importZJHBox;
 
-  @FXML public Hyperlink addCurrentMoneyLink;
-  @FXML public Hyperlink delCurrentMoneyLink;
-  @FXML public Label lockedLabel;
-  @FXML public Label softDateLabel; //软件时间
+  @FXML
+  public Hyperlink addCurrentMoneyLink;
+  @FXML
+  public Hyperlink delCurrentMoneyLink;
+  @FXML
+  public Label lockedLabel;
+  @FXML
+  public Label softDateLabel; //软件时间
   // ===============================================================汇总Tab
-  @FXML public TableView<ZonghuiInfo> tableZonghui;
-  @FXML public TableColumn<ZonghuiInfo, String> zonghuiTabelId;
-  @FXML public TableColumn<ZonghuiInfo, String> zonghuiFuwufei;
-  @FXML public TableColumn<ZonghuiInfo, String> zonghuiBaoxian;
-  @FXML public TableColumn<ZonghuiInfo, String> zonghuiHuishui;
-  @FXML public TableColumn<ZonghuiInfo, String> zonghuiHuiBao;
-  @FXML public ListView<String> juTypeListView;// 局类型ListView
+  @FXML
+  public TableView<ZonghuiInfo> tableZonghui;
+  @FXML
+  public TableColumn<ZonghuiInfo, String> zonghuiTabelId;
+  @FXML
+  public TableColumn<ZonghuiInfo, String> zonghuiFuwufei;
+  @FXML
+  public TableColumn<ZonghuiInfo, String> zonghuiBaoxian;
+  @FXML
+  public TableColumn<ZonghuiInfo, String> zonghuiHuishui;
+  @FXML
+  public TableColumn<ZonghuiInfo, String> zonghuiHuiBao;
+  @FXML
+  public ListView<String> juTypeListView;// 局类型ListView
 
-  @FXML public TableView<DangtianHuizongInfo> tableDangtianHuizong;
-  @FXML public TableColumn<DangtianHuizongInfo, String> huizongType;
-  @FXML public TableColumn<DangtianHuizongInfo, String> huizongMoney;
+  @FXML
+  public TableView<DangtianHuizongInfo> tableDangtianHuizong;
+  @FXML
+  public TableColumn<DangtianHuizongInfo, String> huizongType;
+  @FXML
+  public TableColumn<DangtianHuizongInfo, String> huizongMoney;
 
-  @FXML public TableView<ZonghuiKaixiaoInfo> tableZonghuiKaixiao;
-  @FXML public TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoType;
-  @FXML public TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoMoney;
+  @FXML
+  public TableView<ZonghuiKaixiaoInfo> tableZonghuiKaixiao;
+  @FXML
+  public TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoType;
+  @FXML
+  public TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoMoney;
   // ===============================================================会员查询Tab
-  @FXML public TableView<MemberZJInfo> tableMemberZJ;
-  @FXML public TableColumn<MemberZJInfo, String> memberJu;
-  @FXML public TableColumn<MemberZJInfo, String> memberZJ;
-  @FXML public Label memberDateStr;// 会员当天战绩的时间
-  @FXML public Label memberPlayerId;// 会员当天战绩的会员ID
-  @FXML public Label memberPlayerName;// 会员当天战绩的会员名称
-  @FXML public Label memberSumOfZJ;// 会员当天战绩的战绩总和
-  @FXML public Label memberTotalZJ;// 会员历史战绩的战绩总和
-  @FXML public TextField memberSearchName;// 会员名称
-  @FXML public ListView<String> memberListView;// 模糊搜索的人名列表
+  @FXML
+  public TableView<MemberZJInfo> tableMemberZJ;
+  @FXML
+  public TableColumn<MemberZJInfo, String> memberJu;
+  @FXML
+  public TableColumn<MemberZJInfo, String> memberZJ;
+  @FXML
+  public Label memberDateStr;// 会员当天战绩的时间
+  @FXML
+  public Label memberPlayerId;// 会员当天战绩的会员ID
+  @FXML
+  public Label memberPlayerName;// 会员当天战绩的会员名称
+  @FXML
+  public Label memberSumOfZJ;// 会员当天战绩的战绩总和
+  @FXML
+  public Label memberTotalZJ;// 会员历史战绩的战绩总和
+  @FXML
+  public TextField memberSearchName;// 会员名称
+  @FXML
+  public ListView<String> memberListView;// 模糊搜索的人名列表
 
   // ===============================================================外债
-  @FXML public TableView<WaizhaiInfo> tableWaizhai;
-  @FXML public TableColumn<WaizhaiInfo, String> waizhaiType;
-  @FXML public TableColumn<WaizhaiInfo, String> waizhaiMoney;
-  @FXML public HBox waizhaiHBox;// 里面包含多个表
+  @FXML
+  public TableView<WaizhaiInfo> tableWaizhai;
+  @FXML
+  public TableColumn<WaizhaiInfo, String> waizhaiType;
+  @FXML
+  public TableColumn<WaizhaiInfo, String> waizhaiMoney;
+  @FXML
+  public HBox waizhaiHBox;// 里面包含多个表
   // ============================================================================积分查询
-  @FXML public TableView<JifenInfo> tableJifen;
-  @FXML public TableColumn<JifenInfo, String> jfRank;
-  @FXML public TableColumn<JifenInfo, String> jfPlayerName;
-  @FXML public TableColumn<JifenInfo, String> jfValue;
-  @FXML public DatePicker jfStartTime;
-  @FXML public DatePicker jfEndTime;
-  @FXML public ComboBox<String> jfTeamIDCombox;// 团队ID下拉框
-  @FXML public TextField jifenInput;// 团队积分值
-  @FXML public TextField jifenRankLimit;// 前50名
-  @FXML public JFXCheckBox isCheckTeamProfitBox;// 勾选框：是否核算团队利润
+  @FXML
+  public TableView<JifenInfo> tableJifen;
+  @FXML
+  public TableColumn<JifenInfo, String> jfRank;
+  @FXML
+  public TableColumn<JifenInfo, String> jfPlayerName;
+  @FXML
+  public TableColumn<JifenInfo, String> jfValue;
+  @FXML
+  public DatePicker jfStartTime;
+  @FXML
+  public DatePicker jfEndTime;
+  @FXML
+  public ComboBox<String> jfTeamIDCombox;// 团队ID下拉框
+  @FXML
+  public TextField jifenInput;// 团队积分值
+  @FXML
+  public TextField jifenRankLimit;// 前50名
+  @FXML
+  public JFXCheckBox isCheckTeamProfitBox;// 勾选框：是否核算团队利润
 
   // 保存到other数据表的key
   private final String KEY_GU_DONG = KeyEnum.GU_DONG.getKeyName();
@@ -380,9 +508,7 @@ public class MyController extends BaseController implements Initializable {
 
 
   /**
-   * 节点加载完后需要进行的一些初始化操作 
-   * Initializes the controller class. 
-   * This method is automatically called after
+   * 节点加载完后需要进行的一些初始化操作 Initializes the controller class. This method is automatically called after
    * the fxml file has been loaded.
    */
   @Override
@@ -490,16 +616,16 @@ public class MyController extends BaseController implements Initializable {
 
     // 加载各个tab页面，备注：此方法应放在tabsAction之前
     loadSubTabs();
-    
-    if( SpringFxmlLoader.getContext() == null ) {
+
+    if (SpringFxmlLoader.getContext() == null) {
       logger.error("SpringFxmlLoader.getContext() is null");
-    }else {
+    } else {
       logger.info("SpringFxmlLoader.getContext() is not null >>>>>");
-    String[] beanDefinitionNames = SpringFxmlLoader.getContext().getBeanDefinitionNames();
-    for( String bean : beanDefinitionNames) {
-      logger.info(bean);
-    }
-    logger.info("以上为spring容器中加载的bean\n\n");
+      String[] beanDefinitionNames = SpringFxmlLoader.getContext().getBeanDefinitionNames();
+      for (String bean : beanDefinitionNames) {
+        logger.info(bean);
+      }
+      logger.info("以上为spring容器中加载的bean\n\n");
     }
 
   }
@@ -538,8 +664,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 单独设置列居中
-   * 
-   * @param colums
    */
   @SuppressWarnings("unchecked")
   public <T extends Entity> void setColumnCenter(TableColumn<T, ?>... colums) {
@@ -554,7 +678,7 @@ public class MyController extends BaseController implements Initializable {
    */
   private void loadSubTabs() {
     ApplicationContext context = SpringFxmlLoader.getContext();
-    logger.info("before: context is " + (context != null ? " not null" : "null" ));
+    logger.info("before: context is " + (context != null ? " not null" : "null"));
     addSubTab("代理查询", "team_proxy_tab_frame.fxml");
     addSubTab("实时上码系统", "shangma_tab_frame.fxml");
     addSubTab("联盟对账", "LM_Tab_Fram.fxml");
@@ -567,10 +691,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 加载子单个Tab
-   * 
+   *
    * @time 2018年7月5日
-   * @param tabName
-   * @param frameName
    */
   private void addSubTab(String tabName, String frameName) {
     try {
@@ -588,7 +710,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 初始化白名单版本
-   * 
+   *
    * @time 2018年1月4日
    */
   private void initWhiteVersion() {
@@ -613,9 +735,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 获取版本类型 0：旧版本 1：新版本
-   * 
+   *
    * @time 2018年1月5日
-   * @return
    */
   private int getVersionType() {
     return whiteVersionOld.isSelected() ? 0 : 1;
@@ -623,7 +744,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 启动测试模式
-   * 
+   *
    * @time 2017年11月11日
    */
   private void initAutoTestMode() {
@@ -648,7 +769,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 界面回水比例
-   * 
+   *
    * @time 2018年5月18日
    */
   private void initHSRate() {
@@ -676,7 +797,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * tabs切换事件
-   * 
+   *
    * @time 2017年11月12日
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -728,13 +849,14 @@ public class MyController extends BaseController implements Initializable {
       }
     });
   }
-  
+
   /**
    * 新增银行
    */
   public void addBankAction(ActionEvent event) {
     moneyService.addBank();
   }
+
   /**
    * 减少银行
    */
@@ -745,7 +867,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * kendy:绑定数据域
-   * 
+   *
    * @param colums TableColumn 可变参数
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -763,11 +885,9 @@ public class MyController extends BaseController implements Initializable {
   }
 
   // ==================================== 打开文件选择 Excel  ====================================
+
   /**
    * 导入excel文件选择器
-   * 
-   * @param textField
-   * @param title
    */
   public File openBasicExcelDialog(TextField textField, String title) {
     String rootPathName = !StringUtil.isBlank(dataConstants.Root_Dir) ? dataConstants.Root_Dir
@@ -776,7 +896,7 @@ public class MyController extends BaseController implements Initializable {
     fileChooser.setTitle(Constants.TITLE + ": " + title);// 标题
     fileChooser.setInitialDirectory(new File(rootPathName));// 初始化根目标
     fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("excel", "*.xls?"));
-    File file=null;
+    File file = null;
     try {
       file = fileChooser.showOpenDialog(Main.primaryStage0);
     } catch (Exception e) {
@@ -797,28 +917,32 @@ public class MyController extends BaseController implements Initializable {
   public void openMembersExcelAction(ActionEvent event) {
     openBasicExcelDialog(membersDir, "选择人员名单Excel");
   }
+
   /**
    * 打开战绩excel
    */
   public void openZJExcelAction(ActionEvent event) {
     File file = openBasicExcelDialog(excelDir, "请选择战绩Excel");
-    if(file != null) {
-     String tableId = FileUtil.getTableId(file.getAbsolutePath());
-     indexLabel.setText(tableId);
+    if (file != null) {
+      String tableId = FileUtil.getTableId(file.getAbsolutePath());
+      indexLabel.setText(tableId);
     }
   }
+
   /**
    * 打开回水比例excel
    */
   public void openHuishuiExcelAction(ActionEvent event) {
     openBasicExcelDialog(huishuiDir, "请选择回水比例Excel");
   }
+
   /**
    * 打开昨日留底excel
    */
   public void openPreDataExcelAction(ActionEvent event) {
     openBasicExcelDialog(preDataDir, "请选择回水比例Excel");
   }
+
   /**
    * 打开合并ID的模板xcel
    */
@@ -827,6 +951,7 @@ public class MyController extends BaseController implements Initializable {
   }
 
   // ======================= 导入 Excel =============================
+
   /**
    * 导入人员名单文件
    */
@@ -910,7 +1035,7 @@ public class MyController extends BaseController implements Initializable {
   public void importZJExcelAction(ActionEvent even) {
     String excelFilePath = getExcelPath();
     String LMName = "";
-    if(StringUtil.isBlank(excelFilePath)) {
+    if (StringUtil.isBlank(excelFilePath)) {
       ShowUtil.show("亲，你还未导入白名单呢！");
       return;
     }
@@ -918,8 +1043,8 @@ public class MyController extends BaseController implements Initializable {
     String tableId = FileUtil.getTableId(excelFilePath);
     if (StringUtil.isNotBlank(excelFilePath)) {
       File file = new File(excelFilePath);
-      if(!file.exists()) {
-        ShowUtil.show("检测到该Excel文件不存在，可能已经锁定后被转移了（桌号"+tableId+")");
+      if (!file.exists()) {
+        ShowUtil.show("检测到该Excel文件不存在，可能已经锁定后被转移了（桌号" + tableId + ")");
         return;
       }
       if (StringUtil.isAnyBlank(dataConstants.Date_Str, getSoftDate())) {
@@ -1058,10 +1183,10 @@ public class MyController extends BaseController implements Initializable {
           excelReaderUtil.readCombineIdRecord(new File(combineIdPath));
 
       // 与现有的合并ID缓存进行求并集（更新缓存）
-      for(CombineID combineId : importedCombinIds) {
+      for (CombineID combineId : importedCombinIds) {
         String _parentId = combineId.getParentId();
         Set<String> _subIdSet = combineId.getSubIds();
-        
+
         Set<String> subIdSet = dataConstants.Combine_Super_Id_Map.get(_parentId);
         if (subIdSet == null) {// 缓存中没有此父节点，可直接入库
           // 更新缓存
@@ -1165,9 +1290,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 获取股东列表
-   * 
+   *
    * @time 2018年2月21日
-   * @return
    */
   public ObservableList<String> getGudongList() {
     return FXCollections.observableArrayList(dataConstants.gudongList);
@@ -1176,7 +1300,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 打开对话框
-   * 
+   *
    * @param path fxml名称
    * @param title 对话框标题
    * @param windowName 对话框关闭时的名称
@@ -1216,120 +1340,126 @@ public class MyController extends BaseController implements Initializable {
   public void openNewPlayerDialogAction(ActionEvent event) {
     openBasedDialog("add_new_player_frame.fxml", "新增人员名单", Constants.ADD_NEWPALYER_FRAME);
   }
+
   /**
    * 打开增加团队回水对话框
    */
   public void addHuishuiAction(ActionEvent event) {
     openBasedDialog("add_huishui_frame.fxml", "新增团队回水", Constants.ADD_TEAM_HUISHUI_FRAME);
   }
+
   /**
    * 打开增加实时开销对话框
    */
   public void openKaixiaoDialogAction(ActionEvent event) {
     openBasedDialog("add_kaixiao_fram.fxml", "新增开销", Constants.ADD_KAIXIAO_FRAME);
   }
+
   /**
    * 打开删除人员对话框
    */
   public void openDelMemberDialogAction(ActionEvent event) {
     openBasedDialog("del_member_framesss.fxml", "人员删除或修改", Constants.DEL_MEMBER_FRAME);
   }
+
   /**
    * 打开新增实时金额对话框
    */
   public void openAddCurrentMoneyAction(ActionEvent event) {
     openBasedDialog("add_current_money_frame4.fxml", "新增实时金额", Constants.ADD_CURRENT_MONEY_FRAME);
   }
+
   /**
    * 打开新增合并ID对话框
    */
   public void opentCombineIDDialogAction(ActionEvent event) {
     openBasedDialog("combine_player_id_framess.fxml", "合并ID", Constants.COMBINE_ID_FRAME);
   }
+
   /**
    * 牌局表列中添加支付按钮
    */
   Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>> cellFactory = //
-  new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
-    @SuppressWarnings("rawtypes")
-    @Override
-    public TableCell call(final TableColumn<WanjiaInfo, String> param) {
-      final TableCell<WanjiaInfo, String> cell = new TableCell<WanjiaInfo, String>() {
-
-        final Button btn = new Button("支付");
-
+      new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
+        @SuppressWarnings("rawtypes")
         @Override
-        public void updateItem(String item, boolean empty) {
-          super.updateItem(item, empty);
-          if (empty) {
-            setGraphic(null);
-            setText(null);
-          } else {
-            btn.setOnAction(event -> {
-              WanjiaInfo wanjiaInfo = getTableView().getItems().get(getIndex());
-              if ("1".equals(wanjiaInfo.getHasPayed())) {
-                ShowUtil.show("抱歉，已支付过！！");
-                return;
-              }
-              if (getTableRow() != null) {
-                try {
-                  // //支付时修改玩家实时金额 或 添加 实时金额
-                  moneyService.updateOrAdd_SSJE_after_Pay(wanjiaInfo);
-                  btn.setText("已支付");
-                  wanjiaInfo.setHasPayed("1");
-                  ShowUtil.show(
-                      "已将" + wanjiaInfo.getWanjiaName() + "的实时金额修改为   " + wanjiaInfo.getHeji(),
-                      2);
-                  // moneyInfo.setShishiJine(wj.getHeji());//设置新的实时金额的值
-                  moneyService.flush_SSJE_table();// 刷新实时金额表
+        public TableCell call(final TableColumn<WanjiaInfo, String> param) {
+          final TableCell<WanjiaInfo, String> cell = new TableCell<WanjiaInfo, String>() {
 
-                  // 点击支付时更改SM_Detail_Map中的支付状态
-                  shangmaService.update_SM_Detail_Map_byPlayerIdAndPaiju(
-                      wanjiaInfo.getWanjiaId(), indexLabel.getText());
-                } catch (Exception e) {
-                  ErrorUtil.err("支付失败", e);
-                }
-              }
-            });
-            WanjiaInfo wj = getTableView().getItems().get(getIndex());
-            // 解决不时本应支付确显示成已支付的bug
-            if (!"1".equals(wj.getHasPayed())) {
-              btn.setText("支付");
-            } else {
-              btn.setText("已支付");
-            }
-            setGraphic(btn);// 小林：这一行解决了支付按钮消失的问题
-            // 在此处增加是否要显示该按钮(如果玩家从属于某个非空或非公司的团队，则无需显示按钮)
-            String tempTeamId = wj.getHasPayed();// 这个tempTeamId是hasPayed的内容,这里没有公司的人
-            if (!StringUtil.isBlank(tempTeamId) && !"0".equals(tempTeamId)) {
-              // 获取团队信息
-              Huishui hs = dataConstants.huishuiMap.get(tempTeamId);
-              // 情况一：有从属团队的玩家，再分两种情况
-              if (hs != null) {
-                // A:若团队战绩要管理，需要显示支付按钮
-                if ("是".equals(hs.getZjManaged())) {
-                  // log.debug("====teamId为不为空，要显示，要战绩管理：是");
-                  setGraphic(btn);
-                  // B:若团队战绩不要管理，无须显示支付按钮
+            final Button btn = new Button("支付");
+
+            @Override
+            public void updateItem(String item, boolean empty) {
+              super.updateItem(item, empty);
+              if (empty) {
+                setGraphic(null);
+                setText(null);
+              } else {
+                btn.setOnAction(event -> {
+                  WanjiaInfo wanjiaInfo = getTableView().getItems().get(getIndex());
+                  if ("1".equals(wanjiaInfo.getHasPayed())) {
+                    ShowUtil.show("抱歉，已支付过！！");
+                    return;
+                  }
+                  if (getTableRow() != null) {
+                    try {
+                      // //支付时修改玩家实时金额 或 添加 实时金额
+                      moneyService.updateOrAdd_SSJE_after_Pay(wanjiaInfo);
+                      btn.setText("已支付");
+                      wanjiaInfo.setHasPayed("1");
+                      ShowUtil.show(
+                          "已将" + wanjiaInfo.getWanjiaName() + "的实时金额修改为   " + wanjiaInfo.getHeji(),
+                          2);
+                      // moneyInfo.setShishiJine(wj.getHeji());//设置新的实时金额的值
+                      moneyService.flush_SSJE_table();// 刷新实时金额表
+
+                      // 点击支付时更改SM_Detail_Map中的支付状态
+                      shangmaService.update_SM_Detail_Map_byPlayerIdAndPaiju(
+                          wanjiaInfo.getWanjiaId(), indexLabel.getText());
+                    } catch (Exception e) {
+                      ErrorUtil.err("支付失败", e);
+                    }
+                  }
+                });
+                WanjiaInfo wj = getTableView().getItems().get(getIndex());
+                // 解决不时本应支付确显示成已支付的bug
+                if (!"1".equals(wj.getHasPayed())) {
+                  btn.setText("支付");
                 } else {
-                  // log.debug("hsPayed:====================hs为空："+hs.getZjManaged());
-                  setGraphic(null);
+                  btn.setText("已支付");
                 }
+                setGraphic(btn);// 小林：这一行解决了支付按钮消失的问题
+                // 在此处增加是否要显示该按钮(如果玩家从属于某个非空或非公司的团队，则无需显示按钮)
+                String tempTeamId = wj.getHasPayed();// 这个tempTeamId是hasPayed的内容,这里没有公司的人
+                if (!StringUtil.isBlank(tempTeamId) && !"0".equals(tempTeamId)) {
+                  // 获取团队信息
+                  Huishui hs = dataConstants.huishuiMap.get(tempTeamId);
+                  // 情况一：有从属团队的玩家，再分两种情况
+                  if (hs != null) {
+                    // A:若团队战绩要管理，需要显示支付按钮
+                    if ("是".equals(hs.getZjManaged())) {
+                      // log.debug("====teamId为不为空，要显示，要战绩管理：是");
+                      setGraphic(btn);
+                      // B:若团队战绩不要管理，无须显示支付按钮
+                    } else {
+                      // log.debug("hsPayed:====================hs为空："+hs.getZjManaged());
+                      setGraphic(null);
+                    }
+                  }
+                } else {
+                  // log.debug("====teamId为空或为0，要显示+"+dataConstants.membersMap.get(wj.getWanjiaId()).getTeamName());
+                  // 情况二：对于没有从从属的团队的玩家或者团队是公司的玩家，一定需要需要显示支付按钮
+                  setGraphic(btn);
+                }
+                // setGraphic(btn);
+                setText(null);
               }
-            } else {
-              // log.debug("====teamId为空或为0，要显示+"+dataConstants.membersMap.get(wj.getWanjiaId()).getTeamName());
-              // 情况二：对于没有从从属的团队的玩家或者团队是公司的玩家，一定需要需要显示支付按钮
-              setGraphic(btn);
             }
-            // setGraphic(btn);
-            setText(null);
-          }
+          };
+          return cell;
         }
       };
-      return cell;
-    }
-  };
-  
+
   /**
    * 在列中添加按钮
    */
@@ -1414,13 +1544,15 @@ public class MyController extends BaseController implements Initializable {
                       double totalSum = dataConstants.SumMap.get(key);
                       dataConstants.SumMap.put(key, Double
                           .valueOf(moneyService.digit0(totalSum - NumUtil.getNum(rowTeamSum))));
-                    } ;
+                    }
+                    ;
                     // 缓存中清空之前所加的团队回水，以便下次团队累计重新从0开始
                     String teamID = teamInfo.getTeamID();
                     //dataConstants.Team_Huishui_Map.remove(teamID);
                     //结算时设置相关gameRecord记录为已结算
                     setIsJiesuaned(teamID);
-                    System.out.println("==================结算删除：" + teamID + ", dataConstant :" + dataConstants.Team_Huishui_Map.get(teamID));
+                    System.out.println("==================结算删除：" + teamID + ", dataConstant :"
+                        + dataConstants.Team_Huishui_Map.get(teamID));
                     dataConstants.Team_Info_Pre_Map.remove(teamInfo.getTeamID());
 
                     // 2018-01-04 在实时金额栏中新增该团队减去团队服务费的记录
@@ -1440,24 +1572,22 @@ public class MyController extends BaseController implements Initializable {
           return cell;
         }
       };
-      
+
   /**
    * 结算时设置相关gameRecord记录为已结算
    * <P>
    * 解决中途继续后不能平帐的问题
-   * 
-   * @param teamId
    */
   public void setIsJiesuaned(String teamId) {
     dataConstants.Team_Huishui_Map.remove(teamId);
     String clubId = getClubId();
-    lmController.currentRecordList.stream().forEach(e->{
-      if(StringUtils.equals(e.getClubId(), clubId) 
-          && StringUtils.equals(e.getTeamId(), teamId)){
+    lmController.currentRecordList.stream().forEach(e -> {
+      if (StringUtils.equals(e.getClubId(), clubId)
+          && StringUtils.equals(e.getTeamId(), teamId)) {
         e.setIsJiesuaned("1");
       }
     });
-    
+
     dbUtil.updateRecordJiesuan(getSoftDate(), clubId, teamId);
   }
 
@@ -1469,9 +1599,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 点击结算按钮后往实时金额新增一条团队记录（减去该团队服务费）
-   * 
+   *
    * @time 2018年1月4日
-   * @param teamInfo
    */
   public void add2SSJE(TeamInfo teamInfo) {
     Platform.runLater(new Runnable() { // 更新JavaFX的主线程的代码放在此处
@@ -1518,9 +1647,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 利润表修改总团队服务费(累积该团队的服务费)
-   * 
+   *
    * @time 2018年1月5日
-   * @param teamFWF
    */
   public void add2AllTeamFWF_from_tableProfit(TableView<ProfitInfo> table, Double teamFWF) {
     try {
@@ -1533,8 +1661,6 @@ public class MyController extends BaseController implements Initializable {
       e.printStackTrace();
     }
   }
-
-
 
 
   /**
@@ -1569,7 +1695,8 @@ public class MyController extends BaseController implements Initializable {
   Callback<TableColumn<CurrentMoneyInfo, String>, TableCell<CurrentMoneyInfo, String>> sumMoneyCellFactory =
       new Callback<TableColumn<CurrentMoneyInfo, String>, TableCell<CurrentMoneyInfo, String>>() {
         @Override
-        public TableCell<CurrentMoneyInfo, String> call(TableColumn<CurrentMoneyInfo, String> param) {
+        public TableCell<CurrentMoneyInfo, String> call(
+            TableColumn<CurrentMoneyInfo, String> param) {
 
           TextFieldTableCell<CurrentMoneyInfo, String> cell = new TextFieldTableCell<>();
           cell.setEditable(false);// 不让其可编辑
@@ -1579,9 +1706,10 @@ public class MyController extends BaseController implements Initializable {
               CurrentMoneyInfo item = tableCurrentMoneyInfo.getItems().get(cell.getIndex());
               boolean isBlankRow = StringUtils
                   .isAllBlank(item.getMingzi(), item.getShishiJine(), item.getWanjiaId());
-              boolean notSuperId = !dataConstants.Combine_Super_Id_Map.containsKey(item.getWanjiaId());
+              boolean notSuperId = !dataConstants.Combine_Super_Id_Map
+                  .containsKey(item.getWanjiaId());
 
-              if ( notSuperId ) {
+              if (notSuperId) {
                 return;
               }
               // 双击执行的代码
@@ -1595,9 +1723,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 复制玩家信息到剪切板，并转成图片发到QQ
-   * 
+   *
    * @param wj 玩家信息
-   * @throws Exception
    */
   private void clip2QQ(WanjiaInfo wj) throws Exception {
     String code = sysCode.getText();
@@ -1610,14 +1737,16 @@ public class MyController extends BaseController implements Initializable {
     //通知功能
     try {
       ClipBoardUtil.setClipboardImage((Image) img);
-      Platform.runLater(()->{
+      Platform.runLater(() -> {
         Notifications
-            .create().title("截图成功").darkStyle().text(wj.getWanjiaName() + System.lineSeparator()+ wj.getPaiju())
+            .create().title("截图成功").darkStyle()
+            .text(wj.getWanjiaName() + System.lineSeparator() + wj.getPaiju())
             .showInformation();
       });
     } catch (Exception e) {
-      Platform.runLater(()->{
-        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_RIGHT).showError();
+      Platform.runLater(() -> {
+        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_RIGHT)
+            .showError();
       });
       e.printStackTrace();
     }
@@ -1625,7 +1754,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 更新开销表
-   * 
    */
   public void updateKaixiaoTable(KaixiaoInfo info) {
     // 获取ObserableList
@@ -1636,7 +1764,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 更新实时金额表
-   * 
    */
   public void updateCurrentMoneyTable(Player player, String SSJE) {
     // 获取ObserableList
@@ -1648,7 +1775,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 刷新同步,即平帐按钮
-   * 
    */
   public void refreshAction(ActionEvent event) {
     moneyService.refreshSumPane(tableTeam, tableZijin, tableKaixiao, tableProfit,
@@ -1737,12 +1863,14 @@ public class MyController extends BaseController implements Initializable {
           Map<String, String> lastLockedDataMap = dataConstants.getLockedDataMap();// 这里没有场次信息的数据了
           String json_all_locked_data = JSON.toJSONString(lastLockedDataMap);
           int ju_size1 = dataConstants.Index_Table_Id_Map.size();
-          
+
           int ju_size2 = dataConstants.Paiju_Index.get() - 1;
-          Map<String, String> lastDataDetailMap = dataConstants.All_Locked_Data_Map.get(ju_size2 + "");
+          Map<String, String> lastDataDetailMap = dataConstants.All_Locked_Data_Map
+              .get(ju_size2 + "");
           String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
-          
-          dbUtil.saveLastLockedData(ju_size1, json_all_locked_data, ju_size2, lastDataDetailJson);// IO耗时长
+
+          dbUtil.saveLastLockedData(ju_size1, json_all_locked_data, ju_size2,
+              lastDataDetailJson);// IO耗时长
         });
 
         // 保存当前Excel记录到数据库
@@ -1753,7 +1881,6 @@ public class MyController extends BaseController implements Initializable {
         }
         lmController.refreshClubList();
         lmController.checkOverEdu(currentLMName);// 检查俱乐部额度
-
 
         // 当局已结算的团队服务费之和 要置为0
         current_Jiesuaned_team_fwf_sum = 0d;
@@ -1769,21 +1896,21 @@ public class MyController extends BaseController implements Initializable {
       ShowUtil.show("平帐失败，不能锁定！！！", 2);
     }
   }
-  
+
   /**
    * 获取软件时间
    */
   public String getSoftDate() {
     return softDateLabel.getText();
   }
-  
+
   /**
    * 获取Excel路径
    */
   public String getExcelPath() {
     return excelDir.getText();
   }
-  
+
   /**
    * 获取当前俱乐部
    */
@@ -1794,7 +1921,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 转移Excel
-   * 
+   *
    * @time 2018年4月21日
    */
   private void moveExcel() {
@@ -1806,20 +1933,20 @@ public class MyController extends BaseController implements Initializable {
     //白名单路径或白名单文件为空时不进行转移
     String resourceFilePath = getExcelPath();
     File srcFile = new File(resourceFilePath);
-    if(StringUtil.isBlank(getExcelPath()) || !srcFile.exists()) {
+    if (StringUtil.isBlank(getExcelPath()) || !srcFile.exists()) {
       logger.info("白名单路径 为空或者不存在，锁定时不进行Excel转移！");
       return;
     }
     try {
       String fileName = FileUtil.getFileName(resourceFilePath);
       String targetFilePath =
-          PathUtil.getUserDeskPath() + getSoftDate() + "已锁定" + File.separator +  fileName;
+          PathUtil.getUserDeskPath() + getSoftDate() + "已锁定" + File.separator + fileName;
       FileUtils.moveFile(srcFile, new File(targetFilePath));
     } catch (Exception e) {
       ErrorUtil.err("转移Excel失败", e);
     }
   }
-  
+
 
   // 缓存到总团队回水中(不会从中减少)
   public void setDangjuTeamInfo() {
@@ -1848,8 +1975,9 @@ public class MyController extends BaseController implements Initializable {
   public String getChangciTotalProfit() {
     String totalProfit = "0";
     int paijuIndex = dataConstants.Index_Table_Id_Map.size();
-    if (paijuIndex == 0)
+    if (paijuIndex == 0) {
       return totalProfit;
+    }
     Map<String, String> lastLockedMap = dataConstants.All_Locked_Data_Map.get(paijuIndex + "");
     if (lastLockedMap != null) {
       totalProfit = lastLockedMap.get("利润总和");
@@ -1875,7 +2003,6 @@ public class MyController extends BaseController implements Initializable {
     moneyService.setTotalNumOnTable(tableDangju, 0d);
     moneyService.setTotalNumOnTable(tableJiaoshou, 0d);
     moneyService.setTotalNumOnTable(tablePingzhang, 0d);
-
 
     // 清空缓存中的数据
     cleardataConstantsCache();
@@ -1913,8 +2040,9 @@ public class MyController extends BaseController implements Initializable {
 
   // 第一页按钮
   public void pageFirstAction(ActionEvent event) {
-    if (isHalfImport())
+    if (isHalfImport()) {
       return;
+    }
 
     pageInput.setText("1");
     // 调用
@@ -1923,8 +2051,9 @@ public class MyController extends BaseController implements Initializable {
 
   // 前一页按钮
   public void pagePreAction(ActionEvent event) {
-    if (isHalfImport())
+    if (isHalfImport()) {
       return;
+    }
 
     String page = pageInput.getText();
     int pageIndex = getPageIndex(page, false);
@@ -1937,8 +2066,9 @@ public class MyController extends BaseController implements Initializable {
 
   // 下一页按钮
   public void pageNextAction(ActionEvent event) {
-    if (isHalfImport())
+    if (isHalfImport()) {
       return;
+    }
 
     String page = pageInput.getText();
     int pageIndex = getPageIndex(page, true);
@@ -1952,8 +2082,9 @@ public class MyController extends BaseController implements Initializable {
 
   // 最后一页页按钮
   public void pageLastAction(ActionEvent event) {
-    if (isHalfImport())
+    if (isHalfImport()) {
       return;
+    }
 
     pageInput.setText(dataConstants.Paiju_Index.get() + "");
     // 调用
@@ -1983,9 +2114,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 判断是否只导到一半就撤销（通过页码）
-   * 
+   *
    * @time 2017年10月17日
-   * @return
    */
   private boolean isHalfImport() {
     if (dataConstants.Dangju_Team_Huishui_List.size() > 0) {
@@ -2023,9 +2153,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 根据页码查询
-   * 
+   *
    * @time 2017年10月17日
-   * @param pageIndex
    */
   public void getResultByPage(int pageIndex) {
     try {
@@ -2138,7 +2267,8 @@ public class MyController extends BaseController implements Initializable {
       Double.valueOf(lm);
       return lm;
     } catch (Exception e) {
-      Map<String, String> map = JSON.parseObject(lm, new TypeReference<Map<String, String>>() {});
+      Map<String, String> map = JSON.parseObject(lm, new TypeReference<Map<String, String>>() {
+      });
       return moneyService.nvl(map.get("联盟对帐"), "0");
     }
   }
@@ -2211,9 +2341,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 抽取出撤销的共同代码
-   * 
+   *
    * @time 2017年10月17日
-   * @throws Exception
    */
   public void cancelDangju() throws Exception {
     // 加载前一场数据
@@ -2245,9 +2374,11 @@ public class MyController extends BaseController implements Initializable {
       Map<String, String> maps = dbUtil.getLastLockedData();
       if (maps != null && maps.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(maps.get("Team_Huishui_Map"),
-            new TypeReference<Map<String, List<GameRecord>>>() {});
+            new TypeReference<Map<String, List<GameRecord>>>() {
+            });
         dataConstants.Total_Team_Huishui_Map = JSON.parseObject(maps.get("Total_Team_Huishui_Map"),
-            new TypeReference<Map<String, List<GameRecord>>>() {});
+            new TypeReference<Map<String, List<GameRecord>>>() {
+            });
       }
       // 初始化当局回水
       dataConstants.Dangju_Team_Huishui_List = new LinkedList<>();
@@ -2325,7 +2456,7 @@ public class MyController extends BaseController implements Initializable {
     KaixiaoInfo info = tableKaixiao.getSelectionModel().getSelectedItem();
     if (info != null) {
       String content = "实时开销名称：" + info.getKaixiaoType() + " 金额：" + info.getKaixiaoMoney()
-      + "\r\n你确定要删除所选中的开销记录吗?";
+          + "\r\n你确定要删除所选中的开销记录吗?";
       if (AlertUtil.confirm(content)) {
         tableKaixiao.getItems().remove(kaixiaoIndex);
         tableKaixiao.refresh();
@@ -2368,9 +2499,9 @@ public class MyController extends BaseController implements Initializable {
    */
   private boolean handleNewDayTimeOK() {
     String maxGameRecordTimeStr = dbUtil.getMaxGameRecordTime();
-    String newDay = 
-        StringUtil.isBlank(maxGameRecordTimeStr) ? LocalDate.now().toString() : 
-          LocalDate.parse(maxGameRecordTimeStr).plusDays(1).toString();
+    String newDay =
+        StringUtil.isBlank(maxGameRecordTimeStr) ? LocalDate.now().toString() :
+            LocalDate.parse(maxGameRecordTimeStr).plusDays(1).toString();
     TextInputDialog textDialog = new TextInputDialog(newDay);
     textDialog.setTitle("提示-昨天的数据库最后时间为：" + StringUtil.nvl(maxGameRecordTimeStr, "无"));
     textDialog.setHeaderText(null);
@@ -2407,7 +2538,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void openTimeInputAction(ActionEvent event) {
     if (AlertUtil.confirm("即将初始化所有配置项，点击确定开始操作新一天报表!")) {
-      
+
       // 从数据库中判断是否符合从中途继续条件
       if (2 == dbUtil.newStaticOrContinue()) {
         ShowUtil.show("开始新一天的统计条件不满足，请点击中途继续按钮！");
@@ -2417,12 +2548,12 @@ public class MyController extends BaseController implements Initializable {
       if (!handleNewDayTimeOK()) {
         return;
       }
-      
-     // excelDir.setText("C:\\Users\\kendy\\Desktop\\2018-07-26已锁定\\已锁定-1532541147231-07月26号-战绩导出-24-09.xls");
+
+      // excelDir.setText("C:\\Users\\kendy\\Desktop\\2018-07-26已锁定\\已锁定-1532541147231-07月26号-战绩导出-24-09.xls");
 
       // 清空所有缓存数据
       dataConstants.clearAllData();
-      
+
       dataConstants.Date_Str = getSoftDate();// 此行代码不能删，因为上行代码已将其时间删除
       // 加载必要的原始数据（人员和回水）
       dataConstants.initMetaData();
@@ -2456,12 +2587,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 把渲染表格的数据加载出来，要判断是否2017-01-01，分成两步
-   * 
-   * @param table
-   * @param tableZijin
-   * @param tableProfit
-   * @param tableKaixiao
-   * @param LMLabel
    */
   public void fillTables(TableView<CurrentMoneyInfo> table, TableView<ZijinInfo> tableZijin,
       TableView<ProfitInfo> tableProfit, TableView<KaixiaoInfo> tableKaixiao, Label LMLabel) {
@@ -2479,7 +2604,8 @@ public class MyController extends BaseController implements Initializable {
       Map<String, String> map = dbUtil.getLastLockedData();
       if (map != null && map.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"),
-            new TypeReference<Map<String, List<GameRecord>>>() {});
+            new TypeReference<Map<String, List<GameRecord>>>() {
+            });
       }
     }
   }
@@ -2536,7 +2662,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void endStaticAction(ActionEvent event) {
     if (AlertUtil.confirm("即将结束今天所有操作并将数据保存到数据库，确定？")) {
-      
+
       if (dataConstants.All_Locked_Data_Map.isEmpty()) {
         ShowUtil.show("今日无锁定数据，不能归档！请检查");
         return;
@@ -2559,7 +2685,7 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 结束一天的统计并进行归档
-   * 
+   *
    * @time 2018年7月7日
    */
   public void endOneDayStaticAndSave() {
@@ -2608,9 +2734,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 清空数据库
-   * 
+   *
    * @time 2017年10月17日
-   * @param event
    */
   public void clearAllDataAction(ActionEvent event) {
     if (AlertUtil.confirm("即将清空桌费、已结算、已锁定的历史数据，是否继续?")) {
@@ -2625,8 +2750,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 查询查询积分排名
-   * 
-   * @param event
    */
   public void jfQueryAciton(ActionEvent event) {
     String clubId = getClubId();
@@ -2634,18 +2757,21 @@ public class MyController extends BaseController implements Initializable {
     jifenService.jifenQuery(clubId, tableJifen, jfStartTime, jfEndTime, jifenInput, jifenRankLimit,
         jfTeamIDCombox, isCheckTeamProfit);
   }
+
   /**
    * 导出人员表
    */
   public void exportMembersExcelAction(ActionEvent event) {
     moneyService.exportMemberExcel();
   }
+
   /**
    * 导出回水表
    */
   public void exportHuishuiExcelAction(ActionEvent event) {
     moneyService.exportTeamhsExcel();
   }
+
   /**
    * 导出合并ID表
    */
@@ -2656,9 +2782,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 导出实时金额表
-   * 
+   *
    * @time 2017年10月28日
-   * @param event
    */
   public void exportSSJEAction(ActionEvent event) {
     try {
@@ -2671,12 +2796,11 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 刷新下一场的缓存按钮
-   * 
+   *
    * @time 2017年11月10日
-   * @param event
    */
   public void refreshNextExcelAction(ActionEvent event) {
-    
+
     if (AlertUtil.confirm("你确定要强制刷新自动导入下一场的缓存操作吗?")) {
 
       // 获取导入的值
@@ -2702,9 +2826,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 导入下一场（测试使用）
-   * 
+   *
    * @time 2017年11月10日
-   * @param event
    */
   public void importNextZJExcelAction(ActionEvent event) {
     if (excelQueue.size() > 0) {
@@ -2721,12 +2844,10 @@ public class MyController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 删除团队ID 备注：此方法的界面按钮已经删除，但后台代码仍保留着（以备后期要重新开发）
-   * 
+   *
    * @time 2017年11月14日
-   * @param event
    */
   public void delTeamAction(ActionEvent event) {
 
@@ -2766,9 +2887,11 @@ public class MyController extends BaseController implements Initializable {
 
         // 以下清除代码
         // A 清空代理查询中的团队下拉框
-        String selected_team = teamProxyController.teamIDCombox.getSelectionModel().getSelectedItem();
+        String selected_team = teamProxyController.teamIDCombox.getSelectionModel()
+            .getSelectedItem();
         teamProxyController.teamIDCombox.getItems().remove(teamId);
-        if (teamId.equals(selected_team) && teamProxyController.teamIDCombox.getItems().size() > 0) {
+        if (teamId.equals(selected_team)
+            && teamProxyController.teamIDCombox.getItems().size() > 0) {
           teamProxyController.teamIDCombox.getSelectionModel().select(0);
         }
         // B 积分查询中的团队下拉框
@@ -2790,9 +2913,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 修改团队回水
-   * 
+   *
    * @time 2017年11月17日
-   * @param event
    */
   public void updateTeamHsRateAction(ActionEvent event) {
 
@@ -2837,12 +2959,10 @@ public class MyController extends BaseController implements Initializable {
   }
 
 
-
   /**
    * 修改团队保险比例
-   * 
+   *
    * @time 2018年2月8日
-   * @param event
    */
   public void updateTeamHsBaoxianRateAction(ActionEvent event) {
 
@@ -2889,8 +3009,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 修改团队股东
-   * 
-   * @param event
    */
   public void updateTeamHsGudongAction(ActionEvent event) {
 
@@ -2928,9 +3046,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 检测合并ID
-   * 
+   *
    * @time 2017年12月2日
-   * @param even
    */
   public void checkCombineIdAction(ActionEvent even) {
     List<String> resList = combineIDController.checkCombineId();
@@ -2969,9 +3086,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 实时上码开始新的一天由用户自行点击加载次日的数据
-   * 
+   *
    * @time 2018年2月4日
-   * @param event
    */
   public void loadNextDayDataAction(ActionEvent event) {
     shangmaService.loadNextDayDataAction();
@@ -2979,9 +3095,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 实时上码新增次日上码
-   * 
+   *
    * @time 2018年2月4日
-   * @param event
    */
   public void addNextDaySMDetailAction(ActionEvent event) {
     shangmaService.addNextDaySMDetailAction();
@@ -2989,8 +3104,6 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 保存实时上码中的团队押金与团队额度修改
-   * 
-   * @param event
    */
   @FXML
   public void saveTeamYajinAndEduAction(ActionEvent event) {
@@ -2999,9 +3112,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 导入空白表
-   * 
+   *
    * @time 2018年2月25日
-   * @param event
    */
   @FXML
   public void importBlankExcelAction(ActionEvent event) {
@@ -3019,11 +3131,10 @@ public class MyController extends BaseController implements Initializable {
     ShowUtil.show("导入空白战绩文件成功", 2);
   }
 
-
   /*******************************************************************************************
-   * 
+   *
    * 0.95与0.975切换版本
-   * 
+   *
    ********************************************************************************************/
 
   /**
@@ -3032,10 +3143,8 @@ public class MyController extends BaseController implements Initializable {
    * 1：出回水 2：收回水, 此时teamId非必要参数
    * <p>
    * 备注：0.95版本：如果原始战绩为正数，则出回水和收回水都是0
-   * 
+   *
    * @time 2018年5月19日
-   * @param yszj
-   * @return
    */
   public String getHuishuiByYSZJ(String yszj, String teamId, int type) {
     try {
@@ -3060,12 +3169,8 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 根据原始战绩获取回水 (共用)
-   * 
+   *
    * @time 2018年5月19日
-   * @param yszj
-   * @param teamId
-   * @param type
-   * @return
    */
   private String getByYSZJ(String yszj, String teamId, int type) {
     double zhanji = Double.parseDouble(yszj);
@@ -3076,7 +3181,7 @@ public class MyController extends BaseController implements Initializable {
           .digit1(Math.abs(zhanji) * (1 - Constants.CURRENT_HS_RATE) + "");
     }
   }
-  
+
   @Override
   public Class<?> getSubClass() {
     return getClass();

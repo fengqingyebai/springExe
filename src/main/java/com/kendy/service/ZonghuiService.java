@@ -28,15 +28,15 @@ import javafx.scene.control.TableView;
 
 /**
  * 总汇信息服务类
- * 
+ *
  * @author 林泽涛
  * @time 2018年1月1日 下午10:50:55
  */
 @Component
-public class ZonghuiService{
+public class ZonghuiService {
 
   private Logger log = Logger.getLogger(ZonghuiService.class);
-  
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired
@@ -44,10 +44,10 @@ public class ZonghuiService{
   @Autowired
   public MoneyService moneyService; // 
   @Autowired
-  public BaseController baseController ;
+  public BaseController baseController;
   @Autowired
-  public MyController myController ;
-  
+  public MyController myController;
+
 
   public DecimalFormat df = new DecimalFormat("#.00");
 
@@ -74,7 +74,8 @@ public class ZonghuiService{
         String jsonString = valueMap.get("当局");
         // [{"money":"37.1","type":"服务费"},{"money":"295.4","type":"保险"},{"money":"-18.0","type":"团队回水"},{"money":"-0.0","type":"团队回保"}]
         List<DangjuInfo> dangjuList =
-            JSON.parseObject(jsonString, new TypeReference<List<DangjuInfo>>() {});
+            JSON.parseObject(jsonString, new TypeReference<List<DangjuInfo>>() {
+            });
         fuwufei = dangjuList.get(0).getMoney();// 服务费
         baoxiao = dangjuList.get(1).getMoney();// 保险
         teamHuishui = dangjuList.get(2).getMoney();// 团队回水
@@ -105,14 +106,12 @@ public class ZonghuiService{
           new DangtianHuizongInfo("总开销", sumOfKaixiao),
           new DangtianHuizongInfo("总团队服务费", NumUtil.digit0(teamSumFWF)));
 
-
       ShowUtil.show("刷新成功", 1);
     } else {
       ShowUtil.show("查无数据", 1);
     }
     tableZonghui.setItems(obList);
     tableZonghui.refresh();
-
 
     // 当天汇总表复值
     tableDangtianHuizong.setItems(obSumList);
@@ -122,10 +121,9 @@ public class ZonghuiService{
 
   /**
    * 获取场次信息中利润表的总团队服务费
-   * 
-   * @time 2018年1月9日
+   *
    * @param tableProfit 利润表
-   * @return
+   * @time 2018年1月9日
    */
   public Double getTeamSumFWF(TableView<ProfitInfo> tableProfit) {
     Double teamSumFWF = 0d;
@@ -144,7 +142,8 @@ public class ZonghuiService{
     if (lockedMap.size() > 0) {
       Map<String, String> map = lockedMap.get(dataConstants.Index_Table_Id_Map.size() + "");
       List<KaixiaoInfo> KaixiaoInfoList = JSON.parseObject(moneyService.getJsonString(map, "实时开销"),
-          new TypeReference<List<KaixiaoInfo>>() {});
+          new TypeReference<List<KaixiaoInfo>>() {
+          });
       for (KaixiaoInfo infos : KaixiaoInfoList) {
         obList.add(new ZonghuiKaixiaoInfo(infos.getKaixiaoType(), infos.getKaixiaoMoney()));
       }
@@ -161,7 +160,7 @@ public class ZonghuiService{
    * <P>
    * 昨日留底总团队服务费与所有总团队服务费的差 = 当天汇总中的总团队服务费
    * </P>
-   * 
+   *
    * @time 2018年2月7日
    */
   @SuppressWarnings("unchecked")
@@ -172,7 +171,8 @@ public class ZonghuiService{
     if (StringUtil.isBlank(profit)) {
       profitList = Collections.EMPTY_LIST;
     } else {
-      profitList = JSON.parseObject(profit, new TypeReference<List<ProfitInfo>>() {});
+      profitList = JSON.parseObject(profit, new TypeReference<List<ProfitInfo>>() {
+      });
     }
     String yestoday = profitList.stream().filter(info -> "总团队服务费".equals(info.getProfitType()))
         .map(info -> info.getProfitAccount()).findFirst().orElse("0");

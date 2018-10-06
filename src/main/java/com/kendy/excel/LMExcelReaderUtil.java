@@ -2,7 +2,7 @@ package com.kendy.excel;
 
 /**
  * 联盟对帐的Excel工具类
- * 
+ *
  * @author 小林
  * @time 2017年11月23日 下午10:41:35
  */
@@ -14,7 +14,7 @@ public class LMExcelReaderUtil {
 
   /**
    * 战绩导入到小工具（旧版本） 备注：此功能小胖已经砍掉了，以下300多行代码不用了，坑爹的小胖
-   * 
+   *
    * @time 2017年11月23日
    * @param file
    * @return
@@ -102,7 +102,7 @@ public class LMExcelReaderUtil {
 
   /**
    * 战绩导入到小工具（新版本）
-   * 
+   *
    * @time 2018年1月10日
    * @param file
    * @return

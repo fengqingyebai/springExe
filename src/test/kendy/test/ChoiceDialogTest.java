@@ -17,16 +17,15 @@ public class ChoiceDialogTest extends Application {
     // set title for the stage
     stage.setTitle("creating choice dialog");
 
-
     // create a tile pane
     TilePane tilePane = new TilePane();
-    
+
     tilePane.setHgap(8);
     tilePane.setPrefColumns(4);
     for (int i = 0; i < 20; i++) {
-      Button button = new Button(i+"");
+      Button button = new Button(i + "");
       final int index = i;
-      button.setOnAction(e->{
+      button.setOnAction(e -> {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("提示");
         alert.setHeaderText(null);
@@ -34,21 +33,18 @@ public class ChoiceDialogTest extends Application {
         alert.setGraphic(new ImageView("images/ok.png"));
         alert.show();
       });
-      
-      
+
       tilePane.getChildren().add(button);
-      
+
     }
-    
-    
 
     Button b = new Button("click");
     String days[] = {"联盟1", "联盟2", "联盟3"};
     ChoiceDialog<String> dialog = new ChoiceDialog<>(days[0], days);
-    b.setOnAction(e->{
+    b.setOnAction(e -> {
       dialog.show();
     });
-    
+
     dialog.setHeaderText(null);
     dialog.setGraphic(null);
 
