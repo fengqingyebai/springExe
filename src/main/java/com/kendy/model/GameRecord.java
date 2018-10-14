@@ -47,6 +47,11 @@ public class GameRecord extends BasicRecord {
    */
   private String level;
 
+  /*
+   * 是否已经清空过 0：未清空 1：已清空
+   */
+  private String isCleared = "0";
+
 
   /**
    *
@@ -177,5 +182,11 @@ public class GameRecord extends BasicRecord {
     this.personCount = personCount;
   }
 
+  public String getIsCleared() {
+    return isCleared;
+  }
 
+  public void setIsCleared(String isCleared) {
+    this.isCleared = isCleared;
+  }
 }

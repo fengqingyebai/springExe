@@ -152,6 +152,8 @@ public class MyController extends BaseController implements Initializable {
   @Autowired
   public BankFlowController bankFlowController; // 银行流水控制类
   @Autowired
+  public StaticController staticController; // 银行流水控制类
+  @Autowired
   public GDController gdController; // 股东控制类
   @Autowired
   public LMController lmController; // 联盟控制类
@@ -687,6 +689,7 @@ public class MyController extends BaseController implements Initializable {
     addSubTab("托管工具", "TG_toolaa.fxml");
     addSubTab("自动上码配置", "SM_Autos.fxml");
     addSubTab("银行流水", "bank_flow_frame.fxml");
+    addSubTab("历史统计", "history_static_tab_frame.fxml");
   }
 
   /**
@@ -844,6 +847,9 @@ public class MyController extends BaseController implements Initializable {
         }
         if ("银行流水".equals(tab.getText().trim())) {
           bankFlowController.refresh();
+        }
+        if ("历史统计".equals(tab.getText().trim())) {
+          staticController.refresh();
         }
 
       }

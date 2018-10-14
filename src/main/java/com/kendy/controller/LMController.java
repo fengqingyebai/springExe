@@ -743,7 +743,7 @@ public class LMController extends BaseController implements Initializable {
   private void refresh_eachClubList() {
 
     String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
-    if (!StringUtil.isBlank(maxRecordTime)) {
+    if (StringUtil.isNotBlank(maxRecordTime)) {
       List<GameRecord> list = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
       // 处理从数据库返回的结果为Map
       // 即把List<Record>转为Map<String,List<Record>>

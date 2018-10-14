@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.scene.*?>
+<?import javafx.embed.swing.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.paint.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.StaticController">
+    <children>
+       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="1296.0">
+          <children>
+             <Label layoutX="86.0" layoutY="319.0" prefHeight="24.0" prefWidth="156.0" />
+             <TableView fx:id="tableTeamStatic" layoutX="33.0" layoutY="62.0" prefHeight="761.0" prefWidth="602.0">
+                <columns>
+                   <TableColumn fx:id="lmName" prefWidth="79.0" text="所属联盟" />
+                   <TableColumn fx:id="teamId" minWidth="0.0" prefWidth="49.0" text="团队ID" />
+                   <TableColumn fx:id="staticTime" minWidth="0.0" prefWidth="88.0" text="开始统计时间" />
+                  <TableColumn fx:id="sumZJ" minWidth="0.0" prefWidth="77.0" text="总战绩" />
+                  <TableColumn fx:id="sumChuhuishui" minWidth="0.0" prefWidth="87.0" text="总回水" />
+                  <TableColumn fx:id="sumHuibao" minWidth="0.0" prefWidth="82.0" text="总回保" />
+                  <TableColumn fx:id="sumPerson" minWidth="0.0" prefWidth="57.0" text="总人数" />
+                  <TableColumn fx:id="sumProfit" minWidth="0.0" prefWidth="71.0" text="总输赢" />
+                </columns>
+             </TableView>
+            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="21.0" onAction="#clearTeamStaticAction" ripplerFill="#09a40e" text="清空所选团队记录" textFill="#4d12c4db">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </JFXButton>
+            <JFXButton buttonType="RAISED" layoutX="179.0" layoutY="21.0" onAction="#exportTeamStaticAction" ripplerFill="#09a40e" text="导出团队历史汇总Excel" textFill="#4d12c4db">
+               <font>
+                  <Font size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </JFXButton>
+          </children>
+       </AnchorPane>
+    </children>
+ </AnchorPane>

@@ -1,6 +1,31 @@
 package com.kendy.db;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.kendy.entity.Club;
+import com.kendy.entity.ClubBankModel;
+import com.kendy.entity.ClubZhuofei;
+import com.kendy.entity.Huishui;
+import com.kendy.entity.JifenInfo;
+import com.kendy.entity.KaixiaoInfo;
+import com.kendy.entity.Player;
+import com.kendy.entity.ShangmaNextday;
+import com.kendy.entity.TGCommentInfo;
+import com.kendy.entity.TGCompanyModel;
+import com.kendy.entity.TGKaixiaoInfo;
+import com.kendy.entity.TGLirunInfo;
+import com.kendy.entity.TGTeamModel;
+import com.kendy.entity.TeamStaticInfo;
+import com.kendy.entity.TotalInfo;
+import com.kendy.model.BankFlowModel;
+import com.kendy.model.GameRecord;
+import com.kendy.util.CollectUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
+import com.kendy.util.TimeUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,35 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.kendy.constant.DataConstans;
-import com.kendy.entity.Club;
-import com.kendy.entity.ClubBankModel;
-import com.kendy.entity.ClubZhuofei;
-import com.kendy.entity.Huishui;
-import com.kendy.entity.JifenInfo;
-import com.kendy.entity.KaixiaoInfo;
-import com.kendy.entity.Player;
-import com.kendy.entity.ShangmaNextday;
-import com.kendy.entity.TGCommentInfo;
-import com.kendy.entity.TGCompanyModel;
-import com.kendy.entity.TGKaixiaoInfo;
-import com.kendy.entity.TGLirunInfo;
-import com.kendy.entity.TGTeamModel;
-import com.kendy.model.BankFlowModel;
-import com.kendy.model.GameRecord;
-import com.kendy.util.CollectUtil;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
-import com.kendy.util.TimeUtil;
 
 
 /**
@@ -2053,7 +2055,7 @@ public class DBUtil {
       String sql = "delete from tg_kaixiao ";
       ps = con.prepareStatement(sql);
       ps.execute();
-    } catch (SQLException e) {
+    } catch (Exception e) {
       ErrorUtil.err("删除所有的托管开销失败", e);
     } finally {
       close(con, ps);
@@ -2649,7 +2651,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql;
-      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, record.getSoftDate());
       ps.setString(2, record.getClubId());
@@ -2670,6 +2672,7 @@ public class DBUtil {
       ps.setString(17, record.getIsJiesuaned());
       ps.setString(18, record.getLevel());
       ps.setString(19, record.getSumHandsCount());
+      ps.setString(20, record.getIsCleared());
       ps.execute();
     } catch (SQLException e) {
       throw new Exception("添加战绩记录失败", e);
@@ -2788,10 +2791,11 @@ public class DBUtil {
       record.setIsJiesuaned(rs.getString(17));
       record.setLevel(rs.getString(18));
       record.setSumHandsCount(rs.getString(19));
+      record.setIsCleared(rs.getString(20));
       // 单独设置团队ID和俱乐部名称
-      record.setPlayerName(rs.getString(20));
-      record.setTeamId(StringUtil.nvl(rs.getString(21), "")); // 可能关联不到该人员
-      record.setClubName(rs.getString(22));
+      record.setPlayerName(rs.getString(21));
+      record.setTeamId(StringUtil.nvl(rs.getString(22), "")); // 可能关联不到该人员
+      record.setClubName(rs.getString(23));
       list.add(record);
     }
     return list;
@@ -2889,7 +2893,6 @@ public class DBUtil {
     return list;
   }
 
-
   /**
    * 获取已锁定的战绩记录中最大的时间
    *
@@ -2912,6 +2915,130 @@ public class DBUtil {
     }
     return maxRecordTime;
   }
+
+
+  /**
+   * 获取某俱乐部下的团队统计数据
+   */
+  public List<TeamStaticInfo> getStaticRecordsByClub(String clubId) {
+    return getStaticRecords(clubId, null);
+  }
+
+  /**
+   * 获取某团队统计数据
+   */
+  public List<TeamStaticInfo> getStaticRecordsByTeam(String clubId, String teamId) {
+    return getStaticRecords(clubId, teamId);
+  }
+
+  private List<TeamStaticInfo> getStaticRecords(String clubId, String teamId){
+    List<TeamStaticInfo> list = new ArrayList<>();
+    try {
+      con = DBConnection.getConnection();
+      String baseSql = "SELECT r.lmType, m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE r.isCleared = '0' and r.clubId = '" + clubId + "' ";
+      String sql = null;
+      if(StringUtils.isBlank(teamId)){
+        sql = baseSql + " GROUP BY m.teamId ORDER BY sumProfit DESC";
+      }else{
+        sql = baseSql + " And m.teamId = '"+teamId+"' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
+      }
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        TeamStaticInfo info = new TeamStaticInfo();
+        info.setLmName(rs.getString(1));
+        info.setTeamId(rs.getString(2));
+        info.setSumZJ(rs.getString(3));
+        info.setSumChuhuishui(rs.getString(4));
+        info.setSumHuibao(rs.getString(5));
+        info.setSumPerson(rs.getString(6));
+        info.setSumProfit(rs.getString(7));
+        info.setStaticTime(rs.getString(8));
+        list.add(info);
+      }
+    } catch (Exception e) {
+      ErrorUtil.err("获取团队统计数据失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return list;
+  }
+
+
+
+  public List<TotalInfo> getStaticDetailRecords(String clubId, String teamId, String softTime){
+    List<TotalInfo> finalList = new ArrayList<>();
+    try {
+      List<GameRecord> list = new ArrayList<>();
+      con = DBConnection.getConnection();
+      String sql =
+          GAME_RECORD_SQL + " where  r.clubId = ? and m.teamId = ? and r.soft_time =  ? ";
+      ps = con.prepareStatement(sql);
+      ps.setString(1, clubId);
+      ps.setString(2, teamId);
+       ps.setString(3, softTime);
+      ResultSet rs = ps.executeQuery();
+      list = getGameRecordResult(rs);
+      finalList = list.stream().map(r -> {
+        TotalInfo info = new TotalInfo();
+        info.setTuan(r.getTeamId());
+        info.setWanjiaId(r.getPlayerId());
+        info.setWanjia(r.getPlayerName());
+        info.setJifen(r.getYszj());
+        info.setShishou(r.getShishou());
+        info.setShouHuishui(r.getShouHuishui());
+        info.setChuHuishui(r.getChuHuishui());
+        info.setShuihouxian(r.getShuihouxian());
+        info.setBaohui(r.getHuiBao());
+        info.setBaoxian(r.getSinegleInsurance()); // 待查看
+        info.setHeLirun(r.getHeLirun());
+
+        return info;
+      }).collect(Collectors.toList());
+    } catch (Exception e) {
+      ErrorUtil.err("获取当天历史记录失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return finalList;
+  }
+
+
+  // 清空团队的记录，只是操作标志位
+  public int clearTeamGameRecord(String clubId, String teamId) {
+    int i = 0;
+    try {
+      loger.info("清空团队的记录，俱乐部是：{}, 团队是：{}", clubId, teamId);
+      con = DBConnection.getConnection();
+      String sql;
+      sql = "update game_record r LEFT JOIN members m on r.playerId = m.playerId  set r.isCleared = '1'  where r.clubId = '"+clubId+"' and  m.teamId = '"+teamId+"'";
+      ps = con.prepareStatement(sql);
+      i = ps.executeUpdate();
+    } catch (SQLException e) {
+      ErrorUtil.err("清空团队的记录失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return i;
+  }
+
+
+
+  /**
+   * 获取软件时间的月日字符串
+   * <p>
+   * 如把2018-10-14转为10月14日
+   * @param softTime
+   * @return
+   */
+  private String handleTime(String softTime){
+    if(StringUtil.isNotBlank(softTime) && softTime.contains("-")){
+      String[] timeArr = softTime.split("-");
+      softTime = Integer.valueOf(timeArr[1]) + "月" + Integer.valueOf(timeArr[2]) + "号";
+    }
+    return softTime;
+  }
+
 
 
 }

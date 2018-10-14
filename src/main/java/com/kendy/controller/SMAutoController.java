@@ -550,7 +550,6 @@ public class SMAutoController extends BaseController implements Initializable {
    * 本类核心 ：添加上码到软件中，同时发送后台请求
    *
    * @param isTodaySM 是否今日上码
-   * @param passCheck 是否审核通过
    * @param paijuString 第几局
    * @param buyStack 上码值
    * @param userUuid 后台用户ID

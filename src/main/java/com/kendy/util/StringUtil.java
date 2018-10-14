@@ -1,5 +1,7 @@
 package com.kendy.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 字符串处理类
  *
@@ -14,6 +16,15 @@ public class StringUtil {
 
   public static boolean isNotBlank(String str) {
     return !isBlank(str);
+  }
+
+  /**
+   * 是否为负数
+   * @param numString
+   * @return
+   */
+  public static boolean isNegativeNumber(String numString){
+    return StringUtils.startsWith(numString, "-") && !StringUtils.equals(numString,"-0.0");
   }
 
   // 模拟Oracle的nvl函数

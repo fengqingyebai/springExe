@@ -61,45 +61,9 @@ public class AutoDownloadZJExcelService {
 
     FileUtils.copyURLToFile(new URL(url), new File(path));
 
-//    File file = null;
-//    HttpURLConnection httpCon = null;
-//    URLConnection con = null;
-//    URL urlObj = null;
-//    file = new File(path);
-//    if (!file.exists()) {
-//      file.createNewFile();
-//    }
-//    urlObj = new URL(url);
-//    con = urlObj.openConnection();
-//    httpCon = (HttpURLConnection) con;
-//    httpCon.setConnectTimeout(5 * 1000);
-//    httpCon.setReadTimeout(5 * 1000);
-//
-//    InputStream in = httpCon.getInputStream();
-//    FileOutputStream fos = new FileOutputStream(file);
-//    int responseCode = httpCon.getResponseCode();
-//    if (responseCode != 200) {
-//      throw new IOException("自动下载返回码：" + responseCode);
-//    }
-//    // 获取自己数组
-//    byte[] getData = readInputStream(in);
-//    fos.write(getData);
   }
 
 
-  /**
-   * 从输入流中获取字节数组
-   */
-  public byte[] readInputStream(InputStream inputStream) throws IOException {
-    byte[] buffer = new byte[1024 * 4];
-    int len = 0;
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    while ((len = inputStream.read(buffer)) != -1) {
-      bos.write(buffer, 0, len);
-    }
-    bos.close();
-    return bos.toByteArray();
-  }
 
 
 }

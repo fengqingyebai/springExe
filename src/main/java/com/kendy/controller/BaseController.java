@@ -1,6 +1,8 @@
 package com.kendy.controller;
 
+import com.kendy.util.StringUtil;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -118,7 +120,7 @@ public class BaseController {
             super.updateItem(item, empty);
             this.setTextFill(null);
             if (!isEmpty() && item != null) {
-              if (item.contains("-")) {
+              if (StringUtil.isNegativeNumber(item)) {
                 this.setTextFill(Color.RED);
               } else {
                 this.setTextFill(Color.BLACK);
