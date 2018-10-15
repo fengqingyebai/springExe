@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
+import com.kendy.entity.ClubStaticInfo;
 import com.kendy.entity.ClubZhuofei;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JifenInfo;
@@ -3020,6 +3021,33 @@ public class DBUtil {
       close(con, ps);
     }
     return i;
+  }
+
+
+  public List<ClubStaticInfo> getClubStaticRecords(){
+    List<ClubStaticInfo> list = new ArrayList<>();
+    try {
+      con = DBConnection.getConnection();
+      String sql = "SELECT r.lmType, c. NAME, r.clubId, sum(r.yszj), ROUND( sum(r.currentTableInsurance), 0 ), count(1), ROUND(sum(r.heLirun)) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId GROUP BY r.clubId";
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        ClubStaticInfo info = new ClubStaticInfo();
+        info.setClubLmType(rs.getString(1));
+        info.setClubName(rs.getString(2));
+        info.setClubId(rs.getString(3));
+        info.setClubSumZJ(rs.getString(4));
+        info.setClubSumBaoxian(rs.getString(5));
+        info.setClubSumPerson(rs.getString(6));
+        info.setClubSumProfit(rs.getString(7));
+        list.add(info);
+      }
+    } catch (Exception e) {
+      ErrorUtil.err("获取俱乐部统计数据失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return list;
   }
 
 

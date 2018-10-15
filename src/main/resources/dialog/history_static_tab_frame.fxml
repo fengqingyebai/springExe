@@ -50,6 +50,17 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </JFXButton>
+            <TableView fx:id="tableClubStatic" layoutX="660.0" layoutY="62.0" prefHeight="761.0" prefWidth="602.0">
+               <columns>
+                  <TableColumn fx:id="clubLmType" prefWidth="64.0" text="所属联盟" />
+                  <TableColumn fx:id="clubName" prefWidth="123.0" text="俱乐部名称" />
+                  <TableColumn fx:id="clubId" minWidth="0.0" text="俱乐部ID" />
+                  <TableColumn fx:id="clubSumZJ" minWidth="0.0" prefWidth="95.0" text="总战绩" />
+                  <TableColumn fx:id="clubSumBaoxian" minWidth="0.0" prefWidth="86.0" text="总保险" />
+                  <TableColumn fx:id="clubSumPerson" minWidth="0.0" prefWidth="66.0" text="总人数" />
+                  <TableColumn fx:id="clubSumProfit" minWidth="0.0" prefWidth="76.0" text="总输赢" />
+               </columns>
+            </TableView>
           </children>
        </AnchorPane>
     </children>

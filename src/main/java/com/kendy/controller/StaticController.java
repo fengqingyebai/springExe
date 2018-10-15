@@ -2,6 +2,7 @@ package com.kendy.controller;
 
 import com.kendy.constant.Constants;
 import com.kendy.db.DBUtil;
+import com.kendy.entity.ClubStaticInfo;
 import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.enums.ColumnType;
@@ -74,6 +75,32 @@ public class StaticController extends BaseController implements Initializable {
   @FXML
   private TableColumn<TeamStaticInfo, String> sumHuibao; // 总回保
 
+  // ====================== 俱乐部表
+  @FXML
+  private TableView<ClubStaticInfo> tableClubStatic; // 俱乐部表
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubLmType;
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubName;
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubId; // 俱乐部ID
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubSumZJ; // 俱乐部总战绩
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubSumPerson; // 俱乐部总人数
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubSumProfit; // 俱乐部总输赢
+
+  @FXML
+  private TableColumn<ClubStaticInfo, String> clubSumBaoxian; // 俱乐部总保险
+
+
 
   public <T> T getSelectedRow(TableView<T> table) {
     T selectedItem = null;
@@ -114,15 +141,17 @@ public class StaticController extends BaseController implements Initializable {
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     super.bindCellValueByTable(new TeamStaticInfo(), tableTeamStatic);
-    tableTeamStatic.setOnMouseClicked(e-> {
+    tableTeamStatic.setOnMouseClicked(e -> {
       // 行双击
-      if (e.getClickCount() == 2 ) {
+      if (e.getClickCount() == 2) {
         TeamStaticInfo item = getSelectedRow(tableTeamStatic);
-        if(item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
+        if (item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
           viewTeamStatic();
         }
       }
     });
+
+    super.bindCellValueByTable(new ClubStaticInfo(), tableClubStatic);
 
   }
 
@@ -137,13 +166,14 @@ public class StaticController extends BaseController implements Initializable {
     loadTeamStaticView();
 
     // TODO  加载俱乐部汇总
+    loadClubStaticView();
 
   }
 
   /**
    * 加载团队统计表
    */
-  private void loadTeamStaticView(){
+  private void loadTeamStaticView() {
     clearData(tableTeamStatic);
     // 从数据库加载统计数据
     List<TeamStaticInfo> staticRecords = dbUtil.getStaticRecordsByClub(myController.getClubId());
@@ -153,17 +183,30 @@ public class StaticController extends BaseController implements Initializable {
     tableTeamStatic.refresh();
   }
 
+  /**
+   * 加载团队统计表
+   */
+  private void loadClubStaticView() {
+    clearData(tableClubStatic);
+    // 从数据库加载统计数据
+    List<ClubStaticInfo> staticRecords = dbUtil.getClubStaticRecords();
+
+    // 渲染到页面
+    tableClubStatic.getItems().addAll(staticRecords);
+    tableClubStatic.refresh();
+  }
+
 
   @FXML
   void clearTeamStaticAction(ActionEvent event) {
     if (selectedItem(tableTeamStatic)) {
       TeamStaticInfo item = getSelectedRow(tableTeamStatic);
-      if(AlertUtil.confirm("清空", "兄弟，确定要清空" +item.getTeamId()+ "的历史记录吗？")){
+      if (AlertUtil.confirm("清空", "兄弟，确定要清空" + item.getTeamId() + "的历史记录吗？")) {
         // 清空数据
         int updateRows = dbUtil.clearTeamGameRecord(myController.getClubId(), item.getTeamId());
 
         // 刷新界面
-        FXUtil.info("操作成功! 已清空了"+updateRows+"条记录！");
+        FXUtil.info("操作成功! 已清空了" + updateRows + "条记录！");
         loadTeamStaticView();
       }
     }
@@ -178,7 +221,7 @@ public class StaticController extends BaseController implements Initializable {
       String clubId = myController.getClubId();
       String teamId = item.getTeamId();
       TableView<TeamStaticInfo> table = new TableView<>();
-      for(TableColumn column : tableTeamStatic.getColumns()){
+      for (TableColumn column : tableTeamStatic.getColumns()) {
         table.getColumns().add(getTableColumnCommon(
             column.getText(), column.getId(), ColumnType.COLUMN_RED));
       }
@@ -202,7 +245,7 @@ public class StaticController extends BaseController implements Initializable {
       }
       // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
       ShowUtil.setIcon(stage);
-      stage.setTitle(teamId+"的每天汇总");
+      stage.setTitle(teamId + "的每天汇总");
       stage.setWidth(700);
       stage.setHeight(450);
 
@@ -212,12 +255,12 @@ public class StaticController extends BaseController implements Initializable {
     }
   }
 
-  private void setDoubleClick(TableView<TeamStaticInfo> table){
-    table.setOnMouseClicked(e-> {
+  private void setDoubleClick(TableView<TeamStaticInfo> table) {
+    table.setOnMouseClicked(e -> {
       // 行双击
-      if (e.getClickCount() == 2 ) {
+      if (e.getClickCount() == 2) {
         TeamStaticInfo item = getSelectedRow(table);
-        if(item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
+        if (item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
           String teamId = item.getTeamId();
           String staticTime = item.getStaticTime();
           logger.info("查询历史汇总中的当天记录" + staticTime + "...");
@@ -227,9 +270,9 @@ public class StaticController extends BaseController implements Initializable {
     });
   }
 
-  private void viewDetailGameRecord(String teamId, String softTime){
+  private void viewDetailGameRecord(String teamId, String softTime) {
     TableView<TotalInfo> table = new TableView<>();
-    for(TableColumn column : myController.tableTotalInfo.getColumns()){
+    for (TableColumn column : myController.tableTotalInfo.getColumns()) {
       table.getColumns().add(getTotalInfoColumn(
           column.getText(), column.getId(), ColumnType.COLUMN_RED));
     }
@@ -237,7 +280,8 @@ public class StaticController extends BaseController implements Initializable {
     table.setEditable(false);
 
     // 获取值
-    List<TotalInfo> list = dbUtil.getStaticDetailRecords(myController.getClubId(), teamId, softTime);
+    List<TotalInfo> list = dbUtil
+        .getStaticDetailRecords(myController.getClubId(), teamId, softTime);
     table.getItems().addAll(list);
     table.getSelectionModel().clearSelection();
 
@@ -252,7 +296,7 @@ public class StaticController extends BaseController implements Initializable {
     }*/
     Stage detailStage = new Stage();
     ShowUtil.setIcon(detailStage);
-    detailStage.setTitle(teamId+"团队"+softTime);
+    detailStage.setTitle(teamId + "团队" + softTime);
     detailStage.setWidth(970);
     detailStage.setHeight(450);
 
@@ -268,7 +312,8 @@ public class StaticController extends BaseController implements Initializable {
       ObservableList<TeamStaticInfo> list = tableTeamStatic.getItems();
       String name = "团队汇总" + TimeUtil.getDateTime();
       try {
-        String[] rowsName = new String[]{"联盟名称", "团家ID", "开始统计时间", "总战绩", "总回水", "总回保",  "总人数", "总输赢"};
+        String[] rowsName = new String[]{"联盟名称", "团家ID", "开始统计时间", "总战绩", "总回水", "总回保", "总人数",
+            "总输赢"};
         List<Object[]> dataList = new ArrayList<Object[]>();
         Object[] objs = null;
         for (int i = 0; i < list.size(); i++) {
@@ -289,18 +334,16 @@ public class StaticController extends BaseController implements Initializable {
         ExportExcelTemplate ex = new ExportExcelTemplate(name, rowsName, columnWidths, dataList);
         ex.export();
         System.out.println("finises..");
-      } catch (Exception  e) {
+      } catch (Exception e) {
         ErrorUtil.err("导出团队汇总Excecl失败", e);
       }
-    }else{
+    } else {
       ShowUtil.show("数据表无数据，请检查！");
     }
   }
 
-
-
-
   // ===================================================
+
   /**
    * 动态生成列
    *
