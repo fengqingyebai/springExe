@@ -19,15 +19,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
@@ -100,6 +107,11 @@ public class StaticController extends BaseController implements Initializable {
   @FXML
   private TableColumn<ClubStaticInfo, String> clubSumBaoxian; // 俱乐部总保险
 
+  // ===============
+  @FXML
+  private HBox LmBox; // 联盟包装器
+
+  ToggleGroup lmGroup = new ToggleGroup(); // 联盟选择
 
 
   public <T> T getSelectedRow(TableView<T> table) {
@@ -153,6 +165,8 @@ public class StaticController extends BaseController implements Initializable {
 
     super.bindCellValueByTable(new ClubStaticInfo(), tableClubStatic);
 
+    initLMRadios(); // 初始化联盟选项
+
   }
 
   /**
@@ -165,7 +179,7 @@ public class StaticController extends BaseController implements Initializable {
     // 加载团队统计表
     loadTeamStaticView();
 
-    // TODO  加载俱乐部汇总
+    // 加载俱乐部汇总
     loadClubStaticView();
 
   }
@@ -176,7 +190,7 @@ public class StaticController extends BaseController implements Initializable {
   private void loadTeamStaticView() {
     clearData(tableTeamStatic);
     // 从数据库加载统计数据
-    List<TeamStaticInfo> staticRecords = dbUtil.getStaticRecordsByClub(myController.getClubId());
+    List<TeamStaticInfo> staticRecords = dbUtil.getStaticRecordsByClub(myController.getClubId(), getSelectedLM());
 
     // 渲染到页面
     tableTeamStatic.getItems().addAll(staticRecords);
@@ -189,11 +203,44 @@ public class StaticController extends BaseController implements Initializable {
   private void loadClubStaticView() {
     clearData(tableClubStatic);
     // 从数据库加载统计数据
-    List<ClubStaticInfo> staticRecords = dbUtil.getClubStaticRecords();
+    List<ClubStaticInfo> staticRecords = dbUtil.getClubStaticRecords(getSelectedLM());
 
     // 渲染到页面
     tableClubStatic.getItems().addAll(staticRecords);
     tableClubStatic.refresh();
+  }
+
+
+  /**
+   * 初始化联盟点击框
+   */
+  private void initLMRadios() {
+
+    ObservableList<Node> radios = LmBox.getChildren();
+    for(Node node : radios){
+      RadioButton radio = (RadioButton) node;
+      String text = radio.getText();
+      radio.setToggleGroup(lmGroup);
+      radio.setUserData(text);
+      if(Constants.LM1.equals(text)){
+        radio.setSelected(true);
+      }
+    }
+    lmGroup.selectedToggleProperty().addListener(e->{
+        String radioLmType = (String) lmGroup.getSelectedToggle().getUserData();
+        if (Constants.LM3.equals(radioLmType)) {
+          // 清空
+          clearData(tableTeamStatic, tableClubStatic);
+
+        } else{
+          refresh();// 刷新
+        }
+    });
+  }
+
+  /** 获取当前选择的联盟**/
+  private String getSelectedLM(){
+    return (String) lmGroup.getSelectedToggle().getUserData();
   }
 
 
@@ -230,7 +277,7 @@ public class StaticController extends BaseController implements Initializable {
       setDoubleClick(table);
 
       // 获取值
-      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByTeam(clubId, teamId);
+      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByTeam(clubId, teamId, getSelectedLM());
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 

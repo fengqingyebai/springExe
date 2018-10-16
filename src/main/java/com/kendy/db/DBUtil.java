@@ -2921,27 +2921,33 @@ public class DBUtil {
   /**
    * 获取某俱乐部下的团队统计数据
    */
-  public List<TeamStaticInfo> getStaticRecordsByClub(String clubId) {
-    return getStaticRecords(clubId, null);
+  public List<TeamStaticInfo> getStaticRecordsByClub(String clubId, String selectedLM) {
+    return getStaticRecords(clubId, null, selectedLM);
   }
 
   /**
    * 获取某团队统计数据
    */
-  public List<TeamStaticInfo> getStaticRecordsByTeam(String clubId, String teamId) {
-    return getStaticRecords(clubId, teamId);
+  public List<TeamStaticInfo> getStaticRecordsByTeam(String clubId, String teamId,
+      String selectedLM) {
+    return getStaticRecords(clubId, teamId, selectedLM);
   }
 
-  private List<TeamStaticInfo> getStaticRecords(String clubId, String teamId){
+  private List<TeamStaticInfo> getStaticRecords(String clubId, String teamId,
+      String selectedLM) {
     List<TeamStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String baseSql = "SELECT r.lmType, m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE r.isCleared = '0' and r.clubId = '" + clubId + "' ";
+      String baseSql =
+          "SELECT r.lmType, m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE r.lmType = '"
+              + selectedLM + "' and r.isCleared = '0' and r.clubId = '"
+              + clubId + "' ";
       String sql = null;
-      if(StringUtils.isBlank(teamId)){
+      if (StringUtils.isBlank(teamId)) {
         sql = baseSql + " GROUP BY m.teamId ORDER BY sumProfit DESC";
-      }else{
-        sql = baseSql + " And m.teamId = '"+teamId+"' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
+      } else {
+        sql = baseSql + " And m.teamId = '" + teamId
+            + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
       }
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2966,8 +2972,7 @@ public class DBUtil {
   }
 
 
-
-  public List<TotalInfo> getStaticDetailRecords(String clubId, String teamId, String softTime){
+  public List<TotalInfo> getStaticDetailRecords(String clubId, String teamId, String softTime) {
     List<TotalInfo> finalList = new ArrayList<>();
     try {
       List<GameRecord> list = new ArrayList<>();
@@ -2977,7 +2982,7 @@ public class DBUtil {
       ps = con.prepareStatement(sql);
       ps.setString(1, clubId);
       ps.setString(2, teamId);
-       ps.setString(3, softTime);
+      ps.setString(3, softTime);
       ResultSet rs = ps.executeQuery();
       list = getGameRecordResult(rs);
       finalList = list.stream().map(r -> {
@@ -3012,7 +3017,9 @@ public class DBUtil {
       loger.info("清空团队的记录，俱乐部是：{}, 团队是：{}", clubId, teamId);
       con = DBConnection.getConnection();
       String sql;
-      sql = "update game_record r LEFT JOIN members m on r.playerId = m.playerId  set r.isCleared = '1'  where r.clubId = '"+clubId+"' and  m.teamId = '"+teamId+"'";
+      sql =
+          "update game_record r LEFT JOIN members m on r.playerId = m.playerId  set r.isCleared = '1'  where r.clubId = '"
+              + clubId + "' and  m.teamId = '" + teamId + "'";
       ps = con.prepareStatement(sql);
       i = ps.executeUpdate();
     } catch (SQLException e) {
@@ -3024,11 +3031,13 @@ public class DBUtil {
   }
 
 
-  public List<ClubStaticInfo> getClubStaticRecords(){
+  public List<ClubStaticInfo> getClubStaticRecords(String lmType) {
     List<ClubStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = "SELECT r.lmType, c. NAME, r.clubId, sum(r.yszj), ROUND( sum(r.currentTableInsurance), 0 ), count(1), ROUND(sum(r.heLirun)) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId GROUP BY r.clubId";
+      String sql =
+          "SELECT r.lmType, c. NAME, r.clubId, sum(r.yszj), ROUND( sum(r.currentTableInsurance), 0 ), count(1), ROUND(sum(r.heLirun)) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId where r.lmType = '"
+              + lmType + "' GROUP BY r.clubId";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -3051,22 +3060,18 @@ public class DBUtil {
   }
 
 
-
   /**
    * 获取软件时间的月日字符串
    * <p>
    * 如把2018-10-14转为10月14日
-   * @param softTime
-   * @return
    */
-  private String handleTime(String softTime){
-    if(StringUtil.isNotBlank(softTime) && softTime.contains("-")){
+  private String handleTime(String softTime) {
+    if (StringUtil.isNotBlank(softTime) && softTime.contains("-")) {
       String[] timeArr = softTime.split("-");
       softTime = Integer.valueOf(timeArr[1]) + "月" + Integer.valueOf(timeArr[2]) + "号";
     }
     return softTime;
   }
-
 
 
 }

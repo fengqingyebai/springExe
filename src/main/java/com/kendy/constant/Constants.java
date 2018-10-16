@@ -39,4 +39,8 @@ public class Constants {
 
   public static final String ORANGE = "#ff6d11";
   public static final String RED = "#d60812";
+
+  public static final String LM1 = "联盟1";
+  public static final String LM2 = "联盟2";
+  public static final String LM3 = "联盟3";
 }

@@ -16,10 +16,7 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 
 /**
- * 俱乐部银行卡信息
- *
- * @author 林泽涛
- * @time 2017年12月18日 下午9:13:22
+ * 团队历史统计对象
  */
 public class TeamStaticInfo implements Entity {
 

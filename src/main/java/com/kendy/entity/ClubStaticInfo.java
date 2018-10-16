@@ -6,20 +6,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 
 /**
- * 俱乐部银行卡信息
+ * 俱乐部历史统计对象
  *
- * @author 林泽涛
- * @time 2017年12月18日 下午9:13:22
  */
 public class ClubStaticInfo implements Entity {
 
-  private SimpleStringProperty clubName = new SimpleStringProperty();//所属联盟名称
-  private SimpleStringProperty clubId = new SimpleStringProperty();//总战绩
-  private SimpleStringProperty clubSumZJ = new SimpleStringProperty();//总人数
-  private SimpleStringProperty clubSumBaoxian = new SimpleStringProperty();//总回保
-  private SimpleStringProperty clubSumPerson = new SimpleStringProperty();//团家ID
-  private SimpleStringProperty clubSumProfit = new SimpleStringProperty();// 开始统计时间
-  private SimpleStringProperty clubLmType = new SimpleStringProperty();// 开始统计时间
+  private SimpleStringProperty clubName = new SimpleStringProperty();
+  private SimpleStringProperty clubId = new SimpleStringProperty();
+  private SimpleStringProperty clubSumZJ = new SimpleStringProperty();
+  private SimpleStringProperty clubSumBaoxian = new SimpleStringProperty();
+  private SimpleStringProperty clubSumPerson = new SimpleStringProperty();
+  private SimpleStringProperty clubSumProfit = new SimpleStringProperty();
+  private SimpleStringProperty clubLmType = new SimpleStringProperty();
 
   public String getClubLmType() {
     return clubLmType.get();

@@ -22,7 +22,7 @@
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="1296.0">
           <children>
              <Label layoutX="86.0" layoutY="319.0" prefHeight="24.0" prefWidth="156.0" />
-             <TableView fx:id="tableTeamStatic" layoutX="33.0" layoutY="62.0" prefHeight="761.0" prefWidth="602.0">
+             <TableView fx:id="tableTeamStatic" layoutX="33.0" layoutY="105.0" prefHeight="601.0" prefWidth="602.0">
                 <columns>
                    <TableColumn fx:id="lmName" prefWidth="79.0" text="所属联盟" />
                    <TableColumn fx:id="teamId" minWidth="0.0" prefWidth="49.0" text="团队ID" />
@@ -34,7 +34,7 @@
                   <TableColumn fx:id="sumProfit" minWidth="0.0" prefWidth="71.0" text="总输赢" />
                 </columns>
              </TableView>
-            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="21.0" onAction="#clearTeamStaticAction" ripplerFill="#09a40e" text="清空所选团队记录" textFill="#4d12c4db">
+            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="37.0" onAction="#clearTeamStaticAction" ripplerFill="#09a40e" text="清空所选团队记录" textFill="#4b13c2c9">
                <font>
                   <Font size="14.0" />
                </font>
@@ -42,7 +42,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </JFXButton>
-            <JFXButton buttonType="RAISED" layoutX="179.0" layoutY="21.0" onAction="#exportTeamStaticAction" ripplerFill="#09a40e" text="导出团队历史汇总Excel" textFill="#4d12c4db">
+            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="65.0" onAction="#exportTeamStaticAction" ripplerFill="#09a40e" text="导出团队历史汇总Excel" textFill="#4b13c2c4">
                <font>
                   <Font size="14.0" />
                </font>
@@ -50,7 +50,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </JFXButton>
-            <TableView fx:id="tableClubStatic" layoutX="660.0" layoutY="62.0" prefHeight="761.0" prefWidth="602.0">
+            <TableView fx:id="tableClubStatic" layoutX="660.0" layoutY="105.0" prefHeight="601.0" prefWidth="602.0">
                <columns>
                   <TableColumn fx:id="clubLmType" prefWidth="64.0" text="所属联盟" />
                   <TableColumn fx:id="clubName" prefWidth="123.0" text="俱乐部名称" />
@@ -61,6 +61,34 @@
                   <TableColumn fx:id="clubSumProfit" minWidth="0.0" prefWidth="76.0" text="总输赢" />
                </columns>
             </TableView>
+            <HBox fx:id="LmBox" layoutX="526.0" layoutY="50.0" opacity="0.58" prefHeight="29.0" prefWidth="312.0" style="-fx-background-color: 00FF00;">
+               <children>
+                  <RadioButton fx:id="radioLM1" alignment="TOP_LEFT" layoutX="526.0" layoutY="50.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="104.0" text="联盟1">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </RadioButton>
+                  <RadioButton fx:id="radioLM2" alignment="TOP_LEFT" layoutX="536.0" layoutY="60.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="104.0" text="联盟2">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </RadioButton>
+                  <RadioButton fx:id="radioLM3" alignment="TOP_LEFT" layoutX="546.0" layoutY="70.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="104.0" text="联盟3">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </RadioButton>
+               </children>
+            </HBox>
           </children>
        </AnchorPane>
     </children>
