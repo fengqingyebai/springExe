@@ -18,9 +18,22 @@ public class ClubStaticInfo implements Entity {
   private SimpleStringProperty clubSumPerson = new SimpleStringProperty();
   private SimpleStringProperty clubSumProfit = new SimpleStringProperty();
   private SimpleStringProperty clubLmType = new SimpleStringProperty();
+  private SimpleStringProperty clubStaticTime = new SimpleStringProperty();
 
   public String getClubLmType() {
     return clubLmType.get();
+  }
+
+  public String getClubStaticTime() {
+    return clubStaticTime.get();
+  }
+
+  public SimpleStringProperty clubStaticTimeProperty() {
+    return clubStaticTime;
+  }
+
+  public void setClubStaticTime(String clubStaticTime) {
+    this.clubStaticTime.set(clubStaticTime);
   }
 
   public SimpleStringProperty clubLmTypeProperty() {

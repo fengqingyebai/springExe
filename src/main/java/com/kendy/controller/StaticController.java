@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -96,6 +97,9 @@ public class StaticController extends BaseController implements Initializable {
   private TableColumn<ClubStaticInfo, String> clubId; // 俱乐部ID
 
   @FXML
+  private TableColumn<ClubStaticInfo, String> clubStaticTime; // 俱乐部ID
+
+  @FXML
   private TableColumn<ClubStaticInfo, String> clubSumZJ; // 俱乐部总战绩
 
   @FXML
@@ -163,7 +167,16 @@ public class StaticController extends BaseController implements Initializable {
       }
     });
 
-    super.bindCellValueByTable(new ClubStaticInfo(), tableClubStatic);
+    super.bindCellValueByTable(new ClubStaticInfo(), tableClubStatic);  //
+    tableClubStatic.setOnMouseClicked(e -> {
+      // 行双击
+      if (e.getClickCount() == 2) {
+        ClubStaticInfo item = getSelectedRow(tableClubStatic);
+        if (item != null && StringUtil.isAllNotBlank(item.getClubName())) {
+          viewSubTeamStatic();
+        }
+      }
+    });
 
     initLMRadios(); // 初始化联盟选项
 
@@ -254,14 +267,49 @@ public class StaticController extends BaseController implements Initializable {
 
         // 刷新界面
         FXUtil.info("操作成功! 已清空了" + updateRows + "条记录！");
-        loadTeamStaticView();
+        refresh();
+      }
+    }
+  }
+
+  @FXML
+  void clearClubStaticAction(ActionEvent event) {
+    if (selectedItem(tableClubStatic)) {
+      ClubStaticInfo item = getSelectedRow(tableClubStatic);
+      String clubName = item.getClubName();
+      String clubId = item.getClubId();
+      if (AlertUtil.confirm(clubName, "兄弟，确定要清空" + clubName + "的历史记录吗？")) {
+        // 清空数据
+        int updateRows = dbUtil.clearClubGameRecord(getSelectedLM(), clubId);
+
+        // 刷新界面
+        FXUtil.info("操作成功! 已清空了" + updateRows + "条记录！");
+        refresh();
       }
     }
   }
 
 
-  private Stage stage;
+  private void setDoubleClick(TableView<TeamStaticInfo> table) {
+    table.setOnMouseClicked(e -> {
+      // 行双击
+      if (e.getClickCount() == 2) {
+        TeamStaticInfo item = getSelectedRow(table);
+        if (item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
+          String teamId = item.getTeamId();
+          String staticTime = item.getStaticTime();
+          logger.info("查询历史汇总中的当天记录" + staticTime + "...");
+          viewDetailGameRecord(teamId, staticTime);
+        }
+      }
+    });
+  }
 
+
+  /**
+   * 查看团队的视图【左边统计】
+   */
+  private Stage stage;
   private void viewTeamStatic() {
     if (selectedItem(tableTeamStatic)) {
       TeamStaticInfo item = getSelectedRow(tableTeamStatic);
@@ -302,21 +350,13 @@ public class StaticController extends BaseController implements Initializable {
     }
   }
 
-  private void setDoubleClick(TableView<TeamStaticInfo> table) {
-    table.setOnMouseClicked(e -> {
-      // 行双击
-      if (e.getClickCount() == 2) {
-        TeamStaticInfo item = getSelectedRow(table);
-        if (item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
-          String teamId = item.getTeamId();
-          String staticTime = item.getStaticTime();
-          logger.info("查询历史汇总中的当天记录" + staticTime + "...");
-          viewDetailGameRecord(teamId, staticTime);
-        }
-      }
-    });
-  }
 
+
+  /**
+   * 显示团队某天的具体记录
+   * @param teamId
+   * @param softTime
+   */
   private void viewDetailGameRecord(String teamId, String softTime) {
     TableView<TotalInfo> table = new TableView<>();
     for (TableColumn column : myController.tableTotalInfo.getColumns()) {
@@ -351,6 +391,50 @@ public class StaticController extends BaseController implements Initializable {
     detailStage.setScene(scene);
     detailStage.show();
   }
+
+  //===============================================右边俱乐部双击时显示拥有的团队合计【开始】
+  private Stage subTeamStage;
+
+  private void viewSubTeamStatic() {
+    if (selectedItem(tableClubStatic)) {
+      ClubStaticInfo item = getSelectedRow(tableClubStatic);
+      String clubName = item.getClubName();
+      String clubId = item.getClubId();
+      TableView<TeamStaticInfo> table = new TableView<>();
+      for (TableColumn column : tableTeamStatic.getColumns()) {
+        table.getColumns().add(getTableColumnCommon(
+            column.getText(), column.getId(), ColumnType.COLUMN_RED));
+      }
+
+      table.setEditable(false);
+      setDoubleClick(table);
+
+      // 获取值
+      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByClub(clubId, getSelectedLM());
+      table.getItems().addAll(list);
+      table.getSelectionModel().clearSelection();
+
+      // 设置总金额
+      final VBox vbox = new VBox();
+      vbox.setSpacing(5);
+      vbox.setPadding(new Insets(2, 0, 0, 0));
+      vbox.getChildren().addAll(table);
+
+      if (subTeamStage == null) { // 共享一个舞台
+        subTeamStage = new Stage();
+      }
+      // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
+      ShowUtil.setIcon(subTeamStage);
+      subTeamStage.setTitle(clubName);
+      subTeamStage.setWidth(700);
+      subTeamStage.setHeight(450);
+
+      Scene scene = new Scene(vbox);
+      subTeamStage.setScene(scene);
+      subTeamStage.show();
+    }
+  }
+  //===============================================右边俱乐部双击时显示拥有的团队合计【结束】
 
 
   @FXML

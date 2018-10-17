@@ -28,8 +28,22 @@ public class TeamStaticInfo implements Entity {
   private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
   private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
   private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢
+  private SimpleStringProperty clubId = new SimpleStringProperty();//总输赢
 
   public TeamStaticInfo() {
+  }
+
+
+  public String getClubId() {
+    return clubId.get();
+  }
+
+  public SimpleStringProperty clubIdProperty() {
+    return clubId;
+  }
+
+  public void setClubId(String clubId) {
+    this.clubId.set(clubId);
   }
 
   public String getLmName() {

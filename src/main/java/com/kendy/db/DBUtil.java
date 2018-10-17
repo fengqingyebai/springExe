@@ -2939,7 +2939,8 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String baseSql =
-          "SELECT r.lmType, m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE r.lmType = '"
+          "SELECT r.lmType, m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime, min(r.clubId) "
+              + "FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE r.lmType = '"
               + selectedLM + "' and r.isCleared = '0' and r.clubId = '"
               + clubId + "' ";
       String sql = null;
@@ -2961,6 +2962,7 @@ public class DBUtil {
         info.setSumPerson(rs.getString(6));
         info.setSumProfit(rs.getString(7));
         info.setStaticTime(rs.getString(8));
+        info.setClubId(rs.getString(9));
         list.add(info);
       }
     } catch (Exception e) {
@@ -3030,13 +3032,34 @@ public class DBUtil {
     return i;
   }
 
+  // 清空俱乐部的记录，只是操作标志位
+  public int clearClubGameRecord(String lmType, String clubId) {
+    int i = 0;
+    try {
+      loger.info("清空俱乐部的记录，俱乐部是：{}, 所属联盟是：{}", clubId, lmType);
+      con = DBConnection.getConnection();
+      String sql;
+      sql =
+          "update game_record r LEFT JOIN club c on r.clubId = c.clubId  set r.isCleared = '1'  where r.clubId = '"
+              + clubId + "' and  r.lmType = '" + lmType + "'";
+      ps = con.prepareStatement(sql);
+      i = ps.executeUpdate();
+    } catch (SQLException e) {
+      ErrorUtil.err("清空俱乐部的记录失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return i;
+  }
+
 
   public List<ClubStaticInfo> getClubStaticRecords(String lmType) {
     List<ClubStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
       String sql =
-          "SELECT r.lmType, c. NAME, r.clubId, sum(r.yszj), ROUND( sum(r.currentTableInsurance), 0 ), count(1), ROUND(sum(r.heLirun)) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId where r.lmType = '"
+          "SELECT r.lmType, c. NAME, r.clubId, sum(r.yszj), ROUND( sum(r.currentTableInsurance), 0 ), count(1), ROUND(sum(r.heLirun)), min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
+              + " where r.isCleared = '0' and r.lmType = '"
               + lmType + "' GROUP BY r.clubId";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -3049,6 +3072,7 @@ public class DBUtil {
         info.setClubSumBaoxian(rs.getString(5));
         info.setClubSumPerson(rs.getString(6));
         info.setClubSumProfit(rs.getString(7));
+        info.setClubStaticTime(rs.getString(8));
         list.add(info);
       }
     } catch (Exception e) {

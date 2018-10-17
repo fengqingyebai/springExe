@@ -19,22 +19,22 @@
 
 <AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.StaticController">
     <children>
-       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="1296.0">
+       <AnchorPane layoutY="1.0" minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="1296.0">
           <children>
              <Label layoutX="86.0" layoutY="319.0" prefHeight="24.0" prefWidth="156.0" />
-             <TableView fx:id="tableTeamStatic" layoutX="33.0" layoutY="105.0" prefHeight="601.0" prefWidth="602.0">
+             <TableView fx:id="tableTeamStatic" layoutX="30.0" layoutY="105.0" prefHeight="601.0" prefWidth="569.0">
                 <columns>
                    <TableColumn fx:id="lmName" prefWidth="79.0" text="所属联盟" />
                    <TableColumn fx:id="teamId" minWidth="0.0" prefWidth="49.0" text="团队ID" />
                    <TableColumn fx:id="staticTime" minWidth="0.0" prefWidth="88.0" text="开始统计时间" />
                   <TableColumn fx:id="sumZJ" minWidth="0.0" prefWidth="77.0" text="总战绩" />
-                  <TableColumn fx:id="sumChuhuishui" minWidth="0.0" prefWidth="87.0" text="总回水" />
-                  <TableColumn fx:id="sumHuibao" minWidth="0.0" prefWidth="82.0" text="总回保" />
-                  <TableColumn fx:id="sumPerson" minWidth="0.0" prefWidth="57.0" text="总人数" />
-                  <TableColumn fx:id="sumProfit" minWidth="0.0" prefWidth="71.0" text="总输赢" />
+                  <TableColumn fx:id="sumChuhuishui" minWidth="0.0" prefWidth="75.0" text="总回水" />
+                  <TableColumn fx:id="sumHuibao" minWidth="0.0" prefWidth="73.0" text="总回保" />
+                  <TableColumn fx:id="sumPerson" minWidth="0.0" prefWidth="60.0" text="总人数" />
+                  <TableColumn fx:id="sumProfit" minWidth="0.0" prefWidth="64.0" text="总输赢" />
                 </columns>
              </TableView>
-            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="37.0" onAction="#clearTeamStaticAction" ripplerFill="#09a40e" text="清空所选团队记录" textFill="#4b13c2c9">
+            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="37.0" onAction="#clearTeamStaticAction" prefHeight="29.0" prefWidth="143.0" ripplerFill="#09a40e" text="清空所选团队记录" textFill="#4b13c2c9">
                <font>
                   <Font size="14.0" />
                </font>
@@ -42,7 +42,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </JFXButton>
-            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="65.0" onAction="#exportTeamStaticAction" ripplerFill="#09a40e" text="导出团队历史汇总Excel" textFill="#4b13c2c4">
+            <JFXButton buttonType="RAISED" layoutX="33.0" layoutY="65.0" onAction="#exportTeamStaticAction" prefHeight="29.0" prefWidth="178.0" ripplerFill="#09a40e" text="导出团队历史汇总Excel" textFill="#4b13c2c4">
                <font>
                   <Font size="14.0" />
                </font>
@@ -50,18 +50,19 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </JFXButton>
-            <TableView fx:id="tableClubStatic" layoutX="660.0" layoutY="105.0" prefHeight="601.0" prefWidth="602.0">
+            <TableView fx:id="tableClubStatic" layoutX="617.0" layoutY="105.0" prefHeight="601.0" prefWidth="657.0">
                <columns>
-                  <TableColumn fx:id="clubLmType" prefWidth="64.0" text="所属联盟" />
-                  <TableColumn fx:id="clubName" prefWidth="123.0" text="俱乐部名称" />
-                  <TableColumn fx:id="clubId" minWidth="0.0" text="俱乐部ID" />
-                  <TableColumn fx:id="clubSumZJ" minWidth="0.0" prefWidth="95.0" text="总战绩" />
-                  <TableColumn fx:id="clubSumBaoxian" minWidth="0.0" prefWidth="86.0" text="总保险" />
-                  <TableColumn fx:id="clubSumPerson" minWidth="0.0" prefWidth="66.0" text="总人数" />
-                  <TableColumn fx:id="clubSumProfit" minWidth="0.0" prefWidth="76.0" text="总输赢" />
+                  <TableColumn fx:id="clubLmType" prefWidth="58.0" text="所属联盟" />
+                  <TableColumn fx:id="clubName" prefWidth="105.0" text="俱乐部名称" />
+                  <TableColumn fx:id="clubId" minWidth="0.0" prefWidth="71.0" text="俱乐部ID" />
+                  <TableColumn fx:id="clubStaticTime" minWidth="0.0" prefWidth="90.0" text="开始统计时间" />
+                  <TableColumn fx:id="clubSumZJ" minWidth="0.0" prefWidth="86.0" text="总战绩" />
+                  <TableColumn fx:id="clubSumBaoxian" minWidth="0.0" prefWidth="97.0" text="总保险" />
+                  <TableColumn fx:id="clubSumPerson" minWidth="0.0" prefWidth="64.0" text="总人数" />
+                  <TableColumn fx:id="clubSumProfit" minWidth="0.0" prefWidth="84.0" text="总输赢" />
                </columns>
             </TableView>
-            <HBox fx:id="LmBox" layoutX="526.0" layoutY="50.0" opacity="0.58" prefHeight="29.0" prefWidth="312.0" style="-fx-background-color: 00FF00;">
+            <HBox fx:id="LmBox" layoutX="482.0" layoutY="51.0" opacity="0.58" prefHeight="29.0" prefWidth="312.0" style="-fx-background-color: 00FF00;">
                <children>
                   <RadioButton fx:id="radioLM1" alignment="TOP_LEFT" layoutX="526.0" layoutY="50.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="104.0" text="联盟1">
                      <cursor>
@@ -89,6 +90,14 @@
                   </RadioButton>
                </children>
             </HBox>
+            <JFXButton buttonType="RAISED" layoutX="1118.0" layoutY="43.0" onAction="#clearClubStaticAction" prefHeight="29.0" prefWidth="156.0" ripplerFill="#09a40e" text="清空所选俱乐部记录" textFill="#4b13c2c9">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </JFXButton>
           </children>
        </AnchorPane>
     </children>
