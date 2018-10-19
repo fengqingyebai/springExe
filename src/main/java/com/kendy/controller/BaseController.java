@@ -1,6 +1,8 @@
 package com.kendy.controller;
 
+import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
+import com.kendy.util.TableUtil;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -133,6 +135,58 @@ public class BaseController {
         return cell;
       }
     };
+  }
+
+
+  /**
+   * 获取表格的选中行
+   *
+   * @param table
+   * @param <T>
+   * @return
+   */
+  public <T> T getSelectedRow(TableView<T> table) {
+    T selectedItem = null;
+    if (TableUtil.isHasValue(table)) {
+      selectedItem = table.getSelectionModel().getSelectedItem();
+    }
+    return selectedItem;
+  }
+
+  /**
+   * 是否有行被选中
+   *
+   * @param table
+   * @param <T>
+   * @return
+   */
+  public <T> boolean selectedItem(TableView<T> table) {
+    if (TableUtil.isNullOrEmpty(table)) {
+      ShowUtil.show("表格无数据，请检查！");
+      return Boolean.FALSE;
+    }
+    if (getSelectedRow(table) == null) {
+      ShowUtil.show("大哥，请先选择记录！");
+      return Boolean.FALSE;
+    } else {
+      return Boolean.TRUE;
+    }
+  }
+
+
+  /**
+   * 清空表格数据
+   *
+   * @param tables
+   */
+  public void clearData(TableView... tables) {
+    if (tables != null) {
+      for (TableView table : tables) {
+        if (table != null) {
+          table.getItems().clear();
+        }
+      }
+    }
   }
 
   //

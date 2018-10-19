@@ -3,6 +3,7 @@ package com.kendy.db;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.Constants;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubStaticInfo;
@@ -2921,27 +2922,25 @@ public class DBUtil {
   /**
    * 获取某俱乐部下的团队统计数据
    */
-  public List<TeamStaticInfo> getStaticRecordsByClub(String clubId, String selectedLM) {
-    return getStaticRecords(clubId, null, selectedLM);
+  public List<TeamStaticInfo> getStaticRecordsByClub(String clubId, String teamId) {
+    return getStaticRecords(clubId, null);
   }
 
   /**
    * 获取某团队统计数据
    */
-  public List<TeamStaticInfo> getStaticRecordsByTeam(String clubId, String teamId,
-      String selectedLM) {
-    return getStaticRecords(clubId, teamId, selectedLM);
+  public List<TeamStaticInfo> getStaticRecordsByTeam(String clubId, String teamId) {
+    return getStaticRecords(clubId, teamId);
   }
 
-  private List<TeamStaticInfo> getStaticRecords(String clubId, String teamId,
-      String selectedLM) {
+  private List<TeamStaticInfo> getStaticRecords(String clubId, String teamId) {
     List<TeamStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
       String baseSql =
-          "SELECT r.lmType, m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime, min(r.clubId) "
-              + "FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE r.lmType = '"
-              + selectedLM + "' and r.isCleared = '0' and r.clubId = '"
+          "SELECT  m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui),0) sumChuhuishui, ROUND(sum(r.huiBao),0) sumHuibao, count(1) sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) staticTime "
+              + "FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId WHERE "
+              + " r.isCleared = '0' and r.clubId = '"
               + clubId + "' ";
       String sql = null;
       if (StringUtils.isBlank(teamId)) {
@@ -2954,15 +2953,14 @@ public class DBUtil {
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
         TeamStaticInfo info = new TeamStaticInfo();
-        info.setLmName(rs.getString(1));
-        info.setTeamId(rs.getString(2));
-        info.setSumZJ(rs.getString(3));
-        info.setSumChuhuishui(rs.getString(4));
-        info.setSumHuibao(rs.getString(5));
-        info.setSumPerson(rs.getString(6));
-        info.setSumProfit(rs.getString(7));
-        info.setStaticTime(rs.getString(8));
-        info.setClubId(rs.getString(9));
+        info.setTeamClubId(clubId);
+        info.setTeamId(rs.getString(1));
+        info.setSumZJ(rs.getString(2));
+        info.setSumChuhuishui(rs.getString(3));
+        info.setSumHuibao(rs.getString(4));
+        info.setSumPerson(rs.getString(5));
+        info.setSumProfit(rs.getString(6));
+        info.setStaticTime(rs.getString(7));
         list.add(info);
       }
     } catch (Exception e) {
@@ -3040,7 +3038,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       sql =
-          "update game_record r LEFT JOIN club c on r.clubId = c.clubId  set r.isCleared = '1'  where r.clubId = '"
+          "update game_record r LEFT JOIN club c on r.clubId = c.clubId  set r.isCleared = '1'  where r.isCleared = '0' and r.clubId = '"
               + clubId + "' and  r.lmType = '" + lmType + "'";
       ps = con.prepareStatement(sql);
       i = ps.executeUpdate();
@@ -3052,15 +3050,39 @@ public class DBUtil {
     return i;
   }
 
+  // ============================
 
-  public List<ClubStaticInfo> getClubStaticRecords(String lmType) {
+  /**
+   * 获取俱乐部统计数据
+   */
+  public List<ClubStaticInfo> getClubTotalStatic(String lmType) {
+    return getClubStaticRecords(lmType, null);
+  }
+
+  /**
+   * 获取某个俱乐部每天的统计数据
+   */
+  public List<ClubStaticInfo> getClubEveryDayStatic(String lmType, String clubId) {
+    return getClubStaticRecords(lmType, clubId);
+  }
+
+
+  private List<ClubStaticInfo> getClubStaticRecords(String lmType, String clubId) {
     List<ClubStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql =
-          "SELECT r.lmType, c. NAME, r.clubId, sum(r.yszj), ROUND( sum(r.currentTableInsurance), 0 ), count(1), ROUND(sum(r.heLirun)), min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
-              + " where r.isCleared = '0' and r.lmType = '"
-              + lmType + "' GROUP BY r.clubId";
+      String baseSql =
+          "SELECT r.lmType, c. NAME, r.clubId, ROUND(sum(r.yszj) * " + Constants.FINAL_HS_RATE_095
+              + ", 0) 总战绩 , ROUND( sum(r.shuihouxian), 0 ) 总保险, count(1) 总人数,  min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
+              + " where r.isCleared = '0' and r.lmType = '" + lmType + "'";
+      String sql = null;
+      if (StringUtils.isBlank(clubId)) {
+        sql = baseSql + " GROUP BY r.clubId";
+      } else {
+        sql = baseSql + "and r.clubId = '" + clubId
+            + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
+      }
+
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -3071,8 +3093,8 @@ public class DBUtil {
         info.setClubSumZJ(rs.getString(4));
         info.setClubSumBaoxian(rs.getString(5));
         info.setClubSumPerson(rs.getString(6));
-        info.setClubSumProfit(rs.getString(7));
-        info.setClubStaticTime(rs.getString(8));
+        info.setClubStaticTime(rs.getString(7));
+        info.setClubSumProfit(NumUtil.digit0(NumUtil.getSum(info.getClubSumZJ(), info.getClubSumBaoxian())));
         list.add(info);
       }
     } catch (Exception e) {

@@ -19,9 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,14 +29,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,7 +55,7 @@ public class StaticController extends BaseController implements Initializable {
   private TableView<TeamStaticInfo> tableTeamStatic; // 团队统计表
 
   @FXML
-  private TableColumn<TeamStaticInfo, String> lmName; // 所属联盟名称
+  private TableColumn<TeamStaticInfo, String> teamClubId; // 俱乐部ID
 
   @FXML
   private TableColumn<TeamStaticInfo, String> teamId; // 团队ID
@@ -111,44 +106,12 @@ public class StaticController extends BaseController implements Initializable {
   @FXML
   private TableColumn<ClubStaticInfo, String> clubSumBaoxian; // 俱乐部总保险
 
-  // ===============
+  // ==================================联盟选择框
   @FXML
   private HBox LmBox; // 联盟包装器
 
   ToggleGroup lmGroup = new ToggleGroup(); // 联盟选择
 
-
-  public <T> T getSelectedRow(TableView<T> table) {
-    T selectedItem = null;
-    if (TableUtil.isHasValue(table)) {
-      selectedItem = table.getSelectionModel().getSelectedItem();
-    }
-    return selectedItem;
-  }
-
-  public <T> boolean selectedItem(TableView<T> table) {
-    if (TableUtil.isNullOrEmpty(table)) {
-      ShowUtil.show("表格无数据，请检查！");
-      return Boolean.FALSE;
-    }
-    if (getSelectedRow(table) == null) {
-      ShowUtil.show("大哥，请先选择记录！");
-      return Boolean.FALSE;
-    } else {
-      return Boolean.TRUE;
-    }
-  }
-
-
-  public void clearData(TableView... tables) {
-    if (tables != null) {
-      for (TableView table : tables) {
-        if (table != null) {
-          table.getItems().clear();
-        }
-      }
-    }
-  }
 
 
   /**
@@ -161,7 +124,7 @@ public class StaticController extends BaseController implements Initializable {
       // 行双击
       if (e.getClickCount() == 2) {
         TeamStaticInfo item = getSelectedRow(tableTeamStatic);
-        if (item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
+        if (item != null && StringUtil.isAllNotBlank(item.getTeamId())) {
           viewTeamStatic();
         }
       }
@@ -173,7 +136,7 @@ public class StaticController extends BaseController implements Initializable {
       if (e.getClickCount() == 2) {
         ClubStaticInfo item = getSelectedRow(tableClubStatic);
         if (item != null && StringUtil.isAllNotBlank(item.getClubName())) {
-          viewSubTeamStatic();
+          viewClubEverydayStatic();
         }
       }
     });
@@ -203,7 +166,7 @@ public class StaticController extends BaseController implements Initializable {
   private void loadTeamStaticView() {
     clearData(tableTeamStatic);
     // 从数据库加载统计数据
-    List<TeamStaticInfo> staticRecords = dbUtil.getStaticRecordsByClub(myController.getClubId(), getSelectedLM());
+    List<TeamStaticInfo> staticRecords = dbUtil.getStaticRecordsByClub(myController.getClubId(), null);
 
     // 渲染到页面
     tableTeamStatic.getItems().addAll(staticRecords);
@@ -216,7 +179,7 @@ public class StaticController extends BaseController implements Initializable {
   private void loadClubStaticView() {
     clearData(tableClubStatic);
     // 从数据库加载统计数据
-    List<ClubStaticInfo> staticRecords = dbUtil.getClubStaticRecords(getSelectedLM());
+    List<ClubStaticInfo> staticRecords = dbUtil.getClubTotalStatic(getSelectedLM());
 
     // 渲染到页面
     tableClubStatic.getItems().addAll(staticRecords);
@@ -295,7 +258,7 @@ public class StaticController extends BaseController implements Initializable {
       // 行双击
       if (e.getClickCount() == 2) {
         TeamStaticInfo item = getSelectedRow(table);
-        if (item != null && StringUtil.isAllNotBlank(item.getLmName(), item.getTeamId())) {
+        if (item != null && StringUtil.isAllNotBlank(item.getTeamId())) {
           String teamId = item.getTeamId();
           String staticTime = item.getStaticTime();
           logger.info("查询历史汇总中的当天记录" + staticTime + "...");
@@ -325,7 +288,7 @@ public class StaticController extends BaseController implements Initializable {
       setDoubleClick(table);
 
       // 获取值
-      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByTeam(clubId, teamId, getSelectedLM());
+      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByTeam(clubId, teamId);
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
@@ -395,22 +358,27 @@ public class StaticController extends BaseController implements Initializable {
   //===============================================右边俱乐部双击时显示拥有的团队合计【开始】
   private Stage subTeamStage;
 
-  private void viewSubTeamStatic() {
+  private void viewClubEverydayStatic() {
     if (selectedItem(tableClubStatic)) {
       ClubStaticInfo item = getSelectedRow(tableClubStatic);
       String clubName = item.getClubName();
       String clubId = item.getClubId();
-      TableView<TeamStaticInfo> table = new TableView<>();
-      for (TableColumn column : tableTeamStatic.getColumns()) {
-        table.getColumns().add(getTableColumnCommon(
-            column.getText(), column.getId(), ColumnType.COLUMN_RED));
+      TableView<ClubStaticInfo> table = new TableView<>();
+      for (TableColumn column : tableClubStatic.getColumns()) {
+        String colName = column.getText();
+        String replaceStr = "开始";
+        if(StringUtils.contains(colName, replaceStr)){
+          colName = colName.replace(replaceStr, "");
+        }
+        table.getColumns().add(getTableClubColumn(
+            colName, column.getId(), ColumnType.COLUMN_RED));
       }
 
       table.setEditable(false);
-      setDoubleClick(table);
+      //setDoubleClick(table);
 
       // 获取值
-      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByClub(clubId, getSelectedLM());
+      List<ClubStaticInfo> list = dbUtil.getClubEveryDayStatic(getSelectedLM(), clubId);
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
@@ -450,7 +418,7 @@ public class StaticController extends BaseController implements Initializable {
         for (int i = 0; i < list.size(); i++) {
           TeamStaticInfo info = list.get(i);
           objs = new Object[rowsName.length];
-          objs[0] = info.getLmName();
+          objs[0] = info.getTeamClubId();
           objs[1] = info.getTeamId();
           objs[2] = info.getStaticTime();
           objs[3] = info.getSumZJ();
@@ -488,6 +456,19 @@ public class StaticController extends BaseController implements Initializable {
     col.setCellValueFactory(new PropertyValueFactory<TeamStaticInfo, String>(colVal));
     if (columnType == ColumnType.COLUMN_RED) {
       col.setCellFactory(myController.getColorCellFactory(new TeamStaticInfo()));
+    }
+    col.setSortable(false);
+    return col;
+  }
+
+  private TableColumn<ClubStaticInfo, String> getTableClubColumn(String colName, String colVal,
+      ColumnType columnType) {
+    TableColumn<ClubStaticInfo, String> col = new TableColumn<>(colName);
+    col.setStyle(Constants.CSS_CENTER);
+    col.setPrefWidth(85);
+    col.setCellValueFactory(new PropertyValueFactory<ClubStaticInfo, String>(colVal));
+    if (columnType == ColumnType.COLUMN_RED) {
+      col.setCellFactory(myController.getColorCellFactory(new ClubStaticInfo()));
     }
     col.setSortable(false);
     return col;

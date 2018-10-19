@@ -20,7 +20,6 @@ import lombok.experimental.Accessors;
  */
 public class TeamStaticInfo implements Entity {
 
-  private SimpleStringProperty lmName = new SimpleStringProperty();//所属联盟名称
   private SimpleStringProperty teamId = new SimpleStringProperty();//团家ID
   private SimpleStringProperty staticTime = new SimpleStringProperty();// 开始统计时间
   private SimpleStringProperty sumZJ = new SimpleStringProperty();//总战绩
@@ -28,34 +27,21 @@ public class TeamStaticInfo implements Entity {
   private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
   private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
   private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢
-  private SimpleStringProperty clubId = new SimpleStringProperty();//总输赢
+  private SimpleStringProperty teamClubId = new SimpleStringProperty();//总输赢
 
   public TeamStaticInfo() {
   }
 
-
-  public String getClubId() {
-    return clubId.get();
+  public String getTeamClubId() {
+    return teamClubId.get();
   }
 
-  public SimpleStringProperty clubIdProperty() {
-    return clubId;
+  public SimpleStringProperty teamClubIdProperty() {
+    return teamClubId;
   }
 
-  public void setClubId(String clubId) {
-    this.clubId.set(clubId);
-  }
-
-  public String getLmName() {
-    return lmName.get();
-  }
-
-  public SimpleStringProperty lmNameProperty() {
-    return lmName;
-  }
-
-  public void setLmName(String lmName) {
-    this.lmName.set(lmName);
+  public void setTeamClubId(String teamClubId) {
+    this.teamClubId.set(teamClubId);
   }
 
   public String getTeamId() {
