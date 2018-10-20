@@ -67,7 +67,6 @@ public class TeamProxyService {
   public DecimalFormat df = new DecimalFormat("#.00");
 
   public TableView<ProxyTeamInfo> tableProxyTeam;
-  public HBox proxySumHBox;// 每列上的总和
   public ComboBox<String> teamIDCombox;// 团队ID下拉框
   public CheckBox isZjManage;// 团对应的战绩是否被管理
   public CheckBox hasTeamBaoxian;// 导出是否有团队保险
@@ -101,7 +100,7 @@ public class TeamProxyService {
   /**
    * 初始化代理服务类
    */
-  public void initTeamProxy(TableView<ProxyTeamInfo> tableProxyTeam0, HBox proxySumHBox0, // 每列上的总和
+  public void initTeamProxy(TableView<ProxyTeamInfo> tableProxyTeam0,  // 每列上的总和
       ComboBox<String> teamIDCombox0, // 团队ID下拉框
       CheckBox isZjManage0, // 团对应的战绩是否被管理
       Label proxyDateLabel0, TableView<ProxySumInfo> tableProxySum0, TextField proxyHSRate0, // 回水比例
@@ -109,7 +108,6 @@ public class TeamProxyService {
       TextField proxyFWF0, // 服务费大于多少有效
       CheckBox hasTeamBaoxian0) {
     tableProxyTeam = tableProxyTeam0;
-    proxySumHBox = proxySumHBox0;
     teamIDCombox = teamIDCombox0;
     isZjManage = isZjManage0;
     proxyDateLabel = proxyDateLabel0;
@@ -251,7 +249,7 @@ public class TeamProxyService {
     int sumRC = 0;
     Map<String, List<GameRecord>> teamMap = getTotalTeamHuishuiMap();
     if (teamMap != null && teamMap.size() == 0) {
-      log.error("----------------");// 这个有问题，后期再看
+      log.error("进入未解决的问区域......");
     }
     List<GameRecord> teamList = teamMap.get(newValue.toString().toUpperCase());
     ObservableList<ProxyTeamInfo> obList = FXCollections.observableArrayList();
@@ -274,31 +272,6 @@ public class TeamProxyService {
     tableProxyTeam.setItems(obList);
     tableProxyTeam.refresh();
 
-    ObservableList<Node> sumHBox = proxySumHBox.getChildren();
-    for (Node node : sumHBox) {
-      Label label = (Label) node;
-      String labelId = label.getId();
-      switch (labelId) {
-        case "sumYSZJ":
-          label.setText(NumUtil.digit0(sumYSZJ));
-          break;
-        case "sumZJ":
-          label.setText(NumUtil.digit0(sumZJ));
-          break;
-        case "sumBX":
-          label.setText(NumUtil.digit0(sumBX));
-          break;
-        case "sumHS":
-          label.setText(NumUtil.digit1(sumHS + ""));
-          break;
-        case "sumHB":
-          label.setText(sumHB + "");
-          break;
-        case "sumRC":
-          label.setText(sumRC + "");
-          break;
-      }
-    }
     // add by kendy 添加总回保比例，总回水比例，服务费和合计
     proxyHSRate.setText(hs.getProxyHSRate());
     proxyHBRate.setText(hs.getProxyHBRate());
@@ -392,14 +365,12 @@ public class TeamProxyService {
     if (dataConstants.Dangju_Team_Huishui_List.size() > 0) {
       for (GameRecord info : dataConstants.Dangju_Team_Huishui_List) {
         String teamId = info.getTeamId();
-        List<GameRecord> teamHuishuiList = teamMap.get(teamId);
-        if (teamHuishuiList == null) {
-          teamHuishuiList = new ArrayList<>();
-        }
+        List<GameRecord> teamHuishuiList = teamMap.getOrDefault(teamId, new ArrayList<>());
+
         // add 去重
         boolean isExist = false;
         for (GameRecord teamInfo : teamHuishuiList) {
-          if (teamInfo.getTableId().equals(info.getTableId())
+          if (StringUtils.equals(teamInfo.getTableId(), info.getTableId())
               && StringUtils.equals(teamInfo.getPlayerName(), info.getPlayerName())) {
             isExist = true;
           }
@@ -556,22 +527,11 @@ public class TeamProxyService {
     }
   }
 
-
-  /************************* 导出Excel ************************************/
+  /**
+   * 导出Excel
+   */
   public void exportExcel() {
-    if (hasTeamBaoxian.isSelected()) {
-      exportExcel_with_no_teamBaoxianRate();
-    } else {
-      exportExcel_with_has_teamBaoxianRate();
-    }
-  }
-
-  /**
-   * 导出无团队保险比例的Excel
-   *
-   * @time 2018年2月8日
-   */
-  public void exportExcel_with_has_teamBaoxianRate() {
+    boolean hasTeamBaoxianRate = hasTeamBaoxian.isSelected();
     String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
     boolean isManage = isZjManage.isSelected();
     String time = dataConstants.Date_Str;
@@ -596,20 +556,34 @@ public class TeamProxyService {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     String title = teamId + "-" + sdf.format(new Date());
 
-    String[] rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "保险", "回水", "回保", "场次"};
+    String[] rowsName = null;
     List<Object[]> dataList = new ArrayList<Object[]>();
-    Object[] objs = null;
-    for (ProxyTeamInfo info : list) {
-      objs = new Object[rowsName.length];
-      objs[0] = info.getProxyPlayerId();
-      objs[1] = info.getProxyPlayerName();
-      objs[2] = info.getProxyYSZJ();
-      objs[3] = info.getProxyZJ();
-      objs[4] = info.getProxyBaoxian();
-      objs[5] = info.getProxyHuishui();
-      objs[6] = info.getProxyHuiBao();
-      objs[7] = info.getProxyTableId();
-      dataList.add(objs);
+    if(hasTeamBaoxianRate) {
+      rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "保险", "回水", "回保", "场次"};
+      for (ProxyTeamInfo info : list) {
+        Object[] objs = new Object[rowsName.length];
+        objs[0] = info.getProxyPlayerId();
+        objs[1] = info.getProxyPlayerName();
+        objs[2] = info.getProxyYSZJ();
+        objs[3] = info.getProxyZJ();
+        objs[4] = info.getProxyBaoxian();
+        objs[5] = info.getProxyHuishui();
+        objs[6] = info.getProxyHuiBao();
+        objs[7] = info.getProxyTableId();
+        dataList.add(objs);
+      }
+    }else{
+      rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "回水", "场次"};
+      for (ProxyTeamInfo info : list) {
+        Object[] objs = new Object[rowsName.length];
+        objs[0] = info.getProxyPlayerId();
+        objs[1] = info.getProxyPlayerName();
+        objs[2] = info.getProxyYSZJ();
+        objs[3] = info.getProxyZJ();
+        objs[4] = info.getProxyHuishui();
+        objs[5] = info.getProxyTableId();
+        dataList.add(objs);
+      }
     }
 
     String[] rowsName2 = new String[]{"合计", "0"};
@@ -641,79 +615,8 @@ public class TeamProxyService {
     }
   }
 
-  /**
-   * 导出有团队保险比例的Excel
-   *
-   * @time 2018年2月8日
-   */
-  public void exportExcel_with_no_teamBaoxianRate() {
-    String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
-    boolean isManage = isZjManage.isSelected();
-    String time = dataConstants.Date_Str;
-    if (StringUtil.isBlank(teamId)) {
-      ShowUtil.show("导出失败! 请先选择团队ID!!");
-      return;
-    }
-    if (StringUtil.isBlank(time)) {
-      ShowUtil.show("导出失败! 您今天还没导入01场次的战绩，无法确认时间!!");
-      return;
-    }
-    List<ProxyTeamInfo> list = new ArrayList<>();
-    ObservableList<ProxyTeamInfo> obList = tableProxyTeam.getItems();
-    if (obList != null && obList.size() > 0) {
-      for (ProxyTeamInfo info : obList) {
-        list.add(info);
-      }
-    } else {
-      ShowUtil.show("没有需要导出的数据!!");
-      return;
-    }
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-    String title = teamId + "-" + sdf.format(new Date());
 
-    String[] rowsName = new String[]{"玩家ID", "玩家名称", "原始战绩", "战绩", "回水", "场次"};
-    List<Object[]> dataList = new ArrayList<Object[]>();
-    Object[] objs = null;
-    for (ProxyTeamInfo info : list) {
-      objs = new Object[rowsName.length];
-      objs[0] = info.getProxyPlayerId();
-      objs[1] = info.getProxyPlayerName();
-      objs[2] = info.getProxyYSZJ();
-      objs[3] = info.getProxyZJ();
-      objs[4] = info.getProxyHuishui();
-      objs[5] = info.getProxyTableId();
-      dataList.add(objs);
-    }
 
-    String[] rowsName2 = new String[]{"合计", "0"};
-    List<Object[]> sumList = new ArrayList<>();
-    Object[] sumObjs = null;
-    ObservableList<ProxySumInfo> ob_List = tableProxySum.getItems();
-    List<String> baoxianFilters = getHejiFilters();
-    if (CollectUtil.isHaveValue(ob_List)) {
-      for (ProxySumInfo info : ob_List) {
-        if (!baoxianFilters.contains(info.getProxySumType())) {
-          sumObjs = new Object[rowsName2.length];
-          sumObjs[0] = info.getProxySumType();
-          sumObjs[1] = info.getProxySum();
-          sumList.add(sumObjs);
-        }
-      }
-      String sum = getExportHejiSum(ob_List, baoxianFilters);
-
-      rowsName2[1] = sum;
-    }
-
-    String out = getOutPath(title, rowsName2[1]);
-    ExportExcel ex =
-        new ExportExcel(teamId, time, isManage, title, rowsName, dataList, out, rowsName2, sumList);
-    try {
-      ex.export();
-      log.info("代理查询导出成功");
-    } catch (Exception e) {
-      ErrorUtil.err("代理查询导出失败", e);
-    }
-  }
 
   /**
    * 代理查询一键导出 程序会导出多个Excel文件到同一个目录中 提示：先点击隐藏今日无数据团队

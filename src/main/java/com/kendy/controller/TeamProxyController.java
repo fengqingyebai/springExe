@@ -95,7 +95,7 @@ public class TeamProxyController extends BaseController implements Initializable
     bindCellValueByTable(new ProxySumInfo(), tableProxySum);
 
     // 代理查询中的团队回水选择
-    teamProxyService.initTeamProxy(tableProxyTeam, proxySumHBox, teamIDCombox, isZjManage,
+    teamProxyService.initTeamProxy(tableProxyTeam,  teamIDCombox, isZjManage,
         proxyDateLabel, tableProxySum, proxyHSRate, proxyHBRate, proxyFWF, hasTeamBaoxian);
     // 代理查询中的团队回水选择
     teamProxyService.initTeamSelectAction(teamIDCombox, isZjManage, tableProxyTeam, proxySumHBox);
