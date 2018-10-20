@@ -26,8 +26,14 @@ public class TeamStaticInfo implements Entity {
   private SimpleStringProperty sumHuibao = new SimpleStringProperty();//总回保
   private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
   private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
-  private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢
-  private SimpleStringProperty teamClubId = new SimpleStringProperty();//总输赢
+  private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢 = 总战绩 + 总出回水 + 总回保 - 团队服务费
+  private SimpleStringProperty teamClubId = new SimpleStringProperty();//俱乐部ID
+
+  private SimpleStringProperty teamFWF = new SimpleStringProperty();// 团队服务费
+  private SimpleStringProperty teamProxyHBRate = new SimpleStringProperty();// 团队代理回保比例
+  private SimpleStringProperty teamProxyHSRate = new SimpleStringProperty();// 团队代理回水比例
+
+
 
   public TeamStaticInfo() {
   }
@@ -126,5 +132,41 @@ public class TeamStaticInfo implements Entity {
 
   public void setSumProfit(String sumProfit) {
     this.sumProfit.set(sumProfit);
+  }
+
+  public String getTeamFWF() {
+    return teamFWF.get();
+  }
+
+  public SimpleStringProperty teamFWFProperty() {
+    return teamFWF;
+  }
+
+  public void setTeamFWF(String teamFWF) {
+    this.teamFWF.set(teamFWF);
+  }
+
+  public String getTeamProxyHBRate() {
+    return teamProxyHBRate.get();
+  }
+
+  public SimpleStringProperty teamProxyHBRateProperty() {
+    return teamProxyHBRate;
+  }
+
+  public void setTeamProxyHBRate(String teamProxyHBRate) {
+    this.teamProxyHBRate.set(teamProxyHBRate);
+  }
+
+  public String getTeamProxyHSRate() {
+    return teamProxyHSRate.get();
+  }
+
+  public SimpleStringProperty teamProxyHSRateProperty() {
+    return teamProxyHSRate;
+  }
+
+  public void setTeamProxyHSRate(String teamProxyHSRate) {
+    this.teamProxyHSRate.set(teamProxyHSRate);
   }
 }

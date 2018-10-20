@@ -57,8 +57,7 @@ public class TeamProxyService {
   public DBUtil dbUtil;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
-  //  @Autowired
-//  public TeamProxyController teamProxyController ;
+
   @Autowired
   public MyController myController;
   @Autowired
@@ -147,55 +146,49 @@ public class TeamProxyService {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void initTeamSelectAction(ComboBox<String> teamIDCombox, CheckBox isZjManage,
       TableView<ProxyTeamInfo> tableProxyTeam, HBox proxySumHBox) {
-    teamIDCombox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-      @Override
-      public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-        refresh_TableTeamProxy_TableProxySum(newValue);
+    teamIDCombox.getSelectionModel().selectedItemProperty().addListener(
+        (ChangeListener) (observable, oldValue, newValue) -> {
+          refresh_TableTeamProxy_TableProxySum(newValue);
 
-        // add 团队保险比例为0默认将hasTeamBaoxian打勾
-        if (newValue != null && StringUtil.isNotBlank(newValue.toString())) {
-          Huishui huishui = dataConstants.huishuiMap.get(newValue);
-          if (huishui != null) {
-            if ("0".equals(huishui.getShowInsure())
-                || StringUtil.isBlank(huishui.getShowInsure())) {
-              hasTeamBaoxian.setSelected(false);
+          // add 团队保险比例为0默认将hasTeamBaoxian打勾
+          if (newValue != null && StringUtil.isNotBlank(newValue.toString())) {
+            Huishui huishui = dataConstants.huishuiMap.get(newValue);
+            if (huishui != null) {
+              if ("0".equals(huishui.getShowInsure())
+                  || StringUtil.isBlank(huishui.getShowInsure())) {
+                hasTeamBaoxian.setSelected(false);
+              } else {
+                hasTeamBaoxian.setSelected(true);
+              }
             } else {
-              hasTeamBaoxian.setSelected(true);
+              ShowUtil.show("团队" + newValue + "对应的huishui字段为空！");
+              hasTeamBaoxian.setSelected(false);
             }
-          } else {
-            ShowUtil.show("团队" + newValue + "对应的huishui字段为空！");
-            hasTeamBaoxian.setSelected(false);
           }
+        });
+
+    isZjManage.selectedProperty().addListener((ov, old_val, new_val) -> {
+      String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
+      if (!StringUtil.isBlank(teamId)) {
+        Huishui hs = dataConstants.huishuiMap.get(teamId);
+        if (hs != null) {
+          hs.setZjManaged(new_val ? "是" : "否");
+          dataConstants.huishuiMap.put(teamId, hs);
         }
       }
     });
 
-    isZjManage.selectedProperty().addListener(new ChangeListener<Boolean>() {
-      public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val) {
-        String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
-        if (!StringUtil.isBlank(teamId)) {
-          Huishui hs = dataConstants.huishuiMap.get(teamId);
-          if (hs != null) {
-            hs.setZjManaged(new_val ? "是" : "否");
-            dataConstants.huishuiMap.put(teamId, hs);
-          }
-        }
-      }
-    });
-
-    hasTeamBaoxian.selectedProperty().addListener(new ChangeListener<Boolean>() {
-      public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val) {
-        String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
-        if (!StringUtil.isBlank(teamId)) {
-          Huishui hs = dataConstants.huishuiMap.get(teamId);
-          if (hs != null) {
-            // 修改缓存
-            String showInsure = new_val ? "1" : "0";
-            hs.setShowInsure(showInsure);
-            dataConstants.huishuiMap.put(teamId, hs);
-            // 更新到数据库
-            dbUtil.updateTeamHsShowInsure(teamId, showInsure);
-          }
+    hasTeamBaoxian.selectedProperty().addListener((ov, old_val, new_val) -> {
+      String teamId = teamIDCombox.getSelectionModel().getSelectedItem();
+      if (!StringUtil.isBlank(teamId)) {
+        Huishui hs = dataConstants.huishuiMap.get(teamId);
+        if (hs != null) {
+          // 修改缓存
+          String showInsure = new_val ? "1" : "0";
+          hs.setShowInsure(showInsure);
+          dataConstants.huishuiMap.put(teamId, hs);
+          // 更新到数据库
+          dbUtil.updateTeamHsShowInsure(teamId, showInsure);
         }
       }
     });
