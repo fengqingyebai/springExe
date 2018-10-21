@@ -20,17 +20,38 @@ import lombok.experimental.Accessors;
  */
 public class TeamStaticInfo implements Entity {
 
-  private SimpleStringProperty teamId = new SimpleStringProperty();//团家ID
-  private SimpleStringProperty staticTime = new SimpleStringProperty();// 开始统计时间
-  private SimpleStringProperty sumZJ = new SimpleStringProperty();//总战绩
-  private SimpleStringProperty sumHuibao = new SimpleStringProperty();//总回保
-  private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
-  private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
-  private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢 = 总战绩 + 总出回水 + 总回保 - 团队服务费
+  @ExcelField(title = "俱乐部ID", order = 1)
   private SimpleStringProperty teamClubId = new SimpleStringProperty();//俱乐部ID
 
+  @ExcelField(title = "团家ID", order = 2)
+  private SimpleStringProperty teamId = new SimpleStringProperty();//团家ID
+
+  @ExcelField(title = "统计时间", order = 3)
+  private SimpleStringProperty staticTime = new SimpleStringProperty();// 开始统计时间
+
+  @ExcelField(title = "总战绩", order = 4)
+  private SimpleStringProperty sumZJ = new SimpleStringProperty();//总战绩
+
+  @ExcelField(title = "总回水", order = 5)
+  private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
+
+  @ExcelField(title = "总回保", order = 6)
+  private SimpleStringProperty sumHuibao = new SimpleStringProperty();//总回保
+
+
+  @ExcelField(title = "总人数", order = 7)
+  private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
+
+  @ExcelField(title = "服务费", order = 8)
   private SimpleStringProperty teamFWF = new SimpleStringProperty();// 团队服务费
+
+  @ExcelField(title = "总输赢", order = 9)
+  private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢 = 总战绩 + 总出回水 + 总回保 - 团队服务费
+
+  @ExcelField(title = "团保比例", order = 10)
   private SimpleStringProperty teamProxyHBRate = new SimpleStringProperty();// 团队代理回保比例
+
+  @ExcelField(title = "团水比例", order = 11)
   private SimpleStringProperty teamProxyHSRate = new SimpleStringProperty();// 团队代理回水比例
 
 

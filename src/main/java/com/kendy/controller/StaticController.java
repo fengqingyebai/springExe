@@ -1,13 +1,18 @@
 package com.kendy.controller;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXButton.ButtonType;
 import com.kendy.constant.Constants;
+import com.kendy.customize.MyTable;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ClubStaticInfo;
 import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.enums.ColumnType;
 import com.kendy.excel.ExportExcelTemplate;
+import com.kendy.interfaces.Entity;
 import com.kendy.util.AlertUtil;
+import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.ShowUtil;
@@ -17,24 +22,36 @@ import com.kendy.util.TimeUtil;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javax.swing.JButton;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -78,6 +95,15 @@ public class StaticController extends BaseController implements Initializable {
   @FXML
   private TableColumn<TeamStaticInfo, String> sumHuibao; // 总回保
 
+  @FXML
+  private TableColumn<TeamStaticInfo, String> teamFWF; // 团队服务费
+
+  @FXML
+  private TableColumn<TeamStaticInfo, String> teamProxyHBRate; // 团队代理回保比例
+
+  @FXML
+  private TableColumn<TeamStaticInfo, String> teamProxyHSRate; // 团队代理回水比例
+
   // ====================== 俱乐部表
   @FXML
   private TableView<ClubStaticInfo> tableClubStatic; // 俱乐部表
@@ -112,6 +138,7 @@ public class StaticController extends BaseController implements Initializable {
 
   ToggleGroup lmGroup = new ToggleGroup(); // 联盟选择
 
+  public static final String BEGIN = "开始";
 
 
   /**
@@ -166,7 +193,8 @@ public class StaticController extends BaseController implements Initializable {
   private void loadTeamStaticView() {
     clearData(tableTeamStatic);
     // 从数据库加载统计数据
-    List<TeamStaticInfo> staticRecords = dbUtil.getStaticRecordsByClub(myController.getClubId(), null);
+    List<TeamStaticInfo> staticRecords = dbUtil
+        .getStaticRecordsByClub(myController.getClubId(), null);
 
     // 渲染到页面
     tableTeamStatic.getItems().addAll(staticRecords);
@@ -193,29 +221,31 @@ public class StaticController extends BaseController implements Initializable {
   private void initLMRadios() {
 
     ObservableList<Node> radios = LmBox.getChildren();
-    for(Node node : radios){
+    for (Node node : radios) {
       RadioButton radio = (RadioButton) node;
       String text = radio.getText();
       radio.setToggleGroup(lmGroup);
       radio.setUserData(text);
-      if(Constants.LM1.equals(text)){
+      if (Constants.LM1.equals(text)) {
         radio.setSelected(true);
       }
     }
-    lmGroup.selectedToggleProperty().addListener(e->{
-        String radioLmType = (String) lmGroup.getSelectedToggle().getUserData();
-        if (Constants.LM3.equals(radioLmType)) {
-          // 清空
-          clearData(tableTeamStatic, tableClubStatic);
+    lmGroup.selectedToggleProperty().addListener(e -> {
+      String radioLmType = (String) lmGroup.getSelectedToggle().getUserData();
+      if (Constants.LM3.equals(radioLmType)) {
+        // 清空
+        clearData(tableTeamStatic, tableClubStatic);
 
-        } else{
-          refresh();// 刷新
-        }
+      } else {
+        refresh();// 刷新
+      }
     });
   }
 
-  /** 获取当前选择的联盟**/
-  private String getSelectedLM(){
+  /**
+   * 获取当前选择的联盟
+   **/
+  private String getSelectedLM() {
     return (String) lmGroup.getSelectedToggle().getUserData();
   }
 
@@ -273,15 +303,21 @@ public class StaticController extends BaseController implements Initializable {
    * 查看团队的视图【左边统计】
    */
   private Stage stage;
+
   private void viewTeamStatic() {
     if (selectedItem(tableTeamStatic)) {
       TeamStaticInfo item = getSelectedRow(tableTeamStatic);
       String clubId = myController.getClubId();
       String teamId = item.getTeamId();
-      TableView<TeamStaticInfo> table = new TableView<>();
+      String TITLE = teamId + "的每天汇总";
+      MyTable<TeamStaticInfo> table = new MyTable<>();
       for (TableColumn column : tableTeamStatic.getColumns()) {
+        String colName = column.getText();
+        if(StringUtils.contains(colName, BEGIN)){
+          colName = StringUtils.replace(colName, BEGIN, "");
+        }
         table.getColumns().add(getTableColumnCommon(
-            column.getText(), column.getId(), ColumnType.COLUMN_RED));
+            colName, column.getId(), ColumnType.COLUMN_RED));
       }
 
       table.setEditable(false);
@@ -292,36 +328,56 @@ public class StaticController extends BaseController implements Initializable {
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
-      // 设置总金额
-      final VBox vbox = new VBox();
-      vbox.setSpacing(5);
-      vbox.setPadding(new Insets(2, 0, 0, 0));
-      vbox.getChildren().addAll(table);
+      // 导出按钮
+      table.setEntityClass(TeamStaticInfo.class);
+      table.setExcelName(TITLE + TimeUtil.getDateTime());
+      JFXButton exportBtn = getDownloadButn(table);
+
+      StackPane stackPane = new StackPane();
+      stackPane.getChildren().addAll(table, exportBtn);
+      stackPane.setAlignment(Pos.BOTTOM_CENTER);
 
       if (stage == null) { // 共享一个舞台
         stage = new Stage();
       }
       // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
       ShowUtil.setIcon(stage);
-      stage.setTitle(teamId + "的每天汇总");
-      stage.setWidth(700);
-      stage.setHeight(450);
+      stage.setTitle(TITLE);
+      stage.setWidth(960);
+      stage.setHeight(300);
 
-      Scene scene = new Scene(vbox);
+      Scene scene = new Scene(stackPane);
       stage.setScene(scene);
       stage.show();
     }
   }
 
+  private JFXButton getDownloadButn(MyTable<?> table){
+    JFXButton exportBtn = new JFXButton("导出");
+    exportBtn.setStyle("-fx-background-color: #DAF2E3; -fx-font-size: 20");
+    exportBtn.setPrefWidth(120);
+    exportBtn.setPrefHeight(40);
+    exportBtn.setId("exportBtn");
+    exportBtn.setOnAction(e->{
+      if(TableUtil.isHasValue(table)){
+        try {
+          logger.info("正在导出{}...", table.getExcelName());
+          table.export();
+          logger.info("导出完成{}" + table.getExcelName());
+        }catch (Exception ee){
+          ErrorUtil.err("导出失败", ee);
+        }
+      }
+    });
+    return exportBtn;
+  }
 
 
   /**
    * 显示团队某天的具体记录
-   * @param teamId
-   * @param softTime
    */
   private void viewDetailGameRecord(String teamId, String softTime) {
-    TableView<TotalInfo> table = new TableView<>();
+    MyTable<TotalInfo> table = new MyTable<>();
     for (TableColumn column : myController.tableTotalInfo.getColumns()) {
       table.getColumns().add(getTotalInfoColumn(
           column.getText(), column.getId(), ColumnType.COLUMN_RED));
@@ -335,11 +391,14 @@ public class StaticController extends BaseController implements Initializable {
     table.getItems().addAll(list);
     table.getSelectionModel().clearSelection();
 
-    // 设置总金额
-    final VBox vbox = new VBox();
-    vbox.setSpacing(5);
-    vbox.setPadding(new Insets(2, 0, 0, 0));
-    vbox.getChildren().addAll(table);
+    // 导出按钮
+    table.setEntityClass(TotalInfo.class);
+    table.setExcelName(teamId + "团队" + softTime + "-" +TimeUtil.getDateTime());
+    JFXButton exportBtn = getDownloadButn(table);
+
+    StackPane stackPane = new StackPane();
+    stackPane.getChildren().addAll(table, exportBtn);
+    stackPane.setAlignment(Pos.BOTTOM_CENTER);
 
     /*if (stage == null) { // 共享一个舞台
       stage = new Stage();
@@ -348,9 +407,9 @@ public class StaticController extends BaseController implements Initializable {
     ShowUtil.setIcon(detailStage);
     detailStage.setTitle(teamId + "团队" + softTime);
     detailStage.setWidth(970);
-    detailStage.setHeight(450);
+    detailStage.setHeight(500);
 
-    Scene scene = new Scene(vbox);
+    Scene scene = new Scene(stackPane);
     detailStage.setScene(scene);
     detailStage.show();
   }
@@ -363,12 +422,11 @@ public class StaticController extends BaseController implements Initializable {
       ClubStaticInfo item = getSelectedRow(tableClubStatic);
       String clubName = item.getClubName();
       String clubId = item.getClubId();
-      TableView<ClubStaticInfo> table = new TableView<>();
+      MyTable<ClubStaticInfo> table = new MyTable<>();
       for (TableColumn column : tableClubStatic.getColumns()) {
         String colName = column.getText();
-        String replaceStr = "开始";
-        if(StringUtils.contains(colName, replaceStr)){
-          colName = colName.replace(replaceStr, "");
+        if (StringUtils.contains(colName, BEGIN)) {
+          colName = colName.replace(BEGIN, "");
         }
         table.getColumns().add(getTableClubColumn(
             colName, column.getId(), ColumnType.COLUMN_RED));
@@ -382,11 +440,14 @@ public class StaticController extends BaseController implements Initializable {
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
-      // 设置总金额
-      final VBox vbox = new VBox();
-      vbox.setSpacing(5);
-      vbox.setPadding(new Insets(2, 0, 0, 0));
-      vbox.getChildren().addAll(table);
+      // 导出按钮
+      table.setEntityClass(ClubStaticInfo.class);
+      table.setExcelName(clubName + "每日汇总"  +TimeUtil.getDateTime());
+      JFXButton exportBtn = getDownloadButn(table);
+
+      StackPane stackPane = new StackPane();
+      stackPane.getChildren().addAll(table, exportBtn);
+      stackPane.setAlignment(Pos.BOTTOM_CENTER);
 
       if (subTeamStage == null) { // 共享一个舞台
         subTeamStage = new Stage();
@@ -397,7 +458,7 @@ public class StaticController extends BaseController implements Initializable {
       subTeamStage.setWidth(700);
       subTeamStage.setHeight(450);
 
-      Scene scene = new Scene(vbox);
+      Scene scene = new Scene(stackPane);
       subTeamStage.setScene(scene);
       subTeamStage.show();
     }
@@ -411,8 +472,9 @@ public class StaticController extends BaseController implements Initializable {
       ObservableList<TeamStaticInfo> list = tableTeamStatic.getItems();
       String name = "团队汇总" + TimeUtil.getDateTime();
       try {
-        String[] rowsName = new String[]{"联盟名称", "团家ID", "开始统计时间", "总战绩", "总回水", "总回保", "总人数",
-            "总输赢"};
+        String[] rowsName =
+            new String[]{"联盟名称", "团家ID", "开始统计时间", "总战绩", "总回水", "总回保", "总人数", "服务费",
+                "总输赢", "团保比例", "团水比例"};
         List<Object[]> dataList = new ArrayList<Object[]>();
         Object[] objs = null;
         for (int i = 0; i < list.size(); i++) {
@@ -425,11 +487,14 @@ public class StaticController extends BaseController implements Initializable {
           objs[4] = info.getSumChuhuishui();
           objs[5] = info.getSumHuibao();
           objs[6] = info.getSumPerson();
-          objs[7] = info.getSumProfit();
+          objs[7] = info.getTeamFWF();
+          objs[8] = info.getSumProfit();
+          objs[9] = info.getTeamProxyHBRate();
+          objs[10] = info.getTeamProxyHSRate();
           dataList.add(objs);
         }
         List<Integer> columnWidths =
-            Arrays.asList(4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000);
+            Arrays.asList(4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000);
         ExportExcelTemplate ex = new ExportExcelTemplate(name, rowsName, columnWidths, dataList);
         ex.export();
         System.out.println("finises..");

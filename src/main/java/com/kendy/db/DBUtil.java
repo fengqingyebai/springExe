@@ -94,7 +94,7 @@ public class DBUtil {
       String sql = new StringBuilder()
           .append(
               "SELECT 	(@i :=@i + 1) AS jfRankNo, 	hh.* FROM ( SELECT DISTINCT playerName,floor(("
-                  +subSql+") / ")
+                  + subSql + ") / ")
           .append(jifenValue).append(") AS jifenValue FROM 	( ")
           .append(GAME_RECORD_SQL).append("	WHERE 	m.teamId = '").append(teamId)
           .append("' AND soft_time >= '").append(startTime)
@@ -104,7 +104,7 @@ public class DBUtil {
               "' )h 	GROUP BY 	playerId 	ORDER BY jifenValue DESC ) hh, 	(SELECT @i := 0) b LIMIT ")
           .append(limit)
           .toString();
-      loger.info("积分："+sql);
+      loger.info("积分：" + sql);
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -125,8 +125,8 @@ public class DBUtil {
   public String getTotalZJByPId(String playerId) {
     try {
       con = DBConnection.getConnection();
-      String sql = "SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from ("+GAME_RECORD_SQL
-          +") hr where hr.playerId = ?";
+      String sql = "SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (" + GAME_RECORD_SQL
+          + ") hr where hr.playerId = ?";
       ps = con.prepareStatement(sql);
       ps.setString(1, playerId);
       ResultSet rs = ps.executeQuery();
@@ -151,12 +151,12 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       if (!StringUtil.isBlank(playerId)) {
-        sql = "delete from members where playerId = '"+playerId+"'";
+        sql = "delete from members where playerId = '" + playerId + "'";
         ps = con.prepareStatement(sql);
         ps.execute();
       }
     } catch (SQLException e) {
-      ErrorUtil.err("根据ID("+playerId+")删除人员失败", e);
+      ErrorUtil.err("根据ID(" + playerId + ")删除人员失败", e);
     } finally {
       close(con, ps);
     }
@@ -172,12 +172,12 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       if (!StringUtil.isBlank(teamId)) {
-        sql = "delete from members where teamId = '"+teamId.toUpperCase()+"'";
+        sql = "delete from members where teamId = '" + teamId.toUpperCase() + "'";
         ps = con.prepareStatement(sql);
         ps.execute();
       }
     } catch (SQLException e) {
-      ErrorUtil.err(teamId+",删除此团队时顺带删除所有该团队的人失败", e);
+      ErrorUtil.err(teamId + ",删除此团队时顺带删除所有该团队的人失败", e);
     } finally {
       close(con, ps);
     }
@@ -189,12 +189,12 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       if (!StringUtil.isBlank(teamId)) {
-        sql = "delete from teamhs where teamId = '"+teamId.toUpperCase()+"'";
+        sql = "delete from teamhs where teamId = '" + teamId.toUpperCase() + "'";
         ps = con.prepareStatement(sql);
         ps.execute();
       }
     } catch (SQLException e) {
-      ErrorUtil.err("根据团队ID("+teamId+")删除回水失败", e);
+      ErrorUtil.err("根据团队ID(" + teamId + ")删除回水失败", e);
     } finally {
       close(con, ps);
     }
@@ -216,7 +216,7 @@ public class DBUtil {
       ps.setString(6, "0");
       ps.execute();
     } catch (SQLException e) {
-      ErrorUtil.err(player.toString()+",插入一条人员名单失败", e);
+      ErrorUtil.err(player.toString() + ",插入一条人员名单失败", e);
     } finally {
       close(con, ps);
     }
@@ -248,7 +248,7 @@ public class DBUtil {
         player.setEdu(rs.getString(5));
         break;
       }
-      loger.error("玩家ID("+playerId+")不存在！");
+      loger.error("玩家ID(" + playerId + ")不存在！");
       return player;
     } catch (SQLException e) {
       ErrorUtil.err("根据玩家ID查询玩家信息失败", e);
@@ -370,9 +370,9 @@ public class DBUtil {
         ps.executeBatch();
         ps.clearBatch();
         long end = System.currentTimeMillis();
-        loger.info("导入人员名单完成，耗时："+(end-start)+"毫秒");
+        loger.info("导入人员名单完成，耗时：" + (end - start) + "毫秒");
       } catch (SQLException e) {
-        ErrorUtil.err(incorrectPlayerName+"=导入人员名单进数据库失败", e);
+        ErrorUtil.err(incorrectPlayerName + "=导入人员名单进数据库失败", e);
       } finally {
         close(con, ps);
       }
@@ -437,7 +437,7 @@ public class DBUtil {
       ResultSet rs = ps.executeQuery();
       String res = "";
       while (rs.next()) {
-        loger.info("加载的昨日留底时间是："+rs.getString(1));
+        loger.info("加载的昨日留底时间是：" + rs.getString(1));
         Load_Date = rs.getString(1);
         res = rs.getString(2);
         break;
@@ -485,7 +485,7 @@ public class DBUtil {
       int recordCount = 0; // 当前最大记录数
       while (rs.next()) {
         recordCount = rs.getInt(1);
-        loger.info("中途加载的最大局是："+recordCount);
+        loger.info("中途加载的最大局是：" + recordCount);
         res = rs.getString(2);
         break;
       }
@@ -552,9 +552,9 @@ public class DBUtil {
             JSON.parseObject(rs.getString(2), new TypeReference<Map<String, String>>() {
             }));
       }
-      loger.info("中途加载当天详细锁定数据,总局数："+locked_data_detail_map.size());
+      loger.info("中途加载当天详细锁定数据,总局数：" + locked_data_detail_map.size());
     } catch (Exception e) {
-      loger.error("中途加载当天详细锁定数据失败，原因"+e.getMessage());
+      loger.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());
     } finally {
       close(con, ps);
     }
@@ -730,7 +730,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql = "update teamhs set teamName=?,huishuiRate=?,insuranceRate=?,"
-          +"gudong=?,zjManaged=?,beizhu=?,proxyHSRate=?,proxyHBRate=?,proxyFWF=?,showInsure=?,teamYajin=?,teamEdu=?,teamAvailabel=?  where teamId = ?";// 11列
+          + "gudong=?,zjManaged=?,beizhu=?,proxyHSRate=?,proxyHBRate=?,proxyFWF=?,showInsure=?,teamYajin=?,teamEdu=?,teamAvailabel=?  where teamId = ?";// 11列
       ps = con.prepareStatement(sql);
       ps.setString(1, hs.getTeamName());
       ps.setString(2, hs.getHuishuiRate());
@@ -793,7 +793,7 @@ public class DBUtil {
           ps.setString(14, hs.getTeamAvailabel());
           ps.execute();
         }
-        loger.info("团队回水进数据库结束！size:"+map.size());
+        loger.info("团队回水进数据库结束！size:" + map.size());
       } catch (SQLException e) {
         ErrorUtil.err("批量团队回水进数据库失败", e);
       } finally {
@@ -820,14 +820,14 @@ public class DBUtil {
       long start = System.currentTimeMillis();
       sql = "insert into last_locked_data values(?,?)";
       ps = con.prepareStatement(sql);
-      ps.setString(1, ju_size+"");
+      ps.setString(1, ju_size + "");
       ps.setString(2, json_all_locked_data);
       ps.execute();
       long end = System.currentTimeMillis();
-      loger.info("================插入锁定数据进数据库...结束...局数："+ju_size+"，耗时："+(end-start)+"毫秒");
+      loger.info("================插入锁定数据进数据库...结束...局数：" + ju_size + "，耗时：" + (end - start) + "毫秒");
 
       // 删除原先数据
-      String sql = "DELETE from last_locked_data where ju < "+(ju_size);// ju_size-2
+      String sql = "DELETE from last_locked_data where ju < " + (ju_size);// ju_size-2
       ps = con.prepareStatement(sql);
       ps.execute();
 
@@ -862,7 +862,7 @@ public class DBUtil {
       // String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
       sql = "replace into last_locked_data_detail values(?,?)";
       ps = con.prepareStatement(sql);
-      ps.setString(1, ju_size+"");
+      ps.setString(1, ju_size + "");
       ps.setString(2, lastDataDetailJson);
       ps.execute();
     } catch (SQLException e) {
@@ -998,7 +998,7 @@ public class DBUtil {
               "last_locked_data_detail", "tg_lirun", "history_bank_money", "shangma_nextday");
 
       for (String tableName : delTables) {
-        sql = "DELETE from "+tableName;
+        sql = "DELETE from " + tableName;
         ps = con.prepareStatement(sql);
         ps.execute();
       }
@@ -1334,14 +1334,14 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       if (!StringUtil.isBlank(id)) {
-        sql = "delete from club where clubId = '"+id+"'";
+        sql = "delete from club where clubId = '" + id + "'";
         ps = con.prepareStatement(sql);
         ps.execute();
         // 是否需要删除对应的人员？
 
       }
     } catch (SQLException e) {
-      ErrorUtil.err("根据ID("+id+")删除俱乐部失败", e);
+      ErrorUtil.err("根据ID(" + id + ")删除俱乐部失败", e);
     } finally {
       close(con, ps);
     }
@@ -1427,7 +1427,7 @@ public class DBUtil {
         }
       }
     } catch (Exception e) {
-      loger.error(id+"查询俱乐部是否存在失败", e);
+      loger.error(id + "查询俱乐部是否存在失败", e);
       throw e;
     } finally {
       close(con, ps);
@@ -1629,14 +1629,14 @@ public class DBUtil {
     String value = "{}";
     try {
       con = DBConnection.getConnection();
-      String sql = "select value from  others o where o.key = '"+key+"'";
+      String sql = "select value from  others o where o.key = '" + key + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
         value = rs.getString(1);
       }
     } catch (SQLException e) {
-      ErrorUtil.err("根据key("+key+")获取others表记录失败", e);
+      ErrorUtil.err("根据key(" + key + ")获取others表记录失败", e);
     } finally {
       close(con, ps);
     }
@@ -1648,14 +1648,14 @@ public class DBUtil {
     String value = "";
     try {
       con = DBConnection.getConnection();
-      String sql = "select value from  others o where o.key = '"+key+"'";
+      String sql = "select value from  others o where o.key = '" + key + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
         value = rs.getString(1);
       }
     } catch (SQLException e) {
-      ErrorUtil.err("根据key("+key+")获取others表记录失败", e);
+      ErrorUtil.err("根据key(" + key + ")获取others表记录失败", e);
     } finally {
       close(con, ps);
     }
@@ -1672,12 +1672,12 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       if (!StringUtil.isBlank(key)) {
-        sql = "delete from others where key = '"+key+"'";
+        sql = "delete from others where key = '" + key + "'";
         ps = con.prepareStatement(sql);
         ps.execute();
       }
     } catch (SQLException e) {
-      ErrorUtil.err("others表根据key("+key+")删除失败", e);
+      ErrorUtil.err("others表根据key(" + key + ")删除失败", e);
     } finally {
       close(con, ps);
     }
@@ -1700,7 +1700,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(key+":"+value+",保存others记录失败", e);
+      ErrorUtil.err(key + ":" + value + ",保存others记录失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -1724,7 +1724,7 @@ public class DBUtil {
       ps.setString(2, value);
       ps.execute();
     } catch (SQLException e) {
-      ErrorUtil.err("others表添加记录（key:"+key+",value:"+value+"）失败", e);
+      ErrorUtil.err("others表添加记录（key:" + key + ",value:" + value + "）失败", e);
     } finally {
       close(con, ps);
     }
@@ -1757,7 +1757,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(nextday.getPlayerId()+":"+nextday.getChangci()+",保存次日上码记录失败", e);
+      ErrorUtil.err(nextday.getPlayerId() + ":" + nextday.getChangci() + ",保存次日上码记录失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -1842,7 +1842,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(zhuofei.getTime()+":"+zhuofei.getClubId()+",保存或修改历史桌费失败", e);
+      ErrorUtil.err(zhuofei.getTime() + ":" + zhuofei.getClubId() + ",保存或修改历史桌费失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -1861,7 +1861,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql =
           "select cz.time, cz.clubId, cz.zhuofei, cz.lmType, c.name, c.gudong from  club_zhuofei cz  "
-              +"LEFT JOIN club c on cz.clubId = c.clubId where cz.lmType='联盟1'";
+              + "LEFT JOIN club c on cz.clubId = c.clubId where cz.lmType='联盟1'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -1919,7 +1919,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(kaixiao.toString()+",保存或修改股东开销失败", e);
+      ErrorUtil.err(kaixiao.toString() + ",保存或修改股东开销失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -1978,7 +1978,7 @@ public class DBUtil {
   public void del_gudong_kaixiao_by_id(String kaixiaoID) {
     try {
       con = DBConnection.getConnection();
-      String sql = "delete from gudong_kaixiao where kaixiaoID like '"+kaixiaoID+"%'";
+      String sql = "delete from gudong_kaixiao where kaixiaoID like '" + kaixiaoID + "%'";
       ps = con.prepareStatement(sql);
       ps.execute();
     } catch (SQLException e) {
@@ -2013,7 +2013,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(kaixiao.toString()+",保存或修改托管开销失败", e);
+      ErrorUtil.err(kaixiao.toString() + ",保存或修改托管开销失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -2072,7 +2072,7 @@ public class DBUtil {
   public void del_tg_kaixiao_by_id(String kaixiaoID) {
     try {
       con = DBConnection.getConnection();
-      String sql = "delete from tg_kaixiao where tg_id = '"+kaixiaoID+"'";
+      String sql = "delete from tg_kaixiao where tg_id = '" + kaixiaoID + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
     } catch (SQLException e) {
@@ -2110,7 +2110,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(comment.toString()+",保存或修改玩家备注失败", e);
+      ErrorUtil.err(comment.toString() + ",保存或修改玩家备注失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -2171,7 +2171,7 @@ public class DBUtil {
   public void del_tg_comment_by_id(String commentID) {
     try {
       con = DBConnection.getConnection();
-      String sql = "delete from tg_comment where id = '"+commentID+"'";
+      String sql = "delete from tg_comment where id = '" + commentID + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
     } catch (SQLException e) {
@@ -2196,7 +2196,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       sql = "replace into tg_company(tg_company_name, company_rate, tg_company_rate"
-          +", yajin, edu, tg_teams_str, beizhu,club_id, yifenhong) values(?,?,?,?,?,?,?,?,?)";
+          + ", yajin, edu, tg_teams_str, beizhu,club_id, yifenhong) values(?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, company.getTgCompanyName());
       ps.setString(2, company.getCompanyRate());
@@ -2210,7 +2210,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(company.toString()+",保存或修改托管公司失败", e);
+      ErrorUtil.err(company.toString() + ",保存或修改托管公司失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -2263,7 +2263,7 @@ public class DBUtil {
     }
     try {
       con = DBConnection.getConnection();
-      String sql = "select * from tg_company where club_id = '"+clubId+"'";
+      String sql = "select * from tg_company where club_id = '" + clubId + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2309,7 +2309,7 @@ public class DBUtil {
     TGCompanyModel model = null;
     try {
       con = DBConnection.getConnection();
-      String sql = "select * from tg_company where tg_company_name = '"+company+"'";
+      String sql = "select * from tg_company where tg_company_name = '" + company + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2318,7 +2318,7 @@ public class DBUtil {
         model.setBeizhu(rs.getString(7));
       }
     } catch (SQLException e) {
-      ErrorUtil.err(company+", 获有托管公司（根据公司名）失败", e);
+      ErrorUtil.err(company + ", 获有托管公司（根据公司名）失败", e);
     } finally {
       close(con, ps);
     }
@@ -2333,7 +2333,7 @@ public class DBUtil {
   public void del_tg_company_by_id(String companyName) {
     try {
       con = DBConnection.getConnection();
-      String sql = "delete from tg_company where tg_company_name = '"+companyName+"'";
+      String sql = "delete from tg_company where tg_company_name = '" + companyName + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
     } catch (SQLException e) {
@@ -2367,7 +2367,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(team.toString()+",保存或修改团队比例失败", e);
+      ErrorUtil.err(team.toString() + ",保存或修改团队比例失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -2405,7 +2405,7 @@ public class DBUtil {
     TGTeamModel model = null;
     try {
       con = DBConnection.getConnection();
-      String sql = "select * from tg_team where tg_team_id = '"+teamId+"'";
+      String sql = "select * from tg_team where tg_team_id = '" + teamId + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2414,7 +2414,7 @@ public class DBUtil {
             rs.getString(5));
       }
     } catch (SQLException e) {
-      ErrorUtil.err(teamId+", 获有团队比例失败", e);
+      ErrorUtil.err(teamId + ", 获有团队比例失败", e);
     } finally {
       close(con, ps);
     }
@@ -2447,7 +2447,7 @@ public class DBUtil {
   public void del_tg_team_by_id(String teamId) {
     try {
       con = DBConnection.getConnection();
-      String sql = "delete from tg_comment where tg_team_id = '"+teamId+"'";
+      String sql = "delete from tg_comment where tg_team_id = '" + teamId + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
     } catch (SQLException e) {
@@ -2472,8 +2472,8 @@ public class DBUtil {
       String sql;
       sql =
           "replace into tg_lirun(tg_lirun_date, tg_lirun_total_profit, tg_lirun_total_kaixiao, tg_lirun_atm_company,"
-              +"tg_lirun_tg_company,tg_lirun_team_profit,tg_lirun_tg_heji,tg_lirun_rest_heji,tg_lirun_company_name) "
-              +"values(?,?,?,?,?,?,?,?,?)";
+              + "tg_lirun_tg_company,tg_lirun_team_profit,tg_lirun_tg_heji,tg_lirun_rest_heji,tg_lirun_company_name) "
+              + "values(?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, lirun.getTgLirunDate());
       ps.setString(2, lirun.getTgLirunTotalProfit());
@@ -2487,7 +2487,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(lirun.toString()+",保存或修改托管日利润失败", e);
+      ErrorUtil.err(lirun.toString() + ",保存或修改托管日利润失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -2504,7 +2504,7 @@ public class DBUtil {
     List<TGLirunInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = "select * from tg_lirun where tg_lirun_company_name='"+tgCompany+"'";
+      String sql = "select * from tg_lirun where tg_lirun_company_name='" + tgCompany + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2585,7 +2585,7 @@ public class DBUtil {
       ps.execute();
       isOK = true;
     } catch (SQLException e) {
-      ErrorUtil.err(moneyModel.toString()+",保存银行流水失败", e);
+      ErrorUtil.err(moneyModel.toString() + ",保存银行流水失败", e);
       isOK = false;
     } finally {
       close(con, ps);
@@ -2624,12 +2624,12 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql;
       if (StringUtil.isNotBlank(bankName)) {
-        sql = "delete from history_bank_money where bank_name = '"+bankName+"'";
+        sql = "delete from history_bank_money where bank_name = '" + bankName + "'";
         ps = con.prepareStatement(sql);
         ps.execute();
       }
     } catch (SQLException e) {
-      ErrorUtil.err("("+bankName+")删除对应银行流水失败", e);
+      ErrorUtil.err("(" + bankName + ")删除对应银行流水失败", e);
     } finally {
       close(con, ps);
     }
@@ -2692,9 +2692,9 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql = "update game_record r "
-          +"left join members m on r.playerId = m.playerId "
-          +"set isJiesuaned = '1' "
-          +"where soft_time = ? and clubId= ? and m.teamId = ? and isJiesuaned = '0'";
+          + "left join members m on r.playerId = m.playerId "
+          + "set isJiesuaned = '1' "
+          + "where soft_time = ? and clubId= ? and m.teamId = ? and isJiesuaned = '0'";
       ps = con.prepareStatement(sql);
       ps.setString(1, softTime);
       ps.setString(2, clubId);
@@ -2721,7 +2721,7 @@ public class DBUtil {
         addGameRecord(record);
       }
       long end = System.currentTimeMillis();
-      loger.info("导入{}条白名单记录进数据库，耗时：{}毫秒", recordList.size(), (end-start));
+      loger.info("导入{}条白名单记录进数据库，耗时：{}毫秒", recordList.size(), (end - start));
     }
   }
 
@@ -2757,7 +2757,7 @@ public class DBUtil {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL+" where soft_time =  ?";
+      String sql = GAME_RECORD_SQL + " where soft_time =  ?";
       ps = con.prepareStatement(sql);
       ps.setString(1, maxRecordTime);
       ResultSet rs = ps.executeQuery();
@@ -2812,8 +2812,8 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String sql =
           "SELECT max(LEVEL), count(DISTINCT tableId) FROM ( SELECT tableId,LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"
-              +currentLMType
-              +"' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
+              + currentLMType
+              + "' and soft_time = ( SELECT max(soft_time) AS softTime FROM game_record )) a GROUP BY LEVEL";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2837,7 +2837,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql =
-          GAME_RECORD_SQL+" where r.soft_time =  ? and r.clubId = ? "; // and r.lmType='联盟1'
+          GAME_RECORD_SQL + " where r.soft_time =  ? and r.clubId = ? "; // and r.lmType='联盟1'
       ps = con.prepareStatement(sql);
       ps.setString(1, maxRecordTime);
       ps.setString(2, clubId);
@@ -2860,7 +2860,7 @@ public class DBUtil {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL+" where  r.clubId = ?";
+      String sql = GAME_RECORD_SQL + " where  r.clubId = ?";
       ps = con.prepareStatement(sql);
       ps.setString(1, clubId);
       ResultSet rs = ps.executeQuery();
@@ -2883,7 +2883,7 @@ public class DBUtil {
     List<GameRecord> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL+"where 1=1";
+      String sql = GAME_RECORD_SQL + "where 1=1";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       list = getGameRecordResult(rs);
@@ -2939,13 +2939,13 @@ public class DBUtil {
       con = DBConnection.getConnection();
       String baseSql =
           "SELECT b.softTime 统计时间, b.teamId 团队ID, b.sumZJ 总战绩, b.sumHS 总回水, b.sumHB 总回保, b.sumFWF 总服务费, b.sumPerson 总人数, b.sumZJ + b.sumHS + b.sumHB - b.sumFWF 总输赢,  b.HBRate 代理回保比例, b.HSRate 代理回水比例 FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate > 0 AND HBRate > 0 AND (sumHS + sumHB) > FWFValid ) THEN ROUND( sumHS * HSRate + sumHB * HBRate, 2 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 0) * (- 1) sumHS, ROUND(sum(r.huiBao), 0) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
-              +" WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
+              + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
       String sql = null;
       if (StringUtils.isBlank(teamId)) {
-        sql = baseSql+" GROUP BY t.teamId "; // 查询所有团队的总计
+        sql = baseSql + " GROUP BY t.teamId "; // 查询所有团队的总计
       } else {
-        sql = baseSql+" And t.teamId = '"+teamId+"' "
-            +" GROUP BY r.soft_time "; // 查询某个团队的每天总计
+        sql = baseSql + " And t.teamId = '" + teamId + "' "
+            + " GROUP BY r.soft_time "; // 查询某个团队的每天总计
       }
       sql += " )a )b ORDER BY b.softTime ASC";
       ps = con.prepareStatement(sql);
@@ -2961,8 +2961,8 @@ public class DBUtil {
         info.setTeamFWF(rs.getString(6));
         info.setSumPerson(rs.getString(7));
         info.setSumProfit(rs.getString(8));
-        info.setTeamProxyHBRate(rs.getString(9));
-        info.setTeamProxyHSRate(rs.getString(10));
+        info.setTeamProxyHBRate(NumUtil.getPercentStr(rs.getString(9)));
+        info.setTeamProxyHSRate(NumUtil.getPercentStr(rs.getString(10)));
         list.add(info);
       }
     } catch (Exception e) {
@@ -2980,7 +2980,7 @@ public class DBUtil {
       List<GameRecord> list = new ArrayList<>();
       con = DBConnection.getConnection();
       String sql =
-          GAME_RECORD_SQL+" where  r.clubId = ? and m.teamId = ? and r.soft_time =  ? ";
+          GAME_RECORD_SQL + " where  r.clubId = ? and m.teamId = ? and r.soft_time =  ? ";
       ps = con.prepareStatement(sql);
       ps.setString(1, clubId);
       ps.setString(2, teamId);
@@ -3021,7 +3021,7 @@ public class DBUtil {
       String sql;
       sql =
           "update game_record r LEFT JOIN members m on r.playerId = m.playerId  set r.isCleared = '1'  where r.clubId = '"
-              +clubId+"' and  m.teamId = '"+teamId+"'";
+              + clubId + "' and  m.teamId = '" + teamId + "'";
       ps = con.prepareStatement(sql);
       i = ps.executeUpdate();
     } catch (SQLException e) {
@@ -3041,7 +3041,7 @@ public class DBUtil {
       String sql;
       sql =
           "update game_record r LEFT JOIN club c on r.clubId = c.clubId  set r.isCleared = '1'  where r.isCleared = '0' and r.clubId = '"
-              +clubId+"' and  r.lmType = '"+lmType+"'";
+              + clubId + "' and  r.lmType = '" + lmType + "'";
       ps = con.prepareStatement(sql);
       i = ps.executeUpdate();
     } catch (SQLException e) {
@@ -3074,15 +3074,15 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String baseSql =
-          "SELECT r.lmType, c. NAME, r.clubId, ROUND(sum(r.yszj) * "+Constants.FINAL_HS_RATE_095
-              +", 0) 总战绩 , ROUND( sum(r.shuihouxian), 0 ) 总保险, count(1) 总人数,  min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
-              +" where r.isCleared = '0' and r.lmType = '"+lmType+"'";
+          "SELECT r.lmType, c. NAME, r.clubId, ROUND(sum(r.yszj) * " + Constants.FINAL_HS_RATE_095
+              + ", 0) 总战绩 , ROUND( sum(r.shuihouxian), 0 ) 总保险, count(1) 总人数,  min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
+              + " where r.isCleared = '0' and r.lmType = '" + lmType + "'";
       String sql = null;
       if (StringUtils.isBlank(clubId)) {
-        sql = baseSql+" GROUP BY r.clubId";
+        sql = baseSql + " GROUP BY r.clubId";
       } else {
-        sql = baseSql+"and r.clubId = '"+clubId
-            +"' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
+        sql = baseSql + "and r.clubId = '" + clubId
+            + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
       }
 
       ps = con.prepareStatement(sql);
@@ -3117,7 +3117,7 @@ public class DBUtil {
   private String handleTime(String softTime) {
     if (StringUtil.isNotBlank(softTime) && softTime.contains("-")) {
       String[] timeArr = softTime.split("-");
-      softTime = Integer.valueOf(timeArr[1])+"月"+Integer.valueOf(timeArr[2])+"号";
+      softTime = Integer.valueOf(timeArr[1]) + "月" + Integer.valueOf(timeArr[2]) + "号";
     }
     return softTime;
   }

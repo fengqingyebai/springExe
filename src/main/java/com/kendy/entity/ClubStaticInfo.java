@@ -1,5 +1,6 @@
 package com.kendy.entity;
 
+import com.kendy.excel.excel4j.annotation.ExcelField;
 import com.kendy.interfaces.Entity;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -11,14 +12,33 @@ import javafx.scene.control.TableColumn;
  */
 public class ClubStaticInfo implements Entity {
 
-  private SimpleStringProperty clubName = new SimpleStringProperty();
-  private SimpleStringProperty clubId = new SimpleStringProperty();
-  private SimpleStringProperty clubSumZJ = new SimpleStringProperty();
-  private SimpleStringProperty clubSumBaoxian = new SimpleStringProperty();
-  private SimpleStringProperty clubSumPerson = new SimpleStringProperty();
-  private SimpleStringProperty clubSumProfit = new SimpleStringProperty();
-  private SimpleStringProperty clubLmType = new SimpleStringProperty();
+
+  @ExcelField(title = "统计时间")
   private SimpleStringProperty clubStaticTime = new SimpleStringProperty();
+
+  @ExcelField(title = "所属联盟")
+  private SimpleStringProperty clubLmType = new SimpleStringProperty();
+
+  @ExcelField(title = "俱乐部名称")
+  private SimpleStringProperty clubName = new SimpleStringProperty();
+
+  @ExcelField(title = "俱乐部ID")
+  private SimpleStringProperty clubId = new SimpleStringProperty();
+
+  @ExcelField(title = "总战绩")
+  private SimpleStringProperty clubSumZJ = new SimpleStringProperty();
+
+  @ExcelField(title = "总保险")
+  private SimpleStringProperty clubSumBaoxian = new SimpleStringProperty();
+
+  @ExcelField(title = "总人数")
+  private SimpleStringProperty clubSumPerson = new SimpleStringProperty();
+
+  @ExcelField(title = "总交收")
+  private SimpleStringProperty clubSumProfit = new SimpleStringProperty();
+
+
+
 
   public String getClubLmType() {
     return clubLmType.get();

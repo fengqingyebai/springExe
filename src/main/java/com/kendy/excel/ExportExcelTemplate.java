@@ -1,6 +1,7 @@
 package com.kendy.excel;
 
 
+import com.kendy.util.CollectUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -131,12 +132,9 @@ public class ExportExcelTemplate {
             currentRow.setHeight((short) 400);
           }
         }
-        // if(colNum == 0){
-        // sheet.setColumnWidth(colNum, (columnWidth+6) * 256);
-        // }else{
-        // sheet.setColumnWidth(colNum, (columnWidth+4) * 256);
-        // }
-        sheet.setColumnWidth(colNum, columnWidths.get(colNum));
+        if(CollectUtil.isHaveValue(columnWidths)) {
+          sheet.setColumnWidth(colNum, columnWidths.get(colNum));
+        }
       }
 
       if (workbook != null) {

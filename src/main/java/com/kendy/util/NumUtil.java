@@ -125,6 +125,13 @@ public class NumUtil {
   }
 
   /**
+   * 根据小数字符串转成百分比
+   */
+  public static String getPercentStr(String numberStr) {
+    return getPercentStr(getNum(numberStr));
+  }
+
+  /**
    * 判断是否为数字
    *
    * @time 2017年12月7日
