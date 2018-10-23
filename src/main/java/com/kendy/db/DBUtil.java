@@ -2937,17 +2937,22 @@ public class DBUtil {
     List<TeamStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
-      String baseSql =
-          "SELECT b.softTime 统计时间, b.teamId 团队ID, b.sumZJ 总战绩, b.sumHS 总回水, b.sumHB 总回保, b.sumFWF 总服务费, b.sumPerson 总人数, b.sumZJ + b.sumHS + b.sumHB - b.sumFWF 总输赢,  b.HBRate 代理回保比例, b.HSRate 代理回水比例 FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate > 0 AND HBRate > 0 AND (sumHS + sumHB) > FWFValid ) THEN ROUND( sumHS * HSRate + sumHB * HBRate, 2 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 0) * (- 1) sumHS, ROUND(sum(r.huiBao), 0) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
-              + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
-      String sql = null;
-      if (StringUtils.isBlank(teamId)) {
-        sql = baseSql + " GROUP BY t.teamId "; // 查询所有团队的总计
+      String aTeamBeginSQL =
+      "SELECT b.softTime, b.teamId, b.sumZJ, b.sumHS, b.sumHB, b.sumFWF, b.sumPerson, round(b.sumZJ + b.sumHS + b.sumHB - b.sumFWF, 1) sumProfit, b.HBRate, b.HSRate FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate > 0 AND HBRate > 0 AND (sumHS + sumHB) > FWFValid ) THEN TRUNCATE ( sumHS * HSRate + sumHB * HBRate, 1 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 1) * (- 1) sumHS, ROUND(sum(r.huiBao), 1) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
+          + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
+      String aTeamEndSQL = "GROUP BY r.soft_time, t.teamId ) a ) b ORDER BY b.softTime, b.teamId ASC ";
+
+      String allTeamBeginSQL = "";
+      String aTeamConditionSQL = "";
+      String allTeamEndSQL = "";
+
+      if (StringUtils.isNotBlank(teamId)) {
+        aTeamConditionSQL = " AND t.teamId = '" + teamId + "' ";
       } else {
-        sql = baseSql + " And t.teamId = '" + teamId + "' "
-            + " GROUP BY r.soft_time "; // 查询某个团队的每天总计
+        allTeamBeginSQL = "SELECT min(c.softTime) 统计时间, min(c.teamId) 团队ID, sum(c.sumZJ) 总战绩, sum(c.sumHS) 总回水, sum(c.sumHB) 总回保, sum(c.sumFWF) 总服务费, sum(c.sumPerson) 总人数, sum(c.sumProfit) 总输赢, min(c.HBRate) 代理回保比例, min(c.HSRate) 代理回水比例 FROM( ";
+        allTeamEndSQL = ")c GROUP BY c.teamId";
       }
-      sql += " )a )b ORDER BY b.softTime ASC";
+      String sql = allTeamBeginSQL + aTeamBeginSQL + aTeamConditionSQL + aTeamEndSQL + allTeamEndSQL;
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
