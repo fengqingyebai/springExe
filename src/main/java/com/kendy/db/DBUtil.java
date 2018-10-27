@@ -3063,18 +3063,24 @@ public class DBUtil {
    * 获取俱乐部统计数据
    */
   public List<ClubStaticInfo> getClubTotalStatic(String lmType) {
-    return getClubStaticRecords(lmType, null);
+    return getClubStaticRecords(lmType, null, false);
   }
 
   /**
    * 获取某个俱乐部每天的统计数据
    */
   public List<ClubStaticInfo> getClubEveryDayStatic(String lmType, String clubId) {
-    return getClubStaticRecords(lmType, clubId);
+    return getClubStaticRecords(lmType, clubId, false);
+  }
+  /**
+   * 导出所有俱乐部的统计数据
+   */
+  public List<ClubStaticInfo> getClubsExcelStatic(String lmType) {
+    return getClubStaticRecords(lmType, null, true);
   }
 
 
-  private List<ClubStaticInfo> getClubStaticRecords(String lmType, String clubId) {
+  private List<ClubStaticInfo> getClubStaticRecords(String lmType, String clubId, boolean isExportAllClubExcels) {
     List<ClubStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -3083,11 +3089,18 @@ public class DBUtil {
               + ", 0) 总战绩 , ROUND( sum(r.shuihouxian), 0 ) 总保险, count(1) 总人数,  min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
               + " where r.isCleared = '0' and r.lmType = '" + lmType + "'";
       String sql = null;
-      if (StringUtils.isBlank(clubId)) {
-        sql = baseSql + " GROUP BY r.clubId";
-      } else {
-        sql = baseSql + "and r.clubId = '" + clubId
-            + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC";
+      if(isExportAllClubExcels){
+        sql = baseSql+ " GROUP BY r.clubId, r.soft_time ORDER BY r.clubId, r.soft_time ASC"; // 导出Excel所需
+
+      }else{
+
+        if (StringUtils.isBlank(clubId)) {
+          sql = baseSql + " GROUP BY r.clubId"; // 查看一个俱乐部的每天统计
+
+        } else {
+          sql = baseSql + "and r.clubId = '" + clubId
+              + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC"; // 查看所有俱乐部的汇总统计
+        }
       }
 
       ps = con.prepareStatement(sql);

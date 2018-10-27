@@ -1,7 +1,7 @@
 package com.kendy.controller;
 
+import com.github.crab2died.ExcelUtils;
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXButton.ButtonType;
 import com.kendy.constant.Constants;
 import com.kendy.customize.MyTable;
 import com.kendy.db.DBUtil;
@@ -10,48 +10,44 @@ import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.enums.ColumnType;
 import com.kendy.excel.ExportExcelTemplate;
-import com.kendy.interfaces.Entity;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
+import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javax.swing.JButton;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -313,7 +309,7 @@ public class StaticController extends BaseController implements Initializable {
       MyTable<TeamStaticInfo> table = new MyTable<>();
       for (TableColumn column : tableTeamStatic.getColumns()) {
         String colName = column.getText();
-        if(StringUtils.contains(colName, BEGIN)){
+        if (StringUtils.contains(colName, BEGIN)) {
           colName = StringUtils.replace(colName, BEGIN, "");
         }
         table.getColumns().add(getTableColumnCommon(
@@ -352,19 +348,19 @@ public class StaticController extends BaseController implements Initializable {
     }
   }
 
-  private JFXButton getDownloadButn(MyTable<?> table){
+  private JFXButton getDownloadButn(MyTable<?> table) {
     JFXButton exportBtn = new JFXButton("导出");
     exportBtn.setStyle("-fx-background-color: #DAF2E3; -fx-font-size: 20");
     exportBtn.setPrefWidth(120);
     exportBtn.setPrefHeight(40);
     exportBtn.setId("exportBtn");
-    exportBtn.setOnAction(e->{
-      if(TableUtil.isHasValue(table)){
+    exportBtn.setOnAction(e -> {
+      if (TableUtil.isHasValue(table)) {
         try {
           logger.info("正在导出{}...", table.getExcelName());
           table.export();
           logger.info("导出完成{}" + table.getExcelName());
-        }catch (Exception ee){
+        } catch (Exception ee) {
           ErrorUtil.err("导出失败", ee);
         }
       }
@@ -393,7 +389,7 @@ public class StaticController extends BaseController implements Initializable {
 
     // 导出按钮
     table.setEntityClass(TotalInfo.class);
-    table.setExcelName(teamId + "团队" + softTime + "-" +TimeUtil.getDateTime());
+    table.setExcelName(teamId + "团队" + softTime + "-" + TimeUtil.getDateTime());
     JFXButton exportBtn = getDownloadButn(table);
 
     StackPane stackPane = new StackPane();
@@ -424,10 +420,9 @@ public class StaticController extends BaseController implements Initializable {
       String clubId = item.getClubId();
       MyTable<ClubStaticInfo> table = new MyTable<>();
       for (TableColumn column : tableClubStatic.getColumns()) {
-        String colName = column.getText();
-        if (StringUtils.contains(colName, BEGIN)) {
-          colName = colName.replace(BEGIN, "");
-        }
+        String colName = StringUtils.defaultString(column.getText());
+        colName = colName.replace(BEGIN, "").replace("总", "");
+
         table.getColumns().add(getTableClubColumn(
             colName, column.getId(), ColumnType.COLUMN_RED));
       }
@@ -442,7 +437,7 @@ public class StaticController extends BaseController implements Initializable {
 
       // 导出按钮
       table.setEntityClass(ClubStaticInfo.class);
-      table.setExcelName(clubName + "每日汇总"  +TimeUtil.getDateTime());
+      table.setExcelName(clubName + "每日汇总" + TimeUtil.getDateTime());
       JFXButton exportBtn = getDownloadButn(table);
 
       StackPane stackPane = new StackPane();
@@ -465,9 +460,127 @@ public class StaticController extends BaseController implements Initializable {
   }
   //===============================================右边俱乐部双击时显示拥有的团队合计【结束】
 
+  // =============================================导出俱乐部汇总【开始】
+
+  /**
+   * 导出俱乐部汇总
+   */
+  @FXML
+  public void exportAllClubExcelStaticAction(ActionEvent event) {
+    // 获取数据
+    String lmType = getSelectedLM();
+    List<ClubStaticInfo> clubsExcelStatic = dbUtil.getClubsExcelStatic(lmType);
+    if (CollectUtil.isEmpty(clubsExcelStatic)) {
+      ShowUtil.show("当前无数据！！");
+      return;
+    }
+
+    // 转成Map参数
+    Map<String, String> excelParamsMap = getExcelParamsMap(clubsExcelStatic);
+
+    // 基于模板导出Excel, 往Excel模板中填写数据
+    String msg = "导出俱乐部模板Excel";
+    String outputPath = new StringBuilder("D:/").append(lmType).append("-俱乐部导出")
+        .append(TimeUtil.getDateTime()).append(".xlsx").toString();
+    try {
+      logger.info("开始" + msg + "...");
+      exportTemplateExcel(TEMPLE_EXCEL_PATH, excelParamsMap, outputPath);
+      java.awt.Desktop.getDesktop().open(new File(outputPath));
+      logger.info(msg + "成功");
+    } catch (Exception err) {
+      ErrorUtil.err(msg + "失败", err);
+    }
+
+  }
+
+  private Map<String, String> getExcelParamsMap(List<ClubStaticInfo> clubsExcelStatic) {
+    Map<String, String> map = getDefaultParamMap();
+    AtomicInteger count = new AtomicInteger(0);
+    Map<String, List<ClubStaticInfo>> dataMap = clubsExcelStatic.stream()
+        .collect(Collectors.groupingBy(e -> e.getClubName()));
+
+    dataMap.forEach((lmName, clubList) -> {
+      int index = count.getAndAdd(1);
+      double sumZJ = clubList.stream().mapToDouble(e -> NumUtil.getNum(e.getClubSumZJ())).sum();
+      double sumBaoxian = clubList.stream().mapToDouble(e -> NumUtil.getNum(e.getClubSumBaoxian()))
+          .sum();
+      double sumPerson = clubList.stream().mapToDouble(e -> NumUtil.getNum(e.getClubSumPerson()))
+          .sum();
+      double sumProfit = clubList.stream().mapToDouble(e -> NumUtil.getNum(e.getClubSumProfit()))
+          .sum();
+      map.put("lm_name_" + index + "_0", lmName);
+      map.put("sum_jiaoshou_" + index + "_0", NumUtil.digit0(sumProfit));
+      map.put("sum_baoxian_" + index + "_0", NumUtil.digit0(sumBaoxian));
+      map.put("sum_renci_" + index + "_0", NumUtil.digit0(sumPerson));
+      map.put("sum_zj_" + index + "_0", NumUtil.digit0(sumZJ));
+
+      Collections.sort(clubList, Comparator.comparing(ClubStaticInfo::getClubStaticTime));
+      int size = clubList.size();
+      for (int i = 0; i < size; i++) {
+        ClubStaticInfo info = clubList.get(i);
+        map.put("static_time_" + index + "_" + i, info.getClubStaticTime());
+        map.put("jiaoshou_" + index + "_" + i, info.getClubSumProfit());
+        map.put("baoxian_" + index + "_" + i, info.getClubSumBaoxian());
+        map.put("renci_" + index + "_" + i, info.getClubSumPerson());
+        map.put("zj_" + index + "_" + i, info.getClubSumZJ());
+      }
+    });
+    return map;
+  }
+
+  private Map<String, String> getDefaultParamMap() {
+    Map<String, String> map = new HashMap<>();
+    for (int clubIndex = 0; clubIndex < CLUB_SIZE; clubIndex++) {
+      map.put("lm_name_" + clubIndex + "_0", EMPTY);
+      map.put("sum_jiaoshou_" + clubIndex + "_0", EMPTY);
+      map.put("sum_baoxian_" + clubIndex + "_0", EMPTY);
+      map.put("sum_renci_" + clubIndex + "_0", EMPTY);
+      map.put("sum_zj_" + clubIndex + "_0", EMPTY);
+
+      for (int dateIndex = 0; dateIndex < DATE_SIZE; dateIndex++) {
+        map.put(getKey(TIME, clubIndex, dateIndex), EMPTY);
+        map.put(getKey(JIAO_SHOU, clubIndex, dateIndex), EMPTY);
+        map.put(getKey(BAO_XIAN, clubIndex, dateIndex), EMPTY);
+        map.put(getKey(RENCI, clubIndex, dateIndex), EMPTY);
+        map.put(getKey(ZJ, clubIndex, dateIndex), EMPTY);
+      }
+    }
+    return map;
+  }
+
+  StringBuilder sb = new StringBuilder();
+  private static final String BOTTOM_LINE = "_";
+  private static final String TIME = "static_time";
+  private static final String JIAO_SHOU = "jiaoshou";
+  private static final String BAO_XIAN = "baoxian";
+  private static final String RENCI = "renci";
+  private static final String ZJ = "zj";
+  private static final String EMPTY = "";
+  private static final int CLUB_SIZE = 20;
+  private static final int DATE_SIZE = 31;
+  private static final String TEMPLE_EXCEL_PATH = "/excel/俱乐部导出模板.xlsx";
+
+  private String getKey(String key, int clubIndex, int rowIndex) {
+    sb.setLength(0);
+    return sb.append(key).append(BOTTOM_LINE).append(clubIndex).append(BOTTOM_LINE).append(rowIndex)
+        .toString();
+  }
+
+  private void exportTemplateExcel(String templateExcelPath, Map<String, String> paramsMap,
+      String outputPath) throws Exception {
+    try (FileOutputStream os = new FileOutputStream(new File(outputPath))) {
+      ExcelUtils.getInstance()
+          .exportObjects2Excel(templateExcelPath, Collections.EMPTY_LIST, paramsMap,
+              ClubStaticInfo.class, false, os);
+    } catch (Exception e) {
+      throw e;
+    }
+  }
+  // =============================================导出俱乐部汇总【结束】
+
 
   @FXML
-  void exportTeamStaticAction(ActionEvent event) {
+  public void exportTeamStaticAction(ActionEvent event) {
     if (TableUtil.isHasValue(tableTeamStatic)) {
       ObservableList<TeamStaticInfo> list = tableTeamStatic.getItems();
       String name = "团队汇总" + TimeUtil.getDateTime();

@@ -45,10 +45,10 @@
                         <TableColumn fx:id="clubName" prefWidth="93.0" text="俱乐部名称" />
                         <TableColumn fx:id="clubId" minWidth="0.0" prefWidth="68.0" text="俱乐部ID" />
                         <TableColumn fx:id="clubStaticTime" minWidth="0.0" prefWidth="86.0" text="开始统计时间" />
-                        <TableColumn fx:id="clubSumZJ" minWidth="0.0" prefWidth="85.0" text="总战绩" />
-                        <TableColumn fx:id="clubSumBaoxian" minWidth="0.0" prefWidth="74.0" text="总保险" />
-                        <TableColumn fx:id="clubSumPerson" minWidth="0.0" prefWidth="63.0" text="总人数" />
                         <TableColumn fx:id="clubSumProfit" minWidth="0.0" prefWidth="77.0" text="总交收" />
+                        <TableColumn fx:id="clubSumBaoxian" minWidth="0.0" prefWidth="74.0" text="总保险" />
+                        <TableColumn fx:id="clubSumPerson" minWidth="0.0" prefWidth="63.0" text="总人次" />
+                        <TableColumn fx:id="clubSumZJ" minWidth="0.0" prefWidth="85.0" text="总战绩" />
                      </columns>
                   </TableView>
                </items>
@@ -97,7 +97,15 @@
                   </RadioButton>
                </children>
             </HBox>
-            <JFXButton buttonType="RAISED" layoutX="1118.0" layoutY="43.0" onAction="#clearClubStaticAction" prefHeight="29.0" prefWidth="156.0" ripplerFill="#09a40e" text="清空所选俱乐部记录" textFill="#4b13c2c9">
+            <JFXButton buttonType="RAISED" layoutX="1118.0" layoutY="34.0" onAction="#clearClubStaticAction" prefHeight="29.0" prefWidth="156.0" ripplerFill="#09a40e" text="清空所选俱乐部记录" textFill="#4b13c2c9">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </JFXButton>
+            <JFXButton buttonType="RAISED" layoutX="1080.0" layoutY="64.0" onAction="#exportAllClubExcelStaticAction" prefHeight="29.0" prefWidth="198.0" ripplerFill="#09a40e" text="导出所有俱乐部汇总Excel" textFill="#4b13c2c4">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
