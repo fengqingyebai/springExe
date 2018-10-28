@@ -437,7 +437,7 @@ public class StaticController extends BaseController implements Initializable {
 
       // 导出按钮
       table.setEntityClass(ClubStaticInfo.class);
-      table.setExcelName(clubName + "每日汇总" + TimeUtil.getDateTime());
+      table.setExcelName(clubName.replaceAll("[?|/]","") + "每日汇总" + TimeUtil.getDateTime());
       JFXButton exportBtn = getDownloadButn(table);
 
       StackPane stackPane = new StackPane();
