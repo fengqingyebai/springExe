@@ -7,7 +7,7 @@ import com.kendy.customize.MyTable;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.ClubStaticInfo;
 import com.kendy.entity.TeamStaticInfo;
-import com.kendy.entity.TotalInfo;
+import com.kendy.entity.TotalInfo2;
 import com.kendy.enums.ColumnType;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.util.AlertUtil;
@@ -373,22 +373,28 @@ public class StaticController extends BaseController implements Initializable {
    * 显示团队某天的具体记录
    */
   private void viewDetailGameRecord(String teamId, String softTime) {
-    MyTable<TotalInfo> table = new MyTable<>();
+    MyTable<TotalInfo2> table = new MyTable<>();
     for (TableColumn column : myController.tableTotalInfo.getColumns()) {
-      table.getColumns().add(getTotalInfoColumn(
+      table.getColumns().add(getTotalInfo2Column(
           column.getText(), column.getId(), ColumnType.COLUMN_RED));
     }
+    // 手动添加桌号一列
+    TableColumn<TotalInfo2, String> talbeIdColumn = new TableColumn<>();
+    talbeIdColumn.setId("tableId");
+    talbeIdColumn.setText("桌号");
+    table.getColumns().add(getTotalInfo2Column(
+        talbeIdColumn.getText(), talbeIdColumn.getId(), ColumnType.COLUMN_RED));
 
     table.setEditable(false);
 
     // 获取值
-    List<TotalInfo> list = dbUtil
+    List<TotalInfo2> list = dbUtil
         .getStaticDetailRecords(myController.getClubId(), teamId, softTime);
     table.getItems().addAll(list);
     table.getSelectionModel().clearSelection();
 
     // 导出按钮
-    table.setEntityClass(TotalInfo.class);
+    table.setEntityClass(TotalInfo2.class);
     table.setExcelName(teamId + "团队" + softTime + "-" + TimeUtil.getDateTime());
     JFXButton exportBtn = getDownloadButn(table);
 
@@ -402,7 +408,7 @@ public class StaticController extends BaseController implements Initializable {
     Stage detailStage = new Stage();
     ShowUtil.setIcon(detailStage);
     detailStage.setTitle(teamId + "团队" + softTime);
-    detailStage.setWidth(970);
+    detailStage.setWidth(1055);
     detailStage.setHeight(500);
 
     Scene scene = new Scene(stackPane);
@@ -652,14 +658,14 @@ public class StaticController extends BaseController implements Initializable {
     return col;
   }
 
-  private TableColumn<TotalInfo, String> getTotalInfoColumn(String colName, String colVal,
+  private TableColumn<TotalInfo2, String> getTotalInfo2Column(String colName, String colVal,
       ColumnType columnType) {
-    TableColumn<TotalInfo, String> col = new TableColumn<>(colName);
+    TableColumn<TotalInfo2, String> col = new TableColumn<>(colName);
     col.setStyle(Constants.CSS_CENTER);
     col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<TotalInfo, String>(colVal));
+    col.setCellValueFactory(new PropertyValueFactory<TotalInfo2, String>(colVal));
     if (columnType == ColumnType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new TotalInfo()));
+      col.setCellFactory(myController.getColorCellFactory(new TotalInfo2()));
     }
     col.setSortable(false);
     return col;

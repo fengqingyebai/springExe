@@ -19,7 +19,7 @@ import com.kendy.entity.TGKaixiaoInfo;
 import com.kendy.entity.TGLirunInfo;
 import com.kendy.entity.TGTeamModel;
 import com.kendy.entity.TeamStaticInfo;
-import com.kendy.entity.TotalInfo;
+import com.kendy.entity.TotalInfo2;
 import com.kendy.model.BankFlowModel;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
@@ -2950,7 +2950,7 @@ public class DBUtil {
         aTeamConditionSQL = " AND t.teamId = '" + teamId + "' ";
       } else {
         allTeamBeginSQL = "SELECT min(c.softTime) 统计时间, min(c.teamId) 团队ID, sum(c.sumZJ) 总战绩, sum(c.sumHS) 总回水, sum(c.sumHB) 总回保, sum(c.sumFWF) 总服务费, sum(c.sumPerson) 总人数, sum(c.sumProfit) 总输赢, min(c.HBRate) 代理回保比例, min(c.HSRate) 代理回水比例 FROM( ";
-        allTeamEndSQL = ")c GROUP BY c.teamId";
+        allTeamEndSQL = ")c GROUP BY c.teamId ORDER BY 总战绩 desc";
       }
       String sql = allTeamBeginSQL + aTeamBeginSQL + aTeamConditionSQL + aTeamEndSQL + allTeamEndSQL;
       ps = con.prepareStatement(sql);
@@ -2979,8 +2979,8 @@ public class DBUtil {
   }
 
 
-  public List<TotalInfo> getStaticDetailRecords(String clubId, String teamId, String softTime) {
-    List<TotalInfo> finalList = new ArrayList<>();
+  public List<TotalInfo2> getStaticDetailRecords(String clubId, String teamId, String softTime) {
+    List<TotalInfo2> finalList = new ArrayList<>();
     try {
       List<GameRecord> list = new ArrayList<>();
       con = DBConnection.getConnection();
@@ -2993,7 +2993,7 @@ public class DBUtil {
       ResultSet rs = ps.executeQuery();
       list = getGameRecordResult(rs);
       finalList = list.stream().map(r -> {
-        TotalInfo info = new TotalInfo();
+        TotalInfo2 info = new TotalInfo2();
         info.setTuan(r.getTeamId());
         info.setWanjiaId(r.getPlayerId());
         info.setWanjia(r.getPlayerName());
@@ -3005,6 +3005,7 @@ public class DBUtil {
         info.setBaohui(r.getHuiBao());
         info.setBaoxian(r.getSinegleInsurance()); // 待查看
         info.setHeLirun(r.getHeLirun());
+        info.setTableId(r.getTableId());
 
         return info;
       }).collect(Collectors.toList());
@@ -3095,11 +3096,11 @@ public class DBUtil {
       }else{
 
         if (StringUtils.isBlank(clubId)) {
-          sql = baseSql + " GROUP BY r.clubId"; // 查看一个俱乐部的每天统计
+          sql = baseSql + " GROUP BY r.clubId ORDER BY 总战绩 desc"; // 查看所有俱乐部的汇总统计
 
         } else {
           sql = baseSql + "and r.clubId = '" + clubId
-              + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC"; // 查看所有俱乐部的汇总统计
+              + "' GROUP BY r.soft_time ORDER BY r.soft_time ASC"; // 查看一个俱乐部的每天统计
         }
       }
 

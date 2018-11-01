@@ -1,11 +1,7 @@
 package com.kendy.customize;
 
-import com.kendy.db.dao.GenericDao;
-import com.kendy.db.entity.GenericEntity;
 import com.kendy.excel.excel4j.ExcelUtils;
 import com.kendy.exception.ExcelException;
-import com.kendy.interfaces.Entity;
-import com.kendy.util.StringUtil;
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -22,15 +18,17 @@ import org.apache.commons.lang3.StringUtils;
  * @author linzt
  * @date 2018-10-21
  */
-public class MyTable<S extends Entity> extends TableView<S> {
+public class MyTable<K> extends TableView<K> {
 
   private String excelName;
 
-  private Class<S> entityClass;
+  private Class<K> entityClass;
 
   public MyTable() {
     super();
     // TODO 此处要获取到泛型S的Class
+    // getRealType();
+    // System.out.println("==================================泛型实例："+clazz.getName());
 
   }
 
@@ -56,9 +54,20 @@ public class MyTable<S extends Entity> extends TableView<S> {
     }
   }
 
+  private Class<K> clazz;
+
+  // 使用反射技术得到T的真实类型
+  public Class getRealType(){
+    // 获取当前new的对象的泛型的父类类型
+    ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
+    // 获取第一个类型参数的真实类型
+    this.clazz = (Class<K>) pt.getActualTypeArguments()[0];
+    return clazz;
+  }
+
 
   public void export() throws Exception{
-    final ObservableList<S> items = getItems();
+    final ObservableList<K> items = getItems();
 
     if(StringUtils.isBlank(excelName) || entityClass == null){
       throw new ExcelException("导出的配置信息不完整！");
@@ -76,7 +85,7 @@ public class MyTable<S extends Entity> extends TableView<S> {
     this.excelName = excelName;
   }
 
-  public void setEntityClass(Class<S> entityClass) {
+  public void setEntityClass(Class<K> entityClass) {
     this.entityClass = entityClass;
   }
 
