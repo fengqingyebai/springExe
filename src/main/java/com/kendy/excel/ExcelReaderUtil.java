@@ -77,7 +77,7 @@ public class ExcelReaderUtil {
   /**
    * 测试本工具类
    */
-  public static void main(String[] args) throws IOException, Exception {
+  public static void main(String[] args) throws Exception {
 
     String excelPath = PathUtil.getUserDeskPath() + "/战绩导出-24-299.xls";
     List<GameRecord> basicRecords =
@@ -95,7 +95,7 @@ public class ExcelReaderUtil {
   public Workbook getWeebWork(String filename) throws Exception {
     Workbook workbook = null;
     if (null != filename) {
-      String fileType = filename.substring(filename.lastIndexOf("."), filename.length());
+      String fileType = filename.substring(filename.lastIndexOf("."));
       FileInputStream fileStream = new FileInputStream(new File(filename));
       if (".xls".equals(fileType.trim().toLowerCase())) {
         workbook = new HSSFWorkbook(fileStream);// 创建 Excel 2003 工作簿对象
@@ -386,7 +386,7 @@ public class ExcelReaderUtil {
   /**
    * 导入昨日留底Excel
    */
-  public Map<String, String> readPreDataRecord(File file) throws IOException, Exception {
+  public Map<String, String> readPreDataRecord(File file) throws Exception {
 
     // 昨日留底总数据结构
     Map<String, String> preDataMap = new HashMap<>();

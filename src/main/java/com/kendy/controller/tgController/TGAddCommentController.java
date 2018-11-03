@@ -145,7 +145,7 @@ public class TGAddCommentController extends BaseController implements Initializa
     searchField.textProperty().addListener(event -> {
       String text = searchField.getText();
       List<String> playerNames = players.parallelStream()
-          .filter(info -> ((Player) info).getPlayerName().contains(text))
+          .filter(info -> info.getPlayerName().contains(text))
           .map(info -> info.getPlayerName() + "##" + info.getgameId()).collect(Collectors.toList());
       playersView.setItems(FXCollections.observableArrayList(playerNames));
     });

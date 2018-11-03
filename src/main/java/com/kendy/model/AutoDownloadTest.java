@@ -68,7 +68,7 @@ public class AutoDownloadTest {
     }
 
     try (InputStream in = httpCon.getInputStream();
-        FileOutputStream fos = new FileOutputStream(file);) {
+        FileOutputStream fos = new FileOutputStream(file)) {
       int responseCode = httpCon.getResponseCode();
       if (responseCode != 200) {
         throw new Exception("自动下载返回码：" + responseCode);

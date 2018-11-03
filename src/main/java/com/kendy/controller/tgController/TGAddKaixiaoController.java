@@ -136,7 +136,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
     searchField.textProperty().addListener(event -> {
       String text = searchField.getText();
       List<String> playerNames =
-          players.parallelStream().filter(info -> ((Player) info).getPlayerName().contains(text))
+          players.parallelStream().filter(info -> info.getPlayerName().contains(text))
               .map(Player::getPlayerName).collect(Collectors.toList());
       playersView.setItems(FXCollections.observableArrayList(playerNames));
     });

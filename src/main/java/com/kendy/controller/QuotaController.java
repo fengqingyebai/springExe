@@ -712,7 +712,6 @@ public class QuotaController extends BaseController implements Initializable {
     String title = currentLMLabels.getText() + "俱乐部结账单-" + sdf.format(new Date());
     // 列名
     String[] rowName = new String[]{"付款方", "收款方", "转账", "支付类型", "联系人", "手机", "银行卡信息"};
-    ;
     // 输出
     String out = "D:/" + title + System.currentTimeMillis();
     List<Object[]> dataList = new ArrayList<Object[]>();

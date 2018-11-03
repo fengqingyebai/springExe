@@ -32,7 +32,7 @@ public class SplasshTest extends Application {
   private static final int SPLASH_WIDTH = 676;
   private static final int SPLASH_HEIGHT = 227;
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     launch(args);
   }
 
@@ -62,12 +62,12 @@ public class SplasshTest extends Application {
   }
 
   @Override
-  public void start(final Stage initStage) throws Exception {
+  public void start(final Stage initStage) {
     final Task<ObservableList<String>> friendTask = new Task<ObservableList<String>>() {
       @Override
       protected ObservableList<String> call() throws InterruptedException {
         ObservableList<String> foundFriends =
-            FXCollections.<String>observableArrayList();
+            FXCollections.observableArrayList();
         ObservableList<String> availableFriends =
             FXCollections.observableArrayList(
                 "Fili", "Kili", "Oin", "Gloin", "Thorin",

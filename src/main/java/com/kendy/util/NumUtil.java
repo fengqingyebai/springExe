@@ -146,10 +146,7 @@ public class NumUtil {
     }
     // str = str.trim();
     Matcher isNum = pattern.matcher(str);
-    if (!isNum.matches()) {
-      return false;
-    }
-    return true;
+    return isNum.matches();
   }
 
   public static void main(String... args) {

@@ -875,11 +875,7 @@ public class SMAutoController extends BaseController implements Initializable {
     LocalDate selectDate = datePicker.getValue();
     String starttime = firstDayStartTimeField.getText();
     String endtime = secondDayEndTimeField.getText();
-    if (selectDate == null || isUnValidTime(starttime) || isUnValidTime(endtime)) {
-      return false;
-    } else {
-      return true;
-    }
+    return selectDate != null && !isUnValidTime(starttime) && !isUnValidTime(endtime);
   }
 
   /**
@@ -915,7 +911,7 @@ public class SMAutoController extends BaseController implements Initializable {
   private class AutoDownExcelTask extends Task<String> {
 
     @Override
-    protected String call() throws Exception {
+    protected String call() {
       autoDownExcels(PU_TONG);
       super.updateMessage("PU_TONG========");
       autoDownExcels(AO_MA_HA);
@@ -946,7 +942,7 @@ public class SMAutoController extends BaseController implements Initializable {
           log.info("req params : " + paramsJson);
           log.info("rsp json : " + respString);
         }
-        parseObject = (RespResult<GameRoomModel>) JSON.parseObject(respString,
+        parseObject = JSON.parseObject(respString,
             new TypeReference<RespResult<GameRoomModel>>() {
             });
         excelInfo(houtai + "房间数量：" + parseObject.getResult().getTotal());
@@ -966,7 +962,7 @@ public class SMAutoController extends BaseController implements Initializable {
     if (hasRoomValue) {
       List<GameRoomModel> roomList = parseObject.getResult().getList();
       List<GameRoomModel> updatedList = updatedList(roomList);
-      boolean isAllDown = updatedList.isEmpty() ? true : false;
+      boolean isAllDown = updatedList.isEmpty();
       if (isAllDown) {
         excelInfo(houtai + "无更新");
         return;

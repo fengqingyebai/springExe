@@ -15,7 +15,7 @@ public class IPUtil {
 
   public static void main(String[] args) throws SocketException, UnknownHostException {
     String macAddr = getLocalMac();
-    System.out.println("本机MAC地址:" + macAddr.toString().toUpperCase());
+    System.out.println("本机MAC地址:" + macAddr.toUpperCase());
   }
 
   public static String getLocalMac() throws SocketException, UnknownHostException {
@@ -23,7 +23,7 @@ public class IPUtil {
     InetAddress ia = InetAddress.getLocalHost();
     // 获取网卡，获取地址
     byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
-    StringBuffer sb = new StringBuffer("");
+    StringBuffer sb = new StringBuffer();
     for (int i = 0; i < mac.length; i++) {
       if (i != 0) {
         sb.append("-");

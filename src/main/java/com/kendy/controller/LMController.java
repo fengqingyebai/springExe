@@ -192,7 +192,7 @@ public class LMController extends BaseController implements Initializable {
         String newValue = t.getNewValue();
         // 修改原值
         LMSumInfo sumInfo =
-            (LMSumInfo) t.getTableView().getItems().get(t.getTablePosition().getRow());
+            t.getTableView().getItems().get(t.getTablePosition().getRow());
         List<String> noAllowList = Arrays.asList("结余", "当天总帐");
 
         if (sumInfo == null || noAllowList.contains(sumInfo.getLmSumName())) {
@@ -1205,7 +1205,6 @@ public class LMController extends BaseController implements Initializable {
       flow.getChildren().add(table);
 
     }
-    ;
     bigAnchorPane.getChildren().add(0, flow);
 
   }

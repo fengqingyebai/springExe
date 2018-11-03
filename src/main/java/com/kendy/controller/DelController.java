@@ -165,7 +165,7 @@ public class DelController extends BaseController implements Initializable {
    * @time 2017年11月12日
    */
   public void delMemberAction(ActionEvent event) {
-    String selectedMemberName = (String) delMemberListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = delMemberListView.getFocusModel().getFocusedItem();
     if (StringUtil.isBlank(selectedMemberName)) {
       ShowUtil.show("请先选择要删除的人员！！");
       return;
@@ -253,7 +253,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    String selectedMemberName = (String) delMemberListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = delMemberListView.getFocusModel().getFocusedItem();
     if (StringUtil.isBlank(selectedMemberName)) {
       ShowUtil.show("请先选择要修改名称的玩家！！");
       return;
@@ -307,7 +307,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    String selectedMemberName = (String) delMemberListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = delMemberListView.getFocusModel().getFocusedItem();
     if (StringUtil.isBlank(selectedMemberName)) {
       ShowUtil.show("请先选择要修改名称的玩家！！");
       return;
@@ -365,7 +365,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    String selectedMemberName = (String) delMemberListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = delMemberListView.getFocusModel().getFocusedItem();
     if (StringUtil.isBlank(selectedMemberName)) {
       ShowUtil.show("请先选择要修改名称的玩家！！");
       return;
@@ -412,7 +412,7 @@ public class DelController extends BaseController implements Initializable {
       return;
     }
 
-    String selectedMemberName = (String) delMemberListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = delMemberListView.getFocusModel().getFocusedItem();
     if (StringUtil.isBlank(selectedMemberName)) {
       ShowUtil.show("请先选择要修改股东的玩家！！");
       return;

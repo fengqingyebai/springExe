@@ -313,14 +313,13 @@ public final class ExcelUtils {
    * @param limitLine 最大读取行数(默认表尾)
    * @param sheetIndex Sheet索引(默认0)
    * @return 返回{@code List<List<String>>}类型的数据集合
-   * @throws Excel4JException 异常
    * @throws IOException 异常
    * @throws InvalidFormatException 异常
    * @author Crab2Died
    */
   public List<List<String>> readExcel2List(InputStream is, int offsetLine, int limitLine,
       int sheetIndex)
-      throws Excel4JException, IOException, InvalidFormatException {
+      throws IOException, InvalidFormatException {
 
     try (Workbook workbook = WorkbookFactory.create(is)) {
       return readExcel2ObjectsHandler(workbook, offsetLine, limitLine, sheetIndex);

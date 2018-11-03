@@ -641,7 +641,7 @@ public class MyController extends BaseController implements Initializable {
       public void handle(CellEditEvent<CurrentMoneyInfo, String> t) {
         // 修改原值
         CurrentMoneyInfo cmInfo =
-            (CurrentMoneyInfo) t.getTableView().getItems().get(t.getTablePosition().getRow());
+            t.getTableView().getItems().get(t.getTablePosition().getRow());
 
         if (cmInfo != null && !StringUtil.isBlank(cmInfo.getMingzi())) {
           // 更新到已存积分
@@ -1282,7 +1282,7 @@ public class MyController extends BaseController implements Initializable {
    * 删除股东
    */
   public void delGudongAction(ActionEvent event) {
-    String selectedGudongName = (String) gudongListView.getFocusModel().getFocusedItem();
+    String selectedGudongName = gudongListView.getFocusModel().getFocusedItem();
     if (StringUtil.isNotBlank(selectedGudongName)) {
       gudongListView.getItems().remove(selectedGudongName);
       List<String> cacheGudongs = dataConstants.gudongList;
@@ -1551,7 +1551,6 @@ public class MyController extends BaseController implements Initializable {
                       dataConstants.SumMap.put(key, Double
                           .valueOf(moneyService.digit0(totalSum - NumUtil.getNum(rowTeamSum))));
                     }
-                    ;
                     // 缓存中清空之前所加的团队回水，以便下次团队累计重新从0开始
                     String teamID = teamInfo.getTeamID();
                     //dataConstants.Team_Huishui_Map.remove(teamID);
@@ -1742,7 +1741,7 @@ public class MyController extends BaseController implements Initializable {
 
     //通知功能
     try {
-      ClipBoardUtil.setClipboardImage((Image) img);
+      ClipBoardUtil.setClipboardImage(img);
       Platform.runLater(() -> {
         Notifications
             .create().title("截图成功").darkStyle()

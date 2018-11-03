@@ -80,7 +80,7 @@ public class ServiceApp extends Application {
   }
 
   @Override
-  public void start(Stage primaryStage) throws Exception {
+  public void start(Stage primaryStage) {
     primaryStage.setScene(new Scene(createContent()));
     primaryStage.show();
   }

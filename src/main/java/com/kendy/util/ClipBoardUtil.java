@@ -24,7 +24,7 @@ public class ClipBoardUtil {
     String path = "D:/1.png";
     BufferedImage buf = ImageIO.read(new File(path));
 
-    setClipboardImage((Image) buf);
+    setClipboardImage(buf);
 
     // setSysClipboardText("复制的内容");
 
@@ -47,7 +47,7 @@ public class ClipBoardUtil {
       }
 
       public Object getTransferData(DataFlavor flavor)
-          throws UnsupportedFlavorException, IOException {
+          throws UnsupportedFlavorException {
         if (isDataFlavorSupported(flavor)) {
           return image;
         }

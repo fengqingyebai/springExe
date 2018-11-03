@@ -48,7 +48,7 @@ public class ProgressBarTableCellTest extends Application {
     progressCol.setCellValueFactory(new PropertyValueFactory<TestTask, Double>(
         "progress"));
     progressCol
-        .setCellFactory(ProgressIndicatorTableCell.<TestTask>forTableColumn());
+        .setCellFactory(ProgressIndicatorTableCell.forTableColumn());
 
     table.getColumns().addAll(statusCol, progressCol);
 

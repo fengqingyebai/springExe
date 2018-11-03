@@ -14,7 +14,7 @@ public enum KeyEnum {
   SM_FILTER_TEAM_DB_KEY("sm_filter_team_db_key");
 
 
-  private KeyEnum(String keyName) {
+  KeyEnum(String keyName) {
     this.keyName = keyName;
   }
 

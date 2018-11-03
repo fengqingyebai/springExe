@@ -52,7 +52,7 @@ public class ExportQuotaPayExcel {
   /*
    * 导出数据
    */
-  public void export() throws Exception {
+  public void export() {
     try {
       HSSFWorkbook workbook = new HSSFWorkbook(); // 创建工作簿对象
       HSSFSheet sheet = workbook.createSheet(title); // 创建工作表

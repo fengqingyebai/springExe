@@ -5,7 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FileTest {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
 
     System.out.println(StringUtils.rightPad("总流水：", 10, "W"));
     System.out.println(StringUtils.rightPad("总流水：6454", 10, "W"));

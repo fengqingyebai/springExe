@@ -101,11 +101,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
    * {@inheritDoc}
    */
   public boolean exists(K id) {
-    if (dao.selectByPrimaryKey(id) != null) {
-      return true;
-    } else {
-      return false;
-    }
+    return dao.selectByPrimaryKey(id) != null;
   }
 
   /**

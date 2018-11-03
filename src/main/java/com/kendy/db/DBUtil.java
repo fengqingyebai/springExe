@@ -981,7 +981,7 @@ public class DBUtil {
   public Set<String> daySet = new LinkedHashSet<>();
 
   public boolean isPreData2017VeryFirst() {
-    return "2017-01-01".equals(Load_Date) ? true : false;
+    return "2017-01-01".equals(Load_Date);
   }
 
   /**

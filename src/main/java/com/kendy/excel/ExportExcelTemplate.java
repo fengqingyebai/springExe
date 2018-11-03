@@ -72,7 +72,7 @@ public class ExportExcelTemplate {
   /*
    * 导出数据
    */
-  public void export() throws Exception {
+  public void export() {
     try {
       HSSFWorkbook workbook = new HSSFWorkbook(); // 创建工作簿对象
       HSSFSheet sheet = workbook.createSheet(title); // 创建工作表
@@ -160,7 +160,7 @@ public class ExportExcelTemplate {
   }
 
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     // String title = Message.getString("manifestIExportTitle");
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "自动上码-" + TimeUtil.getDateTime();

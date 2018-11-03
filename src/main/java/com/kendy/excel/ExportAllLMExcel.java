@@ -122,7 +122,7 @@ public class ExportAllLMExcel {
   /**
    * 导出excel
    */
-  public boolean export() throws IOException {
+  public boolean export() {
     // 如果没有加载过联盟数据排序信息，则加载默认排序信息
     if (sortMap == null || sortMap.size() <= 0) {
       loadDefaultSort();
@@ -194,8 +194,7 @@ public class ExportAllLMExcel {
   /**
    * 根据dataMap 填充 Workbook
    */
-  private static Workbook convertExcel(Workbook templatewb, Map<String, String> dataMap)
-      throws FileNotFoundException {
+  private static Workbook convertExcel(Workbook templatewb, Map<String, String> dataMap) {
     log.info("开始填充联盟总帐Excel模板数据");
     Sheet sheet = templatewb.getSheetAt(0);
     // 总行数
@@ -256,7 +255,7 @@ public class ExportAllLMExcel {
     return templatewb;
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     log.info("加载联盟总帐Excel模板");
     try {
       InputStream is = ExportAllLMExcel.class.getResource("/excel/联盟总账模板.xls")

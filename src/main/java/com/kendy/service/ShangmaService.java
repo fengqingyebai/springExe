@@ -553,7 +553,6 @@ public class ShangmaService {
           }
         }
       }
-      ;
       if (!isExist) {
         ShowUtil.show("查无结果！" + playerId, 1);
       } else {
@@ -1039,7 +1038,6 @@ public class ShangmaService {
 
     // 获取最新的实时金额Map {玩家ID={}}
     Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();
-    ;
     ObservableList<CurrentMoneyInfo> obList = myController.tableCurrentMoneyInfo.getItems();
     if (obList != null) {
       String pId = "";

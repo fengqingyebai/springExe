@@ -16,6 +16,6 @@ public enum ColumnType {
   /*
    * TableView中颜色为常规的列（黑色）
    */
-  COLUMN_COMMON;
+  COLUMN_COMMON
 
 }

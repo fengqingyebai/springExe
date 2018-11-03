@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface GenericService<E extends GenericEntity, K extends Serializable> {
 
-  public List<E> getAll();
+  List<E> getAll();
 
-  public E get(K id);
+  E get(K id);
 
   /**
    * 根据主键更新实体全部字段，null值会被更新

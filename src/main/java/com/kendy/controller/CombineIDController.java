@@ -139,7 +139,7 @@ public class CombineIDController extends BaseController implements Initializable
 
   // 删除子ID
   public void delSubIdAction(ActionEvent event) {
-    String selectedMemberName = (String) rightPlayerListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = rightPlayerListView.getFocusModel().getFocusedItem();
     if (!StringUtil.isBlank(selectedMemberName)) {
       if (leftPlayerListView != null) {
         if (leftPlayerListView.getItems().size() == 0) {
@@ -147,7 +147,7 @@ public class CombineIDController extends BaseController implements Initializable
         } else {
           boolean isExist = false;
           for (Object info : leftPlayerListView.getItems()) {
-            if (selectedMemberName.equals((String) info)) {
+            if (selectedMemberName.equals(info)) {
               isExist = true;
             }
           }
@@ -216,7 +216,7 @@ public class CombineIDController extends BaseController implements Initializable
    * 加载父ID和名称
    */
   public void select2parentAction(ActionEvent event) {
-    String selectedMemberName = (String) leftPlayerListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = leftPlayerListView.getFocusModel().getFocusedItem();
     if (StringUtil.isBlank(selectedMemberName)) {
       ShowUtil.show("请先选择父ID!");
       return;
@@ -261,7 +261,7 @@ public class CombineIDController extends BaseController implements Initializable
       ShowUtil.show("请先选择父ID!!!");
       return;
     }
-    String selectedMemberName = (String) leftPlayerListView.getFocusModel().getFocusedItem();
+    String selectedMemberName = leftPlayerListView.getFocusModel().getFocusedItem();
     if (!StringUtil.isBlank(selectedMemberName)) {
       ObservableList<String> list = rightPlayerListView.getItems();
       if (list == null) {

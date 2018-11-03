@@ -238,16 +238,14 @@ public class TgWaizhaiService {
     Map<String, List<CurrentMoneyInfo>> tgTeamCMIMap = SSJE_obList.stream().filter(infos -> {
       boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(infos.getWanjiaId());
       if (!isSuperId) {// 为解决联合ID的问题，在这里把父节点信息加了进来，后面会把父节点的联合额度为0或空的清除掉，问题：能否在此处就过滤过？？
-        if (StringUtil.isBlank(infos.getShishiJine()) || "0".equals(infos.getShishiJine())
-            || !infos.getShishiJine().contains("-")) {
-          return false;
-        }
+        return !StringUtil.isBlank(infos.getShishiJine()) && !"0".equals(infos.getShishiJine())
+            && infos.getShishiJine().contains("-");
       }
       return true;
     })
         // .map(info -> copyCurrentMoneyInfo(info)) //复制一份
         .collect(Collectors.groupingBy(info -> {
-          CurrentMoneyInfo cmi = (CurrentMoneyInfo) info;
+          CurrentMoneyInfo cmi = info;
           Player p = dataConstants.membersMap.get(cmi.getWanjiaId());
           if (p == null) {
             return UNKNOW_TG_TEAM;
@@ -306,7 +304,7 @@ public class TgWaizhaiService {
 
     Map<String, List<CurrentMoneyInfo>> finalList = totalList.stream()
         .filter(cmi -> cmi.getShishiJine().contains("-")).collect(Collectors.groupingBy(info -> {
-          CurrentMoneyInfo cmi = (CurrentMoneyInfo) info;
+          CurrentMoneyInfo cmi = info;
           Player p = dataConstants.membersMap.get(cmi.getWanjiaId());
           if (p == null) {
             log.error("玩家" + cmi.getWanjiaId() + ",找不到！");

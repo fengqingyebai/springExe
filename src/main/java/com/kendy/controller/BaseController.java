@@ -207,7 +207,6 @@ public class BaseController {
     return null;
   }
 
-  ;
   //
   // /**
   // * 父类获取子类的实例对象

@@ -244,7 +244,7 @@ public class GDController extends BaseController implements Initializable {
       return;
     }
     gudongTeamMap = dataList.stream().collect(Collectors.groupingBy(// 先按股东分
-        record -> getGudongByGameRecord((GameRecord) record), Collectors.groupingBy(info -> {
+        record -> getGudongByGameRecord(record), Collectors.groupingBy(info -> {
           return StringUtil.nvl(info.getTeamId(), UN_KNOWN);
         })));// 再按团队分
 
@@ -268,7 +268,7 @@ public class GDController extends BaseController implements Initializable {
     }
     gudongKaixiaoMap = gudongKaixiao_dataList.stream().collect(Collectors
         .groupingBy(
-            info -> StringUtil.nvl(((KaixiaoInfo) info).getKaixiaoGudong(), UN_KNOWN)));// 按团队分
+            info -> StringUtil.nvl(info.getKaixiaoGudong(), UN_KNOWN)));// 按团队分
   }
 
   /**
@@ -347,7 +347,7 @@ public class GDController extends BaseController implements Initializable {
       return;
     }
     Map<String, List<GameRecord>> gudongRecordList = dataList.stream()
-        .collect(Collectors.groupingBy(record -> getGudongByGameRecord((GameRecord) record)));
+        .collect(Collectors.groupingBy(record -> getGudongByGameRecord(record)));
     // 计算总利润
     Double totalProfits = getTotalProfits();
     if (Double.compare(totalProfits, 0) == 0) {
@@ -997,7 +997,7 @@ public class GDController extends BaseController implements Initializable {
     // 获取非银河的股东的所有人次
     Long count_not_company = dataList.stream().filter(info -> {
       Player p = dataConstants.membersMap.get(info.getPlayerId());
-      return (p != null && !p.getGudong().contains("银河")) ? true : false;
+      return p != null && !p.getGudong().contains("银河");
     }).count();
 
     Double renciProfit = NumUtil.getNumTimes(count_not_company.toString(), getRenci());
@@ -1011,7 +1011,7 @@ public class GDController extends BaseController implements Initializable {
     // 股东及股东的记录数，一个记录数就是一个人次
     Map<String, List<GameRecord>> gudongSizeMap = dataList.stream()
         .collect(Collectors.groupingBy(// 按股东分
-            record -> getGudongByGameRecord((GameRecord) record)));
+            record -> getGudongByGameRecord(record)));
     ObservableList<String> gudongList = myController.getGudongList();
     for (String gudong : gudongList) {
       if (!gudongSizeMap.keySet().contains(gudong)) {

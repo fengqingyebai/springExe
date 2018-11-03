@@ -818,7 +818,6 @@ public class MoneyService {
         sumOfTableCurrentMoney += NumUtil.getNum(tempSingleVal);
       }
     }
-    ;
     return sumOfTableCurrentMoney;
   }
 
@@ -837,7 +836,6 @@ public class MoneyService {
       tempSingleVal = moneyInfo.getZijinAccount();
       sumOfTable += NumUtil.getNum(tempSingleVal);
     }
-    ;
     return sumOfTable;
   }
 
@@ -855,7 +853,6 @@ public class MoneyService {
         sumOfTable += NumUtil.getNum(tempSingleVal);
       }
     }
-    ;
     return sumOfTable;
   }
 
@@ -874,7 +871,6 @@ public class MoneyService {
       tempSingleVal = moneyInfo.getKaixiaoMoney();
       sumOfTable += NumUtil.getNum(tempSingleVal);
     }
-    ;
     return sumOfTable;
   }
 
@@ -1020,7 +1016,6 @@ public class MoneyService {
               digit0(NumUtil.getNum(info.getProfitAccount()) + (getTeamSum("总保回") * (-1)) + ""));
         }
       }
-      ;
       table.setItems(list);
     } catch (Exception e) {
       log.error("检测到更新利润表出错，可能是没有导入数据就进行平帐和锁定");
@@ -1088,7 +1083,6 @@ public class MoneyService {
           }
         }
       }
-      ;
       int size = indexList.size();
       // 返回排序序号
       if (size == 0) {
@@ -1161,7 +1155,6 @@ public class MoneyService {
           isInPaiju = true;
         }
       }
-      ;
       if (!isInPaiju) {// 如果没有找到供修改的记录，也要让其通过
         isOK = true;
       }
@@ -1180,7 +1173,7 @@ public class MoneyService {
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<ZijinInfo> tableZijin,
       TableView<KaixiaoInfo> tableKaixiao, TableView<ProfitInfo> tableProfit,
       TableView<DangjuInfo> tableDangju, TableView<JiaoshouInfo> tableJiaoshou,
-      TableView<PingzhangInfo> tablePingzhang, Label LMLabel) throws Exception {
+      TableView<PingzhangInfo> tablePingzhang, Label LMLabel) {
     /************************************************ 战绩表 **************/
     ObservableList<TotalInfo> TotalInfoObservableList = tableTotal.getItems();
     List<TotalInfo> TotalInfoList = new LinkedList<>();
@@ -1317,7 +1310,7 @@ public class MoneyService {
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<ZijinInfo> tableZijin,
       TableView<KaixiaoInfo> tableKaixiao, TableView<ProfitInfo> tableProfit,
       TableView<DangjuInfo> tableDangju, TableView<JiaoshouInfo> tableJiaoshou,
-      TableView<PingzhangInfo> tablePingzhang, Label LMLabel, int pageIndex) throws Exception {
+      TableView<PingzhangInfo> tablePingzhang, Label LMLabel, int pageIndex) {
 
     // 获取该页所有数据
     Map<String, String> map = dataConstants.All_Locked_Data_Map.get(pageIndex + "");
@@ -1758,7 +1751,7 @@ public class MoneyService {
     }
     String html = Text2ImageUtil.getHtml2(list, totalDesc);
     BufferedImage img = Text2ImageUtil.toImage(html, code, 400, 700);
-    ClipBoardUtil.setClipboardImage((Image) img);
+    ClipBoardUtil.setClipboardImage(img);
   }
 
   /**
@@ -2035,14 +2028,14 @@ public class MoneyService {
    * 是否存于实时金额表（根据ID)
    */
   public boolean isExistIn_SSJE_Table_byId(String playerId) {
-    return getInfoById(playerId) == null ? false : true;
+    return getInfoById(playerId) != null;
   }
 
   /**
    * 是否存于实时金额表（根据名称)
    */
   public boolean isExistIn_SSJE_Table_byName(String name) {
-    return getInfoByName(name) == null ? false : true;
+    return getInfoByName(name) != null;
   }
 
   /**

@@ -87,7 +87,7 @@ public class HttpService {
 
   private final String ACCEPT_BUY_URL = "http://cms.pokermanager.club/cms-api/game/acceptBuyin";
 
-  public void main(String[] args) throws Exception {
+  public void main(String[] args) {
 
     System.out.println("正在连接...");
     try {
@@ -178,7 +178,7 @@ public class HttpService {
    *
    * @time 2018年3月29日
    */
-  public List<WanjiaApplyInfo> getBuyinList(String token) throws Exception {
+  public List<WanjiaApplyInfo> getBuyinList(String token) {
     WanjiaListResult wanjiaListResult = getWanjiaListResult(token);
     if (wanjiaListResult == null) {
       return null;
@@ -193,7 +193,7 @@ public class HttpService {
    * 申请买入
    */
   public boolean acceptBuy(Long userUuid, Long roomId, String token)
-      throws ClientProtocolException, IOException {
+      throws IOException {
     Map<String, String> map = new HashMap<>();
     map.put("userUuid", userUuid + "");
     map.put("roomId", roomId + "");
@@ -209,13 +209,13 @@ public class HttpService {
    * POST请求后台数据
    */
   public String sendPost(String url, Map<String, String> params, String token)
-      throws ClientProtocolException, IOException {
+      throws IOException {
 
     List<NameValuePair> pairs = null;
     if (params != null && !params.isEmpty()) {
       pairs = new ArrayList<NameValuePair>(params.size());
       for (String key : params.keySet()) {
-        pairs.add(new BasicNameValuePair(key, params.get(key).toString()));
+        pairs.add(new BasicNameValuePair(key, params.get(key)));
       }
     }
     HttpPost httpPost = new HttpPost(url);

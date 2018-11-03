@@ -135,7 +135,7 @@ public enum ExcelUtil {
    * 读取Excel表格数据(从文件流)
    */
   public List<List<String>> readExcel2List(InputStream is, int offsetLine)
-      throws Exception, IOException, InvalidFormatException {
+      throws Exception {
 
     Workbook workbook = WorkbookFactory.create(is);
     return readExcel2ObjectsHandler(workbook, offsetLine);
@@ -200,7 +200,7 @@ public enum ExcelUtil {
   public void exportObjects2Excel(List<?> data, Class<?> clazz, boolean isWriteHeader,
       String targetPath) throws Exception, IOException {
 
-    try (FileOutputStream fos = new FileOutputStream(targetPath);) {
+    try (FileOutputStream fos = new FileOutputStream(targetPath)) {
       exportExcelNoTemplateHandler(data, clazz, isWriteHeader, null, true).write(fos);
     }
   }
