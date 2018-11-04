@@ -147,8 +147,8 @@ public class SheetTemplateHandler {
           continue;
         }
         String str = c.getStringCellValue().trim();
-        if (str.startsWith("#") && data.containsKey(str.substring(1))) {
-          c.setCellValue(data.get(str.substring(1)));
+        if (str.startsWith("#")) {
+          c.setCellValue(data.getOrDefault(str.substring(1), ""));
         }
       }
     }

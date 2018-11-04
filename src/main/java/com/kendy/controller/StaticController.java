@@ -10,6 +10,7 @@ import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo2;
 import com.kendy.enums.ColumnType;
 import com.kendy.excel.ExportExcelTemplate;
+import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
@@ -500,8 +501,9 @@ public class StaticController extends BaseController implements Initializable {
   }
 
   private Map<String, String> getExcelParamsMap(List<ClubStaticInfo> clubsExcelStatic) {
-    Map<String, String> map = getDefaultParamMap();
-    AtomicInteger count = new AtomicInteger(0);
+    //Map<String, String> map = getDefaultParamMap();
+    Map<String, String> map = new HashMap<>();
+        AtomicInteger count = new AtomicInteger(0);
     Map<String, List<ClubStaticInfo>> dataMap = clubsExcelStatic.stream()
         .collect(Collectors.groupingBy(e -> e.getClubName()));
 
@@ -534,36 +536,9 @@ public class StaticController extends BaseController implements Initializable {
     return map;
   }
 
-  private Map<String, String> getDefaultParamMap() {
-    Map<String, String> map = new HashMap<>();
-    for (int clubIndex = 0; clubIndex < CLUB_SIZE; clubIndex++) {
-      map.put("lm_name_" + clubIndex + "_0", EMPTY);
-      map.put("sum_jiaoshou_" + clubIndex + "_0", EMPTY);
-      map.put("sum_baoxian_" + clubIndex + "_0", EMPTY);
-      map.put("sum_renci_" + clubIndex + "_0", EMPTY);
-      map.put("sum_zj_" + clubIndex + "_0", EMPTY);
-
-      for (int dateIndex = 0; dateIndex < DATE_SIZE; dateIndex++) {
-        map.put(getKey(TIME, clubIndex, dateIndex), EMPTY);
-        map.put(getKey(JIAO_SHOU, clubIndex, dateIndex), EMPTY);
-        map.put(getKey(BAO_XIAN, clubIndex, dateIndex), EMPTY);
-        map.put(getKey(RENCI, clubIndex, dateIndex), EMPTY);
-        map.put(getKey(ZJ, clubIndex, dateIndex), EMPTY);
-      }
-    }
-    return map;
-  }
 
   StringBuilder sb = new StringBuilder();
   private static final String BOTTOM_LINE = "_";
-  private static final String TIME = "static_time";
-  private static final String JIAO_SHOU = "jiaoshou";
-  private static final String BAO_XIAN = "baoxian";
-  private static final String RENCI = "renci";
-  private static final String ZJ = "zj";
-  private static final String EMPTY = "";
-  private static final int CLUB_SIZE = 20;
-  private static final int DATE_SIZE = 31;
   private static final String TEMPLE_EXCEL_PATH = "/excel/俱乐部导出模板.xlsx";
 
   private String getKey(String key, int clubIndex, int rowIndex) {
@@ -575,7 +550,7 @@ public class StaticController extends BaseController implements Initializable {
   private void exportTemplateExcel(String templateExcelPath, Map<String, String> paramsMap,
       String outputPath) throws Exception {
     try (FileOutputStream os = new FileOutputStream(new File(outputPath))) {
-      ExcelUtils.getInstance()
+      MyExcelUtils.getInstance()
           .exportObjects2Excel(templateExcelPath, Collections.EMPTY_LIST, paramsMap,
               ClubStaticInfo.class, false, os);
     } catch (Exception e) {
