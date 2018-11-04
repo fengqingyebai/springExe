@@ -2,7 +2,6 @@ package com.kendy.excel;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
-import com.kendy.excel.excel4j.ExcelUtils;
+import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.model.CombineID;
 import com.kendy.model.GameRecord;
 import com.kendy.other.Wrap;
@@ -81,7 +80,7 @@ public class ExcelReaderUtil {
 
     String excelPath = PathUtil.getUserDeskPath() + "/战绩导出-24-299.xls";
     List<GameRecord> basicRecords =
-        ExcelUtils.getInstance().readExcel2Objects(excelPath, GameRecord.class, 1, 0);
+        MyExcelUtils.getInstance().readExcel2Objects(excelPath, GameRecord.class, 1, 0);
 
     // log.info("finishes..." + basicRecords.size());
   }
@@ -351,7 +350,7 @@ public class ExcelReaderUtil {
 
     // 获取所有记录
     List<GameRecord> gameRecords =
-        ExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
+        MyExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
 
     if (CollectUtil.isHaveValue(gameRecords)) {
       Optional<GameRecord> noneExistPlayer =
@@ -563,7 +562,7 @@ public class ExcelReaderUtil {
 
     try (FileInputStream is = new FileInputStream(file)) {
       log.info("开始导入合并ID模板Excel");
-      List<List<String>> originalList = ExcelUtils.getInstance().readExcel2List(is, 1);
+      List<List<String>> originalList = MyExcelUtils.getInstance().readExcel2List(is, 1);
       if (CollectUtil.isEmpty(originalList)) {
         return combinIds;
       }

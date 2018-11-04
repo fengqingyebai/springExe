@@ -1,6 +1,6 @@
 package com.kendy.entity;
 
-import com.kendy.excel.excel4j.annotation.ExcelField;
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import com.kendy.interfaces.Entity;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -47,34 +47,34 @@ public class GameRecordInfo implements Entity {
   private SimpleStringProperty isCleared = new SimpleStringProperty("0");
 
 
-  @ExcelField(title = "总手数", order = 8)
+  @MyExcelField(title = "总手数", order = 8)
   private SimpleStringProperty sumHandsCount;
 
-  @ExcelField(title = "玩家ID", order = 9)
+  @MyExcelField(title = "玩家ID", order = 9)
   private SimpleStringProperty playerId;
 
-  @ExcelField(title = "玩家昵称", order = 10)
+  @MyExcelField(title = "玩家昵称", order = 10)
   private SimpleStringProperty playerName;
 
-  @ExcelField(title = "俱乐部ID", order = 11)
+  @MyExcelField(title = "俱乐部ID", order = 11)
   private SimpleStringProperty clubId;
 
-  @ExcelField(title = "俱乐部", order = 12)
+  @MyExcelField(title = "俱乐部", order = 12)
   private SimpleStringProperty clubName;
 
-  @ExcelField(title = "保险合计", order = 17)
+  @MyExcelField(title = "保险合计", order = 17)
   private SimpleStringProperty sinegleInsurance;
 
-  @ExcelField(title = "俱乐部保险", order = 18)
+  @MyExcelField(title = "俱乐部保险", order = 18)
   private SimpleStringProperty clubInsurance;
 
-  @ExcelField(title = "保险", order = 19)
+  @MyExcelField(title = "保险", order = 19)
   private SimpleStringProperty currentTableInsurance;
 
-  @ExcelField(title = "战绩", order = 20)
+  @MyExcelField(title = "战绩", order = 20)
   private SimpleStringProperty yszj;
 
-  @ExcelField(title = "结束时间", order = 21)
+  @MyExcelField(title = "结束时间", order = 21)
   private SimpleStringProperty finisedTime;
 
 

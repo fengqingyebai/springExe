@@ -1,6 +1,6 @@
 package com.kendy.model;
 
-import com.kendy.excel.excel4j.annotation.ExcelField;
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 
 /**
  * 新版本战绩记录（统一） 备注：保险是整个牌局的保险合计的总和 而保险合计只是单个玩家单条记录的保险
@@ -10,34 +10,34 @@ import com.kendy.excel.excel4j.annotation.ExcelField;
  */
 public class BasicRecord {
 
-  @ExcelField(title = "总手数", order = 8)
+  @MyExcelField(title = "总手数", order = 8)
   private String sumHandsCount;
 
-  @ExcelField(title = "玩家ID", order = 9)
+  @MyExcelField(title = "玩家ID", order = 9)
   private String playerId;
 
-  @ExcelField(title = "玩家昵称", order = 10)
+  @MyExcelField(title = "玩家昵称", order = 10)
   private String playerName;
 
-  @ExcelField(title = "俱乐部ID", order = 11)
+  @MyExcelField(title = "俱乐部ID", order = 11)
   private String clubId;
 
-  @ExcelField(title = "俱乐部", order = 12)
+  @MyExcelField(title = "俱乐部", order = 12)
   private String clubName;
 
-  @ExcelField(title = "保险合计", order = 17)
+  @MyExcelField(title = "保险合计", order = 17)
   private String sinegleInsurance;
 
-  @ExcelField(title = "俱乐部保险", order = 18)
+  @MyExcelField(title = "俱乐部保险", order = 18)
   private String clubInsurance;
 
-  @ExcelField(title = "保险", order = 19)
+  @MyExcelField(title = "保险", order = 19)
   private String currentTableInsurance;
 
-  @ExcelField(title = "战绩", order = 20)
+  @MyExcelField(title = "战绩", order = 20)
   private String yszj;
 
-  @ExcelField(title = "结束时间", order = 21)
+  @MyExcelField(title = "结束时间", order = 21)
   private String finisedTime;
 
 

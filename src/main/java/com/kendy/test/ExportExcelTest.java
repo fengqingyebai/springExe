@@ -1,13 +1,11 @@
 package com.kendy.test;
 
+import com.kendy.excel.myExcel4j.MyExcelUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.SystemUtils;
-
-import com.kendy.excel.excel4j.ExcelUtils;
 import com.kendy.util.PathUtil;
 
 
@@ -35,7 +33,7 @@ public class ExportExcelTest {
     data.put("info", "学校统一花名册");
     // 不基于模板导出Excel
     String userDeskPath = PathUtil.getUserDeskPath();
-    ExcelUtils.getInstance()
+    MyExcelUtils.getInstance()
         .exportObjects2Excel(list, Student1.class, true, null, true, userDeskPath + "a4.xlsx");
 
     System.out.println("finises...");

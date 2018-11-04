@@ -1,10 +1,8 @@
 package com.kendy.entity;
 
-import com.kendy.excel.excel4j.annotation.ExcelField;
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import com.kendy.interfaces.Entity;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
 
 /**
  * 俱乐部历史统计对象
@@ -13,28 +11,28 @@ import javafx.scene.control.TableColumn;
 public class ClubStaticInfo implements Entity {
 
 
-  @ExcelField(title = "统计时间")
+  @MyExcelField(title = "统计时间", colWidth = 15)
   private SimpleStringProperty clubStaticTime = new SimpleStringProperty();
 
-  @ExcelField(title = "所属联盟")
+  @MyExcelField(title = "所属联盟", colWidth = 15)
   private SimpleStringProperty clubLmType = new SimpleStringProperty();
 
-  @ExcelField(title = "俱乐部名称")
+  @MyExcelField(title = "俱乐部名称", colWidth = 15)
   private SimpleStringProperty clubName = new SimpleStringProperty();
 
-  @ExcelField(title = "俱乐部ID")
+  @MyExcelField(title = "俱乐部ID", colWidth = 15)
   private SimpleStringProperty clubId = new SimpleStringProperty();
 
-  @ExcelField(title = "总战绩")
+  @MyExcelField(title = "总战绩")
   private SimpleStringProperty clubSumZJ = new SimpleStringProperty();
 
-  @ExcelField(title = "总保险")
+  @MyExcelField(title = "总保险")
   private SimpleStringProperty clubSumBaoxian = new SimpleStringProperty();
 
-  @ExcelField(title = "总人数")
+  @MyExcelField(title = "总人数")
   private SimpleStringProperty clubSumPerson = new SimpleStringProperty();
 
-  @ExcelField(title = "总交收")
+  @MyExcelField(title = "总交收")
   private SimpleStringProperty clubSumProfit = new SimpleStringProperty();
 
 

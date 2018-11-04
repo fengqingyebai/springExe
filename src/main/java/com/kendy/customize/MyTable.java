@@ -1,6 +1,6 @@
 package com.kendy.customize;
 
-import com.kendy.excel.excel4j.ExcelUtils;
+import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.exception.ExcelException;
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
@@ -73,7 +73,7 @@ public class MyTable<K> extends TableView<K> {
       throw new ExcelException("导出的配置信息不完整！");
     }
     String excelOutputPath = "D:/" + excelName + ".xlsx";
-    ExcelUtils.getInstance().exportObjects2Excel(items, entityClass, excelOutputPath);
+    MyExcelUtils.getInstance().exportObjects2Excel(items, entityClass, excelOutputPath);
     java.awt.Desktop.getDesktop().open(new File(excelOutputPath));
   }
 

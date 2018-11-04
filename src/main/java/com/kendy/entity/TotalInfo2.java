@@ -1,6 +1,6 @@
 package com.kendy.entity;
 
-import com.kendy.excel.excel4j.annotation.ExcelField;
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -9,7 +9,7 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class TotalInfo2 extends TotalInfo {
 
-  @ExcelField(title = "桌号")
+  @MyExcelField(title = "桌号")
   private SimpleStringProperty tableId = new SimpleStringProperty();
 
   public String getTableId() {

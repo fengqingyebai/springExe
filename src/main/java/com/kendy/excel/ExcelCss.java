@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 
 /**
  * 自定义Excel单元格样式
@@ -27,9 +28,10 @@ public class ExcelCss {
     // 设置字体
     Font font = workbook.createFont();
     //设置字体大小
-    font.setFontHeightInPoints((short) 11);
+    font.setFontHeightInPoints((short) 13);
     //字体加粗
     font.setBold(true);
+    font.setFontName("楷体");
     //设置样式;
     CellStyle style = workbook.createCellStyle();
     //设置底边框;

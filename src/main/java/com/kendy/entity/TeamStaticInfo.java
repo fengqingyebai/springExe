@@ -1,57 +1,46 @@
 package com.kendy.entity;
 
-import com.kendy.excel.excel4j.annotation.ExcelField;
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import com.kendy.interfaces.Entity;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Value;
-import lombok.experimental.Accessors;
 
 /**
  * 团队历史统计对象
  */
 public class TeamStaticInfo implements Entity {
 
-  @ExcelField(title = "俱乐部ID", order = 1)
+  @MyExcelField(title = "俱乐部ID", colWidth = 12)
   private SimpleStringProperty teamClubId = new SimpleStringProperty();//俱乐部ID
 
-  @ExcelField(title = "团家ID", order = 2)
+  @MyExcelField(title = "团队ID")
   private SimpleStringProperty teamId = new SimpleStringProperty();//团家ID
 
-  @ExcelField(title = "统计时间", order = 3)
+  @MyExcelField(title = "统计时间", colWidth = 15)
   private SimpleStringProperty staticTime = new SimpleStringProperty();// 开始统计时间
 
-  @ExcelField(title = "总战绩", order = 4)
+  @MyExcelField(title = "总战绩")
   private SimpleStringProperty sumZJ = new SimpleStringProperty();//总战绩
 
-  @ExcelField(title = "总回水", order = 5)
+  @MyExcelField(title = "总回水")
   private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
 
-  @ExcelField(title = "总回保", order = 6)
+  @MyExcelField(title = "总回保")
   private SimpleStringProperty sumHuibao = new SimpleStringProperty();//总回保
 
 
-  @ExcelField(title = "总人数", order = 7)
+  @MyExcelField(title = "总人数")
   private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
 
-  @ExcelField(title = "服务费", order = 8)
+  @MyExcelField(title = "服务费")
   private SimpleStringProperty teamFWF = new SimpleStringProperty();// 团队服务费
 
-  @ExcelField(title = "总输赢", order = 9)
+  @MyExcelField(title = "总输赢")
   private SimpleStringProperty sumProfit = new SimpleStringProperty();//总输赢 = 总战绩 + 总出回水 + 总回保 - 团队服务费
 
-  @ExcelField(title = "团保比例", order = 10)
+  @MyExcelField(title = "团保比例")
   private SimpleStringProperty teamProxyHBRate = new SimpleStringProperty();// 团队代理回保比例
 
-  @ExcelField(title = "团水比例", order = 11)
+  @MyExcelField(title = "团水比例")
   private SimpleStringProperty teamProxyHSRate = new SimpleStringProperty();// 团队代理回水比例
 
 

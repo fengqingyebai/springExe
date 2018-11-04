@@ -1,6 +1,6 @@
 package com.kendy.entity;
 
-import com.kendy.excel.excel4j.annotation.ExcelField;
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import com.kendy.interfaces.Entity;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -12,37 +12,37 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class TotalInfo implements Entity {
 
-  @ExcelField(title = "团ID")
+  @MyExcelField(title = "团ID")
   private SimpleStringProperty tuan = new SimpleStringProperty();//团
 
-  @ExcelField(title = "玩家ID")
+  @MyExcelField(title = "玩家ID", colWidth = 15)
   private SimpleStringProperty wanjiaId = new SimpleStringProperty();//ID
 
-  @ExcelField(title = "玩家名称")
+  @MyExcelField(title = "玩家名称", colWidth = 15)
   private SimpleStringProperty wanjia = new SimpleStringProperty();//玩家
 
-  @ExcelField(title = "计分")
+  @MyExcelField(title = "计分")
   private SimpleStringProperty jifen = new SimpleStringProperty();//计分
 
-  @ExcelField(title = "实收")
+  @MyExcelField(title = "实收")
   private SimpleStringProperty shishou = new SimpleStringProperty();//实收
 
-  @ExcelField(title = "保险")
+  @MyExcelField(title = "保险")
   private SimpleStringProperty baoxian = new SimpleStringProperty();//保险
 
-  @ExcelField(title = "出回水")
+  @MyExcelField(title = "出回水")
   private SimpleStringProperty chuHuishui = new SimpleStringProperty();//出回水
 
-  @ExcelField(title = "保回")
+  @MyExcelField(title = "保回")
   private SimpleStringProperty baohui = new SimpleStringProperty();//保回
 
-  @ExcelField(title = "水后险")
+  @MyExcelField(title = "水后险")
   private SimpleStringProperty shuihouxian = new SimpleStringProperty();//水后险
 
-  @ExcelField(title = "收回水")
+  @MyExcelField(title = "收回水")
   private SimpleStringProperty shouHuishui = new SimpleStringProperty();//收回水
 
-  @ExcelField(title = "合利润")
+  @MyExcelField(title = "合利润")
   private SimpleStringProperty heLirun = new SimpleStringProperty();//合利润
 
 
