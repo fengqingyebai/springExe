@@ -1,6 +1,17 @@
 package com.kendy.excel.myExcel4j;
 
 import com.kendy.excel.ExcelCss;
+import com.kendy.excel.myExcel4j.converter.DefaultConvertible;
+import com.kendy.excel.myExcel4j.exceptions.Excel4JException;
+import com.kendy.excel.myExcel4j.exceptions.Excel4jReadException;
+import com.kendy.excel.myExcel4j.handler.ExcelHeader;
+import com.kendy.excel.myExcel4j.handler.SheetTemplate;
+import com.kendy.excel.myExcel4j.handler.SheetTemplateHandler;
+import com.kendy.excel.myExcel4j.sheet.wrapper.MapSheetWrapper;
+import com.kendy.excel.myExcel4j.sheet.wrapper.NoTemplateSheetWrapper;
+import com.kendy.excel.myExcel4j.sheet.wrapper.NormalSheetWrapper;
+import com.kendy.excel.myExcel4j.sheet.wrapper.SimpleSheetWrapper;
+import com.kendy.excel.myExcel4j.utils.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +21,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -22,17 +34,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import com.kendy.excel.myExcel4j.converter.DefaultConvertible;
-import com.kendy.excel.myExcel4j.exceptions.Excel4JException;
-import com.kendy.excel.myExcel4j.exceptions.Excel4jReadException;
-import com.kendy.excel.myExcel4j.handler.ExcelHeader;
-import com.kendy.excel.myExcel4j.handler.SheetTemplate;
-import com.kendy.excel.myExcel4j.handler.SheetTemplateHandler;
-import com.kendy.excel.myExcel4j.sheet.wrapper.MapSheetWrapper;
-import com.kendy.excel.myExcel4j.sheet.wrapper.NoTemplateSheetWrapper;
-import com.kendy.excel.myExcel4j.sheet.wrapper.NormalSheetWrapper;
-import com.kendy.excel.myExcel4j.sheet.wrapper.SimpleSheetWrapper;
-import com.kendy.excel.myExcel4j.utils.Utils;
 
 /**
  * Excel4J的主要操作工具类
@@ -526,6 +527,23 @@ public final class MyExcelUtils {
       throws Excel4JException {
 
     exportObjects2Excel(templatePath, 0, data, extendMap, clazz, isWriteHeader, os);
+  }
+
+  /**
+   * 林泽涛： 新增导出模板方法
+   *
+   * @param templatePath 模板路径
+   * @param extendMap 模板数据
+   * @param outputPath excel导出路径
+   * @throws Exception 导出异常
+   */
+  public void exportObjects2Excel(String templatePath, Map<String, String> extendMap,
+      String outputPath) throws Exception {
+    try (FileOutputStream os = new FileOutputStream(outputPath)) {
+      exportObjects2Excel(templatePath, 0, Collections.EMPTY_LIST, extendMap, Object.class, false, os);
+    } catch (Exception e) {
+      throw e;
+    }
   }
 
   /**

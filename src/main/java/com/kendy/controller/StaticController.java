@@ -491,7 +491,7 @@ public class StaticController extends BaseController implements Initializable {
         .append(TimeUtil.getDateTime()).append(".xlsx").toString();
     try {
       logger.info("开始" + msg + "...");
-      exportTemplateExcel(TEMPLE_EXCEL_PATH, excelParamsMap, outputPath);
+      MyExcelUtils.getInstance().exportObjects2Excel(TEMPLE_EXCEL_PATH, excelParamsMap, outputPath);
       java.awt.Desktop.getDesktop().open(new File(outputPath));
       logger.info(msg + "成功");
     } catch (Exception err) {
@@ -547,16 +547,6 @@ public class StaticController extends BaseController implements Initializable {
         .toString();
   }
 
-  private void exportTemplateExcel(String templateExcelPath, Map<String, String> paramsMap,
-      String outputPath) throws Exception {
-    try (FileOutputStream os = new FileOutputStream(new File(outputPath))) {
-      MyExcelUtils.getInstance()
-          .exportObjects2Excel(templateExcelPath, Collections.EMPTY_LIST, paramsMap,
-              ClubStaticInfo.class, false, os);
-    } catch (Exception e) {
-      throw e;
-    }
-  }
   // =============================================导出俱乐部汇总【结束】
 
 
