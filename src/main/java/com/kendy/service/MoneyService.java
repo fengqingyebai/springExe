@@ -1733,11 +1733,11 @@ public class MoneyService {
       Platform.runLater(() -> {
         Notifications.create().title("截图成功").darkStyle()
             .text(item.getMingzi() + System.lineSeparator() + totalDesc)
-            .position(Pos.BOTTOM_RIGHT).showInformation();
+            .position(Pos.BOTTOM_LEFT).showInformation();
       });
     } catch (Exception e) {
       Platform.runLater(() -> {
-        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_RIGHT)
+        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_LEFT)
             .showError();
       });
       e.printStackTrace();

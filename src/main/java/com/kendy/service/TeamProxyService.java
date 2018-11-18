@@ -667,7 +667,7 @@ public class TeamProxyService {
    */
   private List<String> getHejiFilters() {
     List<String> totalFilters = new ArrayList<>();
-    if (hasTeamBaoxian.isSelected()) {
+    if (!hasTeamBaoxian.isSelected()) {
       totalFilters.add("总回保");
     }
     if (isZjManage.isSelected()) {

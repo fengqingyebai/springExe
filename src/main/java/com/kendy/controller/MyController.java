@@ -1746,6 +1746,7 @@ public class MyController extends BaseController implements Initializable {
         Notifications
             .create().title("截图成功").darkStyle()
             .text(wj.getWanjiaName() + System.lineSeparator() + wj.getPaiju())
+            .position(Pos.BOTTOM_LEFT)
             .showInformation();
       });
     } catch (Exception e) {
