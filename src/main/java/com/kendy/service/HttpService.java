@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -22,7 +23,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
@@ -40,7 +42,7 @@ import com.kendy.util.StringUtil;
 @Component
 public class HttpService {
 
-  private Logger log = Logger.getLogger(HttpService.class);
+  private Logger log = LoggerFactory.getLogger(HttpService.class);
 
   @Autowired
   MyController myController;
@@ -201,6 +203,8 @@ public class HttpService {
     if (StringUtil.isNotBlank(result) && result.endsWith("0}")) {
       return Boolean.TRUE;
     }
+    log.error("申请买入失败原因：userUuid是{}，roomId是{}, 返回原始结果是{}", userUuid + "", roomId + "",
+        StringUtils.defaultString(result));
     return Boolean.FALSE;
   }
 
