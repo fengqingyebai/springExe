@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.scene.*?>
+<?import javafx.embed.swing.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.paint.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.ZjStaticController">
+    <children>
+       <AnchorPane layoutY="1.0" minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="1296.0">
+          <children>
+            <TableView fx:id="tableClubStatic" layoutX="664.0" layoutY="31.0" prefHeight="683.0" prefWidth="427.0">
+               <columns>
+                  <TableColumn fx:id="clubName" prefWidth="115.0" text="俱乐部名称" />
+                  <TableColumn fx:id="clubId" minWidth="0.0" prefWidth="114.0" text="俱乐部ID" />
+                  <TableColumn fx:id="clubBeginStaticTime" minWidth="0.0" prefWidth="113.0" text="开始统计时间" />
+                  <TableColumn fx:id="clubPersonCount" minWidth="0.0" prefWidth="63.0" text="人次" />
+               </columns>
+            </TableView>
+             <TableView fx:id="tableTeamStatic" layoutX="183.0" layoutY="107.0" prefHeight="601.0" prefWidth="437.0">
+                <columns>
+                   <TableColumn fx:id="teamClubId" prefWidth="102.0" text="所属俱乐部" />
+                   <TableColumn fx:id="teamId" minWidth="0.0" prefWidth="111.0" text="团队ID" />
+                   <TableColumn fx:id="teamBeginStaticTime" minWidth="0.0" prefWidth="124.0" text="开始统计时间" />
+                  <TableColumn fx:id="teamPersonCount" minWidth="0.0" prefWidth="88.0" text="人次" />
+                </columns>
+             </TableView>
+             <Label layoutX="86.0" layoutY="319.0" prefHeight="24.0" prefWidth="156.0" />
+            <SplitPane layoutX="19.0" layoutY="105.0" />
+          </children>
+       </AnchorPane>
+    </children>
+ </AnchorPane>

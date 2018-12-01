@@ -179,6 +179,8 @@ public class MyController extends BaseController implements Initializable {
   public DataConstans dataConstants; // 数据控制类
   @Autowired
   public ExcelReaderUtil excelReaderUtil; // excel读取类
+  @Autowired
+  public ZjStaticController zjStaticController; // 战绩统计控制类
 
 
   private final String ZERO = "0";
@@ -690,6 +692,7 @@ public class MyController extends BaseController implements Initializable {
     addSubTab("自动上码配置", "SM_Autos.fxml");
     addSubTab("银行流水", "bank_flow_frame.fxml");
     addSubTab("历史统计", "history_static_tab_frame.fxml");
+    addSubTab("战绩统计", "zj_static_tab_frame.fxml");
   }
 
   /**
@@ -850,6 +853,9 @@ public class MyController extends BaseController implements Initializable {
         }
         if ("历史统计".equals(tab.getText().trim())) {
           staticController.refresh();
+        }
+        if ("战绩统计".equals(tab.getText().trim())) {
+          zjStaticController.refresh();
         }
 
       }

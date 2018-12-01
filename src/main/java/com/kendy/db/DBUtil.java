@@ -20,6 +20,10 @@ import com.kendy.entity.TGLirunInfo;
 import com.kendy.entity.TGTeamModel;
 import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo2;
+import com.kendy.entity.ZjClubStaticDetailInfo;
+import com.kendy.entity.ZjClubStaticInfo;
+import com.kendy.entity.ZjTeamStaticDetailInfo;
+import com.kendy.entity.ZjTeamStaticInfo;
 import com.kendy.model.BankFlowModel;
 import com.kendy.model.GameRecord;
 import com.kendy.util.CollectUtil;
@@ -35,6 +39,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -44,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
@@ -3142,4 +3148,179 @@ public class DBUtil {
   }
 
 
+
+  /**
+   * 战绩统计插入最新数据
+   * @param clubId 当前俱乐部
+   */
+  public void insertZjStaticData(String clubId){
+    try {
+      String sql = "";
+      // 先删除
+      con = DBConnection.getConnection();
+      sql = "delete from game_record_zj";
+      ps = con.prepareStatement(sql);
+      ps.execute();
+
+      // 再插入
+      long start = System.currentTimeMillis();
+      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.finished_time, m.playerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
+      ps = con.prepareStatement(sql);
+//      ps.setString(1, clubId);
+//      ps.setString(2, clubId);
+      ps.execute();
+      loger.info("战绩统计原始数据入库耗时：{}毫秒", (System.currentTimeMillis() - start));
+
+    } catch (SQLException e) {
+      ErrorUtil.err("战绩统计原始数据入库失败", e);
+    } finally {
+      close(con, ps);
+    }
+  }
+
+  /**
+   * 战绩统计获取团队汇总信息
+   * @return
+   */
+  public List<ZjTeamStaticInfo> getZjTeamStaticsRecordsByClub(String clubId) {
+    // 更新最新数据到战绩表game_record_zj
+    List<ZjTeamStaticInfo> list = new ArrayList<>();
+    try {
+      // 先删除
+      con = DBConnection.getConnection();
+
+      // 再插入
+      long start = System.currentTimeMillis();
+      String sql = "SELECT tt.clubId 所属俱乐部, tt.teamId 团队ID, count(1) 人次, tt.soft_time 最早统计时间 FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.teamId";
+      ps = con.prepareStatement(sql);
+      ps.setString(1, clubId);
+
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        ZjTeamStaticInfo info = new ZjTeamStaticInfo();
+        info.setTeamClubId(rs.getString(1));
+        info.setTeamId(StringUtils.defaultString(rs.getString(2)));
+        info.setTeamPersonCount(rs.getString(3));
+        info.setTeamBeginStaticTime(rs.getString(4));
+        list.add(info);
+      }
+      loger.info("战绩统计每个团队结果耗时：{}毫秒", (System.currentTimeMillis() - start));
+
+    } catch (SQLException e) {
+      ErrorUtil.err("战绩统计每个团队结果失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return list;
+  }
+
+
+  public List<ZjTeamStaticDetailInfo> getZjTeamStaticsByTeamId(String clubId, String teamId) {
+    // 更新最新数据到战绩表game_record_zj
+    List<ZjTeamStaticDetailInfo> list = new ArrayList<>();
+    try {
+      con = DBConnection.getConnection();
+
+      // 再插入
+      long start = System.currentTimeMillis();
+      String sql = "SELECT aa.clubId 所属俱乐部, aa.teamId 团队ID, aa.player_id, aa.playerName 玩家名称, aa.personCount 人次, bb.totalYszj 累计战绩 FROM ( SELECT tt.clubId, tt.teamId, tt.player_id, tt.playerName, count(1) personCount FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.player_id ) aa LEFT JOIN ( SELECT a.playerId, sum(a.yszj) totalYszj FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? GROUP BY a.playerId ) bb ON aa.player_id = bb.playerId";
+      ps = con.prepareStatement(sql);
+      ps.setString(1, clubId);
+      ps.setString(2, teamId);
+      ps.setString(3, clubId);
+      ps.setString(4, teamId);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        ZjTeamStaticDetailInfo info = new ZjTeamStaticDetailInfo();
+        info.setDetailClubId(clubId);
+        info.setDetailTeamId(rs.getString(2));
+        info.setDetailPlayerId(rs.getString(3));
+        info.setDetailPlayerName(rs.getString(4));
+        info.setDetailPersonCount(rs.getString(5));
+        info.setDetailPersonSumYszj(rs.getString(6)); // TODO 重写SQL设置个人的累计战绩
+        list.add(info);
+      }
+      if(loger.isDebugEnabled()){
+        loger.info("战绩统计{}团队结果耗时：{}毫秒",teamId, (System.currentTimeMillis() - start));
+      }
+    } catch (SQLException e) {
+      ErrorUtil.err("战绩统计每个团队结果失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return list;
+  }
+
+
+  /**
+   * 战绩统计：获取所有俱乐部的统计数据中
+   * @return
+   */
+  public List<ZjClubStaticInfo> getZjClubTotalStatic() {
+    // 更新最新数据到战绩表game_record_zj
+    List<ZjClubStaticInfo> list = new ArrayList<>();
+    try {
+      con = DBConnection.getConnection();
+
+      // 再插入
+      long start = System.currentTimeMillis();
+      String sql = "SELECT tt.clubName 俱乐部名称, tt.clubId 俱乐部ID, min(tt.soft_time) 最早统计时间, count(1) 人次 FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.*, c. NAME clubName FROM game_record_zj a LEFT JOIN club c ON a.clubId = c.clubId ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.clubId";
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      while (rs.next()) {
+        ZjClubStaticInfo info = new ZjClubStaticInfo();
+        info.setClubName(rs.getString(1));
+        info.setClubId(rs.getString(2));
+        info.setClubBeginStaticTime(rs.getString(3));
+        info.setClubPersonCount(rs.getString(4));
+        list.add(info);
+      }
+      loger.info("战绩统计统计所有俱乐部结果耗时：{}毫秒", (System.currentTimeMillis() - start));
+    } catch (SQLException e) {
+      ErrorUtil.err("战绩统计每个团队结果失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return list;
+  }
+
+
+  /**
+   * 战绩统计：右边单个俱乐部统计
+   * @return
+   */
+  public List<ZjClubStaticDetailInfo> getZjClubStaticDetail(String clubId) {
+    // 更新最新数据到战绩表game_record_zj
+    List<ZjClubStaticDetailInfo> list = new ArrayList<>();
+    try {
+      con = DBConnection.getConnection();
+
+      // 再插入
+      long start = System.currentTimeMillis();
+      String sql = "SELECT aa.clubName 俱乐部名称, aa.clubId 所属俱乐部, aa.player_id, aa.playerName 玩家名称, aa.personCount 人次, bb.totalYszj 累计战绩, aa.softTime 开始统计时间 FROM ( SELECT tt.clubId, tt.club_name clubName, tt.teamId, tt.player_id, tt.playerName, count(1) personCount, min(tt.soft_time) softTime FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.player_id ) aa LEFT JOIN ( SELECT a.playerId, sum(a.yszj) totalYszj FROM game_record_zj a WHERE a.clubId = ? GROUP BY a.playerId ) bb ON aa.player_id = bb.playerId";
+      ps = con.prepareStatement(sql);
+      ps.setString(1, clubId);
+      ps.setString(2, clubId);
+      ResultSet rs = ps.executeQuery();
+      AtomicInteger indexObj = new AtomicInteger(1);
+      while (rs.next()) {
+        ZjClubStaticDetailInfo info = new ZjClubStaticDetailInfo();
+        info.setDetailClubIndex(indexObj.getAndIncrement()+"");
+        info.setDetailClubName(rs.getString(1));
+        info.setDetailClubId(rs.getString(2));
+        info.setDetailClubPlayerId(rs.getString(3));
+        info.setDetailClubPlayerName(rs.getString(4));
+        info.setDetailClubPersonCount(rs.getString(5));
+        info.setDetailClubTotalZJ(rs.getString(6));
+        info.setDetailClubBeginStaticTime(rs.getString(7));
+        list.add(info);
+      }
+      loger.info("战绩统计右边单个俱乐部统计结果耗时：{}毫秒", (System.currentTimeMillis() - start));
+    } catch (SQLException e) {
+      ErrorUtil.err("战绩统计右边单个俱乐部统计结果失败", e);
+    } finally {
+      close(con, ps);
+    }
+    return list;
+  }
 }
