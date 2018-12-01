@@ -203,6 +203,9 @@ public class HttpService {
     if (StringUtil.isNotBlank(result) && result.endsWith("0}")) {
       return Boolean.TRUE;
     }
+    if (StringUtils.equals(result, "{\"result\":1,\"iErrCode\":1}")) {
+      return Boolean.TRUE;
+    }
     log.error("申请买入失败原因：userUuid是{}，roomId是{}, 返回原始结果是{}", userUuid + "", roomId + "",
         StringUtils.defaultString(result));
     return Boolean.FALSE;
