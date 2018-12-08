@@ -447,7 +447,7 @@ public class SMAutoController extends BaseController implements Initializable {
     } catch (Exception e) {
       String errMesg = "获取玩家信息请求失败";
       logInfo(errMesg);
-      log.error(errMesg);
+      log.error(errMesg + ",异常信息：" + e.getMessage());
     }
     logInfo("");
   }
