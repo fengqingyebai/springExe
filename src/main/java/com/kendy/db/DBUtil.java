@@ -2644,7 +2644,8 @@ public class DBUtil {
 
   /************************************************************************************************
    *
-   * GameRecord表 注意： 1、本表不保存teamId和clubName, 查询时自动去关联members表和club表，
+   * GameRecord表 注意：<p>
+   * 1、本表不保存teamId和clubName, 查询时自动去关联members表和club表，
    * 2、但是缓存中是有这两个数据的，更新玩家名称、俱乐部名称和团队时请更新相应数据表和缓存，不修改本表
    *
    ***********************************************************************************************/
@@ -2659,7 +2660,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql;
-      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, record.getSoftDate());
       ps.setString(2, record.getClubId());
@@ -2681,6 +2682,7 @@ public class DBUtil {
       ps.setString(18, record.getLevel());
       ps.setString(19, record.getSumHandsCount());
       ps.setString(20, record.getIsCleared());
+      ps.setString(21, record.getPlayerName()); // 2012-12-02 add
       ps.execute();
     } catch (SQLException e) {
       throw new Exception("添加战绩记录失败", e);
@@ -2800,10 +2802,11 @@ public class DBUtil {
       record.setLevel(rs.getString(18));
       record.setSumHandsCount(rs.getString(19));
       record.setIsCleared(rs.getString(20));
+      // 每21列是原始名称，不做处理
       // 单独设置团队ID和俱乐部名称
-      record.setPlayerName(rs.getString(21));
-      record.setTeamId(StringUtil.nvl(rs.getString(22), "")); // 可能关联不到该人员
-      record.setClubName(rs.getString(23));
+      record.setPlayerName(rs.getString(22));
+      record.setTeamId(StringUtil.nvl(rs.getString(23), "")); // 可能关联不到该人员
+      record.setClubName(rs.getString(24));
       list.add(record);
     }
     return list;
@@ -3164,7 +3167,7 @@ public class DBUtil {
 
       // 再插入
       long start = System.currentTimeMillis();
-      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.finished_time, m.playerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
+      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.finished_time,  r.beginPlayerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
       ps = con.prepareStatement(sql);
 //      ps.setString(1, clubId);
 //      ps.setString(2, clubId);
@@ -3186,10 +3189,8 @@ public class DBUtil {
     // 更新最新数据到战绩表game_record_zj
     List<ZjTeamStaticInfo> list = new ArrayList<>();
     try {
-      // 先删除
       con = DBConnection.getConnection();
 
-      // 再插入
       long start = System.currentTimeMillis();
       String sql = "SELECT tt.clubId 所属俱乐部, tt.teamId 团队ID, count(1) 人次, tt.soft_time 最早统计时间 FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.teamId";
       ps = con.prepareStatement(sql);
@@ -3221,7 +3222,6 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
 
-      // 再插入
       long start = System.currentTimeMillis();
       String sql = "SELECT aa.clubId 所属俱乐部, aa.teamId 团队ID, aa.player_id, aa.playerName 玩家名称, aa.personCount 人次, bb.totalYszj 累计战绩 FROM ( SELECT tt.clubId, tt.teamId, tt.player_id, tt.playerName, count(1) personCount FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.player_id ) aa LEFT JOIN ( SELECT a.playerId, sum(a.yszj) totalYszj FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? GROUP BY a.playerId ) bb ON aa.player_id = bb.playerId";
       ps = con.prepareStatement(sql);
@@ -3262,7 +3262,6 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
 
-      // 再插入
       long start = System.currentTimeMillis();
       String sql = "SELECT tt.clubName 俱乐部名称, tt.clubId 俱乐部ID, min(tt.soft_time) 最早统计时间, count(1) 人次 FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.*, c. NAME clubName FROM game_record_zj a LEFT JOIN club c ON a.clubId = c.clubId ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.clubId";
       ps = con.prepareStatement(sql);
