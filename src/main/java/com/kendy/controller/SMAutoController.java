@@ -447,7 +447,7 @@ public class SMAutoController extends BaseController implements Initializable {
     } catch (Exception e) {
       String errMesg = "获取玩家信息请求失败";
       logInfo(errMesg);
-      log.error(errMesg + ",异常信息：" + e.getMessage());
+      log.error(errMesg + ",异常信息：" + e.getMessage(), e);
     }
     logInfo("");
   }
@@ -474,75 +474,80 @@ public class SMAutoController extends BaseController implements Initializable {
 
     for (WanjiaApplyInfo wanjiaApplyInfo : buyinList) {
 
-      /*
-       * 玩家相关信息
-       */
-      String paijuStr = wanjiaApplyInfo.getGameRoomName();
-      String paijuString =
-          paijuStr.substring(wanjiaApplyInfo.getGameRoomName().lastIndexOf("-") + 1);// 本系统桌号
-      String buyStack = wanjiaApplyInfo.getBuyStack().toString();// 购买数量
-      String playerId = wanjiaApplyInfo.getShowId();
-      String playerName = wanjiaApplyInfo.getStrNick();
+      try {
+        /*
+         * 玩家相关信息
+         */
+        String paijuStr = wanjiaApplyInfo.getGameRoomName();
+        String paijuString =
+            paijuStr.substring(wanjiaApplyInfo.getGameRoomName().lastIndexOf("-") + 1);// 本系统桌号
+        String buyStack = wanjiaApplyInfo.getBuyStack().toString();// 购买数量
+        String playerId = wanjiaApplyInfo.getShowId();
+        String playerName = wanjiaApplyInfo.getStrNick();
 
-      Player player = dataConstants.membersMap.get(playerId);
-      if (player == null) {
-        logInfo("玩家（" + playerName + ")未录入到系统中！！！");
-        continue;
-      }
-      String teamId = player.getTeamName();
-      Huishui huishui = dataConstants.huishuiMap.get(teamId);
-      String selectTeamAvailabel = huishui.getTeamAvailabel(); // 是否勾选了团队上码：1是 0否
+        Player player = dataConstants.membersMap.get(playerId);
+        if (player == null) {
+          logInfo("玩家（" + playerName + ")未录入到系统中！！！");
+          continue;
+        }
+        String teamId = player.getTeamName();
+        Huishui huishui = dataConstants.huishuiMap.get(teamId);
+        String selectTeamAvailabel = huishui.getTeamAvailabel(); // 是否勾选了团队上码：1是 0否
 
-      logInfo(playerName + "正在模拟更新实时上码...");
-      SMResultModel resultModel = shangmaService
-          .getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
-      logInfo(playerName + "模拟更新实时上码结束");
-      ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
-      if (selectedSMInfo == null) {
-        logInfo("玩家（" + playerName + ")在上码系统中不存在！！");
-        continue;
-      }
-
-      String teamAvailabel = resultModel.getTeamTotalAvailabel(); // 获取团队可上码
-      String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId,
-          playerName); // 获取可上码
-      boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
-      boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel,
-          calcAvailable); // 是否同意
-
-      /****************************************/
-      boolean addOK = false;
-      logInfo(playerName + "是否合范围：" + passCheck);
-      if (passCheck) {
-        List<String> testList = new ArrayList<>();
-
-        if (hasFilterPlayerIds()) {
-          testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##"))
-              .collect(Collectors.toList());
+        logInfo(playerName + "正在模拟更新实时上码...");
+        SMResultModel resultModel = shangmaService
+            .getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
+        logInfo(playerName + "模拟更新实时上码结束");
+        ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
+        if (selectedSMInfo == null) {
+          logInfo("玩家（" + playerName + ")在上码系统中不存在！！");
+          continue;
         }
 
-        if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
-          // 添加上码到软件中，同时发送后台请求
-          Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
-          Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
-          addOK = addShangma(resultModel, isTodaySM, playerId, playerName, paijuString, buyStack,
-              userUuid, roomId);
+        String teamAvailabel = resultModel.getTeamTotalAvailabel(); // 获取团队可上码
+        String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId,
+            playerName); // 获取可上码
+        boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
+        boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel,
+            calcAvailable); // 是否同意
+
+        /****************************************/
+        boolean addOK = false;
+        logInfo(playerName + "是否合范围：" + passCheck);
+        if (passCheck) {
+          List<String> testList = new ArrayList<>();
+
+          if (hasFilterPlayerIds()) {
+            testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##"))
+                .collect(Collectors.toList());
+          }
+
+          if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
+            // 添加上码到软件中，同时发送后台请求
+            Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
+            Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
+            addOK = addShangma(resultModel, isTodaySM, playerId, playerName, paijuString, buyStack,
+                userUuid, roomId);
+          }
+        } else {
+          log.debug(player.getPlayerName() + "买入" + buyStack + "不在范围中[" + teamAvailabel + ","
+              + calcAvailable + "]");
         }
-      } else {
-        log.debug(player.getPlayerName() + "买入" + buyStack + "不在范围中[" + teamAvailabel + ","
-            + calcAvailable + "]");
+        /****************************************/
+        SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), playerId, playerName, paijuString,
+            buyStack, teamAvailabel, // 团队可上码 (第一关)
+            calcAvailable, // 计算可上码（第二关）
+            "1".equals(selectTeamAvailabel) ? "是" : "否", isTodaySM ? "是" : "否", // smAutoIsCurrentDay
+            isTodaySM ? "否" : "是", // smAutoIsNextDay
+            passCheck ? "是" : "否", // smAutoIsAgree
+            (passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
+        );
+        logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
+        addItem(smAutoInfo);
+      } catch (Exception e) {
+        logInfo("玩家【" + wanjiaApplyInfo.getStrNick() + "】自动上码逻辑失败，请看日志！！");
+        logger.error("处理玩家【{}】自动上码逻辑报错，原因：{}", wanjiaApplyInfo.getStrNick(), e.getMessage() );
       }
-      /****************************************/
-      SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), playerId, playerName, paijuString,
-          buyStack, teamAvailabel, // 团队可上码 (第一关)
-          calcAvailable, // 计算可上码（第二关）
-          "1".equals(selectTeamAvailabel) ? "是" : "否", isTodaySM ? "是" : "否", // smAutoIsCurrentDay
-          isTodaySM ? "否" : "是", // smAutoIsNextDay
-          passCheck ? "是" : "否", // smAutoIsAgree
-          (passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
-      );
-      logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
-      addItem(smAutoInfo);
     }
   }
 
