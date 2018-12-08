@@ -263,7 +263,7 @@ public class ZjStaticController extends BaseController implements Initializable 
         getClubTableColumn("序号", "detailClubIndex"),
         getClubTableColumn("俱乐部名称", "detailClubName"),
         getClubTableColumn("俱乐部ID", "detailClubId"),
-        getClubTableColumn("玩家名称", "detailPlayerName"),
+        getClubTableColumn("玩家名称", "detailClubPlayerName"),
         getClubTableColumn("玩家ID", "detailClubPlayerId"),
         getClubTableColumn("开始统计时间", "detailClubBeginStaticTime"),
         getClubTableColumn("累计战绩", "detailClubTotalZJ"),
