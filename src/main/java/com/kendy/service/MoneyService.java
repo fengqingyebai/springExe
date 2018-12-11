@@ -279,6 +279,8 @@ public class MoneyService {
     r.setHeLirun(heLirun);
     // 级别
     r.setLevel(level);
+    // 导入时间
+    r.setImportTime(TimeUtil.getDateTime());
     log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
   }
 

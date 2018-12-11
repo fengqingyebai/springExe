@@ -10,6 +10,9 @@ import com.kendy.excel.myExcel4j.annotation.MyExcelField;
  */
 public class BasicRecord {
 
+  @MyExcelField(title = "牌局类型", order = 0)
+  private String juType;
+
   @MyExcelField(title = "总手数", order = 8)
   private String sumHandsCount;
 
@@ -43,35 +46,6 @@ public class BasicRecord {
 
   public BasicRecord() {
     super();
-  }
-
-
-  /**
-   * @param sumHandsCount
-   * @param playerId
-   * @param playerName
-   * @param clubId
-   * @param clubName
-   * @param sinegleInsurance
-   * @param clubInsurance
-   * @param currentTableInsurance
-   * @param yszj
-   * @param finisedTime
-   */
-  public BasicRecord(String sumHandsCount, String playerId, String playerName, String clubId,
-      String clubName, String sinegleInsurance, String clubInsurance, String currentTableInsurance,
-      String yszj, String finisedTime) {
-    super();
-    this.sumHandsCount = sumHandsCount;
-    this.playerId = playerId;
-    this.playerName = playerName;
-    this.clubId = clubId;
-    this.clubName = clubName;
-    this.sinegleInsurance = sinegleInsurance;
-    this.clubInsurance = clubInsurance;
-    this.currentTableInsurance = currentTableInsurance;
-    this.yszj = yszj;
-    this.finisedTime = finisedTime;
   }
 
 
@@ -174,5 +148,11 @@ public class BasicRecord {
     this.finisedTime = finisedTime;
   }
 
+  public String getJuType() {
+    return juType;
+  }
 
+  public void setJuType(String juType) {
+    this.juType = juType;
+  }
 }

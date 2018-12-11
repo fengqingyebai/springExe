@@ -2660,7 +2660,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql;
-      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, record.getSoftDate());
       ps.setString(2, record.getClubId());
@@ -2683,6 +2683,8 @@ public class DBUtil {
       ps.setString(19, record.getSumHandsCount());
       ps.setString(20, record.getIsCleared());
       ps.setString(21, record.getPlayerName()); // 2012-12-02 add
+      ps.setString(22, record.getImportTime()); // 2012-12-10 add
+      ps.setString(23, record.getJuType()); // 2012-12-10 add
       ps.execute();
     } catch (SQLException e) {
       throw new Exception("添加战绩记录失败", e);
@@ -2804,9 +2806,11 @@ public class DBUtil {
       record.setIsCleared(rs.getString(20));
       // 每21列是原始名称，不做处理
       // 单独设置团队ID和俱乐部名称
-      record.setPlayerName(rs.getString(22));
-      record.setTeamId(StringUtil.nvl(rs.getString(23), "")); // 可能关联不到该人员
-      record.setClubName(rs.getString(24));
+      record.setImportTime(rs.getString(22));
+      record.setJuType(rs.getString(23));
+      record.setPlayerName(rs.getString(24));
+      record.setTeamId(StringUtil.nvl(rs.getString(25), "")); // 可能关联不到该人员
+      record.setClubName(rs.getString(26));
       list.add(record);
     }
     return list;
@@ -3167,7 +3171,7 @@ public class DBUtil {
 
       // 再插入
       long start = System.currentTimeMillis();
-      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.finished_time,  r.beginPlayerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
+      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.importTime finished_time,  r.beginPlayerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r where r.juType = '普通保险局' GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
       ps = con.prepareStatement(sql);
 //      ps.setString(1, clubId);
 //      ps.setString(2, clubId);

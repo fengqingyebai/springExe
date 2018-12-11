@@ -1,5 +1,7 @@
 package com.kendy.model;
 
+import java.util.Date;
+
 /**
  * 游戏记录
  * <p>
@@ -51,6 +53,11 @@ public class GameRecord extends BasicRecord {
    * 是否已经清空过 0：未清空 1：已清空
    */
   private String isCleared = "0";
+
+  /*
+   * 导入的时间
+   */
+  private String importTime ;
 
 
   /**
@@ -188,5 +195,13 @@ public class GameRecord extends BasicRecord {
 
   public void setIsCleared(String isCleared) {
     this.isCleared = isCleared;
+  }
+
+  public String getImportTime() {
+    return importTime;
+  }
+
+  public void setImportTime(String importTime) {
+    this.importTime = importTime;
   }
 }
