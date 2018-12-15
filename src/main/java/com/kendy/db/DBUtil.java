@@ -3173,8 +3173,6 @@ public class DBUtil {
       long start = System.currentTimeMillis();
       sql = "INSERT INTO game_record_zj SELECT b.player_id, r.importTime finished_time,  r.beginPlayerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r where r.juType = '普通保险局' or r.juType = '奥马哈保险局' GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId and r.juType in('普通保险局','奥马哈保险局') LEFT JOIN club c ON c.clubId = r.clubId";
       ps = con.prepareStatement(sql);
-//      ps.setString(1, clubId);
-//      ps.setString(2, clubId);
       ps.execute();
       loger.info("战绩统计原始数据入库耗时：{}毫秒", (System.currentTimeMillis() - start));
 
@@ -3196,7 +3194,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
 
       long start = System.currentTimeMillis();
-      String sql = "SELECT tt.clubId 所属俱乐部, tt.teamId 团队ID, count(1) 人次, tt.soft_time 最早统计时间 FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.teamId";
+      String sql = "SELECT r.clubId 所属俱乐部, r.teamId 团队ID, count(1) 人次, min(r.soft_time) 最早统计时间 FROM game_record_zj r WHERE r.clubId = ? GROUP BY r.teamId";
       ps = con.prepareStatement(sql);
       ps.setString(1, clubId);
 
@@ -3227,7 +3225,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
 
       long start = System.currentTimeMillis();
-      String sql = "SELECT aa.clubId 所属俱乐部, aa.teamId 团队ID, aa.player_id, aa.playerName 玩家名称, aa.personCount 人次, bb.totalYszj 累计战绩 FROM ( SELECT tt.clubId, tt.teamId, tt.player_id, tt.playerName, count(1) personCount FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.player_id ) aa LEFT JOIN ( SELECT a.playerId, sum(a.yszj) totalYszj FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? GROUP BY a.playerId ) bb ON aa.player_id = bb.playerId";
+      String sql = "SELECT aa.clubId 所属俱乐部, aa.teamId 团队ID, aa.player_id, aa.playerName 玩家名称, bb.personCount 人次, bb.totalYszj 累计战绩 FROM ( SELECT tt.clubId, tt.teamId, tt.player_id, tt.playerName, count(1) personCount FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.player_id ) aa LEFT JOIN ( SELECT a.playerId, sum(1) personCount, sum(a.yszj) totalYszj FROM game_record_zj a WHERE a.clubId = ? AND a.teamId = ? GROUP BY a.playerId ) bb ON aa.player_id = bb.playerId";
       ps = con.prepareStatement(sql);
       ps.setString(1, clubId);
       ps.setString(2, teamId);
@@ -3267,7 +3265,7 @@ public class DBUtil {
       con = DBConnection.getConnection();
 
       long start = System.currentTimeMillis();
-      String sql = "SELECT tt.clubName 俱乐部名称, tt.clubId 俱乐部ID, min(tt.soft_time) 最早统计时间, count(1) 人次 FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.*, c. NAME clubName FROM game_record_zj a LEFT JOIN club c ON a.clubId = c.clubId ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.clubId";
+      String sql = "SELECT r.club_name 俱乐部名称, r.clubId 俱乐部ID, min(r.soft_time) 最早统计时间, count(1) 人次 FROM game_record_zj r GROUP BY r.clubId";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -3300,10 +3298,9 @@ public class DBUtil {
 
       // 再插入
       long start = System.currentTimeMillis();
-      String sql = "SELECT aa.clubName 俱乐部名称, aa.clubId 所属俱乐部, aa.player_id, aa.playerName 玩家名称, aa.personCount 人次, bb.totalYszj 累计战绩, aa.softTime 开始统计时间 FROM ( SELECT tt.clubId, tt.club_name clubName, tt.teamId, tt.player_id, tt.playerName, count(1) personCount, min(tt.soft_time) softTime FROM ( SELECT * FROM ( SELECT a.finished_time time, a.yszj yszj0, ( SELECT sum(b.yszj) FROM game_record_zj b WHERE b.playerId = a.playerId AND b.finished_time <= a.finished_time ) sumYszj, a.playerId player_id, a.* FROM game_record_zj a WHERE a.clubId = ? ORDER BY a.playerId DESC, a.finished_time ASC ) t WHERE t.sumYszj > 0 ) tt GROUP BY tt.player_id ) aa LEFT JOIN ( SELECT a.playerId, sum(a.yszj) totalYszj FROM game_record_zj a WHERE a.clubId = ? GROUP BY a.playerId ) bb ON aa.player_id = bb.playerId";
+      String sql = "SELECT r.club_name 俱乐部名称, r.clubId 所属俱乐部, r.playerId, r.playerName 玩家名称, count(1) 人次, sum(r.yszj) 累计战绩, min(r.soft_time) 开始统计时间 FROM game_record_zj r WHERE r.clubId = ? GROUP BY r.playerId";
       ps = con.prepareStatement(sql);
       ps.setString(1, clubId);
-      ps.setString(2, clubId);
       ResultSet rs = ps.executeQuery();
       AtomicInteger indexObj = new AtomicInteger(1);
       while (rs.next()) {

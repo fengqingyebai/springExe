@@ -934,7 +934,7 @@ public class SMAutoController extends BaseController implements Initializable {
   public void autoDownExcels(String DownType) {
 
     String houtai = PU_TONG.equals(DownType) ? "普通后台"
-        : AO_MA_HA.equals(DownType) ? "奥马哈后台" : DA_BO_LUO.equals(DownType) ? "大菠萝" : "其他后台";
+        : AO_MA_HA.equals(DownType) ? "奥马哈后台" : DA_BO_LUO.equals(DownType) ? "大菠萝" : "加勒比";
 
     RespResult<GameRoomModel> parseObject = new RespResult<>();
     try {
@@ -1012,11 +1012,11 @@ public class SMAutoController extends BaseController implements Initializable {
               + roomId);
           downloadCache.remove(fileName);
         } catch (SocketTimeoutException timeOutE) {
-          log.error("自动下载异常: 连接超时，文件名：" + fileName);
+          log.error("自动下载异常SocketTimeoutException: 连接超时，文件名：" + fileName);
           downloadCache.remove(fileName);
         } catch (IOException ioe) {
           String errMsg = ioe.getMessage();
-          log.error("自动下载失败：文件名：" + fileName + (errMsg.contains("403") ? ",具体信息：403返回码！" : ""));
+          log.error("自动下载失败IOException：文件名：" + fileName + (errMsg.contains("403") ? ",具体信息：403返回码！" : ""));
           downloadCache.remove(fileName);
         } catch (Exception e) {
           log.error("自动下载异常：未捕获的其他异常，文件名：" + fileName + ",具体信息：" + e.getMessage(), e);
