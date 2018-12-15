@@ -838,6 +838,7 @@ public class SMAutoController extends BaseController implements Initializable {
   private final String PU_TONG = "1";
   private final String AO_MA_HA = "2";
   private final String DA_BO_LUO = "6";
+  private final String JIA_LE_BI = "8";
   private final int DOWN_LIMIT = 10; // 每次下载5个，总共一次性下载 6 * 3 = 18
 
   public LocalDate getSelectedDate() {
@@ -1214,6 +1215,9 @@ public class SMAutoController extends BaseController implements Initializable {
 
             // 自动下载当天大菠萝Excel
             autoDownExcels(DA_BO_LUO);
+
+            // 自动下载当天加勒比Excel
+            autoDownExcels(JIA_LE_BI);
           }
         });
         // Platform.runLater(new Runnable() {
