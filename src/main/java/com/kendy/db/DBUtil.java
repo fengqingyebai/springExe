@@ -3171,7 +3171,7 @@ public class DBUtil {
 
       // 再插入
       long start = System.currentTimeMillis();
-      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.importTime finished_time,  r.beginPlayerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r where r.juType = '普通保险局' GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
+      sql = "INSERT INTO game_record_zj SELECT b.player_id, r.importTime finished_time,  r.beginPlayerName, r.clubId, m.teamId, r.tableId, r.yszj, r.soft_time, r.singleInsurance, c. NAME FROM ( SELECT a.player_id FROM ( SELECT r.playerId player_id, sum(r.yszj) AS total_yszj, sum(r.singleInsurance) total_insurance FROM game_record r where r.juType = '普通保险局' or r.juType = '奥马哈保险局' GROUP BY r.playerId ) a WHERE a.total_insurance = 0 AND a.total_yszj > 0 ) b LEFT JOIN members m ON b.player_id = m.playerId LEFT JOIN game_record r ON b.player_id = r.playerId LEFT JOIN club c ON c.clubId = r.clubId";
       ps = con.prepareStatement(sql);
 //      ps.setString(1, clubId);
 //      ps.setString(2, clubId);
