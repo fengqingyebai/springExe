@@ -10,37 +10,37 @@ import com.kendy.excel.myExcel4j.annotation.MyExcelField;
  */
 public class BasicRecord {
 
-  @MyExcelField(title = "牌局类型", order = 0)
+  @MyExcelField(title = "牌局类型")
   private String juType;
 
-  @MyExcelField(title = "总手数", order = 8)
+  @MyExcelField(title = "总手数")
   private String sumHandsCount;
 
-  @MyExcelField(title = "玩家ID", order = 9)
+  @MyExcelField(title = "玩家ID")
   private String playerId;
 
-  @MyExcelField(title = "玩家昵称", order = 10)
+  @MyExcelField(title = "玩家昵称")
   private String playerName;
 
-  @MyExcelField(title = "俱乐部ID", order = 11)
+  @MyExcelField(title = "俱乐部ID")
   private String clubId;
 
-  @MyExcelField(title = "俱乐部", order = 12)
+  @MyExcelField(title = "俱乐部")
   private String clubName;
 
-  @MyExcelField(title = "保险合计", order = 17)
+  @MyExcelField(title = "保险合计#彩池合计")
   private String sinegleInsurance;
 
-  @MyExcelField(title = "俱乐部保险", order = 18)
+  @MyExcelField(title = "俱乐部保险#俱乐部彩池")
   private String clubInsurance;
 
-  @MyExcelField(title = "保险", order = 19)
+  @MyExcelField(title = "保险#总彩池")
   private String currentTableInsurance;
 
-  @MyExcelField(title = "战绩", order = 20)
+  @MyExcelField(title = "战绩")
   private String yszj;
 
-  @MyExcelField(title = "结束时间", order = 21)
+  @MyExcelField(title = "结束时间")
   private String finisedTime;
 
 

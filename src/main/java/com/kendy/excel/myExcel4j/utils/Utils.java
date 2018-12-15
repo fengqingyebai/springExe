@@ -52,6 +52,7 @@ import com.kendy.excel.myExcel4j.converter.DefaultConvertible;
 import com.kendy.excel.myExcel4j.converter.WriteConvertible;
 import com.kendy.excel.myExcel4j.exceptions.Excel4JException;
 import com.kendy.excel.myExcel4j.handler.ExcelHeader;
+import org.springframework.beans.BeanUtils;
 
 /**
  * Excel4J工具类 author : Crab2Died date : 2017/5/24  9:43
@@ -118,10 +119,26 @@ public class Utils {
     for (Cell c : titleRow) {
       String title = c.getStringCellValue();
       for (ExcelHeader eh : headers) {
-        if (eh.getTitle().equals(title.trim())) {
-          maps.put(c.getColumnIndex(), eh);
-          break;
+        String titleStr = eh.getTitle();
+        if (titleStr.contains("#")) {
+          String[] myTitles = titleStr.split("#");
+          for (String myTitle : myTitles) {
+            if (myTitle != null && myTitle.equals(title.trim())) {
+              eh.setTitle(myTitle);
+              maps.put(c.getColumnIndex(), eh);
+              break;
+            }
+          }
+        } else {
+          if (eh.getTitle().equals(title.trim())) {
+            maps.put(c.getColumnIndex(), eh);
+            break;
+          }
         }
+//        if (eh.getTitle().equals(title.trim())) {
+//          maps.put(c.getColumnIndex(), eh);
+//          break;
+//        }
       }
     }
     return maps;
