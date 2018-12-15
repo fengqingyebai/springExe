@@ -7,11 +7,11 @@ import com.kendy.db.DBUtil;
 import com.kendy.entity.ClubStaticInfo;
 import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo2;
-import com.kendy.enums.ColumnColorType;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.NumUtil;
@@ -42,7 +42,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -311,8 +310,8 @@ public class StaticController extends BaseController implements Initializable {
         if (StringUtils.contains(colName, BEGIN)) {
           colName = StringUtils.replace(colName, BEGIN, "");
         }
-        table.getColumns().add(getTableColumnCommon(
-            colName, column.getId(), ColumnColorType.COLUMN_RED));
+        table.getColumns().add(getTableColumn(
+            colName, column.getId(), 1));
       }
 
       table.setEditable(false);
@@ -374,15 +373,15 @@ public class StaticController extends BaseController implements Initializable {
   private void viewDetailGameRecord(String teamId, String softTime) {
     MyTable<TotalInfo2> table = new MyTable<>();
     for (TableColumn column : myController.tableTotalInfo.getColumns()) {
-      table.getColumns().add(getTotalInfo2Column(
-          column.getText(), column.getId(), ColumnColorType.COLUMN_RED));
+      table.getColumns().add(getTableColumn(
+          column.getText(), column.getId(), 3));
     }
     // 手动添加桌号一列
     TableColumn<TotalInfo2, String> talbeIdColumn = new TableColumn<>();
     talbeIdColumn.setId("tableId");
     talbeIdColumn.setText("桌号");
-    table.getColumns().add(getTotalInfo2Column(
-        talbeIdColumn.getText(), talbeIdColumn.getId(), ColumnColorType.COLUMN_RED));
+    table.getColumns().add(getTableColumn(
+        talbeIdColumn.getText(), talbeIdColumn.getId(), 3));
 
     table.setEditable(false);
 
@@ -428,8 +427,7 @@ public class StaticController extends BaseController implements Initializable {
         String colName = StringUtils.defaultString(column.getText());
         colName = colName.replace(BEGIN, "").replace("总", "");
 
-        table.getColumns().add(getTableClubColumn(
-            colName, column.getId(), ColumnColorType.COLUMN_RED));
+        table.getColumns().add(getTableColumn(colName, column.getId(), 2));
       }
 
       table.setEditable(false);
@@ -588,51 +586,15 @@ public class StaticController extends BaseController implements Initializable {
     }
   }
 
-  // ===================================================
-
   /**
-   * 动态生成列
-   *
-   * @param columnColorType 红色和非红色
+   * 获取动态列
    */
-  private TableColumn<TeamStaticInfo, String> getTableColumnCommon(String colName, String colVal,
-      ColumnColorType columnColorType) {
-    TableColumn<TeamStaticInfo, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<TeamStaticInfo, String>(colVal));
-    if (columnColorType == ColumnColorType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new TeamStaticInfo()));
-    }
-    col.setSortable(false);
-    return col;
+  private <T> TableColumn<T, String> getTableColumn(String colName,
+      String colVal, int type) {
+    T t = (T)(type == 1 ?  new TeamStaticInfo() : (type == 2 ? new ClubStaticInfo() : new TotalInfo2()));
+    return ColumnUtil.getTableRedColumn(colName, colVal, t);
   }
 
-  private TableColumn<ClubStaticInfo, String> getTableClubColumn(String colName, String colVal,
-      ColumnColorType columnColorType) {
-    TableColumn<ClubStaticInfo, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<ClubStaticInfo, String>(colVal));
-    if (columnColorType == ColumnColorType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new ClubStaticInfo()));
-    }
-    col.setSortable(false);
-    return col;
-  }
-
-  private TableColumn<TotalInfo2, String> getTotalInfo2Column(String colName, String colVal,
-      ColumnColorType columnColorType) {
-    TableColumn<TotalInfo2, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<TotalInfo2, String>(colVal));
-    if (columnColorType == ColumnColorType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new TotalInfo2()));
-    }
-    col.setSortable(false);
-    return col;
-  }
 
   @Override
   public Class<?> getSubClass() {
