@@ -347,7 +347,7 @@ public class ZjStaticController extends BaseController implements Initializable 
     if (selectedItem(tableClubStatic)) {
       ZjClubStaticInfo item = getSelectedRow(tableClubStatic);
       String clubId = item.getClubId();
-      String TITLE = item.getClubName() + "的战绩统计";
+      String TITLE = item.getClubName().replaceAll("[?|/]","") + "的战绩统计";
       MyTable<ZjClubStaticDetailInfo> table = new MyTable<>();
 
       setClubColumns(table);
