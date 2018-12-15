@@ -204,6 +204,8 @@ public class HttpService {
       return Boolean.TRUE;
     }
     if (StringUtils.equals(result, "{\"result\":1,\"iErrCode\":1}")) {
+      log.error("申请买入，兼容后台返回的失败记录为成功：userUuid是{}，roomId是{}, 返回原始结果是{}", userUuid + "", roomId + "",
+          StringUtils.defaultString(result));
       return Boolean.TRUE;
     }
     log.error("申请买入失败原因：userUuid是{}，roomId是{}, 返回原始结果是{}", userUuid + "", roomId + "",
