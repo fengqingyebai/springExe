@@ -6,7 +6,7 @@ package com.kendy.enums;
  * @author 林泽涛
  * @version 1.0
  */
-public enum ColumnType {
+public enum ColumnColorType {
 
   /*
    * TableView中需要展示负数为红色的列

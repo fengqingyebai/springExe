@@ -11,50 +11,28 @@ import com.kendy.entity.ZjClubStaticDetailInfo;
 import com.kendy.entity.ZjClubStaticInfo;
 import com.kendy.entity.ZjTeamStaticDetailInfo;
 import com.kendy.entity.ZjTeamStaticInfo;
-import com.kendy.enums.ColumnType;
-import com.kendy.excel.ExportExcelTemplate;
-import com.kendy.excel.myExcel4j.MyExcelUtils;
-import com.kendy.excel.myExcel4j.annotation.MyExcelField;
-import com.kendy.interfaces.Entity;
-import com.kendy.util.AlertUtil;
-import com.kendy.util.CollectUtil;
+import com.kendy.enums.ColumnColorType;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
-import com.kendy.util.FXUtil;
-import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
-import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -181,25 +159,6 @@ public class ZjStaticController extends BaseController implements Initializable 
     tableClubStatic.refresh();
   }
 
-
-
-
-  private void setDoubleClick(TableView<TeamStaticInfo> table) {
-    table.setOnMouseClicked(e -> {
-      // 行双击
-//      if (e.getClickCount() == 2) {
-//        TeamStaticInfo item = getSelectedRow(table);
-//        if (item != null && StringUtil.isAllNotBlank(item.getTeamId())) {
-//          String teamId = item.getTeamId();
-//          String staticTime = item.getStaticTime();
-//          logger.info("查询历史汇总中的当天记录" + staticTime + "...");
-//          viewDetailGameRecord(teamId, staticTime);
-//        }
-//      }
-    });
-  }
-
-
   /**
    * 查看团队的视图【左边统计】
    */
@@ -246,28 +205,28 @@ public class ZjStaticController extends BaseController implements Initializable 
     }
   }
 
-  private void setColumns(TableView table){
+  private void setColumns(TableView table) {
     List<TableColumn<ZjTeamStaticDetailInfo, String>> cols = Arrays.asList(
-        getTableColumn("俱乐部ID", "detailClubId"),
-        getTableColumn("团队ID", "detailTeamId"),
-        getTableColumn("玩家ID", "detailPlayerId"),
-        getTableColumn("玩家名称", "detailPlayerName"),
-        getTableColumn("累计战绩", "detailPersonSumYszj"),
-        getTableColumn("总人次", "detailPersonCount")
+        getTableColumn("俱乐部ID", "detailClubId", 1),
+        getTableColumn("团队ID", "detailTeamId", 1),
+        getTableColumn("玩家ID", "detailPlayerId", 1),
+        getTableColumn("玩家名称", "detailPlayerName", 1),
+        getTableColumn("累计战绩", "detailPersonSumYszj", 1),
+        getTableColumn("总人次", "detailPersonCount", 1)
     );
     table.getColumns().addAll(cols);
   }
 
-  private void setClubColumns(TableView table){
+  private void setClubColumns(TableView table) {
     List<TableColumn<ZjClubStaticDetailInfo, String>> cols = Arrays.asList(
-        getClubTableColumn("序号", "detailClubIndex"),
-        getClubTableColumn("俱乐部名称", "detailClubName"),
-        getClubTableColumn("俱乐部ID", "detailClubId"),
-        getClubTableColumn("玩家名称", "detailClubPlayerName"),
-        getClubTableColumn("玩家ID", "detailClubPlayerId"),
-        getClubTableColumn("开始统计时间", "detailClubBeginStaticTime"),
-        getClubTableColumn("累计战绩", "detailClubTotalZJ"),
-        getClubTableColumn("人次", "detailClubPersonCount")
+        getTableColumn("序号", "detailClubIndex", 2),
+        getTableColumn("俱乐部名称", "detailClubName", 2),
+        getTableColumn("俱乐部ID", "detailClubId", 2),
+        getTableColumn("玩家名称", "detailClubPlayerName", 2),
+        getTableColumn("玩家ID", "detailClubPlayerId", 2),
+        getTableColumn("开始统计时间", "detailClubBeginStaticTime", 2),
+        getTableColumn("累计战绩", "detailClubTotalZJ", 2),
+        getTableColumn("人次", "detailClubPersonCount", 2)
     );
     table.getColumns().addAll(cols);
   }
@@ -293,61 +252,16 @@ public class ZjStaticController extends BaseController implements Initializable 
   }
 
 
-  /**
-   * 显示团队某天的具体记录
-   */
-  private void viewDetailGameRecord(String teamId, String softTime) {
-    MyTable<TotalInfo2> table = new MyTable<>();
-    for (TableColumn column : myController.tableTotalInfo.getColumns()) {
-      table.getColumns().add(getTotalInfo2Column(
-          column.getText(), column.getId(), ColumnType.COLUMN_RED));
-    }
-    // 手动添加桌号一列
-    TableColumn<TotalInfo2, String> talbeIdColumn = new TableColumn<>();
-    talbeIdColumn.setId("tableId");
-    talbeIdColumn.setText("桌号");
-    table.getColumns().add(getTotalInfo2Column(
-        talbeIdColumn.getText(), talbeIdColumn.getId(), ColumnType.COLUMN_RED));
-
-    table.setEditable(false);
-
-    // 获取值
-    List<TotalInfo2> list = dbUtil
-        .getStaticDetailRecords(myController.getClubId(), teamId, softTime);
-    table.getItems().addAll(list);
-    table.getSelectionModel().clearSelection();
-
-    // 导出按钮
-    table.setEntityClass(TotalInfo2.class);
-    table.setExcelName(teamId + "团队" + softTime + "-" + TimeUtil.getDateTime());
-    JFXButton exportBtn = getDownloadButn(table);
-
-    StackPane stackPane = new StackPane();
-    stackPane.getChildren().addAll(table, exportBtn);
-    stackPane.setAlignment(Pos.BOTTOM_CENTER);
-
-    /*if (stage == null) { // 共享一个舞台
-      stage = new Stage();
-    }*/
-    Stage detailStage = new Stage();
-    ShowUtil.setIcon(detailStage);
-    detailStage.setTitle(teamId + "团队" + softTime);
-    detailStage.setWidth(1055);
-    detailStage.setHeight(500);
-
-    Scene scene = new Scene(stackPane);
-    detailStage.setScene(scene);
-    detailStage.show();
-  }
 
   //===============================================右边俱乐部双击时显示拥有的团队合计【开始】
 
   private Stage clubStage;
+
   private void viewClubEverydayStatic() {
     if (selectedItem(tableClubStatic)) {
       ZjClubStaticInfo item = getSelectedRow(tableClubStatic);
       String clubId = item.getClubId();
-      String TITLE = item.getClubName().replaceAll("[?|/]","") + "的战绩统计";
+      String TITLE = item.getClubName().replaceAll("[?|/]", "") + "的战绩统计";
       MyTable<ZjClubStaticDetailInfo> table = new MyTable<>();
 
       setClubColumns(table);
@@ -369,7 +283,7 @@ public class ZjStaticController extends BaseController implements Initializable 
       stackPane.setAlignment(Pos.BOTTOM_CENTER);
 
       // 新开一个舞台
-      if(clubStage == null){
+      if (clubStage == null) {
         clubStage = new Stage();
       }
       // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
@@ -383,93 +297,24 @@ public class ZjStaticController extends BaseController implements Initializable 
       clubStage.show();
     }
   }
-  //===============================================右边俱乐部双击时显示拥有的团队合计【结束】
-
-  // =============================================导出俱乐部汇总【开始】
-  /**
-   * 动态生成列
-   *
-   * @param columnType 红色和非红色
-   */
-  private TableColumn<ZjTeamStaticDetailInfo, String> getTableColumn(String colName, String colVal,
-      ColumnType columnType) {
-    TableColumn<ZjTeamStaticDetailInfo, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<ZjTeamStaticDetailInfo, String>(colVal));
-    if (columnType == ColumnType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new ZjTeamStaticDetailInfo()));
-    }
-    col.setSortable(false);
-    return col;
-  }
-
-  private TableColumn<ZjClubStaticDetailInfo, String> getClubTableColumn(String colName, String colVal,
-      ColumnType columnType) {
-    TableColumn<ZjClubStaticDetailInfo, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<ZjClubStaticDetailInfo, String>(colVal));
-    if (columnType == ColumnType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new ZjClubStaticDetailInfo()));
-    }
-    col.setSortable(false);
-    return col;
-  }
-
-  private TableColumn<ZjTeamStaticDetailInfo, String> getTableColumn(String colName, String colVal) {
-    return getTableColumn(colName, colVal, ColumnType.COLUMN_RED);
-  }
-
-  private TableColumn<ZjClubStaticDetailInfo, String> getClubTableColumn(String colName, String colVal) {
-    return getClubTableColumn(colName, colVal, ColumnType.COLUMN_RED);
-  }
-
 
 
   /**
-   * 动态生成列
+   * 获取动态数据表的列
    *
-   * @param columnType 红色和非红色
+   * @param colName
+   * @param colVal
+   * @param type
+   * @param <T>
+   * @return
    */
-  private TableColumn<TeamStaticInfo, String> getTableColumnCommon(String colName, String colVal,
-      ColumnType columnType) {
-    TableColumn<TeamStaticInfo, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<TeamStaticInfo, String>(colVal));
-    if (columnType == ColumnType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new TeamStaticInfo()));
-    }
-    col.setSortable(false);
-    return col;
+  private <T> TableColumn<T, String> getTableColumn(String colName,
+      String colVal, int type) {
+    T t = (T)(type == 1 ?  new ZjTeamStaticDetailInfo() :  new ZjClubStaticDetailInfo());
+    return ColumnUtil.getTableRedColumn(colName, colVal, t);
   }
 
-  private TableColumn<ClubStaticInfo, String> getTableClubColumn(String colName, String colVal,
-      ColumnType columnType) {
-    TableColumn<ClubStaticInfo, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<ClubStaticInfo, String>(colVal));
-    if (columnType == ColumnType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new ClubStaticInfo()));
-    }
-    col.setSortable(false);
-    return col;
-  }
 
-  private TableColumn<TotalInfo2, String> getTotalInfo2Column(String colName, String colVal,
-      ColumnType columnType) {
-    TableColumn<TotalInfo2, String> col = new TableColumn<>(colName);
-    col.setStyle(Constants.CSS_CENTER);
-    col.setPrefWidth(85);
-    col.setCellValueFactory(new PropertyValueFactory<TotalInfo2, String>(colVal));
-    if (columnType == ColumnType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new TotalInfo2()));
-    }
-    col.setSortable(false);
-    return col;
-  }
 
   @Override
   public Class<?> getSubClass() {

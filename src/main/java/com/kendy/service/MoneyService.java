@@ -22,7 +22,7 @@ import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
-import com.kendy.enums.ColumnType;
+import com.kendy.enums.ColumnColorType;
 import com.kendy.excel.ExportMembersExcel;
 import com.kendy.excel.ExportTeamhsExcel;
 import com.kendy.interfaces.Entity;
@@ -38,7 +38,6 @@ import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.Text2ImageUtil;
 import com.kendy.util.TimeUtil;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -1674,9 +1673,9 @@ public class MoneyService {
     CurrentMoneyInfo item = tableCurrentMoneyInfo.getItems().get(rowIndex);
     TableView<KeyValue> table = new TableView<>();
     TableColumn<KeyValue, String> playerNameCol = getTableColumnCommon("玩家名称", "key",
-        ColumnType.COLUMN_COMMON);
+        ColumnColorType.COLUMN_COMMON);
     TableColumn<KeyValue, String> SSJECol = getTableColumnCommon("资金", "value",
-        ColumnType.COLUMN_RED);
+        ColumnColorType.COLUMN_RED);
     table.getColumns().addAll(playerNameCol, SSJECol);
     table.setEditable(false);
 
@@ -1759,15 +1758,15 @@ public class MoneyService {
   /**
    * 动态生成列
    *
-   * @param columnType 红色和非红色
+   * @param columnColorType 红色和非红色
    */
   private TableColumn<KeyValue, String> getTableColumnCommon(String colName, String colVal,
-      ColumnType columnType) {
+      ColumnColorType columnColorType) {
     TableColumn<KeyValue, String> col = new TableColumn<>(colName);
     col.setStyle(Constants.CSS_CENTER);
     col.setPrefWidth(110);
     col.setCellValueFactory(new PropertyValueFactory<KeyValue, String>(colVal));
-    if (columnType == ColumnType.COLUMN_RED) {
+    if (columnColorType == ColumnColorType.COLUMN_RED) {
       col.setCellFactory(myController.getColorCellFactory(new KeyValue()));
     }
     col.setSortable(false);
