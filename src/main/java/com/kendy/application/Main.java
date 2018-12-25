@@ -1,5 +1,6 @@
 package com.kendy.application;
 
+import kendy.test.JFXButtonTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.kendy.constant.Constants;

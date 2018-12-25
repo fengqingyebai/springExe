@@ -12,6 +12,7 @@ import com.kendy.excel.myExcel4j.sheet.wrapper.NoTemplateSheetWrapper;
 import com.kendy.excel.myExcel4j.sheet.wrapper.NormalSheetWrapper;
 import com.kendy.excel.myExcel4j.sheet.wrapper.SimpleSheetWrapper;
 import com.kendy.excel.myExcel4j.utils.Utils;
+import com.kendy.util.TableUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,8 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableView;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -74,6 +78,21 @@ public final class MyExcelUtils {
       }
     }
     return myExcelUtils;
+  }
+
+  public <T> void exportExcel(TableView<T> table){
+
+  }
+
+  public <T> void exportExcel(TableView<T> table, Class<T> clazz, String excelName)
+      throws Exception {
+    if (TableUtil.isHasValue(table)) {
+      T t ;
+      ObservableList<T> items = table.getItems();
+      String excelOutputPath = "D:/" + excelName + ".xlsx";
+      exportObjects2Excel(items, clazz, excelOutputPath);
+      java.awt.Desktop.getDesktop().open(new File(excelOutputPath));
+    }
   }
 
 

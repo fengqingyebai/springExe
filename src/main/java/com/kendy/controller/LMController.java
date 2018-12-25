@@ -1,5 +1,6 @@
 package com.kendy.controller;
 
+import com.jfoenix.controls.JFXCheckBox;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,8 +14,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.binary.StringUtils;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -122,6 +126,17 @@ public class LMController extends BaseController implements Initializable {
   private TableColumn<KeyValue, String> key;
   @FXML
   private TableColumn<KeyValue, String> value;
+  // =====================================================================联盟额度共享设置
+  @FXML
+  private HBox eduShareHBox; //额度共享联盟包装箱
+  @FXML
+  private JFXCheckBox eduShareLm1;
+  @FXML
+  private JFXCheckBox eduShareLm2;
+  @FXML
+  private JFXCheckBox eduShareLm3;
+
+
 
 
   private Logger log = Logger.getLogger(LMController.class);
@@ -177,6 +192,8 @@ public class LMController extends BaseController implements Initializable {
 
     // 加载联盟配范围置项
     loadLMConfig();
+    // 加载联盟额度共享配置项
+    loadEduShareLMConfig();
 
     // 设置合计桌费（这个没多大影响）
     setNewSumOfZF();
@@ -850,7 +867,7 @@ public class LMController extends BaseController implements Initializable {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error("导入战绩后检查联盟额度失败", e);
     }
   }
 
@@ -1584,6 +1601,8 @@ public class LMController extends BaseController implements Initializable {
    *
    ******************************************************************/
   @FXML
+  public HBox lmHbox;
+  @FXML
   public TextField FieldLM1;
   @FXML
   public TextField FieldLM2;
@@ -1724,6 +1743,90 @@ public class LMController extends BaseController implements Initializable {
       });
     }
     tableLevel.setItems(obList);
+  }
+
+
+  /************************************************************************************
+   *
+   *                              联盟额度共享设置
+   *
+   *************************************************************************************/
+  public static final String LM_EDU_SHARE_KEY = "lmEduShare";
+
+  /**
+   * 加载联盟范围配置项
+   */
+  private void loadEduShareLMConfig() {
+    String eduShareLMJson = dbUtil.getValueByKeyWithoutJson(LM_EDU_SHARE_KEY);
+    logger.info("从数据库加载额度共享配置项：" + eduShareLMJson);
+    if (StringUtils.isNotBlank(eduShareLMJson)) {
+      List<String> eduShareList =
+          JSON.parseObject(eduShareLMJson, new TypeReference<ArrayList<String>>(){});
+      for (String eduShareLM : eduShareList) {
+        for (Node node : eduShareHBox.getChildren()) {
+          JFXCheckBox eduShareNode = (JFXCheckBox) node;
+          if (StringUtils.equals(eduShareNode.getText(), eduShareLM)) {
+            eduShareNode.setSelected(true);
+          }
+        }
+      }
+    }
+  }
+
+  @FXML
+  public void saveEduShareAction(ActionEvent event) {
+    List<String> eduShareLMList = getSelectedEduShareLMList();
+    if (CollectUtil.isEmpty(eduShareLMList)) {
+      ShowUtil.show("兄弟，请先选择需要额度共享的联盟！");
+    }else{
+      dbUtil.saveOrUpdateOthers(LM_EDU_SHARE_KEY, JSON.toJSONString(eduShareLMList));
+      FXUtil.info("保存成功！");
+    }
+  }
+
+  /**
+   * 查看详情: 额度共享设置
+   */
+  @FXML
+  public void viewEduShareInfoAction(ActionEvent event) {
+    List<String> selectedEduShareLMList = getSelectedEduShareLMList();
+    // TODO 排序，使当前联盟最后展示
+
+    for (String eduShareLm : selectedEduShareLMList) {
+      for (Node node : lmHbox.getChildren()) {
+        Button lmNode = (Button) node;
+        if (StringUtils.equals(lmNode.getText(), eduShareLm)) {
+          // 模拟点击当前联盟按钮并获取联盟结余
+          lmNode.fire();
+          double currentLmJieyu = getLmJieyu();
+          System.out.println(eduShareLm + "的结余是：" + currentLmJieyu);
+        }
+      }
+    }
+  }
+
+  private double getLmJieyu(){
+    for (LMSumInfo item : tableLMSum.getItems()) {
+      if (StringUtils.equals("结余", item.getLmSumName())) {
+        return NumUtil.getNum(item.getLmSumZJ());
+      }
+    }
+    return 0d;
+  }
+
+
+  /**
+   * 获取已勾选的联盟列表
+   */
+  private List<String> getSelectedEduShareLMList(){
+    List<String> eduShareList = new ArrayList<>();
+    for (Node node : eduShareHBox.getChildren()) {
+      JFXCheckBox eduShareNode = (JFXCheckBox) node;
+      if (eduShareNode.isSelected()) {
+        eduShareList.add(eduShareNode.getText());
+      }
+    }
+    return eduShareList;
   }
 
 

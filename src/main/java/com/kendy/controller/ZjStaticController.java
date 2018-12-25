@@ -12,12 +12,14 @@ import com.kendy.entity.ZjClubStaticInfo;
 import com.kendy.entity.ZjTeamStaticDetailInfo;
 import com.kendy.entity.ZjTeamStaticInfo;
 import com.kendy.enums.ColumnColorType;
+import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
+import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +28,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -81,6 +84,11 @@ public class ZjStaticController extends BaseController implements Initializable 
   @FXML
   private TableColumn<ZjClubStaticInfo, String> clubPersonCount;
 
+  //====================================================================
+  @FXML
+  private Label timeLabel;
+
+
 
   public static final String BEGIN = "开始";
 
@@ -119,6 +127,9 @@ public class ZjStaticController extends BaseController implements Initializable 
    * 刷新数据
    */
   public void refresh() {
+    // 更新时间
+    timeLabel.setText(TimeUtil.getTimeString());
+
     // 清空界面数据
     clearData(tableTeamStatic);
 
@@ -312,6 +323,25 @@ public class ZjStaticController extends BaseController implements Initializable 
       String colVal, int type) {
     T t = (T)(type == 1 ?  new ZjTeamStaticDetailInfo() :  new ZjClubStaticDetailInfo());
     return ColumnUtil.getTableRedColumn(colName, colVal, t);
+  }
+
+
+  @FXML
+  public void exportTeamExcelAction() {
+    final TableView table = tableTeamStatic;
+    String excelName = myController.getClubId()+"的团队战绩统计" + TimeUtil.getDateTime();
+    try {
+      MyExcelUtils.getInstance().exportExcel(table, ZjTeamStaticInfo.class, excelName);
+      logger.info(excelName+"导出成功");
+    } catch (Exception e) {
+      ErrorUtil.err(excelName+"导出失败", e);
+    }
+  }
+
+
+  @FXML
+  public void refreshAction(){
+    System.out.println("====================战绩统计刷新按钮");
   }
 
 

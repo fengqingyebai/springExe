@@ -111,7 +111,7 @@ public class TGFwfService {
       double zjHuibaoSum =
           tgTeamInfoList.stream().mapToDouble(info -> NumUtil.getNum(info.getTgHuiBao())).sum();
 
-      // 5 总和
+      // 5 总利润合计
       double zjProfitSum = zjRate25Sum - zjRateUnknowSum + zjBaoxianSum - zjHuibaoSum;
 
       double huibaoDouble = zjBaoxianSum * tgController.getTgTeamHuibaoRate(teamID);
@@ -119,12 +119,8 @@ public class TGFwfService {
 
       TGFwfinfo fwfInfo =
           new TGFwfinfo(tgCompany, teamID, NumUtil.digit2(zjRate25Sum - zjRateUnknowSum + ""),
-              // 服务回水
-              // =
-              // 战绩2.5%
-              // -
-              // 战绩未知
-              NumUtil.digit2(huibaoDouble + ""), // 服务回保 = 保险 - 回保
+              // 服务回水 = 战绩2.5% - 战绩未知
+              NumUtil.digit2(zjBaoxianSum - zjHuibaoSum + ""), // 服务回保 = 全保 - 返保
               NumUtil.digit2(zjProfitSum + ""), // 单个总利润
               NumUtil.digit2(zjRateUnknowSum + ""), // 服务返水
               NumUtil.digit2(zjHuibaoSum + ""), // 服务返保
@@ -239,8 +235,10 @@ public class TGFwfService {
         tgTeam.setTgZJ25(percent25Str);
         // 设置回保
         String teamHuibaoRateValue = tgTeamModel == null ? "0.0" : tgTeamModel.getTgHuiBao();
-        String teamHuibaoRateStr = NumUtil.digit2(-Constants.CURRENT_HS_RATE
-            * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
+//        String teamHuibaoRateStr = NumUtil.digit2(-Constants.CURRENT_HS_RATE
+//            * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
+        String teamHuibaoRateStr = NumUtil.digit2(// -Constants.CURRENT_HS_RATE *
+             -1 * NumUtil.getNumTimes(tgTeam.getTgBaoxian(), teamHuibaoRateValue) + "");
         if (tgTeam.getTgBaoxian().equals("0")) {
           teamHuibaoRateStr = "0";
         }
