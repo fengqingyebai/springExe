@@ -812,52 +812,57 @@ public class MyController extends BaseController implements Initializable {
       @Override
       public void changed(ObservableValue observable, Object oldValue, Object newValue) {
         Tab tab = (Tab) newValue;
-        logger.info(" newTab:" + tab.getText());
-        if ("场次信息".equals(tab.getText())) {
-          moneyService.flush_SSJE_table();
-          moneyService.update_Table_CMI_Map();// 更新{玩家ID=CurrentMoneyInfo},感觉没什么用
+        String tabName = tab.getText();
+        logger.info(" newTab:" + tabName);
+        switch (tabName){
+          case "场次信息" : {
+            moneyService.flush_SSJE_table();
+            moneyService.update_Table_CMI_Map();// 更新{玩家ID=CurrentMoneyInfo},感觉没什么用
+            break;
+          }
+          case "代理查询" : {
+            teamProxyController.loadWhenClickTab();
+            break;
+          }
+          case "实时上码系统" : {
+            smController.loadWhenClickTab();
+            break;
+          }
+          case "联盟对帐" : {
+            lmController.refreshClubList();
+            break;
+          }
+          case "联盟配账" : {
+            lmController.refreshClubList();
+            // 导入每场战绩时的所有俱乐部记录
+            quotaController.currentRecordList = lmController.currentRecordList;
+            // {俱乐部ID : 俱乐部信息}
+            quotaController.allClubMap = lmController.allClubMap;
+            // {俱乐部ID : 俱乐部每一场信息}
+            quotaController.eachClubList = lmController.eachClubList;
+            // 缓存三个联盟的信息
+            quotaController.LMTotalList = lmController.LMTotalList;
+            // 自动加载联盟1的数据
+            quotaController.autoSelectLM1();
+            break;
+          }
+          case "托管工具" : {
+            tgController.loadDataLastest();
+            break;
+          }
+          case "自动上码配置" : {
+            shangmaService.refreshTeamIdAndPlayerId();
+            break;
+          }
+          case "银行流水" : {
+            bankFlowController.refresh();
+            break;
+          }
+          case "历史统计" : {
+            staticController.refresh();
+            break;
+          }
         }
-        if ("代理查询".equals(tab.getText())) {
-          teamProxyController.loadWhenClickTab();
-        }
-        if ("实时上码系统".equals(tab.getText())) {
-          smController.loadWhenClickTab();
-        }
-        if ("积分查询".equals(tab.getText())) {
-
-        }
-        if ("联盟对帐".equals(tab.getText())) {
-          lmController.refreshClubList();
-        }
-        if ("联盟配账".equals(tab.getText())) {
-          lmController.refreshClubList();
-          // 导入每场战绩时的所有俱乐部记录
-          quotaController.currentRecordList = lmController.currentRecordList;
-          // {俱乐部ID : 俱乐部信息}
-          quotaController.allClubMap = lmController.allClubMap;
-          // {俱乐部ID : 俱乐部每一场信息}
-          quotaController.eachClubList = lmController.eachClubList;
-          // 缓存三个联盟的信息
-          quotaController.LMTotalList = lmController.LMTotalList;
-          // 自动加载联盟1的数据
-          quotaController.autoSelectLM1();
-        }
-        if ("托管工具".equals(tab.getText())) {
-          tgController.loadDataLastest();
-        }
-        if ("自动上码配置".equals(tab.getText().trim())) {
-          shangmaService.refreshTeamIdAndPlayerId();
-        }
-        if ("银行流水".equals(tab.getText().trim())) {
-          bankFlowController.refresh();
-        }
-        if ("历史统计".equals(tab.getText().trim())) {
-          staticController.refresh();
-        }
-        if ("战绩统计".equals(tab.getText().trim())) {
-          zjStaticController.refresh();
-        }
-
       }
     });
   }

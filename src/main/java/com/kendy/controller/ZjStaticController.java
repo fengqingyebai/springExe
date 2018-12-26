@@ -24,6 +24,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -36,6 +38,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.functions.T;
+import org.controlsfx.control.MaskerPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -88,6 +91,9 @@ public class ZjStaticController extends BaseController implements Initializable 
   @FXML
   private Label timeLabel;
 
+  @FXML
+  private StackPane stackPane;
+
 
 
   public static final String BEGIN = "开始";
@@ -127,6 +133,7 @@ public class ZjStaticController extends BaseController implements Initializable 
    * 刷新数据
    */
   public void refresh() {
+    System.out.println("ZjStaticController.refresh start....");
     // 更新时间
     timeLabel.setText(TimeUtil.getTimeString());
 
@@ -138,6 +145,8 @@ public class ZjStaticController extends BaseController implements Initializable 
 
     // 加载俱乐部汇总
     loadClubStaticView();
+
+    System.out.println("ZjStaticController.refresh finishes...");
 
   }
 
@@ -342,6 +351,28 @@ public class ZjStaticController extends BaseController implements Initializable 
   @FXML
   public void refreshAction(){
     System.out.println("====================战绩统计刷新按钮");
+
+    MaskerPane maskerPane = new MaskerPane();
+    stackPane.getChildren().add(maskerPane);
+    Task task = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        Platform.runLater(()->{
+          maskerPane.setVisible(true);
+          refresh();
+          //Thread.sleep(2000);
+        });
+        return null;
+      }
+      @Override
+      protected void succeeded(){
+
+        super.succeeded();
+        maskerPane.setVisible(false);
+      }
+    };
+    new Thread(task).start();
+
   }
 
 

@@ -12,11 +12,14 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.controlsfx.control.MaskerPane;
 
 public class SpinnerTest extends Application {
 
   @Override
   public void start(final Stage stage) throws Exception {
+
+    MaskerPane maskerPane = new MaskerPane();
 
     StackPane pane = new StackPane();
 
