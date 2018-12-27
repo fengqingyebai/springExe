@@ -27,10 +27,12 @@ public class MaskerPaneUtil {
         MaskerPane maskerPane = null;
         if (isMaskerPane) {
           maskerPane = (MaskerPane) node;
+          maskerPane.setProgressVisible(false); // 隐藏进度条
           maskerPane.setVisible(true);
           return;
         } else {
           maskerPane = new MaskerPane();
+          maskerPane.setProgressVisible(false);
           maskerPane.setVisible(true);
           stackPane.getChildren().add(maskerPane);
         }
@@ -54,10 +56,8 @@ public class MaskerPaneUtil {
         MaskerPane maskerPane = null;
         if (isMaskerPane) {
           maskerPane = (MaskerPane) node;
-        } else {
-          maskerPane = new MaskerPane();
+          maskerPane.setVisible(false);
         }
-        maskerPane.setVisible(false);
       }
     }
   }
