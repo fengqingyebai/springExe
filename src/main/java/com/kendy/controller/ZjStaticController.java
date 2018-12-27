@@ -15,6 +15,7 @@ import com.kendy.enums.ColumnColorType;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
@@ -352,23 +353,21 @@ public class ZjStaticController extends BaseController implements Initializable 
   public void refreshAction(){
     System.out.println("====================战绩统计刷新按钮");
 
-    MaskerPane maskerPane = new MaskerPane();
-    stackPane.getChildren().add(maskerPane);
+    MaskerPaneUtil.addMaskerPane(stackPane);
     Task task = new Task<Void>() {
       @Override
       protected Void call() throws Exception {
+        Thread.sleep(1000);
         Platform.runLater(()->{
-          maskerPane.setVisible(true);
+          // 处理业务逻辑
           refresh();
-          //Thread.sleep(2000);
         });
         return null;
       }
       @Override
       protected void succeeded(){
-
         super.succeeded();
-        maskerPane.setVisible(false);
+        MaskerPaneUtil.hideMaskerPane(stackPane);
       }
     };
     new Thread(task).start();

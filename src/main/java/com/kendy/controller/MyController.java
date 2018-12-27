@@ -1,6 +1,7 @@
 package com.kendy.controller;
 
 import com.jfoenix.controls.JFXCheckBox;
+import com.kendy.util.MaskerPaneUtil;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -19,10 +20,13 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
+import javafx.concurrent.Task;
 import javafx.geometry.Pos;
+import javafx.scene.layout.StackPane;
 import javax.annotation.PostConstruct;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.MaskerPane;
 import org.controlsfx.control.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -500,6 +504,10 @@ public class MyController extends BaseController implements Initializable {
   public TextField jifenRankLimit;// 前50名
   @FXML
   public JFXCheckBox isCheckTeamProfitBox;// 勾选框：是否核算团队利润
+
+  // ===================================================================
+  @FXML
+  public StackPane basicInfoStackPane;
 
   // 保存到other数据表的key
   private final String KEY_GU_DONG = KeyEnum.GU_DONG.getKeyName();
@@ -2639,39 +2647,60 @@ public class MyController extends BaseController implements Initializable {
         ShowUtil.show("中途继续条件不满足，请点击开始新一天的统计！");
         return;
       }
+      MaskerPaneUtil.addMaskerPane(basicInfoStackPane);
+      Task task = new Task<Void>() {
+        @Override
+        public Void call() throws Exception {
+          Thread.sleep(1500);
+          Platform.runLater(()->{
+            // 中途继续具体逻辑
+            doMiddleConintue();
+          });
+          return null;
+        }
+        @Override
+        protected void succeeded(){
+          super.succeeded();
+          MaskerPaneUtil.hideMaskerPane(basicInfoStackPane);
+        }
+      };
+      new Thread(task).start();
 
-      // 恢复所有缓存数据
-      dataConstants.recoveryAllCache();
-      dataConstants.initMetaData();
-      // add 2017-10-21 代理类初始化团队ID
-      teamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
-      // add 2017-10-21 代理类初始化团队ID
-      jifenService.init_Jifen_TeamIdCombox();
-
-      // 加载十个表格数据
-      int pageIndex = dataConstants.Paiju_Index.get();
-      pageInput.setText(pageIndex + "");
-      try {
-        softDateLabel.setText(dataConstants.Date_Str);
-        // 恢复锁定的数据
-        changableData();
-        // 加载前一场数据
-        pageIndex -= 1;
-        reCovery10TablesByPage(pageIndex);// 恢复十个表数据
-        moneyService.flush_SSJE_table();
-
-        // 清空相关表数据（保留类似昨日留底的表数据）
-        clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou,
-            tablePingzhang);
-        indexLabel.setText(INDEX_ZERO);
-      } catch (Exception e) {
-        ShowUtil.show("中途继续失败：原因：" + e.getMessage());
-        e.printStackTrace();
-      }
-      ShowUtil.show("中途继续成功，请继续操作", 2);
-      // 转到场次信息页面
-      tabs.getSelectionModel().select(1);
     }
+  }
+
+  public void doMiddleConintue(){
+    // 恢复所有缓存数据
+    dataConstants.recoveryAllCache();
+    dataConstants.initMetaData();
+    // add 2017-10-21 代理类初始化团队ID
+    teamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
+    // add 2017-10-21 代理类初始化团队ID
+    jifenService.init_Jifen_TeamIdCombox();
+
+    // 加载十个表格数据
+    int pageIndex = dataConstants.Paiju_Index.get();
+    pageInput.setText(pageIndex + "");
+    try {
+      softDateLabel.setText(dataConstants.Date_Str);
+      // 恢复锁定的数据
+      changableData();
+      // 加载前一场数据
+      pageIndex -= 1;
+      reCovery10TablesByPage(pageIndex);// 恢复十个表数据
+      moneyService.flush_SSJE_table();
+
+      // 清空相关表数据（保留类似昨日留底的表数据）
+      clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou,
+          tablePingzhang);
+      indexLabel.setText(INDEX_ZERO);
+    } catch (Exception e) {
+      ShowUtil.show("中途继续失败：原因：" + e.getMessage());
+      e.printStackTrace();
+    }
+    ShowUtil.show("中途继续成功，请继续操作", 2);
+    // 转到场次信息页面
+    tabs.getSelectionModel().select(1);
   }
 
   /**
