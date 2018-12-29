@@ -1103,7 +1103,7 @@ public class MyController extends BaseController implements Initializable {
         return;
       }
 
-      try {
+     try {
         // 将人员名单文件缓存起来
         List<GameRecord> gameRecords = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
             currentLMName, getVersionType());
@@ -1113,9 +1113,22 @@ public class MyController extends BaseController implements Initializable {
         importZJBtn.setDisable(true); // 导入按钮设置为不可用
         ShowUtil.show("导入战绩文件成功", 2);
 
+        // 导入战绩后检查共享额度
+        checkOverShareEdu();
+
       } catch (Exception e) {
         ErrorUtil.err("战绩导入失败", e);
       }
+    }
+  }
+
+  /**
+   * 检查共享额度
+   */
+  private void checkOverShareEdu(){
+    String overShareEduResult = lmController.getOverShareEduResult(false);
+    if (StringUtils.isNotBlank(overShareEduResult)) {
+      ShowUtil.show("超出共享额度", false, overShareEduResult);
     }
   }
 

@@ -3,6 +3,7 @@ package com.kendy.entity;
 import com.kendy.interfaces.Entity;
 
 import javafx.beans.property.SimpleStringProperty;
+import javax.persistence.Id;
 
 /**
  * 自动上码日志记录
@@ -16,6 +17,10 @@ public class SMAutoInfo implements Entity {
    * 记录日期，精确到时分秒
    */
   private SimpleStringProperty smAutoDate = new SimpleStringProperty();
+  /*
+   * 团队ID
+   */
+  private SimpleStringProperty smAutoTeamId = new SimpleStringProperty();
   /*
    * 玩家ID
    */
@@ -72,6 +77,7 @@ public class SMAutoInfo implements Entity {
    */
   public SMAutoInfo(
       String smAutoDate,
+      String smAutoTeamId,
       String smAutoPlayerId,
       String smAutoPlayerName,
       String smAutoPaiju,
@@ -85,6 +91,7 @@ public class SMAutoInfo implements Entity {
       String smAutoIsAgreeSuccess) {
     super();
     this.smAutoDate = new SimpleStringProperty(smAutoDate);
+    this.smAutoTeamId = new SimpleStringProperty(smAutoTeamId);
     this.smAutoPlayerId = new SimpleStringProperty(smAutoPlayerId);
     this.smAutoPlayerName = new SimpleStringProperty(smAutoPlayerName);
     this.smAutoPaiju = new SimpleStringProperty(smAutoPaiju);
@@ -254,5 +261,16 @@ public class SMAutoInfo implements Entity {
     this.smAutoTeamTotalAvailabelProperty().set(smAutoTeamTotalAvailabel);
   }
 
+  //***********************************************
+  public String getSmAutoTeamId() {
+    return smAutoTeamId.get();
+  }
 
+  public SimpleStringProperty smAutoTeamIdProperty() {
+    return smAutoTeamId;
+  }
+
+  public void setSmAutoTeamId(String smAutoTeamId) {
+    this.smAutoTeamId.set(smAutoTeamId);
+  }
 }

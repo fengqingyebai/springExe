@@ -68,6 +68,15 @@ public class ShowUtil {
 
   }
 
+  public static void show(String title, boolean needNextLine, String message){
+    Alert alert = new Alert(AlertType.ERROR);
+    alert.setTitle(title != null ? title : "提示");
+    alert.setHeaderText(null);
+    alert.setContentText(needNextLine ? "\r\n" + message : message);
+    setIcon(alert);
+    alert.showAndWait();
+  }
+
   /**
    * 警告信息
    *

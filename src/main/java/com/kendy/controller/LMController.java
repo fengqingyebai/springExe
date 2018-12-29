@@ -1,6 +1,9 @@
 package com.kendy.controller;
 
 import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
+import com.kendy.util.TableUtil;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -135,8 +140,9 @@ public class LMController extends BaseController implements Initializable {
   private JFXCheckBox eduShareLm2;
   @FXML
   private JFXCheckBox eduShareLm3;
-
-
+  //=================================================================================
+  @FXML
+  private StackPane lmStackPane;
 
 
   private Logger log = Logger.getLogger(LMController.class);
@@ -754,7 +760,8 @@ public class LMController extends BaseController implements Initializable {
   /**
    * 刷新所有俱乐部总记录（与数据库同步）
    *
-   * @param list 数据库返回的结果，估计最大会为30*200=6000条数据
+   * <p>数据库返回的结果，估计最大会为30*200=6000条数据
+   *
    * @time 2017年11月25日
    */
   private void refresh_eachClubList() {
@@ -1761,7 +1768,8 @@ public class LMController extends BaseController implements Initializable {
     logger.info("从数据库加载额度共享配置项：" + eduShareLMJson);
     if (StringUtils.isNotBlank(eduShareLMJson)) {
       List<String> eduShareList =
-          JSON.parseObject(eduShareLMJson, new TypeReference<ArrayList<String>>(){});
+          JSON.parseObject(eduShareLMJson, new TypeReference<ArrayList<String>>() {
+          });
       for (String eduShareLM : eduShareList) {
         for (Node node : eduShareHBox.getChildren()) {
           JFXCheckBox eduShareNode = (JFXCheckBox) node;
@@ -1778,7 +1786,7 @@ public class LMController extends BaseController implements Initializable {
     List<String> eduShareLMList = getSelectedEduShareLMList();
     if (CollectUtil.isEmpty(eduShareLMList)) {
       ShowUtil.show("兄弟，请先选择需要额度共享的联盟！");
-    }else{
+    } else {
       dbUtil.saveOrUpdateOthers(LM_EDU_SHARE_KEY, JSON.toJSONString(eduShareLMList));
       FXUtil.info("保存成功！");
     }
@@ -1789,26 +1797,104 @@ public class LMController extends BaseController implements Initializable {
    */
   @FXML
   public void viewEduShareInfoAction(ActionEvent event) {
+    getOverShareEduResult(true);
+  }
+
+  /**
+   * 获取共享额度描述字符串
+   *
+   * @param needShowMasker 是否需要展示遮罩层
+   * @return 如needShowMasker为false, 则若返回值不为空，则代表已经超过共享额度
+   */
+  public String getOverShareEduResult(boolean needShowMasker) {
     List<String> selectedEduShareLMList = getSelectedEduShareLMList();
     // TODO 排序，使当前联盟最后展示
-
+    String nextLine = System.lineSeparator();
+    StringBuilder sb = new StringBuilder();
+    sb.append("当前俱乐部ID: " + myController.getClubId()).append(nextLine);
+    int sumeEdu = 0;
+    int sumJieyu = 0;
     for (String eduShareLm : selectedEduShareLMList) {
       for (Node node : lmHbox.getChildren()) {
         Button lmNode = (Button) node;
         if (StringUtils.equals(lmNode.getText(), eduShareLm)) {
           // 模拟点击当前联盟按钮并获取联盟结余
           lmNode.fire();
+          String clubEdu = clickAndGetCurrentClubEdu();
           double currentLmJieyu = getLmJieyu();
-          System.out.println(eduShareLm + "的结余是：" + currentLmJieyu);
+          sb.append(lmNode.getText() + "的结余是: " + NumUtil.digit0(currentLmJieyu)).append(nextLine);
+          sumeEdu += Integer.valueOf(clubEdu);
+          sumJieyu += Double.valueOf(currentLmJieyu).intValue();
+          break;
         }
       }
     }
+    sb.append("联盟结余是： ").append(sumJieyu).append(nextLine);
+    sb.append("共享额度是： ").append(sumeEdu).append(nextLine);
+    boolean isOverShareEdu = (sumJieyu + sumeEdu < 0);
+    sb.append("是否超出共享额度： ").append(isOverShareEdu ? "是" : "否");
+    if (needShowMasker) {
+      String content = sb.toString();
+      alertCreator("title", "header", content);
+    }
+    return (isOverShareEdu ? sb.toString() : "");
   }
 
-  private double getLmJieyu(){
-    for (LMSumInfo item : tableLMSum.getItems()) {
-      if (StringUtils.equals("结余", item.getLmSumName())) {
-        return NumUtil.getNum(item.getLmSumZJ());
+
+  private String clickAndGetCurrentClubEdu() {
+    ObservableList<String> items = clubListView.getItems();
+    if (CollectUtil.isHaveValue(items)) {
+      String clubId = myController.getClubId();
+      for (int index = 0; index < items.size(); index++) {
+        String item = items.get(index);
+        String[] arr = StringUtils.split(item, "==");
+        if (StringUtils.equals(clubId, arr[1])) {
+          // 模拟点击当前联盟下的当前俱乐部
+          clubListView.getSelectionModel().select(index);
+          return arr[2];
+        }
+      }
+    }
+    return "0";
+  }
+
+
+  private void alertCreator(String title, String header, String content) {
+    JFXDialogLayout dialogContent = new JFXDialogLayout();
+    //dialogContent.setHeading(new Text(header == null ? title : title + "\n" + header));
+    dialogContent.setBody(new Text(content));
+//    JFXButton close = new JFXButton("Close");
+//    close.setButtonType(ButtonType.RAISED);
+//    //close.getStyleClass().add("JFXButton");
+//    dialogContent.setActions(close);
+    JFXDialog dialog = new JFXDialog(lmStackPane, dialogContent, JFXDialog.DialogTransition.CENTER);
+//    close.setOnAction(new EventHandler<ActionEvent>() {
+//
+//      @Override
+//      public void handle(ActionEvent __) {
+//        dialog.close();
+//      }
+//    });
+    dialog.show();
+  }
+
+  private double getLmJieyu() {
+    if (TableUtil.isHasValue(tableLMSum)) {
+      for (LMSumInfo item : tableLMSum.getItems()) {
+        if (StringUtils.equals("结余", item.getLmSumName())) {
+          return NumUtil.getNum(item.getLmSumZJ());
+        }
+      }
+    }
+    return 0d;
+  }
+
+  private double getLmEdu() {
+    if (TableUtil.isHasValue(tableLMSum)) {
+      for (LMSumInfo item : tableLMSum.getItems()) {
+        if (StringUtils.equals("", item.getLmSumName())) {
+          return NumUtil.getNum(item.getLmSumZJ());
+        }
       }
     }
     return 0d;
@@ -1818,7 +1904,7 @@ public class LMController extends BaseController implements Initializable {
   /**
    * 获取已勾选的联盟列表
    */
-  private List<String> getSelectedEduShareLMList(){
+  private List<String> getSelectedEduShareLMList() {
     List<String> eduShareList = new ArrayList<>();
     for (Node node : eduShareHBox.getChildren()) {
       JFXCheckBox eduShareNode = (JFXCheckBox) node;
@@ -1826,6 +1912,11 @@ public class LMController extends BaseController implements Initializable {
         eduShareList.add(eduShareNode.getText());
       }
     }
+    // 对联盟进行排序
+    if (eduShareList != null && eduShareList.size() >= 2) {
+      Collections.sort(eduShareList, Comparator.reverseOrder());
+    }
+
     return eduShareList;
   }
 

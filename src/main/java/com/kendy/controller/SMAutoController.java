@@ -147,6 +147,8 @@ public class SMAutoController extends BaseController implements Initializable {
   @FXML
   private TableColumn<SMAutoInfo, String> smAutoDate;
   @FXML
+  private TableColumn<SMAutoInfo, String> smAutoTeamId;
+  @FXML
   private TableColumn<SMAutoInfo, String> smAutoPlayerId;
   @FXML
   private TableColumn<SMAutoInfo, String> smAutoPlayerName;
@@ -534,7 +536,7 @@ public class SMAutoController extends BaseController implements Initializable {
               + calcAvailable + "]");
         }
         /****************************************/
-        SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), playerId, playerName, paijuString,
+        SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), teamId, playerId, playerName, paijuString,
             buyStack, teamAvailabel, // 团队可上码 (第一关)
             calcAvailable, // 计算可上码（第二关）
             "1".equals(selectTeamAvailabel) ? "是" : "否", isTodaySM ? "是" : "否", // smAutoIsCurrentDay
@@ -750,29 +752,30 @@ public class SMAutoController extends BaseController implements Initializable {
       ShowUtil.show("没有可供导出的数据！");
       return;
     }
-    String[] rowsName = new String[]{"爬取时间", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码",
+    String[] rowsName = new String[]{"爬取时间", "团队ID", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码",
         "勾选团队", "当天", "次日", "同意审核", "审核结果"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (SMAutoInfo info : autoShangmas) {
       objs = new Object[rowsName.length];
       objs[0] = info.getSmAutoDate();
-      objs[1] = info.getSmAutoPlayerId();
-      objs[2] = info.getSmAutoPlayerName();
-      objs[3] = info.getSmAutoPaiju();
-      objs[4] = info.getSmAutoApplyAccount();
-      objs[5] = info.getSmAutoTeamTotalAvailabel();
-      objs[6] = info.getSmAutoAvailabel();
-      objs[7] = info.getSmAutoIsTeamAvailabel();
-      objs[8] = info.getSmAutoIsCurrentDay();
-      objs[9] = info.getSmAutoIsNextDay();
-      objs[10] = info.getSmAutoIsAgree();
-      objs[11] = info.getSmAutoIsAgreeSuccess();
+      objs[1] = info.getSmAutoTeamId();
+      objs[2] = info.getSmAutoPlayerId();
+      objs[3] = info.getSmAutoPlayerName();
+      objs[4] = info.getSmAutoPaiju();
+      objs[5] = info.getSmAutoApplyAccount();
+      objs[6] = info.getSmAutoTeamTotalAvailabel();
+      objs[7] = info.getSmAutoAvailabel();
+      objs[8] = info.getSmAutoIsTeamAvailabel();
+      objs[9] = info.getSmAutoIsCurrentDay();
+      objs[10] = info.getSmAutoIsNextDay();
+      objs[11] = info.getSmAutoIsAgree();
+      objs[12] = info.getSmAutoIsAgreeSuccess();
       dataList.add(objs);
     }
     String title = "自动上码-" + TimeUtil.getDateTime();
     List<Integer> columnWidths =
-        Arrays.asList(3500, 4000, 3000, 3000, 3000, 4000, 4000, 3000, 3000, 3000, 3000, 3000, 5000);
+        Arrays.asList(3500, 3500, 4000, 3000, 3000, 3000, 4000, 4000, 3000, 3000, 3000, 3000, 3000, 5000);
     ExportExcelTemplate ex = new ExportExcelTemplate(title, rowsName, columnWidths, dataList);
     try {
       ex.export();
