@@ -797,6 +797,9 @@ public class LMController extends BaseController implements Initializable {
    * !!!!可能存在的问题：如果中途两次结算同一个团队，可能服务费会累加 如KK团队在导入01场后点击结算，然后又在导入02场后点击结算
    * 解决方法：建议在Record表中新增一个字段标志是否已经计算过
    *
+   * @deprecated
+   * @see MyController#checkOverShareEdu() linzt 2019-01-05
+   *
    * @time 2017年11月30日
    */
   public void checkOverEdu(String LMType) {

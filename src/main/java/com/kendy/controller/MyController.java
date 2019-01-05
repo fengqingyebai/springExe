@@ -1113,9 +1113,6 @@ public class MyController extends BaseController implements Initializable {
         importZJBtn.setDisable(true); // 导入按钮设置为不可用
         ShowUtil.show("导入战绩文件成功", 2);
 
-        // 导入战绩后检查共享额度
-        checkOverShareEdu();
-
       } catch (Exception e) {
         ErrorUtil.err("战绩导入失败", e);
       }
@@ -1918,7 +1915,9 @@ public class MyController extends BaseController implements Initializable {
           ErrorUtil.err(e.getMessage(), e);
         }
         lmController.refreshClubList();
-        lmController.checkOverEdu(currentLMName);// 检查俱乐部额度
+        // lmController.checkOverEdu(currentLMName);// 检查俱乐部额度
+        // 检查共享额度
+        this.checkOverShareEdu();
 
         // 当局已结算的团队服务费之和 要置为0
         current_Jiesuaned_team_fwf_sum = 0d;
