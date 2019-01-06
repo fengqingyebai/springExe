@@ -1121,6 +1121,9 @@ public class MyController extends BaseController implements Initializable {
 
   /**
    * 检查共享额度
+   *
+   * @deprecated
+   * @see LMController#checkOverSharedEdu2()
    */
   private void checkOverShareEdu(){
     String overShareEduResult = lmController.getOverShareEduResult(false);
@@ -1917,7 +1920,8 @@ public class MyController extends BaseController implements Initializable {
         lmController.refreshClubList();
         // lmController.checkOverEdu(currentLMName);// 检查俱乐部额度
         // 检查共享额度
-        this.checkOverShareEdu();
+        //this.checkOverShareEdu();
+        lmController.checkOverSharedEdu2(false);
 
         // 当局已结算的团队服务费之和 要置为0
         current_Jiesuaned_team_fwf_sum = 0d;

@@ -52,6 +52,21 @@ public class ShowUtil {
 
   }
 
+  /**
+   * 错误信息提示框
+   *
+   */
+  public static void showInfo(String message) {
+    Alert alert = new Alert(AlertType.INFORMATION);
+    alert.setGraphic(null);
+    alert.setTitle("提示");
+    alert.setHeaderText(null);
+    alert.setContentText("\r\n" + message);
+    setIcon(alert);
+    alert.showAndWait();
+
+  }
+
 
   /**
    * 错误信息提示框
