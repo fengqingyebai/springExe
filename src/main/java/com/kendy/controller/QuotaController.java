@@ -1,26 +1,6 @@
 package com.kendy.controller;
 
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.kendy.constant.DataConstans;
-import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankInfo;
@@ -30,25 +10,30 @@ import com.kendy.entity.LMSumInfo;
 import com.kendy.entity.QuotaMoneyInfo;
 import com.kendy.excel.ExportQuotaPayExcel;
 import com.kendy.model.GameRecord;
-import com.kendy.service.AutoDownloadZJExcelService;
-import com.kendy.service.JifenService;
-import com.kendy.service.MemberService;
-import com.kendy.service.MoneyService;
-import com.kendy.service.ShangmaService;
-import com.kendy.service.TGExportExcelService;
-import com.kendy.service.TeamProxyService;
-import com.kendy.service.TgWaizhaiService;
-import com.kendy.service.WaizhaiService;
-import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
-import com.kendy.util.ErrorUtil;
 import com.kendy.util.DialogUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -56,6 +41,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.StackPane;
+import javax.annotation.PostConstruct;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 处理联盟配额的控制器
@@ -129,6 +119,11 @@ public class QuotaController extends BaseController implements Initializable {
   private TableColumn<ClubBankInfo, String> bankType;
   @FXML
   private TableColumn<ClubBankInfo, String> bankAccountInfo;
+
+
+  @FXML
+  private StackPane quotaStackPane;
+
 
   // 引用联盟控制类
   // public lmController lmController;
@@ -210,9 +205,29 @@ public class QuotaController extends BaseController implements Initializable {
   }
 
   public void autoSelectLM1() {
-    if (_LM_Btn1 != null) {
-      _LM_Btn1.fire();
-    }
+//    if (_LM_Btn1 != null) {
+//      _LM_Btn1.fire();
+//    }
+    MaskerPaneUtil.addMaskerPane(quotaStackPane);
+    Task task = new Task<Void>() {
+      @Override
+      protected Void call() throws Exception {
+        Thread.sleep(1000);
+        Platform.runLater(()->{
+          // 处理业务逻辑
+          if (_LM_Btn1 != null) {
+            _LM_Btn1.fire();
+          }
+        });
+        return null;
+      }
+      @Override
+      protected void succeeded(){
+        super.succeeded();
+        MaskerPaneUtil.hideMaskerPane(quotaStackPane);
+      }
+    };
+    new Thread(task).start();
   }
 
   /**
