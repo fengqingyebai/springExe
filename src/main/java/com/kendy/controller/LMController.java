@@ -943,7 +943,7 @@ public class LMController extends BaseController implements Initializable {
           double edu = NumUtil.getNum(get_LM_edu(currentClub, LMTYPE));
           ClubInfo clubInfo = clubInfoMap
               .getOrDefault(clubId, new ClubInfo(clubId, clubName, edu, jieyu));
-          clubInfo.setJieYu(clubInfo.getJieYu() + jieyu);
+          clubInfo.setJieYu(jieyu);
           clubInfo.setSharedEdu(Double.max(clubInfo.getSharedEdu(), edu));
           clubInfoMap.put(clubId, clubInfo);
 
