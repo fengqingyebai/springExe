@@ -2,6 +2,7 @@ package com.kendy.controller;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.kendy.util.MaskerPaneUtil;
+import com.kendy.util.TimeUtil;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -646,31 +647,41 @@ public class MyController extends BaseController implements Initializable {
    * 实时金额修改
    */
   private void setSSJEEditOnCommit() {
-    shishiJine.setOnEditCommit(new EventHandler<CellEditEvent<CurrentMoneyInfo, String>>() {
-      @Override
-      public void handle(CellEditEvent<CurrentMoneyInfo, String> t) {
-        // 修改原值
-        CurrentMoneyInfo cmInfo =
-            t.getTableView().getItems().get(t.getTablePosition().getRow());
-
-        if (cmInfo != null && !StringUtil.isBlank(cmInfo.getMingzi())) {
-          // 更新到已存积分
-          boolean isChangedOK =
-              moneyService.changeYicunJifen(tablePaiju, cmInfo.getMingzi(), t.getNewValue());
-          if (isChangedOK) {
-            cmInfo.setShishiJine(t.getNewValue());
-          } else {
-            cmInfo.setShishiJine(t.getOldValue());
-            tableCurrentMoneyInfo.refresh();
-          }
-          moneyService.flush_SSJE_table();// 最后刷新实时金额表
-        } else if (cmInfo != null) {
-          cmInfo.setShishiJine(null);
-          ShowUtil.show("空行不能输入", 1);
-          tableCurrentMoneyInfo.refresh();
-        }
+    shishiJine.setOnEditCommit(t -> {
+      String oldVal = t.getOldValue();
+      String newVal = t.getNewValue();
+      // 若值相等，则不做处理
+      if (StringUtils.equals(oldVal, newVal)) {
+        return;
       }
 
+      // 修改原值
+      CurrentMoneyInfo cmInfo =
+          t.getTableView().getItems().get(t.getTablePosition().getRow());
+
+      if (cmInfo != null && StringUtils.isNotBlank(cmInfo.getMingzi())) {
+        // 更新到已存积分
+        boolean isChangedOK =
+            moneyService.changeYicunJifen(tablePaiju, cmInfo.getMingzi(), newVal);
+        if (isChangedOK) {
+          cmInfo.setShishiJine(newVal);
+        } else {
+          cmInfo.setShishiJine(oldVal);
+          tableCurrentMoneyInfo.refresh();
+        }
+        moneyService.flush_SSJE_table();// 最后刷新实时金额表
+        // 记录修改的日志
+        logger.info("手动修改实时金额数据记录：玩家名称：{}，ID是：{}, 旧金额：{}, 新金额：{}, 修改时间：{}"
+            , cmInfo.getMingzi(), StringUtils.defaultString(cmInfo.getWanjiaId(), "空"), oldVal,
+            newVal, TimeUtil.getDateTime2());
+
+      } else if (cmInfo != null) {
+        cmInfo.setShishiJine(null);
+        ShowUtil.show("空行不能输入", 1);
+        tableCurrentMoneyInfo.refresh();
+      } else {
+
+      }
     });
   }
 
@@ -822,25 +833,25 @@ public class MyController extends BaseController implements Initializable {
         Tab tab = (Tab) newValue;
         String tabName = tab.getText();
         logger.info(" newTab:" + tabName);
-        switch (tabName){
-          case "场次信息" : {
+        switch (tabName) {
+          case "场次信息": {
             moneyService.flush_SSJE_table();
             moneyService.update_Table_CMI_Map();// 更新{玩家ID=CurrentMoneyInfo},感觉没什么用
             break;
           }
-          case "代理查询" : {
+          case "代理查询": {
             teamProxyController.loadWhenClickTab();
             break;
           }
-          case "实时上码系统" : {
+          case "实时上码系统": {
             smController.loadWhenClickTab();
             break;
           }
-          case "联盟对帐" : {
+          case "联盟对帐": {
             lmController.refreshClubList();
             break;
           }
-          case "联盟配账" : {
+          case "联盟配账": {
             lmController.refreshClubList();
             // 导入每场战绩时的所有俱乐部记录
             quotaController.currentRecordList = lmController.currentRecordList;
@@ -854,19 +865,19 @@ public class MyController extends BaseController implements Initializable {
             quotaController.autoSelectLM1();
             break;
           }
-          case "托管工具" : {
+          case "托管工具": {
             tgController.loadDataLastest();
             break;
           }
-          case "自动上码配置" : {
+          case "自动上码配置": {
             shangmaService.refreshTeamIdAndPlayerId();
             break;
           }
-          case "银行流水" : {
+          case "银行流水": {
             bankFlowController.refresh();
             break;
           }
-          case "历史统计" : {
+          case "历史统计": {
             staticController.refresh();
             break;
           }
@@ -1103,7 +1114,7 @@ public class MyController extends BaseController implements Initializable {
         return;
       }
 
-     try {
+      try {
         // 将人员名单文件缓存起来
         List<GameRecord> gameRecords = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
             currentLMName, getVersionType());
@@ -1123,9 +1134,8 @@ public class MyController extends BaseController implements Initializable {
    * 检查共享额度
    *
    * @deprecated
-   * @see LMController#checkOverSharedEdu2()
    */
-  private void checkOverShareEdu(){
+  private void checkOverShareEdu() {
     String overShareEduResult = lmController.getOverShareEduResult(false);
     if (StringUtils.isNotBlank(overShareEduResult)) {
       ShowUtil.show("超出共享额度", false, overShareEduResult);
@@ -2527,6 +2537,8 @@ public class MyController extends BaseController implements Initializable {
         tableCurrentMoneyInfo.getItems().remove(index);
         tableCurrentMoneyInfo.refresh();
         moneyService.flush_SSJE_table();
+        logger.info("手动修改实时金额数据记录(删除记录)：名称：{}, ID:{}, 实时金额：{}"
+            , info.getMingzi(), StringUtils.defaultString(info.getWanjiaId(), "空"), StringUtils.defaultString(info.getShishiJine(),"空"));
       }
     } else {
       ShowUtil.show("请选中要删除的实时金额记录!");
@@ -2668,14 +2680,15 @@ public class MyController extends BaseController implements Initializable {
         @Override
         public Void call() throws Exception {
           Thread.sleep(1500);
-          Platform.runLater(()->{
+          Platform.runLater(() -> {
             // 中途继续具体逻辑
             doMiddleConintue();
           });
           return null;
         }
+
         @Override
-        protected void succeeded(){
+        protected void succeeded() {
           super.succeeded();
           MaskerPaneUtil.hideMaskerPane(basicInfoStackPane);
         }
@@ -2685,7 +2698,7 @@ public class MyController extends BaseController implements Initializable {
     }
   }
 
-  public void doMiddleConintue(){
+  public void doMiddleConintue() {
     // 恢复所有缓存数据
     dataConstants.recoveryAllCache();
     dataConstants.initMetaData();

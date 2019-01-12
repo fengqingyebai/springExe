@@ -198,7 +198,7 @@ public class AddController extends BaseController implements Initializable {
       dataConstants.refresh_SM_Detail_Map();
       // dataConstants.refreshTeamIdAndPlayerId();
       dbUtil.addMember(player);
-      log.info("已经添加该人员:" + player);
+      log.info("新增玩家信息:" + player);
       ShowUtil.show("已经添加该人员", 2);
     }
     // 获取到新增人员窗口的实例
@@ -300,6 +300,8 @@ public class AddController extends BaseController implements Initializable {
     ShowUtil.show("添加成功", 2);
     moneyService.flush_SSJE_table();
     moneyService.scrolById(playerId);
+    logger.info("手动修改实时金额数据记录(新增人员)：名称：{}，ID:{}, 金额：{}"
+        , player.getPlayerName(),player.getgameId(), cmMoney.getText() );
 
     // 获取到新增人员窗口的实例
     Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
@@ -330,6 +332,7 @@ public class AddController extends BaseController implements Initializable {
     ShowUtil.show("添加成功", 2);
     moneyService.flush_SSJE_table();
     moneyService.scrolByName(name);
+    logger.info("手动修改实时金额数据记录(新增其他)：名称：{}，金额：{}", name, cmMoney.getText() );
 
     // 获取到新增人员窗口的实例
     Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);
