@@ -20,8 +20,13 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -893,75 +898,146 @@ public class LMController extends BaseController implements Initializable {
         return;
       }
 
-      // TODO 单个联盟不与判断
+      StringBuilder sb = new StringBuilder();
+
+      List<Map<String, ClubInfo>> totalLMs = new ArrayList<>();
+
+      // 共享额度的联盟
       List<String> selectedEduShareLMList = getSelectedEduShareLMList();
+      Map<String, ClubInfo> shareEduLMMap = getLMClubInfo(todayTotalList, selectedEduShareLMList);
+      if (MapUtils.isNotEmpty(shareEduLMMap)) {
+        totalLMs.add(shareEduLMMap);
+        String LMNames = selectedEduShareLMList.stream().collect(Collectors.joining(","));
+        String showString = getShowString(shareEduLMMap, showAll, true, LMNames);
+        sb.append(showString);
+      }
 
-      // 已勾选共享额度中的联盟中的俱乐部对象{clubId : 计算结果}
-      Map<String, ClubInfo> clubInfoMap = new HashMap<>();
-      for (String LMType : selectedEduShareLMList) {
+      // 非共享额度的各个联盟
+      List<String> unselectedSingleLMList = Arrays.asList("联盟1", "联盟2", "联盟3").stream()
+          .filter(e -> !selectedEduShareLMList.contains(e)).collect(Collectors.toList());
 
-        List<GameRecord> currentLMGameRecords = todayTotalList.stream()
-            .filter(record -> LMType.equals(record.getLmType()))
-            .collect(Collectors.toList());
-
-        if (CollectionUtils.isEmpty(currentLMGameRecords)) {
-          continue;
-        }
-
-        // 最新的当天该联盟的所有战绩记录（包含当局记录）
-        Map<String, List<GameRecord>> map = new HashMap<>();
-        for (GameRecord gameRecord : currentLMGameRecords) {
-          String clubId = gameRecord.getClubId();
-          List<GameRecord> tempList = map.getOrDefault(gameRecord.getClubId(), new ArrayList<>());
-          tempList.add(gameRecord);
-          map.put(clubId, tempList);
-        }
-
-        // 计算总值
-        int LMTYPE = Integer.valueOf(LMType.replace("联盟", ""));
-        for (Map.Entry<String, List<GameRecord>> entry : map.entrySet()) {
-          String clubId = entry.getKey();
-          Club currentClub = allClubMap.get(clubId);
-          if (currentClub == null) {
-            continue;
-          }
-          String clubName = currentClub.getName();
-          List<GameRecord> recordList = entry.getValue();
-          recordList = computSumList(recordList, false);// 求和统计（针对每一场求和）
-
-          Double sumOfZJ = 0d;
-          Double sumOfBX = 0d;
-          for (GameRecord record : recordList) {
-            sumOfZJ += NumUtil.getNum(record.getYszj());
-            sumOfBX += NumUtil.getNum(record.getSinegleInsurance());
-          }
-
-          // 结余=sum（当天总账+已结算+桌费）
-          double zhuoFei = NumUtil.getNum(get_LM_Zhuofei(currentClub, LMTYPE));
-          double yiJiesuan = NumUtil.getNum(get_LM_YiJiesuan(currentClub, LMTYPE));
-          double jieyu = sumOfZJ + yiJiesuan + zhuoFei;
-          double edu = NumUtil.getNum(get_LM_edu(currentClub, LMTYPE));
-          ClubInfo clubInfo = clubInfoMap
-              .getOrDefault(clubId, new ClubInfo(clubId, clubName, edu, jieyu));
-          clubInfo.setJieYu(jieyu);
-          clubInfo.setSharedEdu(Double.max(clubInfo.getSharedEdu(), edu));
-          clubInfoMap.put(clubId, clubInfo);
-
+      for (String unselectedSinleLMName : unselectedSingleLMList) {
+        Map<String, ClubInfo> unShareEduLMMap = getLMClubInfo(todayTotalList, Arrays.asList(unselectedSinleLMName));
+        if (MapUtils.isNotEmpty(unShareEduLMMap)) {
+          totalLMs.add(unShareEduLMMap);
+          String showString = getShowString(unShareEduLMMap, showAll, false, unselectedSinleLMName);
+          sb.append(showString);
         }
       }
 
-      // 检查超出共享额度情况
-      alertIfOverSharedEdu(clubInfoMap, showAll);
+      // 弹框提示
+      String resultMessage = sb.toString();
+      if (StringUtils.isNotBlank(resultMessage)) {
+        Dialog dialog = new Dialog();
+        ShowUtil.setIcon(dialog);
+        dialog.setResizable(true);
+        dialog.setWidth(500.0);
+        dialog.setHeight(600.0);
+        dialog.setTitle("检查各联盟额度超出情况");
+        dialog.setHeaderText(null);
+
+        ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        VBox cacheContent = new VBox();
+        String[] contents = resultMessage.split(LINE);
+        for (String content : contents) {
+          Label label = new Label(content);
+          if (StringUtils.contains(content, "超出-")) {
+            label.setStyle("-fx-text-fill: #A52A2A");
+          }
+          if (StringUtils.contains(content, "====")) {
+            label.setStyle("-fx-background-color: #d5dcd2; -fx-font-size: 20px");
+          }
+          cacheContent.getChildren().add(label);
+        }
+        scrollPane.setContent(cacheContent);
+        dialog.getDialogPane().setContent(scrollPane);
+
+        dialog.show();
+
+      }
 
     } catch (Exception e) {
       logger.error("导入战绩后检查联盟额度失败", e);
     }
   }
 
+
+  private Map<String, ClubInfo> getLMClubInfo(final List<GameRecord> todayTotalList, List<String> selectedEduShareLMList){
+
+    // 已勾选共享额度中的联盟中的俱乐部对象{clubId : 计算结果}
+    Map<String, ClubInfo> clubInfoMap = new HashMap<>();
+    for (String LMType : selectedEduShareLMList) {
+
+      List<GameRecord> currentLMGameRecords = todayTotalList.stream()
+          .filter(record -> LMType.equals(record.getLmType()))
+          .collect(Collectors.toList());
+
+      if (CollectionUtils.isEmpty(currentLMGameRecords)) {
+        continue;
+      }
+
+      // 最新的当天该联盟的所有战绩记录（包含当局记录）
+      Map<String, List<GameRecord>> map = currentLMGameRecords.stream()
+          .collect(Collectors.groupingBy(GameRecord::getClubId));
+
+
+      // 计算总值
+      int LMTYPE = Integer.valueOf(LMType.replace("联盟", ""));
+      for (Map.Entry<String, List<GameRecord>> entry : map.entrySet()) {
+        String clubId = entry.getKey();
+        Club currentClub = allClubMap.get(clubId);
+        if (currentClub == null) {
+          continue;
+        }
+        String clubName = currentClub.getName();
+        List<GameRecord> recordList = entry.getValue();
+        recordList = computSumList(recordList, false);// 求和统计（针对每一场求和）
+
+        Double sumOfZJ = 0d;
+        Double sumOfBX = 0d;
+        for (GameRecord record : recordList) {
+          sumOfZJ += NumUtil.getNum(record.getYszj());
+          sumOfBX += NumUtil.getNum(record.getSinegleInsurance());
+        }
+
+        // 结余=sum（当天总账+已结算+桌费）
+        double zhuoFei = NumUtil.getNum(get_LM_Zhuofei(currentClub, LMTYPE));
+        double yiJiesuan = NumUtil.getNum(get_LM_YiJiesuan(currentClub, LMTYPE));
+        double jieyu = sumOfZJ + yiJiesuan + zhuoFei;
+        double edu = NumUtil.getNum(get_LM_edu(currentClub, LMTYPE));
+        ClubInfo clubInfo = clubInfoMap
+            .getOrDefault(clubId, new ClubInfo(clubId, clubName, 0d, 0d));
+        clubInfo.setJieYu(clubInfo.getJieYu() + jieyu);
+        clubInfo.setSharedEdu(Double.max(clubInfo.getSharedEdu(), edu));
+        clubInfoMap.put(clubId, clubInfo);
+
+      }
+    }
+    return clubInfoMap;
+  }
+
+
+
+
   private static final String LINE = System.lineSeparator();
 
-  private void alertIfOverSharedEdu(Map<String, ClubInfo> clubInfoMap, boolean showAll) {
+  private String getShowString(Map<String, ClubInfo> clubInfoMap, boolean showAll,
+      boolean isShareEduLM, String LMNames){
+    StringBuilder sb = new StringBuilder();
+    sb.append("==============【" + LMNames + "】===============").append(LINE);
+    String s = alertIfOverSharedEdu(clubInfoMap, showAll, isShareEduLM);
+    sb.append(s);
+    return sb.toString();
+  }
+
+  private String alertIfOverSharedEdu(Map<String, ClubInfo> clubInfoMap, boolean showAll, boolean isShareEduLM) {
     if (MapUtils.isNotEmpty(clubInfoMap)) {
+      String share = isShareEduLM ? "共享" : StringUtils.EMPTY;
       StringBuilder sb = new StringBuilder();
       StringBuilder showAllBuilder = new StringBuilder();
       clubInfoMap.forEach((clubId, clubInfo) -> {
@@ -970,27 +1046,20 @@ public class LMController extends BaseController implements Initializable {
         double sharedEdu = clubInfo.getSharedEdu();
         boolean isOverSharedEdu = (sharedEdu + jieYu) < 0;
         if (isOverSharedEdu) {
-          sb.append(String.format("%s: 共享额度是%s, 超出%s ", clubName, NumUtil.digit0(sharedEdu),
+          sb.append(String.format("%s: %s额度是%s, 超出%s ", clubName, share, NumUtil.digit0(sharedEdu),
               NumUtil.digit0(sharedEdu + jieYu))).append(LINE).append(LINE);
         }
         if(showAll){
-          showAllBuilder.append(String.format("%s: 共享额度是%s, 当前结余是%s, %s ", clubName, NumUtil.digit0(sharedEdu),
+          showAllBuilder.append(String.format("%s: %s额度是%s, 当前结余是%s, %s ", clubName, share, NumUtil.digit0(sharedEdu),
               NumUtil.digit0(jieYu), isOverSharedEdu ? "超出" + NumUtil.digit0(sharedEdu + jieYu) : "未超出")
               ).append(LINE).append(LINE);
         }
       });
       // 弹框提示
       String resultMessage = showAll ? showAllBuilder.toString() : sb.toString();
-      if (StringUtils.isNotBlank(resultMessage)) {
-        if(showAll){
-          ShowUtil.showInfo(resultMessage);
-        }else{
-          ShowUtil.show(resultMessage);
-        }
-        log.info(resultMessage);
-      }
-
+      return resultMessage;
     }
+    return StringUtils.EMPTY;
   }
 
 
@@ -1920,7 +1989,6 @@ public class LMController extends BaseController implements Initializable {
    * 获取共享额度描述字符串
    *
    * @deprecated
-   * @see LMController#checkOverSharedEdu2()
    * @param needShowMasker 是否需要展示遮罩层
    * @return 如needShowMasker为false, 则若返回值不为空，则代表已经超过共享额度
    */
