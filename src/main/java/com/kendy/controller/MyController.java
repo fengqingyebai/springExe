@@ -878,8 +878,8 @@ public class MyController extends BaseController implements Initializable {
             break;
           }
           case "历史统计": {
-            staticController.refresh();
-            break;
+            //staticController.refresh();
+            //break;
           }
         }
       }

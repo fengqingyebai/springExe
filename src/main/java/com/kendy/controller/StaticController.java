@@ -226,13 +226,14 @@ public class StaticController extends BaseController implements Initializable {
     }
     lmGroup.selectedToggleProperty().addListener(e -> {
       String radioLmType = (String) lmGroup.getSelectedToggle().getUserData();
-      if (Constants.LM3.equals(radioLmType)) {
-        // 清空
-        clearData(tableTeamStatic, tableClubStatic);
-
-      } else {
-        refresh();// 刷新
-      }
+//      if (Constants.LM3.equals(radioLmType)) {
+//        // 清空
+//        clearData(tableTeamStatic, tableClubStatic);
+//
+//      } else {
+//        refresh();// 刷新
+//      }
+      refresh();// 刷新
     });
   }
 
