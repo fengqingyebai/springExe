@@ -886,6 +886,9 @@ public class LMController extends BaseController implements Initializable {
 //      logger.error("导入战绩后检查联盟额度失败", e);
 //    }
 //  }
+
+  public static final String HEAD_LINE = "====";
+
   public void checkOverSharedEdu2(boolean showAll) {
     try {
       String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
@@ -917,7 +920,8 @@ public class LMController extends BaseController implements Initializable {
           .filter(e -> !selectedEduShareLMList.contains(e)).collect(Collectors.toList());
 
       for (String unselectedSinleLMName : unselectedSingleLMList) {
-        Map<String, ClubInfo> unShareEduLMMap = getLMClubInfo(todayTotalList, Arrays.asList(unselectedSinleLMName));
+        Map<String, ClubInfo> unShareEduLMMap = getLMClubInfo(todayTotalList,
+            Arrays.asList(unselectedSinleLMName));
         if (MapUtils.isNotEmpty(unShareEduLMMap)) {
           totalLMs.add(unShareEduLMMap);
           String showString = getShowString(unShareEduLMMap, showAll, false, unselectedSinleLMName);
@@ -927,7 +931,15 @@ public class LMController extends BaseController implements Initializable {
 
       // 弹框提示
       String resultMessage = sb.toString();
-      if (StringUtils.isNotBlank(resultMessage)) {
+      boolean isNeedShow = false;
+      String[] contents = resultMessage.split(LINE);
+      for (String content : resultMessage.split(LINE)) {
+        if (!StringUtils.contains(content, HEAD_LINE)) {
+          isNeedShow = true;
+          break;
+        }
+      }
+      if (isNeedShow) {
         Dialog dialog = new Dialog();
         ShowUtil.setIcon(dialog);
         dialog.setResizable(true);
@@ -943,13 +955,12 @@ public class LMController extends BaseController implements Initializable {
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
         VBox cacheContent = new VBox();
-        String[] contents = resultMessage.split(LINE);
         for (String content : contents) {
           Label label = new Label(content);
           if (StringUtils.contains(content, "超出-")) {
             label.setStyle("-fx-text-fill: #A52A2A");
           }
-          if (StringUtils.contains(content, "====")) {
+          if (StringUtils.contains(content, HEAD_LINE)) {
             label.setStyle("-fx-background-color: #d5dcd2; -fx-font-size: 20px");
           }
           cacheContent.getChildren().add(label);
@@ -967,7 +978,8 @@ public class LMController extends BaseController implements Initializable {
   }
 
 
-  private Map<String, ClubInfo> getLMClubInfo(final List<GameRecord> todayTotalList, List<String> selectedEduShareLMList){
+  private Map<String, ClubInfo> getLMClubInfo(final List<GameRecord> todayTotalList,
+      List<String> selectedEduShareLMList) {
 
     // 已勾选共享额度中的联盟中的俱乐部对象{clubId : 计算结果}
     Map<String, ClubInfo> clubInfoMap = new HashMap<>();
@@ -984,7 +996,6 @@ public class LMController extends BaseController implements Initializable {
       // 最新的当天该联盟的所有战绩记录（包含当局记录）
       Map<String, List<GameRecord>> map = currentLMGameRecords.stream()
           .collect(Collectors.groupingBy(GameRecord::getClubId));
-
 
       // 计算总值
       int LMTYPE = Integer.valueOf(LMType.replace("联盟", ""));
@@ -1022,12 +1033,10 @@ public class LMController extends BaseController implements Initializable {
   }
 
 
-
-
   private static final String LINE = System.lineSeparator();
 
   private String getShowString(Map<String, ClubInfo> clubInfoMap, boolean showAll,
-      boolean isShareEduLM, String LMNames){
+      boolean isShareEduLM, String LMNames) {
     StringBuilder sb = new StringBuilder();
     sb.append("==============【" + LMNames + "】===============").append(LINE);
     String s = alertIfOverSharedEdu(clubInfoMap, showAll, isShareEduLM);
@@ -1035,7 +1044,8 @@ public class LMController extends BaseController implements Initializable {
     return sb.toString();
   }
 
-  private String alertIfOverSharedEdu(Map<String, ClubInfo> clubInfoMap, boolean showAll, boolean isShareEduLM) {
+  private String alertIfOverSharedEdu(Map<String, ClubInfo> clubInfoMap, boolean showAll,
+      boolean isShareEduLM) {
     if (MapUtils.isNotEmpty(clubInfoMap)) {
       String share = isShareEduLM ? "共享" : StringUtils.EMPTY;
       StringBuilder sb = new StringBuilder();
@@ -1049,10 +1059,12 @@ public class LMController extends BaseController implements Initializable {
           sb.append(String.format("%s: %s额度是%s, 超出%s ", clubName, share, NumUtil.digit0(sharedEdu),
               NumUtil.digit0(sharedEdu + jieYu))).append(LINE).append(LINE);
         }
-        if(showAll){
-          showAllBuilder.append(String.format("%s: %s额度是%s, 当前结余是%s, %s ", clubName, share, NumUtil.digit0(sharedEdu),
-              NumUtil.digit0(jieYu), isOverSharedEdu ? "超出" + NumUtil.digit0(sharedEdu + jieYu) : "未超出")
-              ).append(LINE).append(LINE);
+        if (showAll) {
+          showAllBuilder.append(
+              String.format("%s: %s额度是%s, 当前结余是%s, %s ", clubName, share, NumUtil.digit0(sharedEdu),
+                  NumUtil.digit0(jieYu),
+                  isOverSharedEdu ? "超出" + NumUtil.digit0(sharedEdu + jieYu) : "未超出")
+          ).append(LINE).append(LINE);
         }
       });
       // 弹框提示
@@ -1988,9 +2000,9 @@ public class LMController extends BaseController implements Initializable {
   /**
    * 获取共享额度描述字符串
    *
-   * @deprecated
    * @param needShowMasker 是否需要展示遮罩层
    * @return 如needShowMasker为false, 则若返回值不为空，则代表已经超过共享额度
+   * @deprecated
    */
   public String getOverShareEduResult(boolean needShowMasker) {
     List<String> selectedEduShareLMList = getSelectedEduShareLMList();
