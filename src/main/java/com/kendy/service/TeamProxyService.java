@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.kendy.enums.PermissionTabEnum;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ import javafx.scene.layout.HBox;
  * @time 2018年1月1日 下午10:49:57
  */
 @Component
-public class TeamProxyService {
+public class TeamProxyService extends BasicService{
 
   private Logger log = LoggerFactory.getLogger(TeamProxyService.class);
   @Autowired
@@ -123,6 +124,9 @@ public class TeamProxyService {
    * @time 2017年10月28日
    */
   public void initTeamSelectAndZjManage(ComboBox<String> teamIDCombox) {
+    if (noPermission(PermissionTabEnum.DLCX)) {
+      return;
+    }
     ObservableList<String> options = FXCollections.observableArrayList();
     if (dataConstants.huishuiMap != null) {
       dataConstants.huishuiMap.forEach((teamId, huishuiInfo) -> {

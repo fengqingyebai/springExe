@@ -46,6 +46,18 @@ public class DataConstans {
   private DBUtil dbUtil;
 
 
+  public static Map<String, String> permissions = new HashMap<>();
+
+  public void initPermission(){
+    Map<String, String> map = new HashMap<>();
+    map.put("基本信息", "");
+    map.put("场次信息", "");
+    map.put("总汇信息", "");
+    permissions = map;
+  }
+
+
+
   /**
    *
    */
@@ -65,7 +77,6 @@ public class DataConstans {
    *
    **************************************************************************************/
 
-  private Logger log = LoggerFactory.getLogger(DataConstans.class);
 
   // 缓存人员名单登记Excel中的数据{玩家ID={}}
   public Map<String, Player> membersMap = new HashMap<>();// 撤销后不变
@@ -142,13 +153,17 @@ public class DataConstans {
 
   @PostConstruct
   public void inits() {
+
+    // 初始化权限
+    // initPermission();
+
     // 股东
     initGudong();
 
     // 初始化人员表或团队回水表
     initMetaData();
 
-    log.info("初始化股东、人员表、团队回水、合并ID关系表完成。。。");
+    logger.info("初始化股东、人员表、团队回水、合并ID关系表完成。。。");
   }
 
   /**
@@ -420,7 +435,7 @@ public class DataConstans {
     Date_Str = JSON.parseObject(map.get("Date_Str"), new TypeReference<String>() {
     });
 
-    log.info("==============中途恢复缓存数据。。。finishes");
+    logger.info("==============中途恢复缓存数据。。。finishes");
   }
 
   /**************************************************************************************

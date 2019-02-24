@@ -1,5 +1,7 @@
 package com.kendy.controller;
 
+import com.kendy.constant.DataConstans;
+import com.kendy.enums.PermissionTabEnum;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
@@ -27,48 +29,20 @@ public class BaseController {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  // // T指代表实体
-  // private T entity;
-
-  // 提示：子类应该在自己的构造方法中自动去实现各个表格的初始化，而不是显示调用
-
   /**
    * 绑定多个表格的列,由子实例完成后自动触发
    */
   public BaseController() {
-//     logger.info("正在初始化父类bindTableColumnValue方法....");
-//     Class<?> clz = getSubClass();
-//     if(clz != null) {
-//       logger.info("子类:"+clz.getName());
-//       List<Field> fields = new ArrayList<>();
-//       for (Class<?> clazz = clz; clazz != Object.class; clazz = clazz.getSuperclass()) {
-//         fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-//       }
-//       logger.info("开始>>>------------------------------------------------");
-//       logger.info("正在获取子类{}属性....", clz.getName());
-//       for (Field field : fields) {
-//         // 是否使用自定义注解
-//         if (field.isAnnotationPresent(Autowired.class)) {
-//           Class<?> fieldType = field.getType();
-//           logger.info("检测:"+fieldType.getName());
-//           if(fieldType == TableView.class) {
-//           String name = field.getName();
-//           logger.info("检测到表格"+name);
-//           }
-//         }
-//       }
-//       logger.info("------------------------------------------------<<<结束");
-//     }
   }
 
-//  private static int count = 1;
-//  /**
-//   * 
-//   */
-//  public BaseController() {
-//    super();
-//    logger.info(" BaseController构造方法。。。"+ count++);
-//  }
+  public boolean hasPermission(PermissionTabEnum tabEnum){
+    return DataConstans.permissions.containsKey(tabEnum.getTabName());
+  }
+
+  public boolean noPermission(PermissionTabEnum tabEnum){
+    return !hasPermission(tabEnum);
+  }
+
 
   /**
    * 绑定多个表格的列

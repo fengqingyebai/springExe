@@ -1,9 +1,11 @@
 package com.kendy.service;
 
 import com.jfoenix.controls.JFXCheckBox;
+import com.kendy.enums.PermissionTabEnum;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.persistence.Basic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
@@ -25,7 +27,7 @@ import javafx.scene.control.TextField;
  * @time 2017年11月12日 上午3:07:21
  */
 @Component
-public class JifenService {
+public class JifenService extends BasicService{
 
   @Autowired
   public DBUtil dbUtil;
@@ -46,6 +48,9 @@ public class JifenService {
    * 初始化团队ID下拉框
    */
   public void init_Jifen_TeamIdCombox() {
+    if (noPermission(PermissionTabEnum.JFCX)) {
+      return;
+    }
     ObservableList<String> options = FXCollections.observableArrayList();
     dataConstants.huishuiMap.forEach((teamId, huishuiInfo) -> {
       options.add(teamId);

@@ -1,39 +1,8 @@
 package com.kendy.controller;
 
-import com.jfoenix.controls.JFXCheckBox;
-import com.kendy.util.MaskerPaneUtil;
-import com.kendy.util.TimeUtil;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.stream.Collectors;
-import javafx.concurrent.Task;
-import javafx.geometry.Pos;
-import javafx.scene.layout.StackPane;
-import javax.annotation.PostConstruct;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.MaskerPane;
-import org.controlsfx.control.Notifications;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.jfoenix.controls.JFXCheckBox;
 import com.kendy.application.Main;
 import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
@@ -54,12 +23,12 @@ import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
-import com.kendy.entity.WaizhaiInfo;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
 import com.kendy.entity.ZonghuiInfo;
 import com.kendy.entity.ZonghuiKaixiaoInfo;
 import com.kendy.enums.KeyEnum;
+import com.kendy.enums.PermissionTabEnum;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.CombineID;
@@ -79,6 +48,7 @@ import com.kendy.util.DialogUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.FileUtil;
+import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.PathUtil;
 import com.kendy.util.RandomUtil;
@@ -87,16 +57,36 @@ import com.kendy.util.StringUtil;
 import com.kendy.util.SystemUtil;
 import com.kendy.util.TableUtil;
 import com.kendy.util.Text2ImageUtil;
+import com.kendy.util.TimeUtil;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.net.URL;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -113,7 +103,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -127,6 +116,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -134,6 +124,14 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.Pair;
+import javax.annotation.PostConstruct;
+import javax.xml.crypto.Data;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.Notifications;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * 财务软件主界面的组件控制器
@@ -175,8 +173,6 @@ public class MyController extends BaseController implements Initializable {
   @Autowired
   public TeamProxyService teamProxyService; // 配帐控制类
   @Autowired
-  public WaizhaiService waizhaiService; // 配帐控制类
-  @Autowired
   public ZonghuiService zonghuiService; // 配帐控制类
   @Autowired
   public MoneyService moneyService; // 配帐控制类
@@ -186,6 +182,10 @@ public class MyController extends BaseController implements Initializable {
   public ExcelReaderUtil excelReaderUtil; // excel读取类
   @Autowired
   public ZjStaticController zjStaticController; // 战绩统计控制类
+  @Autowired
+  public WaizhaiController waizhaiController; // 外债控制类
+  @Autowired
+  public JifenQueryController jifenQueryController; // 积分控制类
 
 
   private final String ZERO = "0";
@@ -453,58 +453,7 @@ public class MyController extends BaseController implements Initializable {
   public TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoType;
   @FXML
   public TableColumn<ZonghuiKaixiaoInfo, String> zonghuiKaixiaoMoney;
-  // ===============================================================会员查询Tab
-  @FXML
-  public TableView<MemberZJInfo> tableMemberZJ;
-  @FXML
-  public TableColumn<MemberZJInfo, String> memberJu;
-  @FXML
-  public TableColumn<MemberZJInfo, String> memberZJ;
-  @FXML
-  public Label memberDateStr;// 会员当天战绩的时间
-  @FXML
-  public Label memberPlayerId;// 会员当天战绩的会员ID
-  @FXML
-  public Label memberPlayerName;// 会员当天战绩的会员名称
-  @FXML
-  public Label memberSumOfZJ;// 会员当天战绩的战绩总和
-  @FXML
-  public Label memberTotalZJ;// 会员历史战绩的战绩总和
-  @FXML
-  public TextField memberSearchName;// 会员名称
-  @FXML
-  public ListView<String> memberListView;// 模糊搜索的人名列表
 
-  // ===============================================================外债
-  @FXML
-  public TableView<WaizhaiInfo> tableWaizhai;
-  @FXML
-  public TableColumn<WaizhaiInfo, String> waizhaiType;
-  @FXML
-  public TableColumn<WaizhaiInfo, String> waizhaiMoney;
-  @FXML
-  public HBox waizhaiHBox;// 里面包含多个表
-  // ============================================================================积分查询
-  @FXML
-  public TableView<JifenInfo> tableJifen;
-  @FXML
-  public TableColumn<JifenInfo, String> jfRank;
-  @FXML
-  public TableColumn<JifenInfo, String> jfPlayerName;
-  @FXML
-  public TableColumn<JifenInfo, String> jfValue;
-  @FXML
-  public DatePicker jfStartTime;
-  @FXML
-  public DatePicker jfEndTime;
-  @FXML
-  public ComboBox<String> jfTeamIDCombox;// 团队ID下拉框
-  @FXML
-  public TextField jifenInput;// 团队积分值
-  @FXML
-  public TextField jifenRankLimit;// 前50名
-  @FXML
-  public JFXCheckBox isCheckTeamProfitBox;// 勾选框：是否核算团队利润
 
   // ===================================================================
   @FXML
@@ -587,14 +536,6 @@ public class MyController extends BaseController implements Initializable {
     bindCellValueByTable(new DangtianHuizongInfo(), tableDangtianHuizong);
     // 绑定汇总查询中的开销表表
     bindCellValueByTable(new ZonghuiKaixiaoInfo(), tableZonghuiKaixiao);
-    // 绑定会员查询中的会员当天战绩表
-    bindCellValueByTable(new MemberZJInfo(), tableMemberZJ);
-
-    // 绑定外债信息表
-    bindCellValueByTable(new WaizhaiInfo(), tableWaizhai);
-
-    // 绑定积查询表
-    bindCellValueByTable(new JifenInfo(), tableJifen);
 
     // 初始化实时金额表
     moneyService.iniitMoneyInfo(tableCurrentMoneyInfo);
@@ -606,17 +547,10 @@ public class MyController extends BaseController implements Initializable {
     indexLabel.setTextFill(Color.web("#0076a3"));// 设置Label 的文本颜色。
     indexLabel.setFont(new Font("Arial", 30));
 
-    // 会员服务类
-    memberService.initMemberQuery(memberListView, tableMemberZJ, memberDateStr, memberPlayerId,
-        memberPlayerName, memberSumOfZJ, memberTotalZJ);
-
     tabsAction();
 
     // 合并ID
     combineIDController.initCombineIdController(tableCurrentMoneyInfo);
-
-    // 积分查询
-    jifenService.initjifenService(jfTeamIDCombox);
 
     // 是否启动测试模式
     initAutoTestMode();
@@ -702,16 +636,29 @@ public class MyController extends BaseController implements Initializable {
   private void loadSubTabs() {
     ApplicationContext context = SpringFxmlLoader.getContext();
     logger.info("before: context is " + (context != null ? " not null" : "null"));
-    addSubTab("代理查询", "team_proxy_tab_frame.fxml");
-    addSubTab("实时上码系统", "shangma_tab_frame.fxml");
-    addSubTab("联盟对账", "LM_Tab_Fram.fxml");
-    addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
-    addSubTab("股东贡献值", "gudong_contribution.fxml");
-    addSubTab("托管工具", "TG_toolaa.fxml");
-    addSubTab("自动上码配置", "SM_Autos.fxml");
-    addSubTab("银行流水", "bank_flow_frame.fxml");
-    addSubTab("历史统计", "history_static_tab_frame.fxml");
-    addSubTab("战绩统计", "zj_static_tab_frame.fxml");
+    Map<String, String> permissions = DataConstans.permissions;
+    permissions.forEach((tabName, value) -> {
+      for (PermissionTabEnum Tab : PermissionTabEnum.values()) {
+        if (StringUtils.equals(tabName, Tab.getTabName())) {
+          addSubTab(tabName, Tab.getFxmlFileName());
+          return;
+        }
+      }
+    });
+
+//    addSubTab("外债信息", "waizhai_tab_frame.fxml");
+//    addSubTab("会员查询", "member_query_tab_frame.fxml");
+//    addSubTab("积分查询", "jifen_query_tab_frame.fxml");
+//    addSubTab("代理查询", "team_proxy_tab_frame.fxml");
+//    addSubTab("实时上码系统", "shangma_tab_frame.fxml");
+//    addSubTab("联盟对账", "LM_Tab_Fram.fxml");
+//    addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
+//    addSubTab("股东贡献值", "gudong_contribution.fxml");
+//    addSubTab("托管工具", "TG_toolaa.fxml");
+//    addSubTab("自动上码配置", "SM_Autos.fxml");
+//    addSubTab("银行流水", "bank_flow_frame.fxml");
+//    addSubTab("历史统计", "history_static_tab_frame.fxml");
+//    addSubTab("战绩统计", "zj_static_tab_frame.fxml");
   }
 
   /**
@@ -1028,10 +975,19 @@ public class MyController extends BaseController implements Initializable {
         ShowUtil.show("导入回水比例成功", 2);
         // 代理查询初始化团队ID
         teamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
+//        if (teamProxyService != null) {
+//          teamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
+//        }
         // 积分查询初始化团队ID
         jifenService.init_Jifen_TeamIdCombox();
+//        if (jifenService != null) {
+//          jifenService.init_Jifen_TeamIdCombox();
+//        }
         // 上码系统中的团队ID按钮
         shangmaService.initShangmaButton();
+//        if (shangmaService != null) {
+//          shangmaService.initShangmaButton();
+//        }
       } else {
         ShowUtil.show("导入回水比例失败", 2);
       }
@@ -1158,61 +1114,6 @@ public class MyController extends BaseController implements Initializable {
    */
   private String currentLMName = "";// 选择后不会被清空，用于检测额度是否超出
 
-//  @SuppressWarnings({"rawtypes", "unchecked"})
-//  private void selectLM() {
-//    Dialog dialog = FXUtil.getBasicDialog("请选择联盟:"); 
-//    // 添加联盟按钮
-//    GridPane grid = new GridPane();
-//    grid.setPrefHeight(150);
-//    grid.setPrefWidth(200);
-//    grid.setHgap(10);
-//    grid.setVgap(20);
-//    grid.setPadding(new Insets(20, 15, 10, 10));
-//    for (int i = 0; i < 3; i++) {
-//      Button btn = new Button("联盟" + (i + 1));
-//      btn.setPrefWidth(200);
-//      btn.setOnAction(event -> {
-//        selected_LM_type = btn.getText();
-//        dialog.setTitle(selected_LM_type);
-//        logger.info(selected_LM_type);
-//      });
-//      grid.add(btn, 0, i);
-//    }
-//    // 添加取消按钮
-//    HBox hbox = new HBox();
-//    hbox.setPadding(new Insets(0, 0, 0, 70));
-//    hbox.setSpacing(10);
-//    hbox.setStyle("-fx-background-color:#FFFFFF;");
-//
-//    Hyperlink cancleLink = new Hyperlink("取消");
-//    cancleLink.setPrefWidth(100);
-//    cancleLink.setOnAction(event -> {
-//      selected_LM_type = "";
-//      dialog.close();
-//    });
-//    hbox.getChildren().addAll(cancleLink);
-//    grid.add(hbox, 0, 3);
-//
-//    // 添加确定按钮
-//    ButtonType loginButtonType = new ButtonType("确定", ButtonData.OK_DONE);
-//    dialog.getDialogPane().getButtonTypes().addAll(loginButtonType);
-//
-//    dialog.setOnCloseRequest(event -> {
-//      final_selected_LM_type = StringUtil.nvl(selected_LM_type, "联盟1");
-//      if ("".equals(selected_LM_type)) {
-//        return;
-//      }
-//      if (AlertUtil.confirm("==== " + selected_LM_type + " ===, 确定??")) {
-//        logger.info("最终选择:" + selected_LM_type);
-//      } else {
-//        selected_LM_type = "";
-//        logger.info("selected_LM_type:" + selected_LM_type);
-//      }
-//    });
-//
-//    dialog.getDialogPane().setContent(grid);
-//    dialog.showAndWait();
-//  }
 
   /**
    * 导入合并ID模板 备注：后期要判断是否在父子ID是否在同一个团队里面
@@ -2467,30 +2368,6 @@ public class MyController extends BaseController implements Initializable {
         tableProfit);
   }
 
-  /**
-   * 外债刷新按钮
-   */
-  public void waizhaiRefreshAction(ActionEvent event) {
-    waizhaiService.generateWaizhaiTables(tableWaizhai, waizhaiHBox, tableCurrentMoneyInfo,
-        tableTeam);
-  }
-
-  /**
-   * 会员搜索(按钮)
-   */
-  public void memberSearchAction(ActionEvent event) {
-    memberService.setResult2ListView(memberSearchName, memberListView);
-  }
-
-  /**
-   * 会员搜索(回车)
-   */
-  public void searchMemberByEnterEvent(KeyEvent event) {
-    String keyWord = memberSearchName.getText();
-    if (KeyCode.ENTER == event.getCode() && !StringUtil.isBlank(keyWord)) {
-      memberService.setResult2ListView(memberSearchName, memberListView);
-    }
-  }
 
   /**
    * 实时上码导出为Excel
@@ -2538,7 +2415,8 @@ public class MyController extends BaseController implements Initializable {
         tableCurrentMoneyInfo.refresh();
         moneyService.flush_SSJE_table();
         logger.info("手动修改实时金额数据记录(删除记录)：名称：{}, ID:{}, 实时金额：{}"
-            , info.getMingzi(), StringUtils.defaultString(info.getWanjiaId(), "空"), StringUtils.defaultString(info.getShishiJine(),"空"));
+            , info.getMingzi(), StringUtils.defaultString(info.getWanjiaId(), "空"),
+            StringUtils.defaultString(info.getShishiJine(), "空"));
       }
     } else {
       ShowUtil.show("请选中要删除的实时金额记录!");
@@ -2824,16 +2702,6 @@ public class MyController extends BaseController implements Initializable {
 
 
   /**
-   * 查询查询积分排名
-   */
-  public void jfQueryAciton(ActionEvent event) {
-    String clubId = getClubId();
-    boolean isCheckTeamProfit = isCheckTeamProfitBox.isSelected();
-    jifenService.jifenQuery(clubId, tableJifen, jfStartTime, jfEndTime, jifenInput, jifenRankLimit,
-        jfTeamIDCombox, isCheckTeamProfit);
-  }
-
-  /**
    * 导出人员表
    */
   public void exportMembersExcelAction(ActionEvent event) {
@@ -2970,6 +2838,7 @@ public class MyController extends BaseController implements Initializable {
           teamProxyController.teamIDCombox.getSelectionModel().select(0);
         }
         // B 积分查询中的团队下拉框
+        ComboBox<String> jfTeamIDCombox = jifenQueryController.jfTeamIDCombox;
         String selected_jifen = jfTeamIDCombox.getSelectionModel().getSelectedItem();
         jfTeamIDCombox.getItems().remove(teamId);
         if (teamId.equals(selected_jifen) && jfTeamIDCombox.getItems().size() > 0) {

@@ -32,7 +32,7 @@
                      <children>
                         <ImageView fitHeight="80.0" fitWidth="80.0" layoutX="185.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@User.png" />
+                              <Image url="@/dialog/User.png" />
                            </image>
                         </ImageView>
                         <JFXTextField labelFloat="true" layoutX="75.0" layoutY="116.0" maxWidth="316.0" minWidth="233.0" prefHeight="41.0" prefWidth="316.0" promptText="帐号">
@@ -40,12 +40,12 @@
                               <Font name="Roboto Medium" size="14.0" />
                            </font>
                         </JFXTextField>
-                        <JFXPasswordField labelFloat="true" layoutX="75.0" layoutY="183.0" maxWidth="316.0" minWidth="235.0" prefHeight="41.0" prefWidth="316.0" promptText="密码">
+                        <JFXPasswordField labelFloat="true" layoutX="75.0" layoutY="191.0" maxWidth="316.0" minWidth="235.0" prefHeight="41.0" prefWidth="316.0" promptText="密码">
                            <font>
                               <Font name="Roboto Medium" size="14.0" />
                            </font>
                         </JFXPasswordField>
-                        <JFXButton layoutX="75.0" layoutY="260.0" prefHeight="34.0" prefWidth="316.0" style="-fx-background-color: #2196f3;" text="登陆" textFill="WHITE">
+                        <JFXButton layoutX="75.0" layoutY="267.0" onAction="#loginAction" prefHeight="34.0" prefWidth="316.0" style="-fx-background-color: #2196f3;" text="登陆" textFill="WHITE">
                            <font>
                               <Font name="Roboto Bold" size="14.0" />
                            </font>
