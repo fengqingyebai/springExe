@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.paint.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="550.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.LoginController">
+   <children>
+      <StackPane layoutX="184.0" layoutY="100.0" prefHeight="550.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Pane prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: #2196f3;" />
+                  <Pane prefHeight="351.0" prefWidth="800.0" style="-fx-background-color: #EDE7F6;" />
+               </children>
+            </VBox>
+            <AnchorPane prefHeight="465.0" prefWidth="724.0" style="-fx-background-color: transparent;">
+               <children>
+                  <AnchorPane layoutX="166.0" layoutY="113.0" prefHeight="342.0" prefWidth="469.0" style="-fx-background-color: WHITE; -fx-effect: dropshadow(gaussian, rgb(0.0, 0.0, 0.0, 0.15), 6.0, 0.7, 0.0,1.5); -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 8;">
+                     <children>
+                        <ImageView fitHeight="80.0" fitWidth="80.0" layoutX="185.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@User.png" />
+                           </image>
+                        </ImageView>
+                        <JFXTextField labelFloat="true" layoutX="75.0" layoutY="116.0" maxWidth="316.0" minWidth="233.0" prefHeight="41.0" prefWidth="316.0" promptText="帐号">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </JFXTextField>
+                        <JFXPasswordField labelFloat="true" layoutX="75.0" layoutY="183.0" maxWidth="316.0" minWidth="235.0" prefHeight="41.0" prefWidth="316.0" promptText="密码">
+                           <font>
+                              <Font name="Roboto Medium" size="14.0" />
+                           </font>
+                        </JFXPasswordField>
+                        <JFXButton layoutX="75.0" layoutY="260.0" prefHeight="34.0" prefWidth="316.0" style="-fx-background-color: #2196f3;" text="登陆" textFill="WHITE">
+                           <font>
+                              <Font name="Roboto Bold" size="14.0" />
+                           </font>
+                        </JFXButton>
+                     </children>
+                  </AnchorPane>
+                  <VBox layoutX="188.0" layoutY="24.0" prefHeight="80.0" prefWidth="425.0">
+                     <children>
+                        <Label alignment="CENTER" prefHeight="89.0" prefWidth="425.0" text="财务软件" textAlignment="CENTER">
+                           <font>
+                              <Font name="System Bold" size="45.0" />
+                           </font>
+                           <textFill>
+                              <RadialGradient centerX="0.5" centerY="0.5" radius="0.5">
+                                 <stops>
+                                    <Stop color="#e4e006" />
+                                    <Stop color="#c3c017" offset="1.0" />
+                                 </stops>
+                              </RadialGradient>
+                           </textFill>
+                        </Label>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+         </children>
+      </StackPane>
+   </children>
+</AnchorPane>
