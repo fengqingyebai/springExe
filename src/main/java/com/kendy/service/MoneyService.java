@@ -23,6 +23,7 @@ import com.kendy.entity.TotalInfo;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
 import com.kendy.enums.ColumnColorType;
+import com.kendy.enums.PermissionTabEnum;
 import com.kendy.excel.ExportMembersExcel;
 import com.kendy.excel.ExportTeamhsExcel;
 import com.kendy.interfaces.Entity;
@@ -83,7 +84,7 @@ import org.springframework.stereotype.Component;
  * @time 2017年10月28日 下午5:19:48
  */
 @Component
-public class MoneyService {
+public class MoneyService extends BasicService{
 
   private Logger log = LoggerFactory.getLogger(MoneyService.class);
 
@@ -224,7 +225,9 @@ public class MoneyService {
     // 填充团队表
     fillTableTeam(tableTeam, relatedTeamIdSet);
     // 更新实时上码表的个人详情
-    shangmaService.updateShangDetailMap(tablePaiju);
+    if (hasPermission(PermissionTabEnum.SSSMST)) {
+      shangmaService.updateShangDetailMap(tablePaiju);
+    }
   }
 
 
@@ -1639,15 +1642,15 @@ public class MoneyService {
         }
         // 保存到数据库
         BankFlowModel bankMoney =
-            new BankFlowModel(info.getZijinType(), value, TimeUtil.getDateTime2(), softDate
-// dataConstants.Date_Str
-            );
+            new BankFlowModel(info.getZijinType(), value, TimeUtil.getDateTime2(), softDate);
         dbUtil.saveHistoryBankMoney(bankMoney);
         // 生成界面表记录
         info.setZijinAccount(
             NumUtil.digit0(NumUtil.getNum(oddZijin) + NumUtil.getNum(result.get().trim())));
         // 添加到银行流水中
-        bankFlowController.totalBankFlowList.add(bankMoney);
+        if (hasPermission(PermissionTabEnum.YHLS)) {
+          bankFlowController.totalBankFlowList.add(bankMoney);
+        }
 
       }
       if (tableZijin != null && tableZijin.getItems() != null) {

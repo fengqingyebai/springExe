@@ -1,6 +1,7 @@
 package com.kendy.enums;
 
 
+import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -82,6 +83,10 @@ public enum PermissionTabEnum {
       }
     }
     return Boolean.FALSE;
+  }
+
+  public static void main(String[] args) {
+    Arrays.stream(PermissionTabEnum.values()).forEachOrdered(e-> System.out.print("'"+e.getTabName()+"',"));
   }
 
 
