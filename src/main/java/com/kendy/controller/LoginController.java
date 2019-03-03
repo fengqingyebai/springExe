@@ -5,36 +5,36 @@
  */
 package com.kendy.controller;
 
+import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.kendy.application.Main;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
+import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.exception.LoginException;
 import com.kendy.model.SoftUser;
+import com.kendy.util.DateTimeUtils;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
 import com.kendy.util.HttpUtils;
 import com.kendy.util.HttpUtils.HttpResult;
-import java.io.IOException;
+import com.kendy.util.MaskerPaneUtil;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.TextField;
-import javafx.util.Duration;
+import javafx.scene.layout.StackPane;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -46,6 +46,12 @@ public class LoginController extends BaseController implements Initializable {
   @FXML
   private TextField codeField;
 
+  @FXML
+  private StackPane loginStackPane;
+
+  @Autowired
+  private MyController myController;
+
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     // TODO
@@ -54,15 +60,45 @@ public class LoginController extends BaseController implements Initializable {
 
   @FXML
   private void loginAction(ActionEvent event) throws LoginException {
-    // TODO 请求远程登陆并返回权限数据
-//    JSONObject obj = JSONObject.parseObject(
-//        "{ \"info\":{ \"list\": [{  \"历史统计\":\"history_static_tab_frame\" }]}}");
-//    if (obj == null) {
-//      throwLoginException("帐号密码不存在！");
-//    }
+    MaskerPaneUtil.addMaskerPane(loginStackPane);
+    Task task = new Task<Void>() {
+      @Override
+      public Void call() throws Exception {
+        Thread.sleep(1500);
+        Platform.runLater(() -> {
+          // 具体逻辑
+          String fxmlPath = "/dialog/MainStageees2.fxml";
+          String title = Constants.TITLE + Constants.VERSION;
+          try {
+            doLogin(fxmlPath, title);
+          } catch (LoginException e) {
+          }
+        });
+        return null;
+      }
+
+      @Override
+      protected void succeeded() {
+        super.succeeded();
+        MaskerPaneUtil.hideMaskerPane(loginStackPane);
+      }
+    };
+    new Thread(task).start();
+  }
+
+  private Charset charset = Charset.forName("UTF-8");
+
+  /**
+   * 处理登陆的真正逻辑
+   * @param fxmlFilePath
+   * @param title
+   * @throws LoginException
+   */
+  private void doLogin(String fxmlFilePath, String title) throws LoginException{
+    // T请求远程登陆并返回权限数据
     HttpResult httpResult = null;
     try {
-      if (enNameField == null || codeField == null){
+      if (enNameField == null || codeField == null) {
         ErrorUtil.err("哥，账号密码不能为空！");
         return;
       }
@@ -81,13 +117,14 @@ public class LoginController extends BaseController implements Initializable {
       param.put("code", code);
       String bodyJson = JSON.toJSONString(param);
       Map<String, String> header = new HashMap<>();
-      header.put("content-type", "application/json;charset:utf-8");
-      httpResult = HttpUtils.getInstance().post("http://localhost:8009/bpItf/getInfo",
-          Charset.defaultCharset(),
-          bodyJson, header, 20000);
+      header.put("Content-Type", "application/json;charset=utf-8");
+      header.put("Accept", "application/json");
+      httpResult = HttpUtils.getInstance().post("http://193.112.224.86:8009/bpItf/getInfo",
+          charset, bodyJson, header, 20000);
       if (httpResult.isOK()) {
-        logger.info("获取登陆信息：", JSON.toJSONString(httpResult));
-
+        if (StringUtils.isNotBlank(httpResult.getContent())) {
+          logger.info("获取登陆信息：" + httpResult.getContent());
+        }
       } else {
         throw new LoginException("httpResult not OK");
       }
@@ -100,53 +137,59 @@ public class LoginController extends BaseController implements Initializable {
 
     SoftUser softUser = JSON.parseObject(content, SoftUser.class);
 
-    JSONObject obj = JSON.parseObject(content);
-
-
-    JSONObject info = obj.getJSONObject("info");
-    if (info == null) {
-      throwLoginException("该帐号无权限信息");
+    if (softUser == null) {
+      throwLoginException("登陆失败，账号密码错误!");
       return;
     }
-    Object list = info.get("list");
-    if (list == null) {
-      throwLoginException("该帐号无权限信息");
+    String status = softUser.getStatus();
+    if (StringUtils.equals("停用", status)) {
+      throwLoginException("该帐号已经停用，请联系管理员");
       return;
     }
-    List<Map<String, String>> pList = null;
-    try {
-      pList = (List<Map<String, String>>) list;
-    } catch (Exception e) {
-      throwLoginException("软件错误，请联系技术人员");
-      return;
+    // 检验是否过期
+    String deadTime = softUser.getDeadTime();
+    if (StringUtils.isNotBlank(deadTime)) {
+      try {
+        LocalDate localDate = DateTimeUtils.parseLocalDate(deadTime, "yyyy-MM-dd");
+        LocalDate finalDeadDate = localDate.plusDays(1);
+        if (!finalDeadDate.isAfter(LocalDate.now())) {
+          ErrorUtil.err("该帐号已经超过有效期" + deadTime);
+          return;
+        }
+      } catch (Exception e) {
+        ErrorUtil.err("检验帐号是否过期失败", e);
+        return;
+      }
+
     }
-    Map<String, String> permissions = pList.get(0);
-    if (permissions != null) {
-      DataConstans.permissions = permissions;
-      logger.info("获取登陆权限：" + permissions);
+    String permissionStr = softUser.getPermission();
+    if (StringUtils.isBlank(permissionStr)) {
+      ErrorUtil.err("该帐号没有配置权限");
+      return;
     }
 
-    switchScene("/dialog/MainStageees2.fxml");
+    // 缓存TAB权限
+    setPermission(permissionStr);
+
+    // 切换页面
+    FXUtil.switchScene(fxmlFilePath, title);
   }
 
-  public void switchScene(String fxmlFile) {
 
-    try {
-      Parent root = (Parent) Main.loader.load(fxmlFile);
-      FadeTransition fadeTransition = new FadeTransition();
-      fadeTransition.setDuration(Duration.millis(200));
-      fadeTransition.setNode(Main.root);
-      fadeTransition.setFromValue(1);
-      fadeTransition.setToValue(0);
-      fadeTransition.play();
-      fadeTransition.setOnFinished((e) -> {
-        Main.primaryStage0.setTitle(Constants.TITLE + Constants.VERSION);
-        Main.primaryStage0.setScene(new Scene(root));
-      });
-    } catch (Exception e) {
-      ErrorUtil.err("软件切换页面失败！");
+
+
+
+
+
+  private void setPermission(String permissionStr) {
+    String[] permissions = permissionStr.split("\\|");
+    Map<String, String> _map = new HashMap<>();
+    for (String permission : permissions) {
+      if (StringUtils.isNotBlank(permission)) {
+        _map.put(permission, "");
+      }
     }
-
+    DataConstans.permissions = _map;
   }
 
 
@@ -159,7 +202,7 @@ public class LoginController extends BaseController implements Initializable {
   private void err(String msg) {
     Platform.runLater(() -> {
       Notifications.create()
-          .title("登陆")
+          .title("错误提示")
           .darkStyle()
           .text(msg)
           .position(Pos.TOP_CENTER)

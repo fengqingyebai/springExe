@@ -2,7 +2,6 @@ package com.kendy.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.jfoenix.controls.JFXCheckBox;
 import com.kendy.application.Main;
 import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
@@ -15,9 +14,7 @@ import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.DangtianHuizongInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
-import com.kendy.entity.JifenInfo;
 import com.kendy.entity.KaixiaoInfo;
-import com.kendy.entity.MemberZJInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
@@ -39,7 +36,6 @@ import com.kendy.service.MemberService;
 import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
 import com.kendy.service.TeamProxyService;
-import com.kendy.service.WaizhaiService;
 import com.kendy.service.ZonghuiService;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
@@ -93,7 +89,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -109,6 +104,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
@@ -117,6 +113,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -125,10 +122,10 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.Pair;
 import javax.annotation.PostConstruct;
-import javax.xml.crypto.Data;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
+import org.controlsfx.control.PopOver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -187,6 +184,16 @@ public class MyController extends BaseController implements Initializable {
   @Autowired
   public JifenQueryController jifenQueryController; // 积分控制类
 
+
+  private static Tooltip tooltip = null;
+
+  static {
+    // 设置Tooltip
+    tooltip = new Tooltip("您无权限打开此页面！");
+    tooltip.setStyle("-fx-font: normal bold 25 Langdon; "
+        + "-fx-base: #AE3522; "
+        + "-fx-text-fill: orange;");
+  }
 
   private final String ZERO = "0";
   private final String INDEX_ZERO = "第0局";
@@ -577,6 +584,7 @@ public class MyController extends BaseController implements Initializable {
 
   }
 
+
   /**
    * 实时金额修改
    */
@@ -629,6 +637,7 @@ public class MyController extends BaseController implements Initializable {
     }
   }
 
+  public static final List<String> NO_NEED_LOAD_TABS= Arrays.asList("基本信息","场次信息","总汇信息");
 
   /**
    * 加载各个tab页面
@@ -636,15 +645,28 @@ public class MyController extends BaseController implements Initializable {
   private void loadSubTabs() {
     ApplicationContext context = SpringFxmlLoader.getContext();
     logger.info("before: context is " + (context != null ? " not null" : "null"));
-    Map<String, String> permissions = DataConstans.permissions;
-    permissions.forEach((tabName, value) -> {
-      for (PermissionTabEnum Tab : PermissionTabEnum.values()) {
-        if (StringUtils.equals(tabName, Tab.getTabName())) {
-          addSubTab(tabName, Tab.getFxmlFileName());
-          return;
-        }
+
+    // 先加载所有Tab页面
+    for (PermissionTabEnum Tab : PermissionTabEnum.values()) {
+      String tabName = Tab.getTabName();
+      // 过滤不需要加载的tab页面
+      if (NO_NEED_LOAD_TABS.contains(tabName)) {
+        continue;
       }
-    });
+      // 加载其他所有页面
+      Tab tab = addSubTab(tabName, Tab.getFxmlFileName());
+    }
+
+    // 隐藏没有权限的Tab页面
+    for (Tab tab : tabs.getTabs()) {
+      String tabName = tab.getText();
+      // 过滤不需要加载的tab页面
+      if (NO_NEED_LOAD_TABS.contains(tabName)) {
+        continue;
+      }
+      // 隐藏没有权限的页面
+      hideTabIfNoPemission(tab);
+    }
 
 //    addSubTab("外债信息", "waizhai_tab_frame.fxml");
 //    addSubTab("会员查询", "member_query_tab_frame.fxml");
@@ -661,12 +683,23 @@ public class MyController extends BaseController implements Initializable {
 //    addSubTab("战绩统计", "zj_static_tab_frame.fxml");
   }
 
+
+
+  private void hideTabIfNoPemission(Tab tab) {
+    if (!DataConstans.permissions.containsKey(tab.getText())) {
+      // 设置无权限标签
+      tab.setTooltip(tooltip);
+      // 禁止打开无权限标签
+      tab.setDisable(true);
+    }
+  }
+
   /**
    * 加载子单个Tab
    *
    * @time 2018年7月5日
    */
-  private void addSubTab(String tabName, String frameName) {
+  private Tab addSubTab(String tabName, String frameName) {
     try {
       String path = "/dialog/" + frameName;
       Parent root = (Parent) Main.loader.load(path);
@@ -675,9 +708,11 @@ public class MyController extends BaseController implements Initializable {
       subTab.setClosable(false);
       subTab.setContent(root);
       tabs.getTabs().add(subTab);
+      return subTab;
     } catch (Exception e) {
       ErrorUtil.err(tabName + "tab加载失败", e);
     }
+    return null;
   }
 
   /**
@@ -778,6 +813,9 @@ public class MyController extends BaseController implements Initializable {
       @Override
       public void changed(ObservableValue observable, Object oldValue, Object newValue) {
         Tab tab = (Tab) newValue;
+        if (tab == null) {
+          return;
+        }
         String tabName = tab.getText();
         logger.info(" newTab:" + tabName);
         switch (tabName) {
@@ -3132,4 +3170,15 @@ public class MyController extends BaseController implements Initializable {
   }
 
 
+
+  @FXML
+  public void logoutAction(){
+    logger.info("退出....");
+    if (AlertUtil.confirm("退出将销毁当前所有缓存，确定要退出吗?")) {
+      // 销毁各个tab页的内容
+      tabs.getTabs().clear();
+      dataConstants.clearAllData();
+      FXUtil.switchScene("/dialog/login.fxml", "登录");
+    }
+  }
 }

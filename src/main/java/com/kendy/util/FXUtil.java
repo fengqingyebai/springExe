@@ -1,8 +1,12 @@
 package com.kendy.util;
 
+import com.kendy.application.Main;
 import java.io.File;
 import java.util.Optional;
 import java.util.logging.Logger;
+import javafx.animation.FadeTransition;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
@@ -11,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * Javafx Util
@@ -95,6 +100,33 @@ public class FXUtil {
     alert.setTitle("成功");
     alert.setGraphic(okImg);
     alert.show();
+  }
+
+
+  /**
+   * 切换页面
+   * @param fxmlFile
+   * @param title
+   */
+  public static void switchScene(String fxmlFile, String title) {
+
+    try {
+      Parent root = (Parent) Main.loader.load(fxmlFile);
+      FadeTransition fadeTransition = new FadeTransition();
+      fadeTransition.setDuration(Duration.millis(200));
+      fadeTransition.setNode(Main.root);
+      fadeTransition.setFromValue(1);
+      fadeTransition.setToValue(0);
+      fadeTransition.play();
+      fadeTransition.setOnFinished((e) -> {
+        Main.primaryStage0.setTitle(title);
+        Main.primaryStage0.setScene(new Scene(root));
+        Main.primaryStage0.setResizable(!fxmlFile.contains("login"));
+      });
+    } catch (Exception e) {
+      ErrorUtil.err("软件切换页面失败！", e);
+    }
+
   }
 
 

@@ -48,13 +48,13 @@ public class DataConstans {
 
   public static Map<String, String> permissions = new HashMap<>();
 
-  public void initPermission(){
-    Map<String, String> map = new HashMap<>();
-    map.put("基本信息", "");
-    map.put("场次信息", "");
-    map.put("总汇信息", "");
-    permissions = map;
-  }
+//  public void initPermission(){
+//    Map<String, String> map = new HashMap<>();
+//    map.put("基本信息", "");
+//    map.put("场次信息", "");
+//    map.put("总汇信息", "");
+//    permissions = map;
+//  }
 
 
 
