@@ -1,5 +1,7 @@
 package com.kendy.service;
 
+import com.kendy.exception.FinancialException;
+import com.kendy.exception.tg.NoProxyDataException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +56,13 @@ public class TGFwfService {
 
 
   public void setFwfDetail(String tgCompany, TableView<TGFwfinfo> tableTGFwf,
-      TableView<TypeValueInfo> tableTGFwfSum) {
+      TableView<TypeValueInfo> tableTGFwfSum) throws FinancialException {
+    // add 2019-03-13 先清空服务费明细的表数据
+    tableTGFwf.setItems(FXCollections.observableArrayList());
+    tableTGFwf.refresh();
+    tableTGFwfSum.setItems(FXCollections.observableArrayList());
+    tableTGFwfSum.refresh();
+
     if (StringUtil.isBlank(tgCompany)) {
       ShowUtil.show("请选择托管公司");
       // return;
@@ -71,7 +79,7 @@ public class TGFwfService {
     }
     if (CollectUtil.isEmpty(teamSet)) {
       ShowUtil.show("没有托管团队！", 2);
-      return;
+      throw new FinancialException("没有托管团队！");
     }
 
     List<TGTeamInfo> companyProxyTeamInfo = new ArrayList<>();
@@ -84,7 +92,7 @@ public class TGFwfService {
 
     if (CollectUtil.isEmpty(companyProxyTeamInfo)) {
       ShowUtil.show("没有代理数据！", 2);
-      return;
+      throw new NoProxyDataException("没有代理数据！");
     }
 
     // 转化为托管公司的团队数据
@@ -136,6 +144,7 @@ public class TGFwfService {
     sort(tgFwfInfoList);
     // 设值
     tableTGFwf.setItems(FXCollections.observableArrayList(tgFwfInfoList));
+    tableTGFwf.refresh();
     // 设总和表
     setTableTGFwfSumData(tableTGFwf, tableTGFwfSum, renci);
   }

@@ -1,5 +1,7 @@
 package com.kendy.controller.tgController;
 
+import com.kendy.exception.FinancialException;
+import com.kendy.exception.tg.NoProxyDataException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -349,14 +351,18 @@ public class TGController extends BaseController implements Initializable {
       refreshTabTGWaizhai();// 刷新
     }
     if ("服务费明细".equals(selectedTab)) {
-      refreshFwfTab();
+      try {
+        refreshFwfTab();
+      } catch (FinancialException e) {
+        e.printStackTrace();
+      }
     }
     if ("月利润".equals(selectedTab)) {
       refreshProfitTab();
     }
   }
 
-  private void refreshFwfTab() {
+  private void refreshFwfTab() throws FinancialException {
     TGFwfService tgFwfService = new TGFwfService();
     tgFwfService.setFwfDetail(StringUtil.nvl(currentTGCompanyLabel.getText(), ""), tableTGFwf,
         tableTGFwfSum);
@@ -1167,58 +1173,71 @@ public class TGController extends BaseController implements Initializable {
       }
       list.addAll(liruns);
     }
-    refreshFwfTab();// 刷新服务费
+    boolean hasProxyData = true;
+    try {
+      refreshFwfTab();// 刷新服务费
+    } catch (NoProxyDataException e){
+      hasProxyData = false;
 
-    // 获取日期（日期与当前托管公司为主键）
-    String dateString = getDateString();
-    lirun.setTgLirunDate(dateString);
-    lirun.setTgLirunCompanyName(tgCompany);
-    // 获取总利润（即服务费明细中的总利润）
-    ObservableList<TypeValueInfo> fwfList = tableTGFwfSum.getItems();
-    String tgLirunTotalProfit = fwfList.stream().filter(info -> "总利润".equals(info.getType()))
-        .map(TypeValueInfo::getValue).findFirst().orElse("0");
-    lirun.setTgLirunTotalProfit(tgLirunTotalProfit);
-    // 获取总开销
-    List<TGKaixiaoInfo> allTGKaixiaos = dbUtil.get_all_tg_kaixiao();
-    double sumOfKaixiao =
-        allTGKaixiaos.stream().filter(info -> tgCompany.equals(info.getTgKaixiaoCompany()))
-            .map(TGKaixiaoInfo::getTgKaixiaoMoney).mapToDouble(NumUtil::getNum).sum();
-    lirun.setTgLirunTotalKaixiao(NumUtil.digit0(sumOfKaixiao + ""));
-    // 设置Rest合计
-    lirun.setTgLirunRestHeji(NumUtil.digit2(NumUtil.getSum(tgLirunTotalProfit, sumOfKaixiao + "")));
-    // 设置公司占股
-    TGCompanyModel companyModel = dbUtil.get_tg_company_by_id(tgCompany);
-    String companyRate = companyModel.getCompanyRate();
-    companyRate = companyRate.endsWith("%") ? NumUtil.getNumByPercent(companyRate) + ""
-        : NumUtil.getNum(companyRate) / 100.0 + "";
-    Double atmCompanyProfit = NumUtil.getNumTimes(lirun.getTgLirunRestHeji(), companyRate);
-    lirun.setTgLirunATMCompany(NumUtil.digit2(atmCompanyProfit + ""));
+    }catch (FinancialException e) {
+      e.printStackTrace();
+    }
 
-    // 设置托管公司占股
-    String tgCompanyRate = StringUtil.nvl(companyModel.getTgCompanyRate(), "0%");
-    tgCompanyRate = tgCompanyRate.endsWith("%") ? NumUtil.getNumByPercent(tgCompanyRate) + ""
-        : NumUtil.getNum(tgCompanyRate) / 100.0 + "";
-    Double tgCompanyProfit = NumUtil.getNumTimes(lirun.getTgLirunRestHeji(), tgCompanyRate);
-    lirun.setTgLirunTGCompany(NumUtil.digit2(tgCompanyProfit + ""));
+    if(hasProxyData) {
+      // 获取日期（日期与当前托管公司为主键）
+      String dateString = getDateString();
+      lirun.setTgLirunDate(dateString);
+      lirun.setTgLirunCompanyName(tgCompany);
+      // 获取总利润（即服务费明细中的总利润）
+      ObservableList<TypeValueInfo> fwfList = tableTGFwfSum.getItems();
+      String tgLirunTotalProfit = fwfList.stream().filter(info -> "总利润".equals(info.getType()))
+          .map(TypeValueInfo::getValue).findFirst().orElse("0");
+      lirun.setTgLirunTotalProfit(tgLirunTotalProfit);
+      // 获取总开销
+      List<TGKaixiaoInfo> allTGKaixiaos = dbUtil.get_all_tg_kaixiao();
+      double sumOfKaixiao =
+          allTGKaixiaos.stream().filter(info -> tgCompany.equals(info.getTgKaixiaoCompany()))
+              .map(TGKaixiaoInfo::getTgKaixiaoMoney).mapToDouble(NumUtil::getNum).sum();
+      lirun.setTgLirunTotalKaixiao(NumUtil.digit0(sumOfKaixiao + ""));
+      // 设置Rest合计
+      lirun.setTgLirunRestHeji(
+          NumUtil.digit2(NumUtil.getSum(tgLirunTotalProfit, sumOfKaixiao + "")));
+      // 设置公司占股
+      TGCompanyModel companyModel = dbUtil.get_tg_company_by_id(tgCompany);
+      String companyRate = companyModel.getCompanyRate();
+      companyRate = companyRate.endsWith("%") ? NumUtil.getNumByPercent(companyRate) + ""
+          : NumUtil.getNum(companyRate) / 100.0 + "";
+      Double atmCompanyProfit = NumUtil.getNumTimes(lirun.getTgLirunRestHeji(), companyRate);
+      lirun.setTgLirunATMCompany(NumUtil.digit2(atmCompanyProfit + ""));
 
-    // 设置团队服务费 TODO
-    Double tgCompanyProxy = 0.0d;
-    List<TGTeamModel> tgTeamInfos = dbUtil.get_all_tg_team();
-    Set<String> proxyTeamSet =
-        tgTeamInfos.stream().filter(info -> "1".equals(info.getTgTeamProxy()))
-            .map(TGTeamModel::getTgTeamId).collect(Collectors.toSet());
-    tgCompanyProxy = tableTGFwf.getItems().stream()
-        .filter(info -> proxyTeamSet.contains(info.getTgFwfTeamId()))
-        .mapToDouble(
-            info -> NumUtil.getNum(info.getTgFwfFanshui()) + NumUtil.getNum(info.getTgFwfFanbao()))
-        .sum();
-    lirun.setTgLirunTeamProfit(NumUtil.digit2(tgCompanyProxy + ""));
+      // 设置托管公司占股
+      String tgCompanyRate = StringUtil.nvl(companyModel.getTgCompanyRate(), "0%");
+      tgCompanyRate = tgCompanyRate.endsWith("%") ? NumUtil.getNumByPercent(tgCompanyRate) + ""
+          : NumUtil.getNum(tgCompanyRate) / 100.0 + "";
+      Double tgCompanyProfit = NumUtil.getNumTimes(lirun.getTgLirunRestHeji(), tgCompanyRate);
+      lirun.setTgLirunTGCompany(NumUtil.digit2(tgCompanyProfit + ""));
 
-    // 设置托管公司合计 = 托管公司占股 + 托管公司代理
-    Double tgCompanyHeji = tgCompanyProfit + tgCompanyProxy;
-    lirun.setTgLirunHeji(NumUtil.digit2(tgCompanyHeji + ""));
+      // 设置团队服务费 TODO
+      Double tgCompanyProxy = 0.0d;
+      List<TGTeamModel> tgTeamInfos = dbUtil.get_all_tg_team();
+      Set<String> proxyTeamSet =
+          tgTeamInfos.stream().filter(info -> "1".equals(info.getTgTeamProxy()))
+              .map(TGTeamModel::getTgTeamId).collect(Collectors.toSet());
+      tgCompanyProxy = tableTGFwf.getItems().stream()
+          .filter(info -> proxyTeamSet.contains(info.getTgFwfTeamId()))
+          .mapToDouble(
+              info -> NumUtil.getNum(info.getTgFwfFanshui()) + NumUtil
+                  .getNum(info.getTgFwfFanbao()))
+          .sum();
+      lirun.setTgLirunTeamProfit(NumUtil.digit2(tgCompanyProxy + ""));
 
-    list.add(lirun);
+      // 设置托管公司合计 = 托管公司占股 + 托管公司代理
+      Double tgCompanyHeji = tgCompanyProfit + tgCompanyProxy;
+      lirun.setTgLirunHeji(NumUtil.digit2(tgCompanyHeji + ""));
+
+      list.add(lirun);
+
+    }
     tableTGLirun.setItems(FXCollections.observableArrayList(list));
 
   }
