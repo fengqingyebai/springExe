@@ -891,9 +891,6 @@ public class LMController extends BaseController implements Initializable {
   public static final String HEAD_LINE = "====";
 
   public void checkOverSharedEdu2(boolean showAll) {
-    if (noPermission(PermissionTabEnum.LMDZ)) {
-      return;
-    }
     try {
       String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
       if (StringUtils.isBlank(maxRecordTime)) {

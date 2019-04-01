@@ -36,8 +36,7 @@ public class Main extends Application {
 
     try {
       log.info("进入Main.start方法......");
-      root = (Parent) loader.load("/dialog/login.fxml");
-      // root = (Parent) loader.load("/dialog/MainStageees2.fxml");
+      root = (Parent) loader.load("/dialog/MainStageees2.fxml");
       primaryStage.getIcons().add(Constants.icon);
       primaryStage.setTitle("登录");
       //primaryStage.setTitle(Constants.TITLE + Constants.VERSION);

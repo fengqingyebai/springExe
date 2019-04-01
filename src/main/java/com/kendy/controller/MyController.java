@@ -643,55 +643,19 @@ public class MyController extends BaseController implements Initializable {
    * 加载各个tab页面
    */
   private void loadSubTabs() {
-    ApplicationContext context = SpringFxmlLoader.getContext();
-    logger.info("before: context is " + (context != null ? " not null" : "null"));
-
-    // 先加载所有Tab页面
-    for (PermissionTabEnum Tab : PermissionTabEnum.values()) {
-      String tabName = Tab.getTabName();
-      // 过滤不需要加载的tab页面
-      if (NO_NEED_LOAD_TABS.contains(tabName)) {
-        continue;
-      }
-      // 加载其他所有页面
-      Tab tab = addSubTab(tabName, Tab.getFxmlFileName());
-    }
-
-    // 隐藏没有权限的Tab页面
-    for (Tab tab : tabs.getTabs()) {
-      String tabName = tab.getText();
-      // 过滤不需要加载的tab页面
-      if (NO_NEED_LOAD_TABS.contains(tabName)) {
-        continue;
-      }
-      // 隐藏没有权限的页面
-      hideTabIfNoPemission(tab);
-    }
-
-//    addSubTab("外债信息", "waizhai_tab_frame.fxml");
-//    addSubTab("会员查询", "member_query_tab_frame.fxml");
-//    addSubTab("积分查询", "jifen_query_tab_frame.fxml");
-//    addSubTab("代理查询", "team_proxy_tab_frame.fxml");
-//    addSubTab("实时上码系统", "shangma_tab_frame.fxml");
-//    addSubTab("联盟对账", "LM_Tab_Fram.fxml");
-//    addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
-//    addSubTab("股东贡献值", "gudong_contribution.fxml");
-//    addSubTab("托管工具", "TG_toolaa.fxml");
-//    addSubTab("自动上码配置", "SM_Autos.fxml");
-//    addSubTab("银行流水", "bank_flow_frame.fxml");
-//    addSubTab("历史统计", "history_static_tab_frame.fxml");
-//    addSubTab("战绩统计", "zj_static_tab_frame.fxml");
-  }
-
-
-
-  private void hideTabIfNoPemission(Tab tab) {
-    if (!DataConstans.permissions.containsKey(tab.getText())) {
-      // 设置无权限标签
-      tab.setTooltip(tooltip);
-      // 禁止打开无权限标签
-      tab.setDisable(true);
-    }
+    addSubTab("外债信息", "waizhai_tab_frame.fxml");
+    addSubTab("会员查询", "member_query_tab_frame.fxml");
+    addSubTab("积分查询", "jifen_query_tab_frame.fxml");
+    addSubTab("代理查询", "team_proxy_tab_frame.fxml");
+    addSubTab("实时上码系统", "shangma_tab_frame.fxml");
+    addSubTab("联盟对账", "LM_Tab_Fram.fxml");
+    addSubTab("联盟配账", "Quota_Tab_Fram.fxml");
+    addSubTab("股东贡献值", "gudong_contribution.fxml");
+    addSubTab("托管工具", "TG_toolaa.fxml");
+    addSubTab("自动上码配置", "SM_Autos.fxml");
+    addSubTab("银行流水", "bank_flow_frame.fxml");
+    addSubTab("历史统计", "history_static_tab_frame.fxml");
+    addSubTab("战绩统计", "zj_static_tab_frame.fxml");
   }
 
   /**
@@ -3169,16 +3133,4 @@ public class MyController extends BaseController implements Initializable {
     return getClass();
   }
 
-
-
-  @FXML
-  public void logoutAction(){
-    logger.info("退出....");
-    if (AlertUtil.confirm("退出将销毁当前所有缓存，确定要退出吗?")) {
-      // 销毁各个tab页的内容
-      tabs.getTabs().clear();
-      dataConstants.clearAllData();
-      FXUtil.switchScene("/dialog/login.fxml", "登录");
-    }
-  }
 }

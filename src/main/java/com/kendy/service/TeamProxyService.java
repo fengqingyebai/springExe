@@ -124,9 +124,6 @@ public class TeamProxyService extends BasicService{
    * @time 2017年10月28日
    */
   public void initTeamSelectAndZjManage(ComboBox<String> teamIDCombox) {
-    if (noPermission(PermissionTabEnum.DLCX)) {
-      return;
-    }
     ObservableList<String> options = FXCollections.observableArrayList();
     if (dataConstants.huishuiMap != null) {
       dataConstants.huishuiMap.forEach((teamId, huishuiInfo) -> {

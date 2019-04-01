@@ -35,14 +35,6 @@ public class BaseController {
   public BaseController() {
   }
 
-  public boolean hasPermission(PermissionTabEnum tabEnum){
-    return DataConstans.permissions.containsKey(tabEnum.getTabName());
-  }
-
-  public boolean noPermission(PermissionTabEnum tabEnum){
-    return !hasPermission(tabEnum);
-  }
-
 
   /**
    * 绑定多个表格的列

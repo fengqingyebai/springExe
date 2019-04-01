@@ -132,22 +132,6 @@
                               </Label>
                               <RadioButton fx:id="radio_rate_0975" layoutX="742.0" layoutY="197.0" mnemonicParsing="false" selected="true" text="0.975" />
                               <RadioButton fx:id="radio_rate_095" layoutX="806.0" layoutY="197.0" mnemonicParsing="false" text="0.95" />
-                              <JFXButton buttonType="RAISED" layoutX="1167.0" layoutY="32.0" onAction="#logoutAction" prefHeight="54.0" prefWidth="131.0" text="退出" textFill="#406be3">
-                                 <font>
-                                    <Font name="System Bold" size="21.0" />
-                                 </font>
-                                 <ripplerFill>
-                                    <RadialGradient centerX="0.4722222222222222" centerY="0.5" radius="0.5">
-                                       <stops>
-                                          <Stop color="#da6a28" />
-                                          <Stop color="#47c7dd" offset="1.0" />
-                                       </stops>
-                                    </RadialGradient>
-                                 </ripplerFill>
-                                 <cursor>
-                                    <Cursor fx:constant="HAND" />
-                                 </cursor>
-                              </JFXButton>
                            </children>
                         </AnchorPane>
                      </children>

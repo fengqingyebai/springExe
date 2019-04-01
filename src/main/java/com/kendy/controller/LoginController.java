@@ -5,11 +5,8 @@
  */
 package com.kendy.controller;
 
-import com.alibaba.druid.support.json.JSONUtils;
 import com.alibaba.fastjson.JSON;
 import com.kendy.constant.Constants;
-import com.kendy.constant.DataConstans;
-import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.exception.LoginException;
 import com.kendy.model.SoftUser;
 import com.kendy.util.DateTimeUtils;
@@ -168,29 +165,10 @@ public class LoginController extends BaseController implements Initializable {
       return;
     }
 
-    // 缓存TAB权限
-    setPermission(permissionStr);
-
     // 切换页面
     FXUtil.switchScene(fxmlFilePath, title);
   }
 
-
-
-
-
-
-
-  private void setPermission(String permissionStr) {
-    String[] permissions = permissionStr.split("\\|");
-    Map<String, String> _map = new HashMap<>();
-    for (String permission : permissions) {
-      if (StringUtils.isNotBlank(permission)) {
-        _map.put(permission, "");
-      }
-    }
-    DataConstans.permissions = _map;
-  }
 
 
   private void throwLoginException(String msg) throws LoginException {

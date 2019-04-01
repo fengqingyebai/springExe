@@ -48,9 +48,6 @@ public class JifenService extends BasicService{
    * 初始化团队ID下拉框
    */
   public void init_Jifen_TeamIdCombox() {
-    if (noPermission(PermissionTabEnum.JFCX)) {
-      return;
-    }
     ObservableList<String> options = FXCollections.observableArrayList();
     dataConstants.huishuiMap.forEach((teamId, huishuiInfo) -> {
       options.add(teamId);

@@ -1075,6 +1075,7 @@ public class SMAutoController extends BaseController implements Initializable {
     params.put("order", "-1");
     params.put("gameType", downType);
     params.put("pageSize", "250");
+    params.put("isCredit","1");
     return params;
   }
 

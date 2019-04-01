@@ -46,7 +46,7 @@ public class DataConstans {
   private DBUtil dbUtil;
 
 
-  public static Map<String, String> permissions = new HashMap<>();
+//  public static Map<String, String> permissions = new HashMap<>();
 
 //  public void initPermission(){
 //    Map<String, String> map = new HashMap<>();

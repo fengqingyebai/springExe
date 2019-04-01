@@ -225,9 +225,7 @@ public class MoneyService extends BasicService{
     // 填充团队表
     fillTableTeam(tableTeam, relatedTeamIdSet);
     // 更新实时上码表的个人详情
-    if (hasPermission(PermissionTabEnum.SSSMST)) {
-      shangmaService.updateShangDetailMap(tablePaiju);
-    }
+    shangmaService.updateShangDetailMap(tablePaiju);
   }
 
 
@@ -1648,10 +1646,7 @@ public class MoneyService extends BasicService{
         info.setZijinAccount(
             NumUtil.digit0(NumUtil.getNum(oddZijin) + NumUtil.getNum(result.get().trim())));
         // 添加到银行流水中
-        if (hasPermission(PermissionTabEnum.YHLS)) {
-          bankFlowController.totalBankFlowList.add(bankMoney);
-        }
-
+        bankFlowController.totalBankFlowList.add(bankMoney);
       }
       if (tableZijin != null && tableZijin.getItems() != null) {
         for (ZijinInfo zijin : tableZijin.getItems()) {
