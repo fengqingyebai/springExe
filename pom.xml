@@ -241,14 +241,14 @@
     </dependency>
 
     <!--引入Lombok-->
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.2</version>
-        <scope>provided</scope>
-      </dependency>
+      <!--<dependency>-->
+        <!--<groupId>org.projectlombok</groupId>-->
+        <!--<artifactId>lombok</artifactId>-->
+        <!--<version>1.18.2</version>-->
+        <!--<scope>provided</scope>-->
+      <!--</dependency>-->
 
-    <!-- https://mvnrepository.com/artifact/org.jfxtras/jmetro -->
+    <!-- https://mvnrepository.com/artifact/org.jfxtras/ -->
     <!--<dependency>-->
       <!--<groupId>org.jfxtras</groupId>-->
       <!--<artifactId>jmetro</artifactId>-->

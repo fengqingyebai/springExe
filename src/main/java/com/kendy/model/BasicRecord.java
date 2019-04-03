@@ -37,7 +37,8 @@ public class BasicRecord {
   @MyExcelField(title = "保险#总彩池")
   private String currentTableInsurance;
 
-  @MyExcelField(title = "战绩")
+  //@MyExcelField(title = "战绩")
+  @MyExcelField(title = "原始战绩")
   private String yszj;
 
   @MyExcelField(title = "结束时间")
