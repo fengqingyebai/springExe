@@ -24,6 +24,7 @@
     <db.jdbc.groupId>mysql</db.jdbc.groupId>
     <db.jdbc.artifactId>mysql-connector-java</db.jdbc.artifactId>
     <db.jdbc.version>5.1.40</db.jdbc.version>
+    <!--<db.jdbc.version>8.0.15</db.jdbc.version>-->
     <db.jdbc.driverClassName>com.mysql.jdbc.Driver</db.jdbc.driverClassName>
     <db.jdbc.url><![CDATA[jdbc:mysql://127.0.0.1:3306/financial?characterEncoding=UTF-8]]></db.jdbc.url>
     <db.jdbc.username>root</db.jdbc.username>
@@ -210,7 +211,7 @@
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.40</version>
+      <version>${db.jdbc.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

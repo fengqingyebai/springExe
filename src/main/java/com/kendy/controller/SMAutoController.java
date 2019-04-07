@@ -1,5 +1,6 @@
 package com.kendy.controller;
 
+import com.kendy.enums.ExcelAutoDownType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -838,10 +839,6 @@ public class SMAutoController extends BaseController implements Initializable {
 
   private final String EN_MH = ":";
   private final String CN_MH = "：";
-  private final String PU_TONG = "1";
-  private final String AO_MA_HA = "2";
-  private final String DA_BO_LUO = "6";
-  private final String JIA_LE_BI = "8";
   private final int DOWN_LIMIT = 10; // 每次下载5个，总共一次性下载 6 * 3 = 18
 
   public LocalDate getSelectedDate() {
@@ -906,43 +903,16 @@ public class SMAutoController extends BaseController implements Initializable {
   }
 
 
-  @SuppressWarnings("unused")
-  private class AutoDownExcelService extends Service<String> {
-
-    @Override
-    protected Task<String> createTask() {
-      return new AutoDownExcelTask();
-    }
-
-  }
-
-
-  private class AutoDownExcelTask extends Task<String> {
-
-    @Override
-    protected String call() {
-      autoDownExcels(PU_TONG);
-      super.updateMessage("PU_TONG========");
-      autoDownExcels(AO_MA_HA);
-      super.updateMessage("AO_MA_HA========");
-      autoDownExcels(DA_BO_LUO);
-      return "一个周期执行完成";
-    }
-
-  }
-
-
   // 软件启动时先去加载桌面已经下载的Excel列表进缓存
   // 重复的跳过，不重复的则下载后更新缓存和数据
-  public void autoDownExcels(String DownType) {
+  public void autoDownExcels(String downType) {
 
-    String houtai = PU_TONG.equals(DownType) ? "普通后台"
-        : AO_MA_HA.equals(DownType) ? "奥马哈后台" : DA_BO_LUO.equals(DownType) ? "大菠萝" : "加勒比";
+    String houtai = ExcelAutoDownType.getNambeByValue(downType);
 
     RespResult<GameRoomModel> parseObject = new RespResult<>();
     try {
       excelInfo("正在获取" + houtai + "房间列表..." + TimeUtil.getTimeString());
-      Map<String, String> params = getParams(DownType);
+      Map<String, String> params = getParams(downType);
       String respString = httpService.sendPost(
           "http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
       if (StringUtil.isNotBlank(respString)) {
@@ -1211,40 +1181,17 @@ public class SMAutoController extends BaseController implements Initializable {
           @Override
           public void run() {
 
-            // 自动下载当天普通房间Excel
-            autoDownExcels(PU_TONG);
-
-            // 自动下载当天奥马哈房间Excel
-            autoDownExcels(AO_MA_HA);
-
-            // 自动下载当天大菠萝Excel
-            autoDownExcels(DA_BO_LUO);
-
-            // 自动下载当天加勒比Excel
-            autoDownExcels(JIA_LE_BI);
+            for (ExcelAutoDownType type : ExcelAutoDownType.values()) {
+              String excelDownType = type.getValue();
+              // 自动下载当天Excel
+              autoDownExcels(excelDownType);
+            }
           }
         });
-        // Platform.runLater(new Runnable() {
-        // @Override
-        // public void run() {
-        // Service<String> autoDownExcelService = new AutoDownExcelService();
-        // autoDownExcelService.start();
-        // }
-        // });
 
       }
     }, 1000, separateTime); // 定时器的延迟时间及间隔时间
 
-    // ExecutorService service = Executors.newScheduledThreadPool(1, new ThreadFactory() {
-    //
-    // @Override
-    // public Thread newThread(Runnable r) {
-    // Thread t = new Thread();
-    // t.setDaemon(true);
-    // return t;
-    // }
-    //
-    // });
   }
 
   /**

@@ -796,11 +796,11 @@ public class MyController extends BaseController implements Initializable {
             smController.loadWhenClickTab();
             break;
           }
-          case "联盟对帐": {
+          case "联盟对账": {
             lmController.refreshClubList();
             break;
           }
-          case "联盟配帐": {
+          case "联盟配账": {
             lmController.refreshClubList();
             // 导入每场战绩时的所有俱乐部记录
             quotaController.currentRecordList = lmController.currentRecordList;

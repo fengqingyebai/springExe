@@ -29,17 +29,28 @@ public class BasicRecord {
   private String clubName;
 
   @MyExcelField(title = "保险合计#彩池合计")
-  private String sinegleInsurance;
+  private String sinegleInsurance = "0";
 
   @MyExcelField(title = "俱乐部保险#俱乐部彩池")
-  private String clubInsurance;
+  private String clubInsurance= "0";
 
   @MyExcelField(title = "保险#总彩池")
-  private String currentTableInsurance;
+  private String currentTableInsurance = "0";
 
-  //@MyExcelField(title = "战绩")
-  @MyExcelField(title = "原始战绩")
+  @MyExcelField(title = "原始战绩#战绩")
   private String yszj;
+
+  @MyExcelField(title = "联盟币扣减")
+  private String lmbKoujian = "0";
+
+  @MyExcelField(title = "保险再分配")
+  private String baoxianZaifenpei = "0";
+
+  @MyExcelField(title = "俱乐部再分配")
+  private String clubZaifenpei = "0";
+
+  @MyExcelField(title = "是否庄家位")
+  private String isZhuangwei = "0";
 
   @MyExcelField(title = "结束时间")
   private String finisedTime;
@@ -155,5 +166,37 @@ public class BasicRecord {
 
   public void setJuType(String juType) {
     this.juType = juType;
+  }
+
+  public String getLmbKoujian() {
+    return lmbKoujian;
+  }
+
+  public void setLmbKoujian(String lmbKoujian) {
+    this.lmbKoujian = lmbKoujian;
+  }
+
+  public String getBaoxianZaifenpei() {
+    return baoxianZaifenpei;
+  }
+
+  public void setBaoxianZaifenpei(String baoxianZaifenpei) {
+    this.baoxianZaifenpei = baoxianZaifenpei;
+  }
+
+  public String getClubZaifenpei() {
+    return clubZaifenpei;
+  }
+
+  public void setClubZaifenpei(String clubZaifenpei) {
+    this.clubZaifenpei = clubZaifenpei;
+  }
+
+  public String getIsZhuangwei() {
+    return isZhuangwei;
+  }
+
+  public void setIsZhuangwei(String isZhuangwei) {
+    this.isZhuangwei = isZhuangwei;
   }
 }

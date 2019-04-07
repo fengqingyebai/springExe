@@ -38,12 +38,12 @@ public class Main extends Application {
       log.info("进入Main.start方法......");
       root = (Parent) loader.load("/dialog/MainStageees2.fxml");
       primaryStage.getIcons().add(Constants.icon);
-      primaryStage.setTitle("登录");
-      //primaryStage.setTitle(Constants.TITLE + Constants.VERSION);
+      //primaryStage.setTitle("登录");
+      primaryStage.setTitle(Constants.TITLE + Constants.VERSION);
       Scene scene = new Scene(root);
       scene.getStylesheets().add("css/myCss.css");
       primaryStage.setScene(scene);
-      primaryStage.setResizable(false);
+      primaryStage.setResizable(true);
       primaryStage.show();
       primaryStage0 = primaryStage;
       FXUtil.stage = primaryStage;
