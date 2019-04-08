@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kendy.db.dao.GameRecordDao">
+  <resultMap id="BaseResultMap" type="com.kendy.db.entity.GameRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="soft_time" jdbcType="VARCHAR" property="softTime" />
+    <id column="clubId" jdbcType="VARCHAR" property="clubid" />
+    <id column="tableId" jdbcType="VARCHAR" property="tableid" />
+    <id column="playerId" jdbcType="VARCHAR" property="playerid" />
+    <result column="yszj" jdbcType="VARCHAR" property="yszj" />
+    <result column="singleInsurance" jdbcType="VARCHAR" property="singleinsurance" />
+    <result column="clubInsurance" jdbcType="VARCHAR" property="clubinsurance" />
+    <result column="currentTableInsurance" jdbcType="VARCHAR" property="currenttableinsurance" />
+    <result column="shishou" jdbcType="VARCHAR" property="shishou" />
+    <result column="chuHuishui" jdbcType="VARCHAR" property="chuhuishui" />
+    <result column="shouHuishui" jdbcType="VARCHAR" property="shouhuishui" />
+    <result column="shuihouxian" jdbcType="VARCHAR" property="shuihouxian" />
+    <result column="huiBao" jdbcType="VARCHAR" property="huibao" />
+    <result column="heLirun" jdbcType="VARCHAR" property="helirun" />
+    <result column="lmType" jdbcType="VARCHAR" property="lmtype" />
+    <result column="finished_time" jdbcType="VARCHAR" property="finishedTime" />
+    <result column="isJiesuaned" jdbcType="VARCHAR" property="isjiesuaned" />
+    <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="sumHandsCount" jdbcType="VARCHAR" property="sumhandscount" />
+    <result column="isCleared" jdbcType="VARCHAR" property="iscleared" />
+    <result column="beginPlayerName" jdbcType="VARCHAR" property="beginplayername" />
+    <result column="importTime" jdbcType="VARCHAR" property="importtime" />
+    <result column="juType" jdbcType="VARCHAR" property="jutype" />
+  </resultMap>
+</mapper>

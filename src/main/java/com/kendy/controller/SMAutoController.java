@@ -1,12 +1,23 @@
 package com.kendy.controller;
 
+import com.alibaba.druid.support.json.JSONUtils;
+import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.enums.ExcelAutoDownType;
+import com.kendy.enums.MoneyCreatorEnum;
+import com.kendy.model.CoinBuyerRusult;
+import com.kendy.model.CoinBuyerRusult.CoinBuyer;
+import com.kendy.model.RealBuyResult;
+import com.kendy.model.Result;
+import com.kendy.util.HttpUtils;
+import com.kendy.util.HttpUtils.HttpResult;
+import com.kendy.util.NumUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,16 +49,12 @@ import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.ShangmaInfo;
-import com.kendy.entity.ShangmaNextday;
 import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.model.GameRoomModel;
 import com.kendy.model.RespResult;
 import com.kendy.model.SMResultModel;
-import com.kendy.model.WanjiaApplyInfo;
-import com.kendy.model.WanjiaListResult;
 import com.kendy.service.AutoDownloadZJExcelService;
-import com.kendy.service.HttpService;
 import com.kendy.service.JifenService;
 import com.kendy.service.MemberService;
 import com.kendy.service.MoneyService;
@@ -58,7 +67,6 @@ import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FilterUtf8mb4;
 import com.kendy.util.MapUtil;
-import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
@@ -66,8 +74,6 @@ import com.kendy.util.TimeUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -115,14 +121,11 @@ public class SMAutoController extends BaseController implements Initializable {
   @Autowired
   public AutoDownloadZJExcelService autoDownloadZJExcelService; // 配帐控制类
   @Autowired
-  public TgWaizhaiService tgWaizhaiService; // 配帐控制类
+  public TgWaizhaiService tgWaizhaiService; // 外债控制类
   @Autowired
   public MoneyService moneyService; // 配帐控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
-
-  @Autowired
-  HttpService httpService;
 
   @FXML
   public TextField smNextDayRangeFieldd; // 次日上码配置
@@ -154,27 +157,18 @@ public class SMAutoController extends BaseController implements Initializable {
   @FXML
   private TableColumn<SMAutoInfo, String> smAutoPlayerName;
   @FXML
-  private TableColumn<SMAutoInfo, String> smAutoPaiju;
-  @FXML
   private TableColumn<SMAutoInfo, String> smAutoApplyAccount;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsTeamAvailabel;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsCurrentDay;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoIsNextDay;
   @FXML
   private TableColumn<SMAutoInfo, String> smAutoIsAgree;
   @FXML
   private TableColumn<SMAutoInfo, String> smAutoIsAgreeSuccess;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoAvailabel;
-  @FXML
-  private TableColumn<SMAutoInfo, String> smAutoTeamTotalAvailabel;
 
   @FXML
   public TextField downExcelPierodField;// 每隔多久去刷新
 
+  Charset charset = Charset.defaultCharset();
+
+  HttpUtils httpUtils = HttpUtils.getInstance();
 
   private final String SM_AOTO_NEXT_DAY_DB_KEY =
       KeyEnum.SM_AOTO_NEXT_DAY_DB_KEY.getKeyName(); // 保存到数据库的key
@@ -299,13 +293,18 @@ public class SMAutoController extends BaseController implements Initializable {
       logInfo(message);
       return;
     }
-    WanjiaListResult wanjiaListResult = httpService.getWanjiaListResult(token);
-    if (wanjiaListResult == null) {
-      setTokenStatusFail("接口无返回");
+    CoinBuyerRusult coinBuyerResult = getCoinBuyerResult();
+
+    if (coinBuyerResult == null || coinBuyerResult.getResult() == null) {
+      String msg = "接口没返回数据";
+      if (coinBuyerResult != null) {
+        msg += ", 返回码： " + coinBuyerResult.getiErrCode();
+      }
+      setTokenStatusFail(msg);
       return;
     }
-    if (wanjiaListResult.getiErrCode() != 0) {
-      setTokenStatusFail(wanjiaListResult.getiErrCode() + "");
+    if (coinBuyerResult.getiErrCode() != 0) {
+      setTokenStatusFail(coinBuyerResult.getiErrCode() + "");
       return;
     }
     setTokenStatusSuccess();
@@ -338,7 +337,7 @@ public class SMAutoController extends BaseController implements Initializable {
       if (items != null) {
         items.add(description);
       } else {
-        items = FXCollections.observableArrayList(new ArrayList<String>(Arrays.asList("ssss")));
+        items = FXCollections.observableArrayList(new ArrayList<String>(Arrays.asList(" ")));
       }
       logArea.refresh();
       log.info(description);
@@ -434,24 +433,49 @@ public class SMAutoController extends BaseController implements Initializable {
     }, 1000, separateTime); // 定时器的延迟时间及间隔时间
   }
 
-  public void reqAndHandleBuyinList() {
-    logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
+
+  private CoinBuyerRusult getCoinBuyerResult() {
+    Map<String, String> params = new HashMap<>();
+    Map<String, String> header = getHeader();
+    String url = "http://cms.pokermanager.club/cms-api/leaguecredit/getLeagueCoinApplyList";
+    CoinBuyerRusult coinBuyerRusult = null;
     try {
-      // 调用接口
-      List<WanjiaApplyInfo> buyinList = httpService.getBuyinList(getToken());
-      // 处理数据
-      if (buyinList == null) {
-        logInfo("获取到玩家为空!!!");
-      } else {
-        logInfo("获取到玩家个数：" + buyinList.size());
-        // 真正的处理逻辑
-        handleAutoShangma(buyinList);
+      HttpResult result = httpUtils.formPost(url, charset, params, header);
+      if (result.isOK()) {
+        String content = result.getContent();
+        logger.info("获取联盟币玩家原始数据 = " + content);
+        try {
+          coinBuyerRusult = JSON.parseObject(content, CoinBuyerRusult.class);
+        } catch (Exception e) {
+          logInfo("JSON转换失败: " + e.getMessage() + ",原始返回：" + content);
+        }
       }
     } catch (Exception e) {
-      String errMesg = "获取玩家信息请求失败";
+      e.printStackTrace();
+      String errMesg = "自动获取联盟币玩家请求失败,异常：" + e.getMessage();
       logInfo(errMesg);
-      log.error(errMesg + ",异常信息：" + e.getMessage(), e);
+      log.error(errMesg, e);
     }
+    return coinBuyerRusult;
+  }
+
+  public void reqAndHandleBuyinList() {
+    logInfo("正在获取玩家信息..." + TimeUtil.getTimeString());
+    CoinBuyerRusult coinBuyerRusult = getCoinBuyerResult();
+    if (coinBuyerRusult == null || coinBuyerRusult.getiErrCode() != 0) {
+      String errMsg = "获取联盟币玩家列表返回错误码：" + coinBuyerRusult.getiErrCode();
+      logInfo(errMsg);
+      logger.error(errMsg);
+      return;
+    }
+    List<CoinBuyer> coinBuyers = coinBuyerRusult.getResult();
+    if (coinBuyers != null) {
+      logInfo("获取联盟币玩家个数：" + coinBuyers.size());
+
+      // 真正的处理逻辑
+      handleAutoShangma(coinBuyers);
+    }
+
     logInfo("");
   }
 
@@ -470,23 +494,19 @@ public class SMAutoController extends BaseController implements Initializable {
 
   /**
    * 处理自动上码的逻辑（核心代码） 备注：申请数量过两道关之后程序会去实时上码Tab中自动上码
-   *
-   * @time 2018年3月26日
+   * <p>
+   * { nickName : 堪睇系唔使靓仔 strCover : http://info.pokermate.net/data/2018/5/26/775587_small_1527328738875.png
+   * showId : 1871535391 grantNums : 500.0 remarks : msgType : 1 uniqueId : 11912 }
+   * </p>
    */
-  public synchronized void handleAutoShangma(List<WanjiaApplyInfo> buyinList) {
+  public synchronized void handleAutoShangma(List<CoinBuyer> coinBuyers) {
 
-    for (WanjiaApplyInfo wanjiaApplyInfo : buyinList) {
-
+    for (CoinBuyer coinBuyer : coinBuyers) {
       try {
-        /*
-         * 玩家相关信息
-         */
-        String paijuStr = wanjiaApplyInfo.getGameRoomName();
-        String paijuString =
-            paijuStr.substring(wanjiaApplyInfo.getGameRoomName().lastIndexOf("-") + 1);// 本系统桌号
-        String buyStack = wanjiaApplyInfo.getBuyStack().toString();// 购买数量
-        String playerId = wanjiaApplyInfo.getShowId();
-        String playerName = wanjiaApplyInfo.getStrNick();
+        // 玩家相关信息
+        String playerName = coinBuyer.getNickName();
+        String playerId = coinBuyer.getShowId();
+        String buyStack = coinBuyer.getGrantNums() + "";// 购买数量
 
         Player player = dataConstants.membersMap.get(playerId);
         if (player == null) {
@@ -495,29 +515,36 @@ public class SMAutoController extends BaseController implements Initializable {
         }
         String teamId = player.getTeamName();
         Huishui huishui = dataConstants.huishuiMap.get(teamId);
-        String selectTeamAvailabel = huishui.getTeamAvailabel(); // 是否勾选了团队上码：1是 0否
 
-        logInfo(playerName + "正在模拟更新实时上码...");
-        SMResultModel resultModel = shangmaService
-            .getDataAfterloadShangmaTable(teamId, playerId);// 模拟更新实时上码
-        logInfo(playerName + "模拟更新实时上码结束");
-        ShangmaInfo selectedSMInfo = resultModel.getSelectedSMInfo();
-        if (selectedSMInfo == null) {
-          logInfo("玩家（" + playerName + ")在上码系统中不存在！！");
-          continue;
+        // TODO 获取玩家实时金额和可用金额
+
+        // 根据玩家ID获取玩家实时金额信息，无则创建
+        CurrentMoneyInfo currentMoneyInfo = moneyService.searchRowByPlayerId(playerId);
+        if (currentMoneyInfo == null) {
+          // TODO 无时如果创建
+          logInfo("玩家（" + playerName + ")在实时金额表不存在，自动创建");
+          String creator = MoneyCreatorEnum.LIAN_MENG_BI.getCreatorName();
+          currentMoneyInfo = new CurrentMoneyInfo(playerName, "0", playerId, player.getEdu(),
+              creator);
         }
-
-        String teamAvailabel = resultModel.getTeamTotalAvailabel(); // 获取团队可上码
-        String calcAvailable = getAvailable(resultModel, selectTeamAvailabel, playerId,
-            playerName); // 获取可上码
-        boolean isTodaySM = judgeIsTodaySM(paijuString); // 是否为次日上码：
-        boolean passCheck = checkInRange(selectTeamAvailabel, buyStack, teamAvailabel,
-            calcAvailable); // 是否同意
+        String currentMoney = currentMoneyInfo.getShishiJine();
+        String availableEdu = currentMoneyInfo.getCmiEdu();
+        Result checkRangeResult = checkInRange(currentMoney, availableEdu, buyStack);// 是否同意
+        boolean passCheck = checkRangeResult.isOk(); // 是否同意
+        logInfo(playerName + "是否合范围：" + (passCheck ? "是" : "否"));
 
         /****************************************/
-        boolean addOK = false;
-        logInfo(playerName + "是否合范围：" + passCheck);
-        if (passCheck) {
+        // 联盟币购买结果
+        boolean buyLmbOk = false;
+        int buyLmbCode = -1;
+        String validateResult = "";
+        if (!passCheck) {
+          log.info(
+              player.getPlayerName() + "买入" + buyStack + "不在范围中[实时金额为" + currentMoney + ",可用额度为"
+                  + availableEdu + "]");
+
+        } else { // 同意购买
+
           List<String> testList = new ArrayList<>();
 
           if (hasFilterPlayerIds()) {
@@ -526,99 +553,125 @@ public class SMAutoController extends BaseController implements Initializable {
           }
 
           if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
-            // 添加上码到软件中，同时发送后台请求
-            Long userUuid = wanjiaApplyInfo.getUuid();// 用户ID
-            Long roomId = wanjiaApplyInfo.getGameRoomId(); // 房间号
-            addOK = addShangma(resultModel, isTodaySM, playerId, playerName, paijuString, buyStack,
-                userUuid, roomId);
+            // 向后台申请购买， 成功后修改实时金额表
+            buyLmbCode = buyLmbCoin(coinBuyer);
+            buyLmbOk = (buyLmbCode == 0);
+            if (buyLmbOk) {
+              logInfo(playerName + "正在模拟更新实时金额...");
+              // TODO 金额修改（实时金额或可用额度）
+              Double buyStackCount = NumUtil.getNum(buyStack);
+              currentMoneyInfo.setShishiJine(NumUtil.digit0(NumUtil.getNum(currentMoney) - buyStackCount));
+
+              // 保存到实时金额表
+              myController.tableCurrentMoneyInfo.refresh();
+              logInfo(playerName + "模拟更新实时金额结束");
+            }
           }
-        } else {
-          log.debug(player.getPlayerName() + "买入" + buyStack + "不在范围中[" + teamAvailabel + ","
-              + calcAvailable + "]");
         }
         /****************************************/
-        SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), teamId, playerId, playerName, paijuString,
-            buyStack, teamAvailabel, // 团队可上码 (第一关)
-            calcAvailable, // 计算可上码（第二关）
-            "1".equals(selectTeamAvailabel) ? "是" : "否", isTodaySM ? "是" : "否", // smAutoIsCurrentDay
-            isTodaySM ? "否" : "是", // smAutoIsNextDay
-            passCheck ? "是" : "否", // smAutoIsAgree
-            (passCheck) ? (addOK ? "成功" : "失败") : "-"// smAutoIsAgreeSuccess
+        SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), teamId, playerId, playerName,
+            buyStack,
+            currentMoney,
+            availableEdu,
+            passCheck ? "是" : "否",
+            (passCheck) ? (buyLmbOk ? "成功" : "失败") : "-",
+            getFailDescription(checkRangeResult, buyLmbCode)
         );
         logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
         addItem(smAutoInfo);
       } catch (Exception e) {
-        logInfo("玩家【" + wanjiaApplyInfo.getStrNick() + "】自动上码逻辑失败，请看日志！！");
-        logger.error("处理玩家【{}】自动上码逻辑报错，原因：{}", wanjiaApplyInfo.getStrNick(), e.getMessage() );
+        logInfo("玩家【" + coinBuyer.getNickName() + "】自动购买联盟币失败，请看日志！！");
+        logger.error("处理玩家【{}】自动购买联盟币报错，原因：{}", coinBuyer.getNickName(), e.getMessage());
       }
+    }
+  }
+
+  private String getFailDescription(Result checkRangeResult, int buyLmbCode) {
+    if (checkRangeResult.isOk()) {
+      if (buyLmbCode == 3003) {
+        return "联盟币不足";
+      }
+      return "";
+    } else {
+      return checkRangeResult.getDescription();
     }
   }
 
   /**
-   * 本类核心 ：添加上码到软件中，同时发送后台请求
-   *
-   * @param isTodaySM 是否今日上码
-   * @param paijuString 第几局
-   * @param buyStack 上码值
-   * @param userUuid 后台用户ID
-   * @param roomId 房间号
-   * @time 2018年3月28日
+   * 向后台申请购买联盟币
    */
-  public boolean addShangma(SMResultModel resultModel, boolean isTodaySM, String playerId,
-      String playerName, String paijuString, String buyStack, Long userUuid, Long roomId) {
-    boolean addOK = false;
+  public int buyLmbCoin(CoinBuyer coinBuyer) {
+    String playerName = coinBuyer.getNickName();
+    String playerId = coinBuyer.getShowId();
+    String buyStack = coinBuyer.getGrantNums() + "";
+    String uniqueId = coinBuyer.getUniqueId() + "";
+    int msgType = coinBuyer.getMsgType();
+    String buyType = msgType == 1 ? "买入" : "回购";
+    String ACCEPT_BUY_URL = "http://cms.pokermanager.club/cms-api/leaguecredit/acceptLeagueCoinApply";
+
+    Map<String, String> params = new HashMap<>();
+    params.put("uniqueId", uniqueId);
+    params.put("userShowId", playerId);
+    Map<String, String> header = getHeader();
+    String result = "";
     try {
-      boolean acceptBuyOK = httpService.acceptBuy(userUuid, roomId, getToken()); // 后台申请买入
-      if (acceptBuyOK) {
-        if (isTodaySM) {
-          shangmaService.addNewShangma2DetailTable_HT(resultModel,
-              shangmaService.getShangmaPaiju(paijuString), buyStack);
+      HttpResult httpResult = httpUtils.formPost(ACCEPT_BUY_URL, charset, params, header);
+      result = httpResult.getContent();
+      log.info("");
+      if (httpResult.isOK()) {
+        if (StringUtil.isNotBlank(result)) {
+          RealBuyResult realBuyResult = JSON.parseObject(result, RealBuyResult.class);
 
-        } else {
-          ShangmaNextday nextday = new ShangmaNextday();
-          nextday.setPlayerId(playerId);
-          nextday.setPlayerName(playerName);
-          nextday.setChangci(shangmaService.getShangmaPaiju(paijuString));
-          nextday.setShangma(buyStack);
-          nextday.setTime(TimeUtil.getDateTime2());
+          boolean buyLmbOk = StringUtils.equals("0", realBuyResult.getIErrCode()) &&
+              StringUtils.equals("0", realBuyResult.getResult());
 
-          // 新增玩家的次日数据
-          shangmaService.addNewRecord_nextday_HT(resultModel, nextday);
+          String coinBuyStr = (buyLmbOk ? "成功" : "失败");
+          log.info(String.format("%s[%s]申请%s数量%s,联盟币购买结果是[%s], 后台返回：%s",
+              playerName, playerId, buyType, buyStack, coinBuyStr, result));
+
+          return Integer.valueOf(realBuyResult.getIErrCode());
         }
-        addOK = true;
-        log.info(String.format("%s[%s]第%s局买入%s,网络买入结果是[成功]，计入上码", playerName, playerId, paijuString,
-            buyStack));
-      } else {
-        log.error(String.format("%s[%s]第%s局买入%s,网络买入结果是[失败]，没有计入上码", playerName, playerId,
-            paijuString, buyStack));
       }
     } catch (Exception e) {
-      String msg = String.format("%s[%s]第%s局买入%s,网络买入结果是[失败]，原因：网络异常[%s]", playerName, playerId,
-          paijuString, buyStack, e.getMessage());
-      log.error(msg, e);
-      return Boolean.FALSE;
+      String errMsg = String.format("玩家【%s】,玩家ID【%s】,购买联盟币%s网络异常%s, 后台返回：%s",
+          playerName, playerId, buyStack, e.getMessage(), result);
+      logInfo(errMsg);
+      logger.error(errMsg, e);
     }
-    return addOK;
+    return -1;
   }
 
+
+  private void throwException(String playerId, String buyStack, Throwable e) {
+    logger.error("玩家ID【%s】购买联盟币%s网络异常", playerId, buyStack, e);
+    throw new RuntimeException(e.getMessage());
+  }
+
+  private Map<String, String> getHeader() {
+    Map<String, String> header = new HashMap<>();
+    header.put("token", getToken());
+    header.put("Accept", "application/json;charset=UTF-8");
+    header.put("X-Requested-With", "XMLHttpRequest");
+    header.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+    return header;
+  }
 
   /**
    * 判断a 是否在区间范围[b,c]
-   *
-   * @param a 申请数量
-   * @param b 团队可上码
-   * @param c 个人可上码
-   * @time 2018年3月28日
    */
-  private boolean checkInRange(String selectedTeamAvailabel, String a, String b, String c) {
-    Double A = NumUtil.getNum(a);
-    Double B = NumUtil.getNum(b);
-    Double C = NumUtil.getNum(c);
-    if ("1".equals(selectedTeamAvailabel)) { // 勾选了团队可上码，则申请数量只跟团队可上码比较
-      return A <= B;
-    } else {
-      return A <= B && A <= C;
+  private Result checkInRange(String currentMoney, String availableEdu, String buyStack) {
+    if (NumUtil.compare(availableEdu, buyStack)) {
+      return Result.SUCCESS;
     }
+//    else {
+//      return new Result(false, "额度不足");
+//    }
+    if (NumUtil.compare(currentMoney, buyStack)) {
+      return Result.SUCCESS;
+    } else {
+      return new Result(false, "金额不足");
+    }
+
   }
 
   /**
@@ -743,7 +796,7 @@ public class SMAutoController extends BaseController implements Initializable {
   }
 
   /**
-   * 导出有上码的记录
+   * 导出有上码的记录 TODO 封装一个可以通过SimpleStringProperty导出的
    *
    * @time 2018年3月31日
    */
@@ -753,8 +806,8 @@ public class SMAutoController extends BaseController implements Initializable {
       ShowUtil.show("没有可供导出的数据！");
       return;
     }
-    String[] rowsName = new String[]{"爬取时间", "团队ID", "玩家ID", "玩家名称", "牌局", "申请数量", "团队可上码", "计算可上码",
-        "勾选团队", "当天", "次日", "同意审核", "审核结果"};
+    String[] rowsName = new String[]{"爬取时间", "团队ID", "玩家ID", "玩家名称", "申请数量", "实时金额", "可用额度",
+        "同意购买", "购买结果"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (SMAutoInfo info : autoShangmas) {
@@ -763,26 +816,23 @@ public class SMAutoController extends BaseController implements Initializable {
       objs[1] = info.getSmAutoTeamId();
       objs[2] = info.getSmAutoPlayerId();
       objs[3] = info.getSmAutoPlayerName();
-      objs[4] = info.getSmAutoPaiju();
-      objs[5] = info.getSmAutoApplyAccount();
-      objs[6] = info.getSmAutoTeamTotalAvailabel();
-      objs[7] = info.getSmAutoAvailabel();
-      objs[8] = info.getSmAutoIsTeamAvailabel();
-      objs[9] = info.getSmAutoIsCurrentDay();
-      objs[10] = info.getSmAutoIsNextDay();
-      objs[11] = info.getSmAutoIsAgree();
-      objs[12] = info.getSmAutoIsAgreeSuccess();
+      objs[4] = info.getSmAutoApplyAccount();
+      objs[5] = info.getSmAutoCurrentMoney();
+      objs[6] = info.getSmAutoAvailabelEdu();
+      objs[7] = info.getSmAutoIsAgree();
+      objs[8] = info.getSmAutoIsAgreeSuccess();
       dataList.add(objs);
     }
-    String title = "自动上码-" + TimeUtil.getDateTime();
+    String title = "自动购买联盟币-" + TimeUtil.getDateTime();
     List<Integer> columnWidths =
-        Arrays.asList(3500, 3500, 4000, 3000, 3000, 3000, 4000, 4000, 3000, 3000, 3000, 3000, 3000, 5000);
+        Arrays.asList(3500, 3500, 4000, 5000, 3000, 3000, 4000, 4000, 3000, 3000, 3000, 3000, 3000,
+            5000);
     ExportExcelTemplate ex = new ExportExcelTemplate(title, rowsName, columnWidths, dataList);
     try {
       ex.export();
       ShowUtil.show("导出完成", 1);
     } catch (Exception e) {
-      ErrorUtil.err("导出自动记录失败", e);
+      ErrorUtil.err("导出自动购买联盟币记录失败", e);
       e.printStackTrace();
     }
   }
@@ -791,7 +841,7 @@ public class SMAutoController extends BaseController implements Initializable {
   /**
    * 获取相应的自动上码记录
    *
-   * @param type 1:审核结果非“-” 2：所有记录
+   * @param type 1:购买结果非“-” 2：所有记录
    * @time 2018年3月31日
    */
   @SuppressWarnings("unchecked")
@@ -913,27 +963,31 @@ public class SMAutoController extends BaseController implements Initializable {
     try {
       excelInfo("正在获取" + houtai + "房间列表..." + TimeUtil.getTimeString());
       Map<String, String> params = getParams(downType);
-      String respString = httpService.sendPost(
-          "http://cms.pokermanager.club/cms-api/game/getHistoryGameList", params, getToken());
-      if (StringUtil.isNotBlank(respString)) {
-        if (log.isDebugEnabled()) {
-          String paramsJson = JSON.toJSONString(params);
-          log.info("req params : " + paramsJson);
-          log.info("rsp json : " + respString);
+
+      try {
+        HttpResult httpResult = httpUtils.post(
+            "http://cms.pokermanager.club/cms-api/game/getHistoryGameList", charset,
+            JSON.toJSONString(params), getHeader());
+        if (httpResult.isOK()) {
+          String content = httpResult.getContent();
+          if (StringUtil.isNotBlank(content)) {
+            parseObject = JSON.parseObject(content,
+                new TypeReference<RespResult<GameRoomModel>>() {
+                });
+            excelInfo(houtai + "房间数量：" + parseObject.getResult().getTotal());
+          }
         }
-        parseObject = JSON.parseObject(respString,
-            new TypeReference<RespResult<GameRoomModel>>() {
-            });
-        excelInfo(houtai + "房间数量：" + parseObject.getResult().getTotal());
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     } catch (Exception e) {
-      String errMsg = "获取房间列表：网络异常...";
+      String errMsg = "获取房间列表：联盟币异常...";
       excelInfo(errMsg + e.getMessage());
       return;
     }
 
     if (parseObject.getiErrCode() > 0) {
-      excelInfo("网络异常，后台返回码：" + parseObject.getiErrCode());
+      excelInfo("联盟币异常，后台返回码：" + parseObject.getiErrCode());
       return;
     }
 
@@ -989,7 +1043,8 @@ public class SMAutoController extends BaseController implements Initializable {
           downloadCache.remove(fileName);
         } catch (IOException ioe) {
           String errMsg = ioe.getMessage();
-          log.error("自动下载失败IOException：文件名：" + fileName + (errMsg.contains("403") ? ",具体信息：403返回码！" : ""));
+          log.error("自动下载失败IOException：文件名：" + fileName + (errMsg.contains("403") ? ",具体信息：403返回码！"
+              : ""));
           downloadCache.remove(fileName);
         } catch (Exception e) {
           log.error("自动下载异常：未捕获的其他异常，文件名：" + fileName + ",具体信息：" + e.getMessage(), e);
@@ -1045,7 +1100,7 @@ public class SMAutoController extends BaseController implements Initializable {
     params.put("order", "-1");
     params.put("gameType", downType);
     params.put("pageSize", "250");
-    params.put("isCredit","1");
+    params.put("isCredit", "1");
     return params;
   }
 

@@ -43,7 +43,7 @@
 
 		<!--<table tableName="man" domainObjectName="Man" mapperName="ManDao">
 		</table>-->
-		<table tableName="tb_person" domainObjectName="TbPerson" mapperName="TbPersonDao">
+		<table tableName="game_record" domainObjectName="GameRecord" mapperName="GameRecordDao">
 		</table>
 
 

@@ -71,6 +71,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1123,6 +1124,22 @@ public class MoneyService extends BasicService{
       table.scrollTo(nextIndex);
       table.getSelectionModel().select(nextIndex);
     }
+  }
+
+  /**
+   * 根据玩家ID获取行记录
+   * @param playerId
+   * @return
+   */
+  public CurrentMoneyInfo searchRowByPlayerId(String playerId) {
+    if (StringUtils.isNotBlank(playerId)) {
+      for (CurrentMoneyInfo item : myController.tableCurrentMoneyInfo.getItems()) {
+        if (StringUtils.equals(playerId, item.getWanjiaId())) {
+          return item;
+        }
+      }
+    }
+    return null;
   }
 
   /**

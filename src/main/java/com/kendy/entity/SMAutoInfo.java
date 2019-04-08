@@ -30,29 +30,17 @@ public class SMAutoInfo implements Entity {
    */
   private SimpleStringProperty smAutoPlayerName = new SimpleStringProperty();
   /*
-   * 牌局
-   */
-  private SimpleStringProperty smAutoPaiju = new SimpleStringProperty();
-  /*
    * 申请数量
    */
   private SimpleStringProperty smAutoApplyAccount = new SimpleStringProperty();
   /*
-   * 计算额度
+   * 实时金额
    */
-  private SimpleStringProperty smAutoAvailabel = new SimpleStringProperty();
+  private SimpleStringProperty smAutoCurrentMoney = new SimpleStringProperty();
   /*
-   * 是否勾选团队可上码
+   * 可用额度
    */
-  private SimpleStringProperty smAutoIsTeamAvailabel = new SimpleStringProperty();
-  /*
-   * 是否今日上码
-   */
-  private SimpleStringProperty smAutoIsCurrentDay = new SimpleStringProperty();
-  /*
-   * 是否次日上码
-   */
-  private SimpleStringProperty smAutoIsNextDay = new SimpleStringProperty();
+  private SimpleStringProperty smAutoAvailabelEdu = new SimpleStringProperty();
   /*
    * 判断是否同意审核
    */
@@ -62,9 +50,9 @@ public class SMAutoInfo implements Entity {
    */
   private SimpleStringProperty smAutoIsAgreeSuccess = new SimpleStringProperty();
   /*
-   * 团队的可上码
+   * 购买联盟币失败原因
    */
-  private SimpleStringProperty smAutoTeamTotalAvailabel = new SimpleStringProperty();
+  private SimpleStringProperty smAutoFailDescription = new SimpleStringProperty();
 
 
   public SMAutoInfo() {
@@ -75,34 +63,25 @@ public class SMAutoInfo implements Entity {
   /**
    * 构造方法
    */
-  public SMAutoInfo(
-      String smAutoDate,
-      String smAutoTeamId,
-      String smAutoPlayerId,
+  public SMAutoInfo(String smAutoDate,
+      String smAutoTeamId, String smAutoPlayerId,
       String smAutoPlayerName,
-      String smAutoPaiju,
       String smAutoApplyAccount,
-      String smAutoTeamTotalAvailabel,
-      String smAutoAvailabel,
-      String smAutoIsTeamAvailabel,
-      String smAutoIsCurrentDay,
-      String smAutoIsNextDay,
+      String smAutoCurrentMoney,
+      String smAutoAvailabelEdu,
       String smAutoIsAgree,
-      String smAutoIsAgreeSuccess) {
-    super();
+      String smAutoIsAgreeSuccess,
+      String smAutoFailDescription) {
     this.smAutoDate = new SimpleStringProperty(smAutoDate);
     this.smAutoTeamId = new SimpleStringProperty(smAutoTeamId);
     this.smAutoPlayerId = new SimpleStringProperty(smAutoPlayerId);
     this.smAutoPlayerName = new SimpleStringProperty(smAutoPlayerName);
-    this.smAutoPaiju = new SimpleStringProperty(smAutoPaiju);
     this.smAutoApplyAccount = new SimpleStringProperty(smAutoApplyAccount);
-    this.smAutoTeamTotalAvailabel = new SimpleStringProperty(smAutoTeamTotalAvailabel);
-    this.smAutoAvailabel = new SimpleStringProperty(smAutoAvailabel);
-    this.smAutoIsTeamAvailabel = new SimpleStringProperty(smAutoIsTeamAvailabel);
-    this.smAutoIsCurrentDay = new SimpleStringProperty(smAutoIsCurrentDay);
-    this.smAutoIsNextDay = new SimpleStringProperty(smAutoIsNextDay);
     this.smAutoIsAgree = new SimpleStringProperty(smAutoIsAgree);
     this.smAutoIsAgreeSuccess = new SimpleStringProperty(smAutoIsAgreeSuccess);
+    this.smAutoCurrentMoney = new SimpleStringProperty(smAutoCurrentMoney);
+    this.smAutoAvailabelEdu = new SimpleStringProperty(smAutoAvailabelEdu);
+    this.smAutoFailDescription = new SimpleStringProperty(smAutoFailDescription);
   }
 
   /*****************************************************************smAutoDate***/
@@ -144,19 +123,6 @@ public class SMAutoInfo implements Entity {
     this.smAutoPlayerNameProperty().set(smAutoPlayerName);
   }
 
-  /*****************************************************************smAutoPaiju***/
-  public SimpleStringProperty smAutoPaijuProperty() {
-    return this.smAutoPaiju;
-  }
-
-  public String getSmAutoPaiju() {
-    return this.smAutoPaijuProperty().get();
-  }
-
-  public void setSmAutoPaiju(final String smAutoPaiju) {
-    this.smAutoPaijuProperty().set(smAutoPaiju);
-  }
-
   /*****************************************************************smAutoApplyAccount***/
   public SimpleStringProperty smAutoApplyAccountProperty() {
     return this.smAutoApplyAccount;
@@ -170,44 +136,6 @@ public class SMAutoInfo implements Entity {
     this.smAutoApplyAccountProperty().set(smAutoApplyAccount);
   }
 
-  /*****************************************************************smAutoIsTeamAvailabel***/
-  public SimpleStringProperty smAutoIsTeamAvailabelProperty() {
-    return this.smAutoIsTeamAvailabel;
-  }
-
-  public String getSmAutoIsTeamAvailabel() {
-    return this.smAutoIsTeamAvailabelProperty().get();
-  }
-
-  public void setSmAutoIsTeamAvailabel(final String smAutoIsTeamAvailabel) {
-    this.smAutoIsTeamAvailabelProperty().set(smAutoIsTeamAvailabel);
-  }
-
-  /*****************************************************************smAutoIsCurrentDay***/
-  public SimpleStringProperty smAutoIsCurrentDayProperty() {
-    return this.smAutoIsCurrentDay;
-  }
-
-  public String getSmAutoIsCurrentDay() {
-    return this.smAutoIsCurrentDayProperty().get();
-  }
-
-  public void setSmAutoIsCurrentDay(final String smAutoIsCurrentDay) {
-    this.smAutoIsCurrentDayProperty().set(smAutoIsCurrentDay);
-  }
-
-  /*****************************************************************smAutoIsNextDay***/
-  public SimpleStringProperty smAutoIsNextDayProperty() {
-    return this.smAutoIsNextDay;
-  }
-
-  public String getSmAutoIsNextDay() {
-    return this.smAutoIsNextDayProperty().get();
-  }
-
-  public void setSmAutoIsNextDay(final String smAutoIsNextDay) {
-    this.smAutoIsNextDayProperty().set(smAutoIsNextDay);
-  }
 
   /*****************************************************************smAutoIsAgree***/
   public SimpleStringProperty smAutoIsAgreeProperty() {
@@ -235,31 +163,6 @@ public class SMAutoInfo implements Entity {
     this.smAutoIsAgreeSuccessProperty().set(smAutoIsAgreeSuccess);
   }
 
-  //==========================================
-  public SimpleStringProperty smAutoAvailabelProperty() {
-    return this.smAutoAvailabel;
-  }
-
-  public String getSmAutoAvailabel() {
-    return this.smAutoAvailabelProperty().get();
-  }
-
-  public void setSmAutoAvailabel(final String smAutoAvailabel) {
-    this.smAutoAvailabelProperty().set(smAutoAvailabel);
-  }
-
-  //***********************************************
-  public SimpleStringProperty smAutoTeamTotalAvailabelProperty() {
-    return this.smAutoTeamTotalAvailabel;
-  }
-
-  public String getSmAutoTeamTotalAvailabel() {
-    return this.smAutoTeamTotalAvailabelProperty().get();
-  }
-
-  public void setSmAutoTeamTotalAvailabel(final String smAutoTeamTotalAvailabel) {
-    this.smAutoTeamTotalAvailabelProperty().set(smAutoTeamTotalAvailabel);
-  }
 
   //***********************************************
   public String getSmAutoTeamId() {
@@ -272,5 +175,42 @@ public class SMAutoInfo implements Entity {
 
   public void setSmAutoTeamId(String smAutoTeamId) {
     this.smAutoTeamId.set(smAutoTeamId);
+  }
+
+
+  public String getSmAutoCurrentMoney() {
+    return smAutoCurrentMoney.get();
+  }
+
+  public SimpleStringProperty smAutoCurrentMoneyProperty() {
+    return smAutoCurrentMoney;
+  }
+
+  public void setSmAutoCurrentMoney(String smAutoCurrentMoney) {
+    this.smAutoCurrentMoney.set(smAutoCurrentMoney);
+  }
+
+  public String getSmAutoAvailabelEdu() {
+    return smAutoAvailabelEdu.get();
+  }
+
+  public SimpleStringProperty smAutoAvailabelEduProperty() {
+    return smAutoAvailabelEdu;
+  }
+
+  public void setSmAutoAvailabelEdu(String smAutoAvailabelEdu) {
+    this.smAutoAvailabelEdu.set(smAutoAvailabelEdu);
+  }
+
+  public String getSmAutoFailDescription() {
+    return smAutoFailDescription.get();
+  }
+
+  public SimpleStringProperty smAutoFailDescriptionProperty() {
+    return smAutoFailDescription;
+  }
+
+  public void setSmAutoFailDescription(String smAutoFailDescription) {
+    this.smAutoFailDescription.set(smAutoFailDescription);
   }
 }

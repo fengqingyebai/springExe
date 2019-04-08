@@ -18,6 +18,7 @@ public class CurrentMoneyInfo implements Entity {
   public SimpleStringProperty cmiEdu = new SimpleStringProperty();//类型
   public SimpleStringProperty color = new SimpleStringProperty();//颜色
   public SimpleStringProperty cmSuperIdSum = new SimpleStringProperty();//总和
+  public SimpleStringProperty creator = new SimpleStringProperty("system");//创建人
 
 
   public CurrentMoneyInfo() {
@@ -30,6 +31,14 @@ public class CurrentMoneyInfo implements Entity {
     this.shishiJine = new SimpleStringProperty(shishiJine);
     this.wanjiaId = new SimpleStringProperty(wanjiaId);
     this.cmiEdu = new SimpleStringProperty(cmiEdu);
+  }
+  public CurrentMoneyInfo(String mingzi, String shishiJine, String wanjiaId, String cmiEdu, String creator) {
+    super();
+    this.mingzi = new SimpleStringProperty(mingzi);
+    this.shishiJine = new SimpleStringProperty(shishiJine);
+    this.wanjiaId = new SimpleStringProperty(wanjiaId);
+    this.cmiEdu = new SimpleStringProperty(cmiEdu);
+    this.creator = new SimpleStringProperty(creator);
   }
 //	public CurrentMoneyInfo(String mingzi, String shishiJine) {
 //		super();
@@ -46,6 +55,17 @@ public class CurrentMoneyInfo implements Entity {
     return this.mingziProperty().get();
   }
 
+  public String getCreator() {
+    return creator.get();
+  }
+
+  public SimpleStringProperty creatorProperty() {
+    return creator;
+  }
+
+  public void setCreator(String creator) {
+    this.creator.set(creator);
+  }
 
   public void setMingzi(final String mingzi) {
     this.mingziProperty().set(mingzi);

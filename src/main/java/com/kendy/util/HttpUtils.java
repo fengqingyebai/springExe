@@ -120,7 +120,6 @@ public class HttpUtils {
   }
 
   /**
-   * @param charset 字符集
    * @param timeout 超时时间(毫秒)
    */
   public HttpResult get(String url, Charset charSet, int timeout)
@@ -199,6 +198,23 @@ public class HttpUtils {
     }
 
     return post(url, charset, entity, null, requestConfig);
+  }
+
+  public HttpResult formPost(String url, Charset charset, Map<String, String> form, Map<String, String> headers)
+      throws URISyntaxException, IOException {
+    if (charset == null) {
+      charset = Charset.forName("utf-8");
+    }
+    List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+    form.forEach((key, value) -> {
+      nvps.add(new BasicNameValuePair(key, value));
+    });
+    UrlEncodedFormEntity entity = new UrlEncodedFormEntity(nvps);
+    entity.setContentEncoding(charset.name());
+
+    RequestConfig requestConfig = null;
+
+    return post(url, charset, entity, headers, requestConfig);
   }
 
   /**

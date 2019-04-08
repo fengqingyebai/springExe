@@ -1,6 +1,5 @@
 package kendy.db;
 
-import com.kendy.db.dao.TbPersonDao;
 import com.kendy.db.entity.TbPerson;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
@@ -29,9 +28,9 @@ public class SqlSessionTest extends BaseTest{
     try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       if (sqlSession != null) {
         System.out.println("sqlSession is not null");
-        List<TbPerson> list = sqlSession.getMapper(TbPersonDao.class).myPerson();
-        //sqlSessionTemplate.getMapper()
-        System.out.println(list.get(0).toString());
+//        List<TbPerson> list = sqlSession.getMapper(TbPersonDao.class).myPerson();
+//        //sqlSessionTemplate.getMapper()
+//        System.out.println(list.get(0).toString());
       }
     }
 

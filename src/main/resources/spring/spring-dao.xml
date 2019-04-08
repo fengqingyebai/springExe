@@ -13,6 +13,7 @@
 		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
   <!-- 扫描service包下所有使用注解的类型 -->
+  <context:component-scan base-package="com.kendy.db.dao" />
   <context:component-scan base-package="com.kendy.db.service" />
 
   <!--这里应该要引进properties文件-->
