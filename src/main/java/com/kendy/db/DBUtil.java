@@ -212,7 +212,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String sql;
-      sql = "insert into members values(?,?,?,?,?,?)";
+      sql = "insert into members values(?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, player.getgameId());
       ps.setString(2, player.getPlayerName());
@@ -220,6 +220,8 @@ public class DBUtil {
       ps.setString(4, player.getTeamName());
       ps.setString(5, player.getEdu());
       ps.setString(6, "0");
+      ps.setString(7, player.getChoushui());
+      ps.setString(8, player.getHuishui());
       ps.execute();
     } catch (SQLException e) {
       ErrorUtil.err(player.toString() + ",插入一条人员名单失败", e);
@@ -351,7 +353,7 @@ public class DBUtil {
         }
 
         Player player;
-        sql = "insert into members values(?,?,?,?,?,?)";
+        sql = "insert into members values(?,?,?,?,?,?,?,?)";
         ps = con.prepareStatement(sql);
         int count = 0;
         con.setAutoCommit(false);
@@ -364,6 +366,8 @@ public class DBUtil {
           ps.setString(4, player.getTeamName());
           ps.setString(5, player.getEdu());
           ps.setString(6, "0");
+          ps.setString(7, player.getChoushui());
+          ps.setString(8, player.getHuishui());
           ps.addBatch();
           // ps.execute();//批量插入应该用ps.executeBatch()
           if ((++count) % map.size() == 0) { // 每500条刷新并写入数据库

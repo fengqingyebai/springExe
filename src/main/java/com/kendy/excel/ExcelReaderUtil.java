@@ -127,17 +127,27 @@ public class ExcelReaderUtil {
           // 游戏id
           String gameId = getCellValue(row.getCell(0));
           gameId = StringUtil.nvl(gameId, "");
+          // 玩家名称
+          String playerName = getCellValue(row.getCell(1));
+          playerName = StringUtil.nvl(playerName, "");
           // 股东名称
-          String gudong = getCellValue(row.getCell(1));
+          String gudong = getCellValue(row.getCell(2));
           gudong = StringUtil.nvl(gudong, "");
           // 团队名称
-          String team = getCellValue(row.getCell(2));
+          String team = getCellValue(row.getCell(3));
           team = StringUtil.nvl(team, "");
-          // 玩家名称
-          String playerName = getCellValue(row.getCell(3));
-          playerName = StringUtil.nvl(playerName, "");
-          // 备注
-          String beizhu = getCellValue(row.getCell(4));
+          // 额度
+          String edu = getCellValue(row.getCell(4));
+          edu = StringUtil.nvl(edu, "0");
+          // 是否父ID
+          String isParent = getCellValue(row.getCell(5));
+          isParent = StringUtil.nvl(isParent, "0");
+          // 抽水
+          String choushui = getCellValue(row.getCell(6));
+          choushui = StringUtil.nvl(choushui, "");
+          // 回水
+          String huishui = getCellValue(row.getCell(7));
+          huishui = StringUtil.nvl(huishui);
           if (!StringUtil.isBlank(gameId)) {
             try {
               gameId = new BigDecimal(gameId).toPlainString();// 不要科学记数法
@@ -145,7 +155,7 @@ public class ExcelReaderUtil {
               gameId = getCellValue(row.getCell(0));
             }
             gudong = StringUtil.isBlank(gudong) ? "W" : gudong;// 股东为空的默认设置为W
-            player = new Player(gameId, team, gudong, playerName, beizhu);
+            player = new Player(gameId, team, gudong, playerName, edu, isParent, choushui, huishui);
             membersMap.put(gameId, player);
           }
         }

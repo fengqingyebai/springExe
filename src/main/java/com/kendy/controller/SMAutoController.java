@@ -127,6 +127,9 @@ public class SMAutoController extends BaseController implements Initializable {
   @Autowired
   public DataConstans dataConstants; // 数据控制类
 
+  @Autowired
+  ChangciController changciController;
+
   @FXML
   public TextField smNextDayRangeFieldd; // 次日上码配置
 
@@ -521,11 +524,13 @@ public class SMAutoController extends BaseController implements Initializable {
         // 根据玩家ID获取玩家实时金额信息，无则创建
         CurrentMoneyInfo currentMoneyInfo = moneyService.searchRowByPlayerId(playerId);
         if (currentMoneyInfo == null) {
+          ErrorUtil.err("玩家（" + playerName + ")在实时金额表不存在");
+          return;
           // TODO 无时如果创建
-          logInfo("玩家（" + playerName + ")在实时金额表不存在，自动创建");
-          String creator = MoneyCreatorEnum.LIAN_MENG_BI.getCreatorName();
-          currentMoneyInfo = new CurrentMoneyInfo(playerName, "0", playerId, player.getEdu(),
-              creator);
+//          logInfo("玩家（" + playerName + ")在实时金额表不存在，自动创建");
+//          String creator = MoneyCreatorEnum.LIAN_MENG_BI.getCreatorName();
+//          currentMoneyInfo = new CurrentMoneyInfo(playerName, "0", playerId, player.getEdu(),
+//              creator);
         }
         String currentMoney = currentMoneyInfo.getShishiJine();
         String availableEdu = currentMoneyInfo.getCmiEdu();
@@ -537,7 +542,6 @@ public class SMAutoController extends BaseController implements Initializable {
         // 联盟币购买结果
         boolean buyLmbOk = false;
         int buyLmbCode = -1;
-        String validateResult = "";
         if (!passCheck) {
           log.info(
               player.getPlayerName() + "买入" + buyStack + "不在范围中[实时金额为" + currentMoney + ",可用额度为"
@@ -563,7 +567,7 @@ public class SMAutoController extends BaseController implements Initializable {
               currentMoneyInfo.setShishiJine(NumUtil.digit0(NumUtil.getNum(currentMoney) - buyStackCount));
 
               // 保存到实时金额表
-              myController.tableCurrentMoneyInfo.refresh();
+              combineIDController.tableCurrentMoneyInfo.refresh();
               logInfo(playerName + "模拟更新实时金额结束");
             }
           }
@@ -801,13 +805,13 @@ public class SMAutoController extends BaseController implements Initializable {
    * @time 2018年3月31日
    */
   public void exportSMAction(ActionEvent event) {
-    List<SMAutoInfo> autoShangmas = getAutoShangmas(1);
+    List<SMAutoInfo> autoShangmas = getAutoShangmas();
     if (CollectUtil.isEmpty(autoShangmas)) {
       ShowUtil.show("没有可供导出的数据！");
       return;
     }
     String[] rowsName = new String[]{"爬取时间", "团队ID", "玩家ID", "玩家名称", "申请数量", "实时金额", "可用额度",
-        "同意购买", "购买结果"};
+        "同意购买", "购买结果","备注"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (SMAutoInfo info : autoShangmas) {
@@ -821,12 +825,13 @@ public class SMAutoController extends BaseController implements Initializable {
       objs[6] = info.getSmAutoAvailabelEdu();
       objs[7] = info.getSmAutoIsAgree();
       objs[8] = info.getSmAutoIsAgreeSuccess();
+      objs[9] = info.getSmAutoFailDescription();
       dataList.add(objs);
     }
     String title = "自动购买联盟币-" + TimeUtil.getDateTime();
     List<Integer> columnWidths =
         Arrays.asList(3500, 3500, 4000, 5000, 3000, 3000, 4000, 4000, 3000, 3000, 3000, 3000, 3000,
-            5000);
+            5000, 5000);
     ExportExcelTemplate ex = new ExportExcelTemplate(title, rowsName, columnWidths, dataList);
     try {
       ex.export();
@@ -841,19 +846,14 @@ public class SMAutoController extends BaseController implements Initializable {
   /**
    * 获取相应的自动上码记录
    *
-   * @param type 1:购买结果非“-” 2：所有记录
    * @time 2018年3月31日
    */
   @SuppressWarnings("unchecked")
-  public List<SMAutoInfo> getAutoShangmas(int type) {
+  public List<SMAutoInfo> getAutoShangmas() {
     if (TableUtil.isHasValue(tableSMAuto)) {
       ObservableList<SMAutoInfo> items = tableSMAuto.getItems();
-      if (1 == type) {
-        return items.stream().filter(info -> !"-".equals(info.getSmAutoIsAgreeSuccess()))
-            .collect(Collectors.toList());
-      } else {
-        return items;
-      }
+      return items.stream().filter(info -> "成功".equals(info.getSmAutoIsAgreeSuccess()))
+          .collect(Collectors.toList());
     }
     return Collections.EMPTY_LIST;
   }

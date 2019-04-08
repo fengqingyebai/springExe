@@ -38,6 +38,9 @@ public class WaizhaiController extends BaseController implements Initializable {
   @Autowired
   MyController myController;
 
+  @Autowired
+  ChangciController changciController;
+
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     // 绑定外债信息表
@@ -50,8 +53,8 @@ public class WaizhaiController extends BaseController implements Initializable {
    * 外债刷新按钮
    */
   public void waizhaiRefreshAction(ActionEvent event) {
-    waizhaiService.generateWaizhaiTables(tableWaizhai, waizhaiHBox, myController.tableCurrentMoneyInfo,
-        myController.tableTeam);
+    waizhaiService.generateWaizhaiTables(tableWaizhai, waizhaiHBox, changciController.tableCurrentMoneyInfo,
+        changciController.tableTeam);
   }
 
 }

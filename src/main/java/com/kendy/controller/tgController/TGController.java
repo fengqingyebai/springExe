@@ -1,5 +1,6 @@
 package com.kendy.controller.tgController;
 
+import com.kendy.controller.ChangciController;
 import com.kendy.exception.FinancialException;
 import com.kendy.exception.tg.NoProxyDataException;
 import java.net.URL;
@@ -100,6 +101,9 @@ public class TGController extends BaseController implements Initializable {
   public MoneyService moneyService; // 配帐控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+
+  @Autowired
+  ChangciController changciController;
 
   //====================================================================
   @FXML
@@ -1076,7 +1080,7 @@ public class TGController extends BaseController implements Initializable {
     TableUtil.clear(tgWZTeam);
 //    myController myController = Main.myController;
     tgWaizhaiService.generateWaizhaiTables(tgWZTeam, tgWZTeamHBox,
-        myController.tableCurrentMoneyInfo, myController.tableTeam);
+        changciController.tableCurrentMoneyInfo, changciController.tableTeam);
   }
 
   /**

@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.kendy.controller.ChangciController;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +49,8 @@ public class ZonghuiService {
   @Autowired
   public MyController myController;
 
+  @Autowired
+  ChangciController changciController;
 
   public DecimalFormat df = new DecimalFormat("#.00");
 
@@ -177,7 +180,7 @@ public class ZonghuiService {
     String yestoday = profitList.stream().filter(info -> "总团队服务费".equals(info.getProfitType()))
         .map(info -> info.getProfitAccount()).findFirst().orElse("0");
 
-    String now = myController.tableProfit.getItems().stream()
+    String now = changciController.tableProfit.getItems().stream()
         .filter(info -> "总团队服务费".equals(info.getProfitType())).map(info -> info.getProfitAccount())
         .findFirst().orElse("0");
 

@@ -61,6 +61,9 @@ public class StaticController extends BaseController implements Initializable {
   @Autowired
   private MyController myController;
 
+  @Autowired
+  ChangciController changciController;
+
 
   @FXML
   private TableView<TeamStaticInfo> tableTeamStatic; // 团队统计表
@@ -373,7 +376,7 @@ public class StaticController extends BaseController implements Initializable {
    */
   private void viewDetailGameRecord(String teamId, String softTime) {
     MyTable<TotalInfo2> table = new MyTable<>();
-    for (TableColumn column : myController.tableTotalInfo.getColumns()) {
+    for (TableColumn column : changciController.tableTotalInfo.getColumns()) {
       table.getColumns().add(getTableColumn(
           column.getText(), column.getId(), 3));
     }

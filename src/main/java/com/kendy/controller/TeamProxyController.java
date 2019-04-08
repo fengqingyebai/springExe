@@ -40,6 +40,9 @@ public class TeamProxyController extends BaseController implements Initializable
   @Autowired
   public TeamProxyService teamProxyService; // 配帐控制类
 
+  @Autowired
+  ChangciController changciController;
+
   // ===============================================================代理查询Tab
   @FXML
   public TableView<ProxyTeamInfo> tableProxyTeam;
@@ -107,7 +110,7 @@ public class TeamProxyController extends BaseController implements Initializable
    * @time 2018年7月22日
    */
   public void loadWhenClickTab() {
-    String dateStr = myController.softDateLabel.getText();
+    String dateStr = changciController.softDateLabel.getText();
     if (StringUtil.isNotBlank(dateStr)) {
       proxyDateLabel.setText(dateStr);
     }

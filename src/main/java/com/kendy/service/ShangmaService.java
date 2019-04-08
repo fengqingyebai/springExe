@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.kendy.controller.ChangciController;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +78,9 @@ public class ShangmaService {
   @Autowired
   public SMController smController;
 
+  @Autowired
+  ChangciController changciController;
+
   public TableView<ShangmaInfo> tableSM;
   public TableView<ShangmaDetailInfo> tableSMD;
   public TableView<ShangmaDetailInfo> tableND;// tableNextDay
@@ -107,7 +111,7 @@ public class ShangmaService {
     this.tableSMD = smController.tableShangmaDetail;
     this.labelZSM = smController.shangmaZSM;
     this.labelZZJ = smController.shangmaZZJ;
-    this.tablePJ = myController.tablePaiju;
+    this.tablePJ = changciController.tablePaiju;
     this.shangmaTeamIdLabel = smController.shangmaTeamId;
     this.tableND = smController.tableShangmaNextDay;
     this.teamShangmaAvailable = smController.teamShangmaAvailable;
@@ -1038,7 +1042,7 @@ public class ShangmaService {
 
     // 获取最新的实时金额Map {玩家ID={}}
     Map<String, CurrentMoneyInfo> lastCMIMap = new HashMap<>();
-    ObservableList<CurrentMoneyInfo> obList = myController.tableCurrentMoneyInfo.getItems();
+    ObservableList<CurrentMoneyInfo> obList = changciController.tableCurrentMoneyInfo.getItems();
     if (obList != null) {
       String pId = "";
       for (CurrentMoneyInfo cmiInfo : obList) {

@@ -3,6 +3,7 @@ package com.kendy.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -67,6 +68,9 @@ public class AddController extends BaseController implements Initializable {
   @Autowired
   public DataConstans dataConstants; // 数据控制类
 
+  @Autowired
+  ChangciController changciController;
+
   // =====================================================================新增团队回水对话框
   @FXML
   private TextField gudong2Field; // 股东
@@ -91,6 +95,11 @@ public class AddController extends BaseController implements Initializable {
   private TextField playerNameField;// 玩家名称
   @FXML
   private TextField beizhuField;// 备注
+  @FXML
+  private TextField choushuiField;// 抽水
+  @FXML
+  private TextField huishuiField;// 回水
+
 
   // =====================================================================新增实时开销对话框
   @FXML
@@ -188,11 +197,13 @@ public class AddController extends BaseController implements Initializable {
   public void addNewPlayerOKAction(ActionEvent event) {
 
     Player player = new Player();
-    player.setGameId(gameIdField.getText());
-    player.setGudong(gudongField.getText());
-    player.setTeamName(teamField.getText());
-    player.setPlayerName(playerNameField.getText());
-    player.setEdu(beizhuField.getText());
+    player.setGameId(StringUtils.defaultString(gameIdField.getText()).trim());
+    player.setGudong(StringUtils.defaultString(gudongField.getText()).trim());
+    player.setTeamName(StringUtils.defaultString(teamField.getText()).trim());
+    player.setPlayerName(StringUtils.defaultString(playerNameField.getText()).trim());
+    player.setEdu(StringUtils.defaultString(beizhuField.getText()).trim());
+    player.setChoushui(StringUtils.defaultString(choushuiField.getText()).trim());
+    player.setHuishui(StringUtils.defaultString(huishuiField.getText()).trim());
     if (!StringUtil.isBlank(player.getgameId()) && !StringUtil.isBlank(player.getTeamName())) {
       dataConstants.membersMap.put(player.getgameId(), player);
       dataConstants.refresh_SM_Detail_Map();
@@ -226,7 +237,7 @@ public class AddController extends BaseController implements Initializable {
         KaixiaoInfo kaixiaoInfo =
             new KaixiaoInfo(kaixiaoID, kxType, kxMoney, kxGudong, kaixiaoTime);
         // 添加到场次信息中的开销表(若股东为空，则ID为空)
-        myController.updateKaixiaoTable(kaixiaoInfo);
+        changciController.updateKaixiaoTable(kaixiaoInfo);
         // 添加到数据库中（如果股东不为空）
         if (!StringUtil.isAnyBlank(kxMoney, kxGudong)) {
           if (ALL_COMPANY.equals(kxGudong)) {

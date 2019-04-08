@@ -52,6 +52,9 @@ public class BankFlowController extends BaseController implements Initializable 
   @Autowired
   public MyController myController;
 
+  @Autowired
+  ChangciController changciController;
+
   @FXML
   public JFXButton bankFlowTitle;
 
@@ -128,7 +131,7 @@ public class BankFlowController extends BaseController implements Initializable 
   }
 
   private String getCurrentSoftTime() {
-    String latestDay = myController.getSoftDate();
+    String latestDay = changciController.getSoftDate();
     return StringUtil.isNotBlank(latestDay) ? latestDay
         : StringUtil.nvl(dbUtil.getMaxBankFlowTime(), "");
   }

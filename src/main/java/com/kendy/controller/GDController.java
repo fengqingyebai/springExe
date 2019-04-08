@@ -81,6 +81,9 @@ public class GDController extends BaseController implements Initializable {
   @Autowired
   public DataConstans dataConstants; // 数据控制类
 
+  @Autowired
+  ChangciController changciController;
+
   // 股东贡献值主表
   @FXML
   private TableView<GudongRateInfo> tableGDSum;
@@ -331,7 +334,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月25日
    */
   private String getLastProfit() {
-    String lockedProfit = myController.getChangciTotalProfit();
+    String lockedProfit = changciController.getChangciTotalProfit();
     return StringUtil.nvl(lockedProfit, "0.0");
   }
 
@@ -506,7 +509,7 @@ public class GDController extends BaseController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     // 主表
     KF_gudongName.setEditable(true);
-    myController.bindCellValue(gudongName, gudongProfit);
+    changciController.bindCellValue(gudongName, gudongProfit);
     gudongProfit.setCellFactory(getColorCellFactory(new GudongRateInfo()));
 
     // 绑定数据（股东原始股表\股东奖励股表\客服占股表）
@@ -518,7 +521,7 @@ public class GDController extends BaseController implements Initializable {
     setTableMockData(tablekfGu, 10);
 
     // 明细表
-    myController.bindCellValue(name, ysgu, jl3, jl7, total, salary);
+    changciController.bindCellValue(name, ysgu, jl3, jl7, total, salary);
 
   }
 
@@ -1375,9 +1378,9 @@ public class GDController extends BaseController implements Initializable {
     boolean confirmYes = AlertUtil.confirm("警告", "将清空场次信息中的利润栏以及把股东值赋到金额栏, 确定??");
     if (confirmYes) {
       // 金额表
-      TableView<CurrentMoneyInfo> tableMoney = myController.tableCurrentMoneyInfo;
+      TableView<CurrentMoneyInfo> tableMoney = changciController.tableCurrentMoneyInfo;
       // 利润表
-      TableView<ProfitInfo> tableProfit = myController.tableProfit;
+      TableView<ProfitInfo> tableProfit = changciController.tableProfit;
       // 清空利润表
       tableProfit.getItems().forEach(info -> info.setProfitAccount("0"));
       // 将股东值赋到金额栏

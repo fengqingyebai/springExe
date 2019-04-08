@@ -5,6 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BankFlowController;
+import com.kendy.controller.ChangciController;
 import com.kendy.controller.GDController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
@@ -103,6 +104,9 @@ public class MoneyService extends BasicService{
   public ShangmaService shangmaService; // 上码控制类
   @Autowired
   public BankFlowController bankFlowController; // 银行流水类
+
+  @Autowired
+  ChangciController changciController;
 
   // {玩家ID=CurrentMoneyInfo}
   public Map<String, CurrentMoneyInfo> Table_CMI_Map = new HashMap<>();
@@ -937,7 +941,7 @@ public class MoneyService extends BasicService{
 
     updatetTableProfitFirst(tableProfit);
     add2AllTeamFWF_from_tableProfit(tableProfit,
-        myController.current_Jiesuaned_team_fwf_sum);// 修改总团队服务费表
+        changciController.current_Jiesuaned_team_fwf_sum);// 修改总团队服务费表
 
     // 1 计算开销总和
     double sumOfKaixiao = getSumOfTableKaixiao(tableKaixiao);
@@ -1133,7 +1137,7 @@ public class MoneyService extends BasicService{
    */
   public CurrentMoneyInfo searchRowByPlayerId(String playerId) {
     if (StringUtils.isNotBlank(playerId)) {
-      for (CurrentMoneyInfo item : myController.tableCurrentMoneyInfo.getItems()) {
+      for (CurrentMoneyInfo item : changciController.tableCurrentMoneyInfo.getItems()) {
         if (StringUtils.equals(playerId, item.getWanjiaId())) {
           return item;
         }
@@ -1650,7 +1654,7 @@ public class MoneyService extends BasicService{
           return;
         }
 
-        String softDate = myController.getSoftDate();
+        String softDate = changciController.getSoftDate();
         if (StringUtil.isBlank(softDate)) {
           ShowUtil.show("请先在场次信息中填写当天时间!");
           return;
@@ -1829,8 +1833,8 @@ public class MoneyService extends BasicService{
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "名单登记表-德扑圈" + sdf.format(new Date());
     log.info("导出人员表Excel:" + title);
-    String[] rowsName = new String[]{"玩家ID", "股东", "团队", "游戏名字", "额度"};
-    List<Object[]> dataList = new ArrayList<Object[]>();
+    String[] rowsName = new String[]{"玩家ID", "玩家名称", "股东", "团队", "额度","是否父ID","抽水","回水"};
+    List<Object[]> dataList = new ArrayList<>();
     Object[] objs = null;
     Map<String, Player> memberMap = dataConstants.membersMap;
     String pId;
@@ -1840,10 +1844,13 @@ public class MoneyService extends BasicService{
       player = entry.getValue();
       objs = new Object[rowsName.length];
       objs[0] = pId;
-      objs[1] = player.getGudong();
-      objs[2] = player.getTeamName();
-      objs[3] = player.getPlayerName();
+      objs[1] = player.getPlayerName();
+      objs[2] = player.getGudong();
+      objs[3] = player.getTeamName();
       objs[4] = player.getEdu();
+      objs[5] = player.getIsParent();
+      objs[6] = player.getChoushui();
+      objs[7] = player.getHuishui();
       dataList.add(objs);
     }
     String out = "D:/" + title;
@@ -2265,7 +2272,7 @@ public class MoneyService extends BasicService{
         return;
       }
       ZijinInfo newBankInfo = new ZijinInfo(newBank, "0");
-      TableView<ZijinInfo> tableZijin = myController.tableZijin;
+      TableView<ZijinInfo> tableZijin = changciController.tableZijin;
       if (tableZijin != null && tableZijin.getItems() != null) {
         tableZijin.getItems().add(newBankInfo);
         tableZijin.refresh();
@@ -2277,7 +2284,7 @@ public class MoneyService extends BasicService{
    * 删除银行类型
    */
   public void delBank() {
-    TableView<ZijinInfo> tableZijin = myController.tableZijin;
+    TableView<ZijinInfo> tableZijin = changciController.tableZijin;
     ZijinInfo selectedZijin = tableZijin.getSelectionModel().getSelectedItem();
     if (selectedZijin == null) {
       ShowUtil.show("亲，请先选择你要删除的资金类型!");
