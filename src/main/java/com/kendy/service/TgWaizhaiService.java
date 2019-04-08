@@ -335,7 +335,7 @@ public class TgWaizhaiService {
    */
   private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
-        info.getWanjiaId(), info.getCmiEdu());
+        info.getWanjiaId(), info.getCmiEdu(),info.getCreator());
     copyInfo.setColor(info.getColor());
     copyInfo.setCmSuperIdSum(info.getCmSuperIdSum());
     return copyInfo;

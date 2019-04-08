@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.text.*?>
@@ -57,7 +58,7 @@
                               <Button fx:id="importZJBtn" mnemonicParsing="false" onAction="#importZJExcelAction" prefHeight="23.0" prefWidth="65.0" text="导入" />
                            </children>
                         </HBox>
-                        <TableView fx:id="tableTotalInfo" layoutX="38.0" layoutY="116.0" prefHeight="227.0" prefWidth="875.0">
+                        <TableView fx:id="tableTotalInfo" layoutX="38.0" layoutY="116.0" prefHeight="227.0" prefWidth="897.0">
                            <columns>
                               <TableColumn fx:id="tuan" prefWidth="75.0" text="团ID" />
                               <TableColumn fx:id="wanjiaId" prefWidth="103.0" text="玩家ID" />
@@ -67,31 +68,31 @@
                               <TableColumn fx:id="baoxian" prefWidth="73.0" text="保险" />
                               <TableColumn fx:id="chuHuishui" prefWidth="70.0" text="出回水" />
                               <TableColumn fx:id="baohui" prefWidth="76.0" text="回保" />
-                              <TableColumn fx:id="shuihouxian" prefWidth="65.0" text="水后险" />
-                              <TableColumn fx:id="shouHuishui" prefWidth="75.0" text="收回水" />
-                              <TableColumn fx:id="heLirun" prefWidth="83.0" text="合利润" />
+                              <TableColumn fx:id="shuihouxian" prefWidth="79.0" text="水后险" />
+                              <TableColumn fx:id="shouHuishui" prefWidth="70.0" text="收回水" />
+                              <TableColumn fx:id="heLirun" prefWidth="89.0" text="合利润" />
                            </columns>
                         </TableView>
-                        <TableView fx:id="tablePaiju" layoutX="40.0" layoutY="361.0" prefHeight="111.0" prefWidth="528.0">
+                        <TableView fx:id="tablePaiju" layoutX="40.0" layoutY="361.0" prefHeight="111.0" prefWidth="515.0">
                            <columns>
                               <TableColumn fx:id="copy" prefWidth="65.0" text="复制" />
                               <TableColumn fx:id="paiju" prefWidth="72.0" text="牌局" />
-                              <TableColumn fx:id="wanjiaName" prefWidth="102.0" text="玩家" />
-                              <TableColumn fx:id="zhangji" prefWidth="61.0" text="战绩" />
-                              <TableColumn fx:id="yicunJifen" prefWidth="63.0" text="已存积分" />
-                              <TableColumn fx:id="heji" prefWidth="63.0" text="合计" />
-                              <TableColumn fx:id="pay" prefWidth="81.0" text="支付" />
+                              <TableColumn fx:id="wanjiaName" prefWidth="91.0" text="玩家" />
+                              <TableColumn fx:id="zhangji" prefWidth="65.0" text="战绩" />
+                              <TableColumn fx:id="yicunJifen" prefWidth="59.0" text="已存积分" />
+                              <TableColumn fx:id="heji" prefWidth="61.0" text="合计" />
+                              <TableColumn fx:id="pay" prefWidth="79.0" text="支付" />
                            </columns>
                         </TableView>
-                        <TableView fx:id="tableCurrentMoneyInfo" layoutX="584.0" layoutY="398.0" maxHeight="1.7976931348623157E308" prefHeight="419.0" prefWidth="325.0">
+                        <TableView fx:id="tableCurrentMoneyInfo" layoutX="569.0" layoutY="398.0" maxHeight="1.7976931348623157E308" prefHeight="419.0" prefWidth="366.0">
                            <columns>
-                              <TableColumn fx:id="cmSuperIdSum" prefWidth="57.0" text="总和" />
-                              <TableColumn fx:id="mingzi" prefWidth="114.0" text="名字" />
-                              <TableColumn fx:id="shishiJine" maxWidth="3000.0" minWidth="0.0" prefWidth="69.0" text="实时金额" />
-                              <TableColumn fx:id="cmiEdu" minWidth="0.0" prefWidth="66.0" text="额度" />
+                              <TableColumn fx:id="cmSuperIdSum" prefWidth="68.0" text="总和" />
+                              <TableColumn fx:id="mingzi" prefWidth="115.0" text="名字" />
+                              <TableColumn fx:id="shishiJine" maxWidth="3000.0" minWidth="0.0" prefWidth="98.0" text="实时金额" />
+                              <TableColumn fx:id="cmiEdu" minWidth="0.0" prefWidth="65.0" text="额度" />
                            </columns>
                         </TableView>
-                        <VBox layoutX="943.0" layoutY="116.0" prefHeight="696.0" prefWidth="152.0">
+                        <VBox layoutX="962.0" layoutY="117.0" prefHeight="696.0" prefWidth="152.0">
                            <children>
                               <TableView fx:id="tableZijin" prefHeight="194.0" prefWidth="152.0">
                                  <columns>
@@ -132,18 +133,18 @@
                               </TableView>
                            </children>
                         </VBox>
-                        <Hyperlink fx:id="addCurrentMoneyLink" layoutX="584.0" layoutY="366.0" onAction="#openAddCurrentMoneyAction" text="新增" />
-                        <TableView fx:id="tableTeam" layoutX="41.0" layoutY="486.0" prefHeight="157.0" prefWidth="527.0">
+                        <Hyperlink fx:id="addCurrentMoneyLink" layoutX="568.0" layoutY="366.0" onAction="#openAddCurrentMoneyAction" text="新增" />
+                        <TableView fx:id="tableTeam" layoutX="41.0" layoutY="486.0" prefHeight="157.0" prefWidth="516.0">
                            <columns>
                               <TableColumn fx:id="teamID" prefWidth="73.0" text="团队ID" />
                               <TableColumn fx:id="teamZJ" prefWidth="82.0" text="团队累计战绩" />
                               <TableColumn fx:id="teamHS" prefWidth="107.0" text="团队累计回水" />
                               <TableColumn fx:id="teamBS" prefWidth="96.0" text="团队累计回保" />
-                              <TableColumn fx:id="teamSum" prefWidth="75.0" text="总" />
-                              <TableColumn fx:id="teamJiesuan" prefWidth="79.0" text="结算" />
+                              <TableColumn fx:id="teamSum" prefWidth="61.0" text="总" />
+                              <TableColumn fx:id="teamJiesuan" prefWidth="81.0" text="结算" />
                            </columns>
                         </TableView>
-                        <VBox layoutX="1119.0" layoutY="112.0" prefHeight="705.0" prefWidth="158.0">
+                        <VBox layoutX="1136.0" layoutY="112.0" prefHeight="705.0" prefWidth="158.0">
                            <children>
                               <Button fx:id="refreshBtn" layoutX="917.0" layoutY="156.0" mnemonicParsing="false" onAction="#refreshAction" prefHeight="23.0" prefWidth="148.0" text="平帐按钮" />
                               <AnchorPane prefHeight="26.0" prefWidth="159.0" />
@@ -179,9 +180,9 @@
                               <Insets left="8.0" right="8.0" top="4.0" />
                            </padding>
                         </VBox>
-                        <TextField fx:id="searchText" layoutX="725.0" layoutY="365.0" onDragEntered="#searchRowAction" onKeyPressed="#searchRowByEnterEvent" prefHeight="23.0" prefWidth="126.0" />
-                        <Button fx:id="searchBtn" layoutX="848.0" layoutY="365.0" mnemonicParsing="false" onAction="#searchRowAction" prefHeight="23.0" prefWidth="61.0" text="搜索" />
-                        <Button fx:id="lockDangjuBtn" layoutX="1127.0" layoutY="56.0" mnemonicParsing="false" onAction="#lockDangjuAction" prefHeight="34.0" prefWidth="142.0" style="-fx-border-color: red;" text="锁定当局">
+                        <TextField fx:id="searchText" layoutX="778.0" layoutY="365.0" onDragEntered="#searchRowAction" onKeyPressed="#searchRowByEnterEvent" prefHeight="23.0" prefWidth="100.0" />
+                        <Button fx:id="searchBtn" layoutX="875.0" layoutY="365.0" mnemonicParsing="false" onAction="#searchRowAction" prefHeight="23.0" prefWidth="61.0" text="搜索" />
+                        <Button fx:id="lockDangjuBtn" layoutX="1144.0" layoutY="57.0" mnemonicParsing="false" onAction="#lockDangjuAction" prefHeight="34.0" prefWidth="142.0" style="-fx-border-color: red;" text="锁定当局">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
@@ -192,27 +193,28 @@
                            </font>
                         </Label>
                         <Label fx:id="indexLabel" alignment="CENTER" layoutX="758.0" layoutY="32.0" prefHeight="58.0" prefWidth="153.0" text="第 0 局" />
-                        <Hyperlink fx:id="delCurrentMoneyBtn" layoutX="616.0" layoutY="366.0" onAction="#delCurrentMoneyAction" text="删除" />
-                        <Hyperlink fx:id="exportSSJE" layoutX="648.0" layoutY="366.0" onAction="#exportSSJEAction" text="导出" />
-                        <HBox fx:id="hbox_autoTestMode" layoutX="940.0" layoutY="55.0" prefHeight="37.0" prefWidth="153.0" spacing="10.0">
+                        <Hyperlink fx:id="delCurrentMoneyBtn" layoutX="600.0" layoutY="366.0" onAction="#delCurrentMoneyAction" text="删除" />
+                        <Hyperlink fx:id="exportSSJE" layoutX="632.0" layoutY="366.0" onAction="#exportSSJEAction" text="导出" />
+                        <HBox fx:id="hbox_autoTestMode" layoutX="961.0" layoutY="56.0" prefHeight="37.0" prefWidth="153.0" spacing="10.0">
                            <children>
                               <Button fx:id="importZJBtn2" mnemonicParsing="false" onAction="#refreshNextExcelAction" prefHeight="36.0" prefWidth="43.0" text="刷导" />
                               <Button fx:id="importZJBtn3" mnemonicParsing="false" onAction="#importNextZJExcelAction" prefHeight="36.0" prefWidth="99.0" text="导入下一场" />
                            </children>
                         </HBox>
                         <Button layoutX="22.0" layoutY="56.0" mnemonicParsing="false" onAction="#importBlankExcelAction" text="空白表" />
-                        <Hyperlink layoutX="1073.0" layoutY="92.0" onAction="#addBankAction" prefHeight="21.0" prefWidth="20.0" text="加" />
-                        <Hyperlink layoutX="1045.0" layoutY="92.0" onAction="#delBankAction" prefHeight="21.0" prefWidth="28.0" text="删" />
-                        <TableView fx:id="tablePersonal" layoutX="41.0" layoutY="661.0" prefHeight="153.0" prefWidth="528.0">
+                        <Hyperlink layoutX="990.0" layoutY="93.0" onAction="#addBankAction" prefHeight="21.0" prefWidth="20.0" text="加" />
+                        <Hyperlink layoutX="962.0" layoutY="93.0" onAction="#delBankAction" prefHeight="21.0" prefWidth="28.0" text="删" />
+                        <TableView fx:id="tablePersonal" layoutX="41.0" layoutY="661.0" prefHeight="153.0" prefWidth="516.0">
                            <columns>
-                              <TableColumn fx:id="personalPlayerId" prefWidth="90.0" text="玩家ID" />
-                              <TableColumn fx:id="personalPlayerName" prefWidth="96.0" text="玩家名称" />
+                              <TableColumn fx:id="personalPlayerId" text="玩家ID" />
+                              <TableColumn fx:id="personalPlayerName" prefWidth="95.0" text="玩家名称" />
                               <TableColumn fx:id="personalSumZJ" prefWidth="67.0" text="累计战绩" />
-                              <TableColumn fx:id="personalSumHS" prefWidth="88.0" text="累计回水" />
-                              <TableColumn fx:id="personalSumHB" prefWidth="105.0" text="累计回保" />
-                              <TableColumn fx:id="pay1" prefWidth="62.0" text="结算" />
+                              <TableColumn fx:id="personalSumHS" prefWidth="70.0" text="累计回水" />
+                              <TableColumn fx:id="personalSumHB" prefWidth="78.0" text="累计回保" />
+                              <TableColumn fx:id="pay1" prefWidth="99.0" text="结算" />
                            </columns>
                         </TableView>
+                        <JFXToggleButton fx:id="spiderNode" layoutX="676.0" layoutY="347.0" prefHeight="59.0" prefWidth="94.0" text="爬取" toggleColor="#5ed684d3" toggleLineColor="#5fd887d6" />
                      </children>
                   </AnchorPane>
                </content>

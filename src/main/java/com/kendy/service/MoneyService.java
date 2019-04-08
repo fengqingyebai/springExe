@@ -24,6 +24,7 @@ import com.kendy.entity.TotalInfo;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
 import com.kendy.enums.ColumnColorType;
+import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.enums.PermissionTabEnum;
 import com.kendy.excel.ExportMembersExcel;
 import com.kendy.excel.ExportTeamhsExcel;
@@ -686,9 +687,9 @@ public class MoneyService extends BasicService{
       CurrentMoneyInfo cmi;
       if (player == null || StringUtil.isBlank(player.getgameId())) {
         // 实时金额中的人名找不到对应的玩家ID
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "");
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName());
       } else {
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu());
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName());
       }
       observableList1.add(cmi);
     });
@@ -1499,7 +1500,7 @@ public class MoneyService extends BasicService{
     }
 
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(wj.getWanjiaName(), wj.getHeji(),
-        playerId, dataConstants.membersMap.get(playerId).getEdu());
+        playerId, dataConstants.membersMap.get(playerId).getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName());
     addInfo(tempMoneyInfo);
   }
 

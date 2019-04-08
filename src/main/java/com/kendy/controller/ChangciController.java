@@ -7,6 +7,7 @@ package com.kendy.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.jfoenix.controls.JFXToggleButton;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
@@ -23,6 +24,7 @@ import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
+import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecord;
@@ -249,7 +251,7 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public TableColumn<WanjiaInfo, String> copy;// 复制
 
-  // =================================================牌局表tableView
+  // =================================================团队累计表tableView
   @FXML
   public TableView<TeamInfo> tableTeam;
 
@@ -314,16 +316,20 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public HBox hbox_autoTestMode;
 
+  @FXML
+  public JFXToggleButton spiderNode; // 关闭和开启自动购买联盟币按钮
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
+
+    initSpiderToggleAction();
 
     // 绑定玩家信息表
     bindCellValueByTable(new TotalInfo(), tableTotalInfo);
 
     // 绑定牌局表
     bindCellValueByTable(new WanjiaInfo(), tablePaiju);
-    pay.setCellFactory(cellFactory);// 支付按钮：单独出来
+    //pay.setCellFactory(cellFactory);// 支付按钮：单独出来
     copy.setCellFactory(cellFactoryCopy);// 复制按钮：单独出来
     //setColumnCenter(pay, copy);
 
@@ -710,7 +716,7 @@ public class ChangciController extends BaseController implements Initializable {
         // 获取新记录
         CurrentMoneyInfo cmiInfo = moneyService.getInfoByName(teamName);
         if (cmiInfo == null) {// cmiInfo为null表示该团队不存在于实时金额表中
-          cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "");// 玩家ID和额度为空
+          cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName());// 玩家ID和额度为空
           moneyService.addInfo(cmiInfo);
           logger.info(String.format("点击结算按钮:新增一条团队记录进金额表,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
               tempSSJE));
@@ -857,7 +863,7 @@ public class ChangciController extends BaseController implements Initializable {
     // 获取ObserableList
     ObservableList<CurrentMoneyInfo> list = tableCurrentMoneyInfo.getItems();
     list.add(
-        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu()));
+        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName()));
     tableCurrentMoneyInfo.setItems(list);
   }
 
@@ -1755,6 +1761,16 @@ public class ChangciController extends BaseController implements Initializable {
       });
       return moneyService.nvl(map.get("联盟对帐"), "0");
     }
+  }
+
+  public void initSpiderToggleAction(){
+    spiderNode.selectedProperty().addListener(e->{
+      if (spiderNode.isSelected()) {
+        smAutoController.startSpiderAction(new ActionEvent());
+      }else{
+        smAutoController.stopSpiderAction(new ActionEvent());
+      }
+    });
   }
 
   /**

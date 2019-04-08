@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.kendy.enums.MoneyCreatorEnum;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -350,7 +351,8 @@ public class WaizhaiService {
               // 新增一个所属团队信息
               ite.remove();
               CurrentMoneyInfo cmiInfo =
-                  new CurrentMoneyInfo(_teamId, cmi.getCmSuperIdSum(), "", "");
+                  new CurrentMoneyInfo(_teamId, cmi.getCmSuperIdSum(), "", "",
+                      MoneyCreatorEnum.DEFAULT.getCreatorName());
               ite.add(cmiInfo);
 //              log.info(String.format("外债：股东%s--根据父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除父节点",
 //                  gudongName, playerName, _teamId, cmi.getCmSuperIdSum()));
@@ -371,7 +373,7 @@ public class WaizhaiService {
             } else {
               // 新增一个所属团队信息
               ite.remove();
-              CurrentMoneyInfo cmiInfo = new CurrentMoneyInfo(_teamId, cmi.getShishiJine(), "", "");
+              CurrentMoneyInfo cmiInfo = new CurrentMoneyInfo(_teamId, cmi.getShishiJine(), "", "", cmi.getCreator());
               ite.add(cmiInfo);
               log.info(String.format("外债：股东%s--根据非父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除非父节点",
                   gudongName, playerName, _teamId, cmi.getShishiJine()));
@@ -486,7 +488,7 @@ public class WaizhaiService {
    */
   private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
-        info.getWanjiaId(), info.getCmiEdu());
+        info.getWanjiaId(), info.getCmiEdu(), info.getCreator());
     copyInfo.setColor(info.getColor());
     copyInfo.setCmSuperIdSum(info.getCmSuperIdSum());
     return copyInfo;

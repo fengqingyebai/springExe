@@ -4,8 +4,11 @@ import com.alibaba.druid.support.json.JSONUtils;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.enums.ExcelAutoDownType;
 import com.kendy.enums.MoneyCreatorEnum;
+import com.kendy.exception.CMINoExistPlayerException;
+import com.kendy.exception.ExcelException;
 import com.kendy.model.CoinBuyerRusult;
 import com.kendy.model.CoinBuyerRusult.CoinBuyer;
+import com.kendy.model.RangeResult;
 import com.kendy.model.RealBuyResult;
 import com.kendy.model.Result;
 import com.kendy.util.HttpUtils;
@@ -30,11 +33,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.swing.filechooser.FileSystemView;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -217,7 +222,7 @@ public class SMAutoController extends BaseController implements Initializable {
     // 换行
     tokenArea.setWrapText(true);
     // 绑定列值属性
-    bindCellValueByTable(new SMAutoInfo(), tableSMAuto); // 泽涛 自动上码待观察
+    bindCellValueByTable(new SMAutoInfo(), tableSMAuto); // 自动上码待观察
     // MyController.bindCellValue(smAutoDate, smAutoPlayerId, smAutoPlayerName, smAutoPaiju,
     // smAutoApplyAccount,
     // smAutoIsTeamAvailabel, smAutoIsCurrentDay, smAutoIsNextDay, smAutoIsAgree,
@@ -382,30 +387,6 @@ public class SMAutoController extends BaseController implements Initializable {
     }
   }
 
-  /**
-   * 判断是否今日上码
-   *
-   * @time 2018年3月27日
-   */
-  public boolean judgeIsTodaySM(String paijuString) {
-    Integer paiju = Integer.valueOf(paijuString);
-    String rangStr = smNextDayRangeFieldd.getText();
-    if (StringUtil.isBlank(rangStr)) {
-      return true;
-    }
-
-    String[] list = rangStr.split("##");
-    // List<String> list = Arrays.asList("01-90","8001-8090","9001-9090");
-    for (String range : list) {
-      String[] ranges = range.split("-");
-      boolean isInRange =
-          paiju >= Integer.valueOf(ranges[0]) && paiju <= Integer.valueOf(ranges[1]);
-      if (isInRange) {
-        return false; // 该牌局是次日上码
-      }
-    }
-    return true; // 该牌局是今日上码
-  }
 
   /**
    * 开始爬取后台数据
@@ -434,6 +415,9 @@ public class SMAutoController extends BaseController implements Initializable {
         // logInfo("此处等待10秒...");
       }
     }, 1000, separateTime); // 定时器的延迟时间及间隔时间
+    if (!changciController.spiderNode.isSelected()) {
+      changciController.spiderNode.setSelected(true);
+    }
   }
 
 
@@ -509,85 +493,74 @@ public class SMAutoController extends BaseController implements Initializable {
         // 玩家相关信息
         String playerName = coinBuyer.getNickName();
         String playerId = coinBuyer.getShowId();
-        String buyStack = coinBuyer.getGrantNums() + "";// 购买数量
+        String buyStack = coinBuyer.getGrantNums(); // 购买数量
 
-        Player player = dataConstants.membersMap.get(playerId);
-        if (player == null) {
-          logInfo("玩家（" + playerName + ")未录入到系统中！！！");
-          continue;
-        }
-        String teamId = player.getTeamName();
-        Huishui huishui = dataConstants.huishuiMap.get(teamId);
-
-        // TODO 获取玩家实时金额和可用金额
-
-        // 根据玩家ID获取玩家实时金额信息，无则创建
-        CurrentMoneyInfo currentMoneyInfo = moneyService.searchRowByPlayerId(playerId);
-        if (currentMoneyInfo == null) {
-          ErrorUtil.err("玩家（" + playerName + ")在实时金额表不存在");
-          return;
-          // TODO 无时如果创建
-//          logInfo("玩家（" + playerName + ")在实时金额表不存在，自动创建");
-//          String creator = MoneyCreatorEnum.LIAN_MENG_BI.getCreatorName();
-//          currentMoneyInfo = new CurrentMoneyInfo(playerName, "0", playerId, player.getEdu(),
-//              creator);
-        }
-        String currentMoney = currentMoneyInfo.getShishiJine();
-        String availableEdu = currentMoneyInfo.getCmiEdu();
-        Result checkRangeResult = checkInRange(currentMoney, availableEdu, buyStack);// 是否同意
+        // 联盟币购买条件判断
+        RangeResult checkRangeResult = checkInRange(coinBuyer);
         boolean passCheck = checkRangeResult.isOk(); // 是否同意
         logInfo(playerName + "是否合范围：" + (passCheck ? "是" : "否"));
+        if (!passCheck) {
+          addBuyResultRecord(checkRangeResult);
+          continue;
+        }
 
-        /****************************************/
         // 联盟币购买结果
         boolean buyLmbOk = false;
         int buyLmbCode = -1;
-        if (!passCheck) {
-          log.info(
-              player.getPlayerName() + "买入" + buyStack + "不在范围中[实时金额为" + currentMoney + ",可用额度为"
-                  + availableEdu + "]");
+        List<String> testList = new ArrayList<>();
 
-        } else { // 同意购买
+        if (hasFilterPlayerIds()) {
+          testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##"))
+              .collect(Collectors.toList());
+        }
 
-          List<String> testList = new ArrayList<>();
+        if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
+          // 向后台申请购买， 成功后修改实时金额表
+          buyLmbCode = buyLmbCoin(coinBuyer);
+          checkRangeResult.setCode(buyLmbCode);
+          buyLmbOk = (buyLmbCode == 0);
+          if (buyLmbOk) {
+            // 金额修改
+            checkRangeResult.setOk(true);
+            logInfo(playerName + "正在模拟更新实时金额...");
+            CurrentMoneyInfo cmi = checkRangeResult.getCmi();
+            String finalSSJE = NumUtil
+                .digit0(NumUtil.getNum(cmi.getShishiJine()) - NumUtil.getNum(buyStack));
+            cmi.setShishiJine(finalSSJE);
 
-          if (hasFilterPlayerIds()) {
-            testList = Arrays.stream(filterPlayIdFields.getText().trim().split("##"))
-                .collect(Collectors.toList());
-          }
+            // 保存到实时金额表
+            combineIDController.tableCurrentMoneyInfo.refresh();
+            logInfo(playerName + "将实时金额" + cmi.getShishiJine() + "修改为" + finalSSJE);
 
-          if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
-            // 向后台申请购买， 成功后修改实时金额表
-            buyLmbCode = buyLmbCoin(coinBuyer);
-            buyLmbOk = (buyLmbCode == 0);
-            if (buyLmbOk) {
-              logInfo(playerName + "正在模拟更新实时金额...");
-              // TODO 金额修改（实时金额或可用额度）
-              Double buyStackCount = NumUtil.getNum(buyStack);
-              currentMoneyInfo.setShishiJine(NumUtil.digit0(NumUtil.getNum(currentMoney) - buyStackCount));
-
-              // 保存到实时金额表
-              combineIDController.tableCurrentMoneyInfo.refresh();
-              logInfo(playerName + "模拟更新实时金额结束");
-            }
+            // TODO 保存到数据库
+          } else {
+            checkRangeResult.setOk(false);
           }
         }
-        /****************************************/
-        SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(), teamId, playerId, playerName,
-            buyStack,
-            currentMoney,
-            availableEdu,
-            passCheck ? "是" : "否",
-            (passCheck) ? (buyLmbOk ? "成功" : "失败") : "-",
-            getFailDescription(checkRangeResult, buyLmbCode)
-        );
-        logInfo(playerName + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
-        addItem(smAutoInfo);
+        // 记录
+        addBuyResultRecord(checkRangeResult);
+
       } catch (Exception e) {
         logInfo("玩家【" + coinBuyer.getNickName() + "】自动购买联盟币失败，请看日志！！");
         logger.error("处理玩家【{}】自动购买联盟币报错，原因：{}", coinBuyer.getNickName(), e.getMessage());
       }
     }
+  }
+
+  private void addBuyResultRecord(RangeResult rangeRsult) {
+    SMAutoInfo smAutoInfo = new SMAutoInfo(getTimeString(),
+        rangeRsult.getTeamId(),
+        rangeRsult.getPlayerId(),
+        rangeRsult.getPlayerName(),
+        rangeRsult.getBuyStack(),
+        rangeRsult.getCurrentMoney(),
+        rangeRsult.getAvailableEdu(),
+        rangeRsult.isOk() ? "是" : "否",
+        (rangeRsult.isOk()) ? (rangeRsult.getCode() == 0 ? "成功" : "失败") : "-",
+        getFailDescription(rangeRsult, rangeRsult.getCode())
+    );
+    logInfo(rangeRsult.getPlayerName() + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
+    addItem(smAutoInfo);
   }
 
   private String getFailDescription(Result checkRangeResult, int buyLmbCode) {
@@ -663,20 +636,93 @@ public class SMAutoController extends BaseController implements Initializable {
   /**
    * 判断a 是否在区间范围[b,c]
    */
-  private Result checkInRange(String currentMoney, String availableEdu, String buyStack) {
-    if (NumUtil.compare(availableEdu, buyStack)) {
-      return Result.SUCCESS;
+  private RangeResult checkInRange(CoinBuyer coinBuyer) throws Exception {
+    // 玩家相关信息
+    String playerName = coinBuyer.getNickName();
+    String playerId = coinBuyer.getShowId();
+    String buyStack = coinBuyer.getGrantNums(); // 购买数量
+    Player player = dataConstants.membersMap.get(playerId);
+    if (player == null) {
+      return new RangeResult(false, -1, "玩家不存在", playerId,
+          playerName, "-", buyStack, "-", "-", null);
     }
-//    else {
-//      return new Result(false, "额度不足");
-//    }
-    if (NumUtil.compare(currentMoney, buyStack)) {
-      return Result.SUCCESS;
+    CurrentMoneyInfo cmi = moneyService.getInfoById(playerId);
+    if (cmi == null) {
+      return new RangeResult(false, -1, "金额表不存在", playerId,
+          playerName, "-", buyStack, "-", "-", null);
+    }
+    String parentId = combineIDController.hasCombineIdRelation(playerId);
+    if (StringUtils.isBlank(parentId)) {
+      // 没有合并关系
+      return checkInRangeWithNonbineRalation(player, cmi, buyStack);
+
     } else {
-      return new Result(false, "金额不足");
+      // 有合并关系
+      return checkInRangeWithConbineRalation(parentId, player, cmi,  buyStack);
     }
+  }
+
+  /**
+   * 校验是否同意购买（无合并关系）
+   * @param player
+   * @param cmi
+   * @param buyStack
+   * @return
+   */
+  private RangeResult checkInRangeWithNonbineRalation(Player player, CurrentMoneyInfo cmi,
+      String buyStack) {
+    String ssje = cmi.getShishiJine();
+    String edu = cmi.getCmiEdu();
+    if (checkPass(ssje, edu, buyStack)) {
+      return new RangeResult(true, 0, "同意购买", cmi.getWanjiaId(),
+          player.getPlayerName(), player.getgameId(), buyStack, ssje, edu, cmi);
+    }
+    return new RangeResult(false, -1, "拦截不足币", cmi.getWanjiaId(),
+        player.getPlayerName(), player.getgameId(), buyStack, ssje, edu, null);
+  }
+
+
+  /**
+   * 校验是否同意购买（有合并关系）
+   * @param player
+   * @param buyStack
+   * @return
+   */
+  private RangeResult checkInRangeWithConbineRalation(String parentId, Player player, CurrentMoneyInfo currentCmi, String buyStack) {
+    CurrentMoneyInfo parentCmi = moneyService.getInfoById(parentId);
+    if (parentCmi == null) {
+      return new RangeResult(false, -1, "父ID不存在", player.getgameId(),
+          player.getPlayerName(), "-", buyStack, "-", "-", null);
+    }
+    List<CurrentMoneyInfo> cmiList = new ArrayList<>();
+    cmiList.add(parentCmi);
+    for (String subId : dataConstants.Combine_Super_Id_Map.get(parentId)) {
+      CurrentMoneyInfo _cmi = moneyService.getInfoById(subId);
+      if (_cmi != null) {
+        cmiList.add(_cmi);
+      }
+    }
+    double ssje = 0;
+    double edu = 0;
+    for (CurrentMoneyInfo cmi : cmiList) {
+      ssje += NumUtil.getNum(cmi.getShishiJine());
+      if (edu < NumUtil.getNum(cmi.getCmiEdu())) {
+        edu = NumUtil.getNum(cmi.getCmiEdu());
+      }
+    }
+    if (checkPass(ssje + "", edu + "", buyStack)) {
+      return new RangeResult(true, 0, "同意购买", player.getgameId(),
+          player.getPlayerName(), player.getgameId(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), currentCmi);
+    }
+    return new RangeResult(false, -1, "拦截不足币", player.getgameId(),
+        player.getPlayerName(), player.getgameId(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), null);
 
   }
+
+  private boolean checkPass(String ssje, String edu, String buyStack) {
+    return (NumUtil.getNum(ssje) + NumUtil.getNum(edu) - NumUtil.getNum(buyStack) > 0);
+  }
+
 
   /**
    * 自动上码时获取玩家的可上码总接口 包括各种情况（如已勾选团队上码
@@ -767,6 +813,9 @@ public class SMAutoController extends BaseController implements Initializable {
     this.timer = null;
     logInfo("停止爬取后台数据!!!");
     tokenStatus.setText("暂停爬取数据...");
+    if (changciController.spiderNode.isSelected()) {
+      changciController.spiderNode.setSelected(false);
+    }
   }
 
   /**
@@ -811,7 +860,7 @@ public class SMAutoController extends BaseController implements Initializable {
       return;
     }
     String[] rowsName = new String[]{"爬取时间", "团队ID", "玩家ID", "玩家名称", "申请数量", "实时金额", "可用额度",
-        "同意购买", "购买结果","备注"};
+        "同意购买", "购买结果", "备注"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     for (SMAutoInfo info : autoShangmas) {

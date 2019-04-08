@@ -6,7 +6,8 @@ package com.kendy.enums;
 public enum MoneyCreatorEnum {
   LIAN_MENG_BI("lmb"),
   DEFAULT("system"),
-  USER("user");
+  USER("user"),
+  ONE_KEY("oneKeyQuato");
   String creatorName;
 
   MoneyCreatorEnum(String creatorName) {

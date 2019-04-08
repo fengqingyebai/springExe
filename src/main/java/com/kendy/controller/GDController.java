@@ -14,6 +14,7 @@ import com.kendy.entity.GudongRateInfo;
 import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
+import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.model.GameRecord;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
@@ -1389,7 +1390,7 @@ public class GDController extends BaseController implements Initializable {
       for (GDDetailInfo info : tableGDDetail.getItems()) {
         String money = StringUtil.nvl(info.getTotal(), "0");
         String name = date + "#" + info.getName() + "#" + money;
-        CurrentMoneyInfo cmi = new CurrentMoneyInfo(name, money, "", ""); // mingzi,
+        CurrentMoneyInfo cmi = new CurrentMoneyInfo(name, money, "", "", MoneyCreatorEnum.ONE_KEY.getCreatorName()); // mingzi,
         // shishiJine,String
         // wanjiaId,String cmiEdu
         tableMoney.getItems().add(cmi);
@@ -1397,7 +1398,7 @@ public class GDController extends BaseController implements Initializable {
       // 添加总利润差额
       String dif = difTotalProfit.getText();
       String name = date + "#贡献值差额#" + dif;
-      CurrentMoneyInfo difCMI = new CurrentMoneyInfo(name, dif, "", ""); // mingzi,
+      CurrentMoneyInfo difCMI = new CurrentMoneyInfo(name, dif, "", "", MoneyCreatorEnum.ONE_KEY.getCreatorName()); // mingzi,
       // shishiJine,String
       // wanjiaId,String cmiEdu
       tableMoney.getItems().add(difCMI);

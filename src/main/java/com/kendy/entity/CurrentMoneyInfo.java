@@ -1,5 +1,6 @@
 package com.kendy.entity;
 
+import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.interfaces.Entity;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -18,20 +19,13 @@ public class CurrentMoneyInfo implements Entity {
   public SimpleStringProperty cmiEdu = new SimpleStringProperty();//类型
   public SimpleStringProperty color = new SimpleStringProperty();//颜色
   public SimpleStringProperty cmSuperIdSum = new SimpleStringProperty();//总和
-  public SimpleStringProperty creator = new SimpleStringProperty("system");//创建人
+  public SimpleStringProperty creator = new SimpleStringProperty(MoneyCreatorEnum.DEFAULT.getCreatorName());//创建人
 
 
   public CurrentMoneyInfo() {
     super();
   }
 
-  public CurrentMoneyInfo(String mingzi, String shishiJine, String wanjiaId, String cmiEdu) {
-    super();
-    this.mingzi = new SimpleStringProperty(mingzi);
-    this.shishiJine = new SimpleStringProperty(shishiJine);
-    this.wanjiaId = new SimpleStringProperty(wanjiaId);
-    this.cmiEdu = new SimpleStringProperty(cmiEdu);
-  }
   public CurrentMoneyInfo(String mingzi, String shishiJine, String wanjiaId, String cmiEdu, String creator) {
     super();
     this.mingzi = new SimpleStringProperty(mingzi);
@@ -40,11 +34,6 @@ public class CurrentMoneyInfo implements Entity {
     this.cmiEdu = new SimpleStringProperty(cmiEdu);
     this.creator = new SimpleStringProperty(creator);
   }
-//	public CurrentMoneyInfo(String mingzi, String shishiJine) {
-//		super();
-//		this.mingzi = new SimpleStringProperty(mingzi);
-//		this.shishiJine = new SimpleStringProperty(shishiJine);
-//	}
 
   public SimpleStringProperty mingziProperty() {
     return this.mingzi;
@@ -141,6 +130,5 @@ public class CurrentMoneyInfo implements Entity {
   public void setCmSuperIdSum(final String cmSuperIdSum) {
     this.cmSuperIdSumProperty().set(cmSuperIdSum);
   }
-
 
 }

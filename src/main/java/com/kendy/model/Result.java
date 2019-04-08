@@ -10,6 +10,7 @@ public class Result {
   int code = -1;
   String description = "";
 
+
   public Result(boolean ok, String description) {
     this.ok = ok;
     this.description = description;
