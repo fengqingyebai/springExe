@@ -526,15 +526,20 @@ public class SMAutoController extends BaseController implements Initializable {
             checkRangeResult.setOk(true);
             logInfo(playerName + "正在模拟更新实时金额...");
             CurrentMoneyInfo cmi = checkRangeResult.getCmi();
+            // 设置实时金额
             String finalSSJE = NumUtil
                 .digit0(NumUtil.getNum(cmi.getShishiJine()) - NumUtil.getNum(buyStack));
             cmi.setShishiJine(finalSSJE);
+            // 设置联盟币
+            String finalLmb = NumUtil.digit2(NumUtil.getNum(cmi.getCmiLmb()) + NumUtil.getNum(buyStack) + "");
+            cmi.setCmiLmb(finalLmb);
 
             // 保存到实时金额表
             combineIDController.tableCurrentMoneyInfo.refresh();
             logInfo(playerName + "将实时金额" + cmi.getShishiJine() + "修改为" + finalSSJE);
 
             // TODO 保存到数据库
+
           } else {
             checkRangeResult.setOk(false);
           }

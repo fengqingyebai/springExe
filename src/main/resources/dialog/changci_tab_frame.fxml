@@ -79,17 +79,18 @@
                               <TableColumn fx:id="paiju" prefWidth="72.0" text="牌局" />
                               <TableColumn fx:id="wanjiaName" prefWidth="91.0" text="玩家" />
                               <TableColumn fx:id="zhangji" prefWidth="65.0" text="战绩" />
-                              <TableColumn fx:id="yicunJifen" prefWidth="59.0" text="已存积分" />
+                              <TableColumn fx:id="yicunJifen" prefWidth="59.0" text="联盟币" />
                               <TableColumn fx:id="heji" prefWidth="61.0" text="合计" />
                               <TableColumn fx:id="pay" prefWidth="79.0" text="支付" />
                            </columns>
                         </TableView>
                         <TableView fx:id="tableCurrentMoneyInfo" layoutX="569.0" layoutY="398.0" maxHeight="1.7976931348623157E308" prefHeight="419.0" prefWidth="366.0">
                            <columns>
-                              <TableColumn fx:id="cmSuperIdSum" prefWidth="68.0" text="总和" />
-                              <TableColumn fx:id="mingzi" prefWidth="115.0" text="名字" />
-                              <TableColumn fx:id="shishiJine" maxWidth="3000.0" minWidth="0.0" prefWidth="98.0" text="实时金额" />
-                              <TableColumn fx:id="cmiEdu" minWidth="0.0" prefWidth="65.0" text="额度" />
+                              <TableColumn fx:id="cmSuperIdSum" prefWidth="55.0" text="总和" />
+                              <TableColumn fx:id="mingzi" prefWidth="87.0" text="名字" />
+                              <TableColumn fx:id="shishiJine" maxWidth="3000.0" minWidth="0.0" prefWidth="85.0" text="实时金额" />
+                              <TableColumn fx:id="cmiLmb" minWidth="0.0" prefWidth="62.0" text="联盟币余" />
+                              <TableColumn fx:id="cmiEdu" minWidth="0.0" prefWidth="62.0" text="额度" />
                            </columns>
                         </TableView>
                         <VBox layoutX="962.0" layoutY="117.0" prefHeight="696.0" prefWidth="152.0">

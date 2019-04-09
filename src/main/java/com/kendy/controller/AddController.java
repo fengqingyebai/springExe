@@ -307,7 +307,7 @@ public class AddController extends BaseController implements Initializable {
     }
     // 添加实时金额
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(player.getPlayerName(), cmMoney.getText(),
-        player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName());
+        player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), "0");
     moneyService.addInfo(tempMoneyInfo);
     ShowUtil.show("添加成功", 2);
     moneyService.flush_SSJE_table();
@@ -339,7 +339,7 @@ public class AddController extends BaseController implements Initializable {
       return;
     }
     // 添加实时金额
-    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(name, cmMoney.getText(), "", "", MoneyCreatorEnum.USER.getCreatorName());
+    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(name, cmMoney.getText(), "", "", MoneyCreatorEnum.USER.getCreatorName(), "");
     moneyService.addInfo(tempMoneyInfo);
     ShowUtil.show("添加成功", 2);
     moneyService.flush_SSJE_table();

@@ -21,6 +21,7 @@ import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
+import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.entity.WanjiaInfo;
@@ -57,6 +58,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.application.Platform;
@@ -72,8 +74,11 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -181,6 +186,8 @@ public class ChangciController extends BaseController implements Initializable {
   public TableColumn<CurrentMoneyInfo, String> shishiJine;// 实时金额
   @FXML
   public TableColumn<CurrentMoneyInfo, String> cmiEdu;// 实时金额
+  @FXML
+  public TableColumn<CurrentMoneyInfo, String> cmiLmb;// 用户剩余联盟币
 
   // =================================================资金表tableView
   @FXML
@@ -338,7 +345,9 @@ public class ChangciController extends BaseController implements Initializable {
     cmSuperIdSum.setStyle(Constants.CSS_CENTER_BOLD);
     cmSuperIdSum.setCellFactory(sumMoneyCellFactory);
     shishiJine.setCellFactory(TextFieldTableCell.forTableColumn());
+    cmiLmb.setCellFactory(cmiLmbCellFactory);
     setSSJEEditOnCommit();
+
 
     // 绑定资金表
     tableZijin.setEditable(true);
@@ -715,7 +724,7 @@ public class ChangciController extends BaseController implements Initializable {
         // 获取新记录
         CurrentMoneyInfo cmiInfo = moneyService.getInfoByName(teamName);
         if (cmiInfo == null) {// cmiInfo为null表示该团队不存在于实时金额表中
-          cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName());// 玩家ID和额度为空
+          cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName(), "");// 玩家ID和额度为空
           moneyService.addInfo(cmiInfo);
           logger.info(String.format("点击结算按钮:新增一条团队记录进金额表,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
               tempSSJE));
@@ -812,6 +821,47 @@ public class ChangciController extends BaseController implements Initializable {
         }
       };
 
+  /**
+   * 实时金额表中联盟币双击事件
+   */
+  Callback<TableColumn<CurrentMoneyInfo, String>, TableCell<CurrentMoneyInfo, String>> cmiLmbCellFactory =
+      new Callback<TableColumn<CurrentMoneyInfo, String>, TableCell<CurrentMoneyInfo, String>>() {
+        @Override
+        public TableCell<CurrentMoneyInfo, String> call(
+            TableColumn<CurrentMoneyInfo, String> param) {
+          TextFieldTableCell<CurrentMoneyInfo, String> cell = new TextFieldTableCell<>();
+          cell.setEditable(false);// 不让其可编辑
+          cell.setOnMouseClicked((MouseEvent t) -> {
+            // 鼠标双击事件
+            if (t.getClickCount() == 2 && cell.getIndex() < tableCurrentMoneyInfo.getItems().size()) {
+              CurrentMoneyInfo cmi = tableCurrentMoneyInfo.getItems().get(cell.getIndex());
+              if (cmi != null && StringUtil.isAllNotBlank(cmi.getWanjiaId(), cmi.getMingzi())) {
+                // 双击执行的代码
+                openAddLmbDialog(cmi);
+              }
+            }
+          });
+          return cell;
+        }
+      };
+
+  // 右表：名称鼠标双击事件：打开对话框增加上码值
+  private void openAddLmbDialog(CurrentMoneyInfo cmi) {
+    TextInputDialog dialog = new TextInputDialog();
+    dialog.setTitle("联盟币");
+    dialog.setGraphic(new ImageView(new Image("/images/coin.png")));
+    dialog.setHeaderText(null);
+    dialog.setContentText("续增联盟币:");
+    ShowUtil.setIcon(dialog);
+    Optional<String> result = dialog.showAndWait();
+    if (result.isPresent()) {
+      String addMoney = result.get();
+      String oldLmb = StringUtils.defaultString(cmi.getCmiLmb(), "0");
+      addMoney = StringUtil.nvl(addMoney);
+      cmi.setCmiLmb(NumUtil.digit2(NumUtil.getNum(oldLmb) + NumUtil.getNum(addMoney) + ""));
+      tableCurrentMoneyInfo.refresh();
+    }
+  }
 
   /**
    * 复制玩家信息到剪切板，并转成图片发到QQ
@@ -862,7 +912,7 @@ public class ChangciController extends BaseController implements Initializable {
     // 获取ObserableList
     ObservableList<CurrentMoneyInfo> list = tableCurrentMoneyInfo.getItems();
     list.add(
-        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName()));
+        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), ""));
     tableCurrentMoneyInfo.setItems(list);
   }
 

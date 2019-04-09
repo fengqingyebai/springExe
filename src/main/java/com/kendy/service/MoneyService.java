@@ -187,11 +187,11 @@ public class MoneyService extends BasicService{
 
       /*************************************************** 填充牌局表 *****************/
       wanjia = new WanjiaInfo();
-      String yicunJifen = getYicunJifen(playerId);
-      String heji = digit0(NumUtil.getNum(yicunJifen) + NumUtil.getNum(shishou) + "");
+      String lmb = getYicunJifen(playerId); // 联盟币代替已存积分
+      String heji = digit0(NumUtil.getNum(lmb) + NumUtil.getNum(shishou) + "");
       wanjia.setPaiju(r.getTableid());
       wanjia.setWanjiaName(playerName);
-      wanjia.setYicunJifen(yicunJifen);
+      wanjia.setYicunJifen(lmb);
       wanjia.setZhangji(shishou);
       wanjia.setHeji(heji);
       wanjia.setWanjiaId(playerId);
@@ -615,7 +615,7 @@ public class MoneyService extends BasicService{
 
   /**
    * 获取实时金额表中的已存积分（根据玩家ID)
-   *
+   * @return 实时金额行的联盟币
    * @time 2017年11月12日
    */
   public String getYicunJifen(String playerId) {
@@ -623,9 +623,8 @@ public class MoneyService extends BasicService{
     ObservableList<CurrentMoneyInfo> list = tableCurrentMoneyInfo.getItems();
     if (list != null) {
       for (CurrentMoneyInfo info : list) {
-        if (info.getWanjiaId() != null && !StringUtil.isBlank(playerId)
-            && playerId.equals(info.getWanjiaId())) {
-          return info.getShishiJine();
+        if (StringUtils.equals(playerId, info.getWanjiaId())) {
+          return StringUtil.nvl(info.getCmiLmb(), "0");
         }
       }
     }
@@ -686,9 +685,9 @@ public class MoneyService extends BasicService{
       CurrentMoneyInfo cmi;
       if (player == null || StringUtil.isBlank(player.getgameId())) {
         // 实时金额中的人名找不到对应的玩家ID
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName());
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
       } else {
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName());
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
       }
       observableList1.add(cmi);
     });
@@ -809,7 +808,7 @@ public class MoneyService extends BasicService{
 
 
   /**
-   * 计算实时金额表的总和
+   * 获取实时金额表的总和 = sum(实时金额) + sum(联盟币)
    */
   private Double getSumOfTableCurrentMoney(TableView<CurrentMoneyInfo> table) {
     // 获取ObserableList
@@ -821,8 +820,8 @@ public class MoneyService extends BasicService{
     String tempSingleVal = "";// 实时金额表中每一行的具体金额
     for (CurrentMoneyInfo moneyInfo : list) {
       tempSingleVal = moneyInfo.getShishiJine();
-      if (!StringUtil.isBlank(tempSingleVal) && !"".equals(moneyInfo.getMingzi())) {
-        sumOfTableCurrentMoney += NumUtil.getNum(tempSingleVal);
+      if (StringUtil.isAllNotBlank(tempSingleVal, moneyInfo.getMingzi())) {
+        sumOfTableCurrentMoney += NumUtil.getNum(tempSingleVal) + NumUtil.getNum(moneyInfo.getCmiLmb());
       }
     }
     return sumOfTableCurrentMoney;
@@ -1488,7 +1487,7 @@ public class MoneyService extends BasicService{
     // 修改金额表中的玩家金额
     for (CurrentMoneyInfo moneyInfo : tableCurrentMoneyInfo.getItems()) {
       if (playerId.equals(moneyInfo.getWanjiaId())) {
-        moneyInfo.setShishiJine(wj.getHeji());// 设置新的实时金额的值
+        moneyInfo.setCmiLmb(wj.getHeji());
         return;
       }
     }
@@ -1498,8 +1497,8 @@ public class MoneyService extends BasicService{
       throw new Exception("该玩家不存在于名单中，且匹配不到团ID!玩家名称：" + wj.getWanjiaName() + ",玩家ID:" + playerId);
     }
 
-    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(wj.getWanjiaName(), wj.getHeji(),
-        playerId, dataConstants.membersMap.get(playerId).getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName());
+    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(wj.getWanjiaName(), "0",
+        playerId, dataConstants.membersMap.get(playerId).getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), wj.getHeji());
     addInfo(tempMoneyInfo);
   }
 
@@ -2304,6 +2303,19 @@ public class MoneyService extends BasicService{
 
       FXUtil.info("删除成功,已将" + bankName + "从软件系统中删除！");
     }
+  }
+
+  /**
+   * 复制一个实时金额表的记录
+   *
+   * @time 2017年12月29日
+   */
+  public CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
+    CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
+        info.getWanjiaId(), info.getCmiEdu(), info.getCreator(), info.getCmiLmb());
+    copyInfo.setColor(info.getColor());
+    copyInfo.setCmSuperIdSum(info.getCmSuperIdSum());
+    return copyInfo;
   }
 
 

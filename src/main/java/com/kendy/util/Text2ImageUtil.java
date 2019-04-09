@@ -37,7 +37,7 @@ public class Text2ImageUtil {
     String html =
         "<style>.paiju{background-color:white;border:0px;}.td{border:1px black solid;}.table{border-collapse:collapse;}</style><body><table  width='400' class='table'>  <tr style='background-color:#EEE0E5'>    <th class='paiju'>"
             + wj.getPaiju()
-            + "</th><th class='td'>玩家</th><th class='td'>战绩</th><th class='td'>已存积分</th><th class='td'>合计</th></tr><tr style='background-color:white'><th class='paiju'></th><th class='td'>"
+            + "</th><th class='td'>玩家</th><th class='td'>战绩</th><th class='td'>联盟币</th><th class='td'>合计</th></tr><tr style='background-color:white'><th class='paiju'></th><th class='td'>"
             + wj.getWanjiaName() + "</th><th class='td'>" + wj.getZhangji()
             + "</th><th class='td'>" + wj.getYicunJifen() + "</th><th class='td'>"
             + wj.getHeji() + "</th></tr></table></body>";

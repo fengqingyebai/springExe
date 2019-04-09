@@ -20,19 +20,21 @@ public class CurrentMoneyInfo implements Entity {
   public SimpleStringProperty color = new SimpleStringProperty();//颜色
   public SimpleStringProperty cmSuperIdSum = new SimpleStringProperty();//总和
   public SimpleStringProperty creator = new SimpleStringProperty(MoneyCreatorEnum.DEFAULT.getCreatorName());//创建人
+  public SimpleStringProperty cmiLmb = new SimpleStringProperty();//剩余联盟币
 
 
   public CurrentMoneyInfo() {
     super();
   }
 
-  public CurrentMoneyInfo(String mingzi, String shishiJine, String wanjiaId, String cmiEdu, String creator) {
+  public CurrentMoneyInfo(String mingzi, String shishiJine, String wanjiaId, String cmiEdu, String creator, String cmiLmb) {
     super();
     this.mingzi = new SimpleStringProperty(mingzi);
     this.shishiJine = new SimpleStringProperty(shishiJine);
     this.wanjiaId = new SimpleStringProperty(wanjiaId);
     this.cmiEdu = new SimpleStringProperty(cmiEdu);
     this.creator = new SimpleStringProperty(creator);
+    this.cmiLmb = new SimpleStringProperty(cmiLmb);
   }
 
   public SimpleStringProperty mingziProperty() {
@@ -131,4 +133,15 @@ public class CurrentMoneyInfo implements Entity {
     this.cmSuperIdSumProperty().set(cmSuperIdSum);
   }
 
+  public String getCmiLmb() {
+    return cmiLmb.get();
+  }
+
+  public SimpleStringProperty cmiLmbProperty() {
+    return cmiLmb;
+  }
+
+  public void setCmiLmb(String cmiLmb) {
+    this.cmiLmb.set(cmiLmb);
+  }
 }

@@ -56,6 +56,8 @@ public class TgWaizhaiService {
   public TGController tgController;
   @Autowired
   public BaseController baseController;
+  @Autowired
+  MoneyService moneyService;
 
 
   private final String UNKNOW_TG_TEAM = "未知托管团队";
@@ -225,7 +227,7 @@ public class TgWaizhaiService {
             || !tgTeamIdSet.contains(player.getTeamName().toUpperCase())) {
           continue;
         } else if (tgTeamIdSet.contains(player.getTeamName().toUpperCase())) {
-          SSJE_obList.add(copyCurrentMoneyInfo(infos)); // 深层克隆
+          SSJE_obList.add(moneyService.copyCurrentMoneyInfo(infos)); // 深层克隆
         }
       }
     }
@@ -328,17 +330,5 @@ public class TgWaizhaiService {
     return isSuperId && !isSubId;
   }
 
-  /**
-   * 复制一个实时金额表的记录
-   *
-   * @time 2017年12月29日
-   */
-  private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
-    CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
-        info.getWanjiaId(), info.getCmiEdu(),info.getCreator());
-    copyInfo.setColor(info.getColor());
-    copyInfo.setCmSuperIdSum(info.getCmSuperIdSum());
-    return copyInfo;
-  }
 
 }

@@ -241,7 +241,7 @@ public class WaizhaiService {
               } else {
                 eachGudongList = gudongMap.get(gudong);
               }
-              CurrentMoneyInfo tempInfo = copyCurrentMoneyInfo(infos);
+              CurrentMoneyInfo tempInfo = moneyService.copyCurrentMoneyInfo(infos);
               eachGudongList.add(tempInfo);
               gudongMap.put(gudong, eachGudongList);
               break;
@@ -352,7 +352,7 @@ public class WaizhaiService {
               ite.remove();
               CurrentMoneyInfo cmiInfo =
                   new CurrentMoneyInfo(_teamId, cmi.getCmSuperIdSum(), "", "",
-                      MoneyCreatorEnum.DEFAULT.getCreatorName());
+                      MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
               ite.add(cmiInfo);
 //              log.info(String.format("外债：股东%s--根据父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除父节点",
 //                  gudongName, playerName, _teamId, cmi.getCmSuperIdSum()));
@@ -373,7 +373,7 @@ public class WaizhaiService {
             } else {
               // 新增一个所属团队信息
               ite.remove();
-              CurrentMoneyInfo cmiInfo = new CurrentMoneyInfo(_teamId, cmi.getShishiJine(), "", "", cmi.getCreator());
+              CurrentMoneyInfo cmiInfo = new CurrentMoneyInfo(_teamId, cmi.getShishiJine(), "", "", cmi.getCreator(), "");
               ite.add(cmiInfo);
               log.info(String.format("外债：股东%s--根据非父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除非父节点",
                   gudongName, playerName, _teamId, cmi.getShishiJine()));
@@ -393,7 +393,7 @@ public class WaizhaiService {
   private Map<String, CurrentMoneyInfo> get_SSJE_Map(List<CurrentMoneyInfo> SSJE_obList) {
     Map<String, CurrentMoneyInfo> ssje_map = new HashMap<>();
     SSJE_obList.stream().filter(m -> StringUtil.isNotBlank(m.getWanjiaId())).forEach(info -> {
-      ssje_map.put(info.getWanjiaId(), copyCurrentMoneyInfo(info));// copy一个实时金额记录
+      ssje_map.put(info.getWanjiaId(), moneyService.copyCurrentMoneyInfo(info));// copy一个实时金额记录
     });
     return ssje_map;
   }
@@ -481,18 +481,7 @@ public class WaizhaiService {
 
   }
 
-  /**
-   * 复制一个实时金额表的记录
-   *
-   * @time 2017年12月29日
-   */
-  private CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
-    CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
-        info.getWanjiaId(), info.getCmiEdu(), info.getCreator());
-    copyInfo.setColor(info.getColor());
-    copyInfo.setCmSuperIdSum(info.getCmSuperIdSum());
-    return copyInfo;
-  }
+
 
   private String getPlayerName(String playerId) {
     String name = "";
