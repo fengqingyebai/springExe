@@ -18,6 +18,7 @@ import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.KaixiaoInfo;
+import com.kendy.entity.PersonalInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
@@ -274,6 +275,23 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public TableColumn<TeamInfo, String> teamJiesuan;// 结算按钮
 
+  // =================================================个人累计表
+  @FXML
+  public TableView<PersonalInfo> tablePersonal;
+
+  @FXML
+  public TableColumn<PersonalInfo, String> personalPlayerId;// 团ID
+  @FXML
+  public TableColumn<PersonalInfo, String> personalPlayerName;// 团战绩
+  @FXML
+  public TableColumn<PersonalInfo, String> personalSumZJ;// 团回水
+  @FXML
+  public TableColumn<PersonalInfo, String> personalSumHS;// 团保险
+  @FXML
+  public TableColumn<PersonalInfo, String> personalSumHB;// 行总和
+  @FXML
+  public TableColumn<PersonalInfo, String> personalPay;// 结算按钮
+
 
   // ===========================================联盟对帐
   @FXML
@@ -369,6 +387,8 @@ public class ChangciController extends BaseController implements Initializable {
     bindCellValueByTable(new TeamInfo(), tableTeam);
     teamJiesuan.setCellFactory(cellFactoryJiesuan);
     teamJiesuan.setStyle(Constants.CSS_CENTER);
+    // 绑定个人表
+    bindCellValueByTable(new PersonalInfo(), tablePersonal);
 
 
 
@@ -469,7 +489,7 @@ public class ChangciController extends BaseController implements Initializable {
   private void importExcelData(String tableId, List<GameRecordModel> gameRecordModels) {
     // 1 填充总信息表
     moneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju, tableDangju, tableJiaoshou,
-        tableTeam, gameRecordModels, tableId);
+        tableTeam, tablePersonal,  gameRecordModels, tableId);
     // 2填充当局表和交收表和团队表的总和
     moneyService.setTotalNumOnTable(tableDangju, dataConstants.SumMap.get("当局"));
     moneyService.setTotalNumOnTable(tableJiaoshou, dataConstants.SumMap.get("交收"));

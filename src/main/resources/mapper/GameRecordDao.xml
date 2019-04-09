@@ -42,5 +42,6 @@
     <result column="suoshu_proxy" jdbcType="VARCHAR" property="suoshuProxy" />
     <result column="proxy_fanshui" jdbcType="VARCHAR" property="proxyFanshui" />
     <result column="personal_jiesuan" jdbcType="VARCHAR" property="personalJiesuan" />
+    <result column="hshb_type" jdbcType="VARCHAR" property="hshbType" />
   </resultMap>
 </mapper>

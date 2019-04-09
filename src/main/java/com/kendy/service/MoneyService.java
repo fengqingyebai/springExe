@@ -10,12 +10,15 @@ import com.kendy.controller.GDController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
+import com.kendy.db.dao.GameRecordDao;
+import com.kendy.db.entity.GameRecord;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.KeyValue;
+import com.kendy.entity.PersonalInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
@@ -72,10 +75,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -86,7 +91,7 @@ import org.springframework.stereotype.Component;
  * @time 2017年10月28日 下午5:19:48
  */
 @Component
-public class MoneyService extends BasicService{
+public class MoneyService extends BasicService {
 
   private Logger log = LoggerFactory.getLogger(MoneyService.class);
 
@@ -108,6 +113,9 @@ public class MoneyService extends BasicService{
   @Autowired
   ChangciController changciController;
 
+  @Resource
+  GameRecordDao gameRecordDao;
+
   // {玩家ID=CurrentMoneyInfo}
   public Map<String, CurrentMoneyInfo> Table_CMI_Map = new HashMap<>();
   public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
@@ -122,12 +130,15 @@ public class MoneyService extends BasicService{
   /**
    * 导入战绩成功后 自动填充玩家信息表、牌局表、团队表以及当局 备注：这些表数据在当局范围内是固定不变的
    *
+   *
+   * @param tablePersonal
    * @param gameRecordModels 符合当前俱乐部ID的记录
    * @time 2018年7月9日
    */
   public void fillTablerAfterImportZJ(TableView<TotalInfo> table,
       TableView<WanjiaInfo> tablePaiju, TableView<DangjuInfo> tableDangju,
       TableView<JiaoshouInfo> tableJiaoshou, TableView<TeamInfo> tableTeam,
+      TableView<PersonalInfo> tablePersonal,
       List<GameRecordModel> gameRecordModels, String tableId) {
 
     if (dataConstants.Team_Huishui_Map == null) { // add 2018-08-04
@@ -229,8 +240,52 @@ public class MoneyService extends BasicService{
     initTableDangjuAndTableJiaoshou(tableDangju, tableJiaoshou);
     // 填充团队表
     fillTableTeam(tableTeam, relatedTeamIdSet);
+    // 填充个人表
+    fillTablePersonal(tablePersonal, gameRecordModels);
     // 更新实时上码表的个人详情
     shangmaService.updateShangDetailMap(tablePaiju);
+  }
+
+  /**
+   * 填充个人累计表
+   */
+  private void fillTablePersonal(TableView<PersonalInfo> tablePersonal, List<GameRecordModel> gameRecordModels) {
+    ObservableList<PersonalInfo> items = FXCollections.observableArrayList();
+    // 从数据库获取当天未结算的个人记录
+    List<GameRecord> dbPersonalRecords = gameRecordDao
+        .getPersonalRecords(changciController.getSoftDate(), myController.getClubId());
+    for (GameRecordModel gameRecordModel : gameRecordModels) {
+      if (StringUtils.equals("1", gameRecordModel.getHshbType())) {
+        GameRecord entity = new GameRecord();
+        BeanUtils.copyProperties(gameRecordModel, entity);
+        dbPersonalRecords.add(entity);
+      }
+    }
+    Map<String, List<GameRecord>> personalMap = dbPersonalRecords.stream()
+        .collect(Collectors.groupingBy(GameRecord::getPlayerid));
+
+    // 累计求和
+    personalMap.forEach((playerId, personalList) -> {
+      double sumOfZJ = 0.0;
+      double sumOfHS = 0.0;
+      double sumOfHB = 0.0;
+      for (GameRecord entity : personalList) {
+        sumOfZJ += NumUtil.getNum(entity.getShishou());
+        sumOfHS += NumUtil.getNum(entity.getPersonalHuishui());
+        sumOfHB += NumUtil.getNum(entity.getPersonalHuibao());
+      }
+      PersonalInfo info = new PersonalInfo(playerId,
+          dataConstants.membersMap.get(playerId).getPlayerName(),
+          NumUtil.digit0(sumOfZJ),
+          NumUtil.digit2(sumOfHS + ""),
+          NumUtil.digit2(sumOfHB + ""),
+          "");
+      items.add(info);
+    });
+
+    // 刷新表
+    tablePersonal.setItems(items);
+    tablePersonal.refresh();
   }
 
 
@@ -261,7 +316,11 @@ public class MoneyService extends BasicService{
     String shouHuishui = myController.getHuishuiByYSZJ(yszj, "", 2);
     String huiBao = NumUtil.digit1(getHuiBao(baoxian, teamId));
     String heLirun = NumUtil.digit2(getHeLirun(shouHuishui, chuHuishui, shuihouxian, huiBao));
+    // 个人回水、回保
+    setPersonalHsHb(r);
 
+    // 初始名称
+    r.setBeginplayername(r.getPlayerName());
     // 获取软件时间
     r.setSoftTime(dataConstants.Date_Str);
     // 设置桌号
@@ -287,6 +346,59 @@ public class MoneyService extends BasicService{
     // 导入时间
     r.setImporttime(TimeUtil.getDateTime());
     log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
+  }
+
+  /**
+   * 设置个人的回水和回保
+   */
+  private void setPersonalHsHb(GameRecordModel r) {
+    r.setHshbType("0"); // 默认为团队类型
+    r.setPersonalHuibao("0");
+    r.setPersonalHuishui("0");
+    String playerid = r.getPlayerid();
+    Player player = dataConstants.membersMap.get(playerid);
+    if (player != null) {
+      double personalHBRate = getNumberFromUnknowStr(player.getHuibao());
+      double personalHSRate = getNumberFromUnknowStr(player.getHuishui());
+      // 其中一个大于0则进行个人回水回保的计算
+      if (personalHBRate > 0 || personalHSRate > 0) {
+        r.setHshbType("1"); // 个人类型
+        r.setPersonalHuibao(getPersonalHB(r.getSingleinsurance(), personalHBRate));
+        r.setPersonalHuishui(getPersonalHs(r.getYszj(), personalHSRate));
+      }
+    }
+  }
+
+  /**
+   * 个人回水：if(个人类型 && 战绩 < 0) => 个人回水比例 * |战绩|
+   */
+  private String getPersonalHs(String yszj, double personalHSRate) {
+    if (NumUtil.getNum(yszj) < 0) {
+      return NumUtil.digit2(Math.abs(NumUtil.getNum(yszj)) * personalHSRate + "");
+    }
+    return "0";
+  }
+
+  /**
+   * 个人回保：if(个人类型) => 个人回水比例 * 保险 * （-1）
+   */
+  private String getPersonalHB(String singleinsurance, double personalHBRate) {
+    return NumUtil.digit2(NumUtil.getNum(singleinsurance) * personalHBRate * (-1) + "");
+  }
+
+  /**
+   * 获取数值
+   * @param originVal
+   * @return
+   */
+  private double getNumberFromUnknowStr(String originVal) {
+    if (StringUtils.isBlank(originVal)) {
+      return 0d;
+    }
+    if (StringUtils.contains(originVal, "%")) {
+      return NumUtil.getNumByPercent(originVal);
+    }
+    return NumUtil.getNum(originVal);
   }
 
 
@@ -615,6 +727,7 @@ public class MoneyService extends BasicService{
 
   /**
    * 获取实时金额表中的已存积分（根据玩家ID)
+   *
    * @return 实时金额行的联盟币
    * @time 2017年11月12日
    */
@@ -685,9 +798,11 @@ public class MoneyService extends BasicService{
       CurrentMoneyInfo cmi;
       if (player == null || StringUtil.isBlank(player.getgameId())) {
         // 实时金额中的人名找不到对应的玩家ID
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "",
+            MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
       } else {
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu(),
+            MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
       }
       observableList1.add(cmi);
     });
@@ -821,7 +936,8 @@ public class MoneyService extends BasicService{
     for (CurrentMoneyInfo moneyInfo : list) {
       tempSingleVal = moneyInfo.getShishiJine();
       if (StringUtil.isAllNotBlank(tempSingleVal, moneyInfo.getMingzi())) {
-        sumOfTableCurrentMoney += NumUtil.getNum(tempSingleVal) + NumUtil.getNum(moneyInfo.getCmiLmb());
+        sumOfTableCurrentMoney +=
+            NumUtil.getNum(tempSingleVal) + NumUtil.getNum(moneyInfo.getCmiLmb());
       }
     }
     return sumOfTableCurrentMoney;
@@ -1131,8 +1247,6 @@ public class MoneyService extends BasicService{
 
   /**
    * 根据玩家ID获取行记录
-   * @param playerId
-   * @return
    */
   public CurrentMoneyInfo searchRowByPlayerId(String playerId) {
     if (StringUtils.isNotBlank(playerId)) {
@@ -1498,7 +1612,8 @@ public class MoneyService extends BasicService{
     }
 
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(wj.getWanjiaName(), "0",
-        playerId, dataConstants.membersMap.get(playerId).getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), wj.getHeji());
+        playerId, dataConstants.membersMap.get(playerId).getEdu(),
+        MoneyCreatorEnum.DEFAULT.getCreatorName(), wj.getHeji());
     addInfo(tempMoneyInfo);
   }
 
@@ -1832,7 +1947,7 @@ public class MoneyService extends BasicService{
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "名单登记表-德扑圈" + sdf.format(new Date());
     log.info("导出人员表Excel:" + title);
-    String[] rowsName = new String[]{"玩家ID", "玩家名称", "股东", "团队", "额度","是否父ID","回保","回水"};
+    String[] rowsName = new String[]{"玩家ID", "玩家名称", "股东", "团队", "额度", "是否父ID", "回保", "回水"};
     List<Object[]> dataList = new ArrayList<>();
     Object[] objs = null;
     Map<String, Player> memberMap = dataConstants.membersMap;

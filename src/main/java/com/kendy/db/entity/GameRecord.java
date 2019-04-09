@@ -191,6 +191,12 @@ public class GameRecord extends GenericEntity {
     private String personalJiesuan;
 
     /**
+     * 自定义回水回保类型：0团队  1个人
+     */
+    @Column(name = "hshb_type")
+    private String hshbType;
+
+    /**
      * 获取软件时间
      *
      * @return soft_time - 软件时间
@@ -806,5 +812,23 @@ public class GameRecord extends GenericEntity {
      */
     public void setPersonalJiesuan(String personalJiesuan) {
         this.personalJiesuan = personalJiesuan == null ? null : personalJiesuan.trim();
+    }
+
+    /**
+     * 获取自定义回水回保类型：0团队  1个人
+     *
+     * @return hshb_type - 自定义回水回保类型：0团队  1个人
+     */
+    public String getHshbType() {
+        return hshbType;
+    }
+
+    /**
+     * 设置自定义回水回保类型：0团队  1个人
+     *
+     * @param hshbType 自定义回水回保类型：0团队  1个人
+     */
+    public void setHshbType(String hshbType) {
+        this.hshbType = hshbType == null ? null : hshbType.trim();
     }
 }

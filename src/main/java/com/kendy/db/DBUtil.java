@@ -918,6 +918,9 @@ public class DBUtil {
         p.setGudong(rs.getString(3));
         p.setTeamName(rs.getString(4));
         p.setEdu(rs.getString(5));
+        p.setIsParent(rs.getString(6));
+        p.setHuibao(rs.getString(7));
+        p.setHuishui(rs.getString(8));
         result.add(p);
       }
     } catch (SQLException e) {

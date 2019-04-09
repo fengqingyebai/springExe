@@ -1,12 +1,10 @@
 package com.kendy.model;
 
-import java.util.Date;
-import javax.persistence.Column;
-
 /**
  * 游戏记录
  * <p>
  * 记录了一个玩家一场记录的相关金额信息
+ * 注意：GameRecord实体每新增一个字段，都需要在此模型域中添加
  * </p>
  *
  * @author linzt
@@ -78,7 +76,11 @@ public class GameRecordModel extends BasicRecord {
   /**
    * 原始名称
    */
-  private String beginplayername;
+  private String beginplayername = "";
+  /**
+   * 自定义回水回保类型：0团队  1个人
+   */
+  private String hshbType = "0";
 
 
   /**
@@ -230,5 +232,21 @@ public class GameRecordModel extends BasicRecord {
 
   public void setPersonalJiesuan(String personalJiesuan) {
     this.personalJiesuan = personalJiesuan;
+  }
+
+  public String getBeginplayername() {
+    return beginplayername;
+  }
+
+  public void setBeginplayername(String beginplayername) {
+    this.beginplayername = beginplayername;
+  }
+
+  public String getHshbType() {
+    return hshbType;
+  }
+
+  public void setHshbType(String hshbType) {
+    this.hshbType = hshbType;
   }
 }
