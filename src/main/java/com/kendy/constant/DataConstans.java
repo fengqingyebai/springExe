@@ -26,7 +26,7 @@ import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.UserInfos;
 import com.kendy.enums.KeyEnum;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -88,13 +88,13 @@ public class DataConstans {
   public Map<String, List<ShangmaDetailInfo>> SM_Detail_Map_Locked = new HashMap<>();
 
   // 缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-  public Map<String, List<GameRecord>> zjMap = new LinkedHashMap<>();
+  public Map<String, List<GameRecordModel>> zjMap = new LinkedHashMap<>();
   // 缓存当局回水
-  public List<GameRecord> Dangju_Team_Huishui_List = new LinkedList<>();
+  public List<GameRecordModel> Dangju_Team_Huishui_List = new LinkedList<>();
   // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-  public Map<String, List<GameRecord>> Team_Huishui_Map = new LinkedHashMap<>();
+  public Map<String, List<GameRecordModel>> Team_Huishui_Map = new LinkedHashMap<>();
   // 这个不会被修改，是总的团队回水记录。用在团队回水当天查询
-  public Map<String, List<GameRecord>> Total_Team_Huishui_Map = new LinkedHashMap<>();// 撤销后不变
+  public Map<String, List<GameRecordModel>> Total_Team_Huishui_Map = new LinkedHashMap<>();// 撤销后不变
 
   // 缓存120场次的所有锁定数据{页数第几局={...}}
   public Map<String, Map<String, String>> All_Locked_Data_Map = new LinkedHashMap<>();// 撤销后不变
@@ -456,26 +456,26 @@ public class DataConstans {
     String maxGameRecordTime = dbUtil.getMaxGameRecordTime();
     // String clubId = myController.currentClubId.getText();
     String clubId = dbUtil.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
-    List<GameRecord> gameRecords = dbUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
+    List<GameRecordModel> gameRecordModels = dbUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
 
-    if (StringUtil.isAnyBlank(maxGameRecordTime, clubId) || CollectUtil.isEmpty(gameRecords)) {
+    if (StringUtil.isAnyBlank(maxGameRecordTime, clubId) || CollectUtil.isEmpty(gameRecordModels)) {
       // 清空所有数据
       clearAllData();
     } else {
       // 缓存战绩文件夹中多份excel中的数据 {场次=infoList...}
-      zjMap = gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTableId));
+      zjMap = gameRecordModels.stream().collect(Collectors.groupingBy(GameRecordModel::getTableid));
 
       // 缓存当局回水
-      Dangju_Team_Huishui_List = gameRecords;
+      Dangju_Team_Huishui_List = gameRecordModels;
 
       // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-      Team_Huishui_Map = gameRecords.stream()
-          .filter(e -> "0".equals(e.getIsJiesuaned()))
-          .collect(Collectors.groupingBy(GameRecord::getTeamId));
+      Team_Huishui_Map = gameRecordModels.stream()
+          .filter(e -> "0".equals(e.getIsjiesuaned()))
+          .collect(Collectors.groupingBy(GameRecordModel::getTeamId));
 
       // 这个不会被修改，是总的团队回水记录。用在团队回水当天查询
       Total_Team_Huishui_Map =
-          gameRecords.stream().collect(Collectors.groupingBy(GameRecord::getTeamId));
+          gameRecordModels.stream().collect(Collectors.groupingBy(GameRecordModel::getTeamId));
     }
 
   }

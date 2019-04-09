@@ -15,7 +15,7 @@ import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
 import com.kendy.enums.MoneyCreatorEnum;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.WaizhaiService;
@@ -173,21 +173,21 @@ public class GDController extends BaseController implements Initializable {
 
 
   // 数据来源:某俱乐部的数据
-  private List<GameRecord> dataList = new ArrayList<>();
+  private List<GameRecordModel> dataList = new ArrayList<>();
 
   // 数据来源:股东开销的总数据来源
   private List<KaixiaoInfo> gudongKaixiao_dataList = new ArrayList<>();
 
   // 将dataList转成特定数据结构
   // {股东ID:{团队ID:List<Record}}
-  private Map<String, Map<String, List<GameRecord>>> gudongTeamMap = new HashMap<>();
+  private Map<String, Map<String, List<GameRecordModel>>> gudongTeamMap = new HashMap<>();
 
   // 获取每个股东的开销总和
   private Map<String, List<KaixiaoInfo>> gudongKaixiaoMap = new HashMap<>();
 
   // 用于计算每个团队与股东客的利润（因为总利润 = 人次 + 团队+股东客 + 联盟桌费）
   // {团队ID:List<Record>}
-  private Map<String, List<GameRecord>> teamMap = new HashMap<>();
+  private Map<String, List<GameRecordModel>> teamMap = new HashMap<>();
 
   // {股东ID:股东利润占比} 注意：找不到股东的放在股东未知中
   private Map<String, String> gudongProfitsRateMap = new HashMap<>();
@@ -219,7 +219,7 @@ public class GDController extends BaseController implements Initializable {
   private void initDataList() {
     String currentClubId = myController.currentClubId.getText();
     if (!StringUtil.isAnyBlank(currentClubId)) {
-      List<GameRecord> list = dbUtil.getGameRecordsByClubId(currentClubId);
+      List<GameRecordModel> list = dbUtil.getGameRecordsByClubId(currentClubId);
       if (CollectUtil.isHaveValue(list)) {
         dataList = list;
       }
@@ -308,8 +308,8 @@ public class GDController extends BaseController implements Initializable {
    *
    * @time 2018年1月20日
    */
-  private String getGudongByGameRecord(GameRecord record) {
-    String playerId = record.getPlayerId();
+  private String getGudongByGameRecord(GameRecordModel record) {
+    String playerId = record.getPlayerid();
     return getGudongByPlayerId(playerId);
   }
 
@@ -350,7 +350,7 @@ public class GDController extends BaseController implements Initializable {
     if (CollectUtil.isEmpty(dataList)) {
       return;
     }
-    Map<String, List<GameRecord>> gudongRecordList = dataList.stream()
+    Map<String, List<GameRecordModel>> gudongRecordList = dataList.stream()
         .collect(Collectors.groupingBy(record -> getGudongByGameRecord(record)));
     // 计算总利润
     Double totalProfits = getTotalProfits();
@@ -378,9 +378,9 @@ public class GDController extends BaseController implements Initializable {
     Double totalProfits = 0d;
 
     // 获取团队(服务费) and 获取股东客
-    for (Map.Entry<String, List<GameRecord>> entry : teamMap.entrySet()) {
+    for (Map.Entry<String, List<GameRecordModel>> entry : teamMap.entrySet()) {
       String teamId = entry.getKey();
-      List<GameRecord> teamList = entry.getValue();
+      List<GameRecordModel> teamList = entry.getValue();
       if ("公司".equals(teamId)) {
         Double companyProfit = getHelirun(teamList);
         totalProfits += companyProfit;
@@ -447,7 +447,7 @@ public class GDController extends BaseController implements Initializable {
    *
    * @time 2018年1月20日
    */
-  public Double getHelirun(final List<GameRecord> recordList) {
+  public Double getHelirun(final List<GameRecordModel> recordList) {
     return CollectUtil.isEmpty(recordList) ? 0d
         : recordList.stream().mapToDouble(item -> getHeLirun(item)).sum();
   }
@@ -457,7 +457,7 @@ public class GDController extends BaseController implements Initializable {
    *
    * @time 2018年1月20日
    */
-  public Double getHeLirun(final GameRecord record) {
+  public Double getHeLirun(final GameRecordModel record) {
 /*    String playerId = record.getPlayerId();
     String teamId = getTeamIdWithUperCase(playerId);
     String zhanji = record.getYszj();
@@ -470,7 +470,7 @@ public class GDController extends BaseController implements Initializable {
     String heLirun =
         NumUtil.digit2(moneyService.getHeLirun(shouHuishui, chuHuishui, shuihouxian, baohui));
     return NumUtil.getNum(heLirun);*/
-    return NumUtil.getNum(record.getHeLirun());
+    return NumUtil.getNum(record.getHelirun());
   }
 
 
@@ -479,11 +479,11 @@ public class GDController extends BaseController implements Initializable {
    *
    * @time 2018年1月31日
    */
-  public Double getTeamPersonProfit(final GameRecord record) {
-    String playerId = record.getPlayerId();
+  public Double getTeamPersonProfit(final GameRecordModel record) {
+    String playerId = record.getPlayerid();
     String teamId = getTeamIdWithUperCase(playerId);
     String zhanji = record.getYszj();
-    String baoxian = record.getSinegleInsurance();
+    String baoxian = record.getSingleinsurance();
     String chuHuishui = myController.getHuishuiByYSZJ(zhanji, teamId, 1);
     String shuihouxian =
         NumUtil.digit1((-1) * Double.valueOf(baoxian) * Constants.CURRENT_HS_RATE + "");
@@ -500,8 +500,8 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月20日
    */
   public String getTeamIdWithUperCase(String playerId) {
-    String findFirst = dataList.stream().filter(record -> record.getPlayerId() == playerId)
-        .findFirst().map(GameRecord::getTeamId).orElseGet(() -> UN_KNOWN);
+    String findFirst = dataList.stream().filter(record -> record.getPlayerid() == playerId)
+        .findFirst().map(GameRecordModel::getTeamId).orElseGet(() -> UN_KNOWN);
     return findFirst;
   }
 
@@ -649,7 +649,7 @@ public class GDController extends BaseController implements Initializable {
 
       // 设置数据
       // {团队ID:List<Record}
-      Map<String, List<GameRecord>> teamMap = gudongTeamMap.get(gudongName);
+      Map<String, List<GameRecordModel>> teamMap = gudongTeamMap.get(gudongName);
       List<KaixiaoInfo> kaixiaoList = gudongKaixiaoMap.get(gudongName);
       setDynamicTableData(table, teamMap, kaixiaoList, gudongName);
       // 往左边的股东表中添加记录
@@ -684,14 +684,14 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月20日
    */
   private void setDynamicTableData(TableView<GudongRateInfo> table,
-      Map<String, List<GameRecord>> teamMap, List<KaixiaoInfo> kaixiaoList, String gudong) {
+      Map<String, List<GameRecordModel>> teamMap, List<KaixiaoInfo> kaixiaoList, String gudong) {
     // 设置股东的人次
     // setGudongRenci(table,teamMap);
 
     // Loop设置单个动态表的数据(团队部分)
-    for (Map.Entry<String, List<GameRecord>> teamEntry : teamMap.entrySet()) {
+    for (Map.Entry<String, List<GameRecordModel>> teamEntry : teamMap.entrySet()) {
       String teamId = teamEntry.getKey();
-      List<GameRecord> teamList = teamEntry.getValue();
+      List<GameRecordModel> teamList = teamEntry.getValue();
       if ("公司".equals(teamId)) {
         setDynamicTableData_team_company_part(table, teamId, teamList, gudong);
       } else {
@@ -742,7 +742,7 @@ public class GDController extends BaseController implements Initializable {
    */
   @SuppressWarnings("unused")
   private void setGudongRenci(TableView<GudongRateInfo> table,
-      Map<String, List<GameRecord>> teamMap) {
+      Map<String, List<GameRecordModel>> teamMap) {
     // 整个股东的所有人次（生活）
     Long gudongRenciCount =
         teamMap.values().stream().collect(Collectors.summarizingInt(l -> l.size())).getSum();
@@ -787,7 +787,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月20日
    */
   private void setDynamicTableData_team_not_comanpy_part(TableView<GudongRateInfo> table,
-      String teamId, List<GameRecord> teamList, String gudong) {
+      String teamId, List<GameRecordModel> teamList, String gudong) {
     // 获取团队服务费
     String teamFWF = teamProxyService.getTeamFWF_GD(teamId, teamList);// 获取服务费（根据锁定的存到数据库中的数据）
     // 获取团队利润
@@ -810,7 +810,7 @@ public class GDController extends BaseController implements Initializable {
    *
    * @time 2018年1月31日
    */
-  private Double getTeamProfit(List<GameRecord> teamList) {
+  private Double getTeamProfit(List<GameRecordModel> teamList) {
     return CollectUtil.isEmpty(teamList) ? 0d
         : teamList.stream().mapToDouble(item -> getTeamPersonProfit(item)).sum();
   }
@@ -820,7 +820,7 @@ public class GDController extends BaseController implements Initializable {
    * 设置单个动态表的数据(团队中的公司部分) 公司利润计算公式：收回水+水后险，这里计成合利润
    */
   private void setDynamicTableData_team_company_part(TableView<GudongRateInfo> table, String teamId,
-      List<GameRecord> teamList, String gudong) {
+      List<GameRecordModel> teamList, String gudong) {
     Double companyProfit = getHelirun(teamList);
 
     // 计算团队中公司的占比 公式 = sum（收回水+水后险） / 计算总利润
@@ -1000,7 +1000,7 @@ public class GDController extends BaseController implements Initializable {
 
     // 获取非银河的股东的所有人次
     Long count_not_company = dataList.stream().filter(info -> {
-      Player p = dataConstants.membersMap.get(info.getPlayerId());
+      Player p = dataConstants.membersMap.get(info.getPlayerid());
       return p != null && !p.getGudong().contains("银河");
     }).count();
 
@@ -1013,7 +1013,7 @@ public class GDController extends BaseController implements Initializable {
    */
   private void setTable_JLGu_data() {
     // 股东及股东的记录数，一个记录数就是一个人次
-    Map<String, List<GameRecord>> gudongSizeMap = dataList.stream()
+    Map<String, List<GameRecordModel>> gudongSizeMap = dataList.stream()
         .collect(Collectors.groupingBy(// 按股东分
             record -> getGudongByGameRecord(record)));
     ObservableList<String> gudongList = myController.getGudongList();

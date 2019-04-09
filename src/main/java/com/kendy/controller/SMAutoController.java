@@ -174,7 +174,7 @@ public class SMAutoController extends BaseController implements Initializable {
   @FXML
   public TextField downExcelPierodField;// 每隔多久去刷新
 
-  Charset charset = Charset.defaultCharset();
+  Charset charset = null;
 
   HttpUtils httpUtils = HttpUtils.getInstance();
 
@@ -233,6 +233,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
     loadTokenAction(new ActionEvent());
 
+    charset = Charset.forName(sysCodeField.getText());
   }
 
   /**
@@ -422,6 +423,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
 
   private CoinBuyerRusult getCoinBuyerResult() {
+    charset = Charset.forName(sysCodeField.getText());
     Map<String, String> params = new HashMap<>();
     Map<String, String> header = getHeader();
     String url = "http://cms.pokermanager.club/cms-api/leaguecredit/getLeagueCoinApplyList";
@@ -578,6 +580,7 @@ public class SMAutoController extends BaseController implements Initializable {
    * 向后台申请购买联盟币
    */
   public int buyLmbCoin(CoinBuyer coinBuyer) {
+    charset = Charset.forName(sysCodeField.getText());
     String playerName = coinBuyer.getNickName();
     String playerId = coinBuyer.getShowId();
     String buyStack = coinBuyer.getGrantNums() + "";
@@ -1014,9 +1017,9 @@ public class SMAutoController extends BaseController implements Initializable {
       Map<String, String> params = getParams(downType);
 
       try {
-        HttpResult httpResult = httpUtils.post(
+        HttpResult httpResult = httpUtils.formPost(
             "http://cms.pokermanager.club/cms-api/game/getHistoryGameList", charset,
-            JSON.toJSONString(params), getHeader());
+            params, getHeader());
         if (httpResult.isOK()) {
           String content = httpResult.getContent();
           if (StringUtil.isNotBlank(content)) {

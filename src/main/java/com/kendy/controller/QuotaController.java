@@ -9,7 +9,7 @@ import com.kendy.entity.ClubQuota;
 import com.kendy.entity.LMSumInfo;
 import com.kendy.entity.QuotaMoneyInfo;
 import com.kendy.excel.ExportQuotaPayExcel;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.DialogUtil;
 import com.kendy.util.ErrorUtil;
@@ -172,16 +172,16 @@ public class QuotaController extends BaseController implements Initializable {
   Map<String, ClubQuota> single_LM_map = new HashMap<>();
 
   // 导入每场战绩时的所有俱乐部记录
-  public List<GameRecord> currentRecordList;
+  public List<GameRecordModel> currentRecordList;
 
   // {俱乐部ID : 俱乐部信息}
   public Map<String, Club> allClubMap;
 
   // {俱乐部ID : 俱乐部每一场信息}
-  public Map<String, List<GameRecord>> eachClubList;
+  public Map<String, List<GameRecordModel>> eachClubList;
 
   // 缓存三个联盟的信息
-  public List<Map<String, List<GameRecord>>> LMTotalList;
+  public List<Map<String, List<GameRecordModel>>> LMTotalList;
 
   public String[] LM;
 
@@ -246,7 +246,7 @@ public class QuotaController extends BaseController implements Initializable {
       // {联盟Index : {俱乐部ID : 俱乐部配额信息}} //后期如果性能慢的话，可以修改为这定个
       // Map<String,Map<String,List<ClubQuota>>> totalMap = new HashMap<>();
       int lmType = getCurrentLMType() - 1;
-      Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(lmType);// 遍历这三个
+      Map<String, List<GameRecordModel>> current_LM_Map = LMTotalList.get(lmType);// 遍历这三个
       // lmController lmController= new lmController();
       Map<String, List<LMSumInfo>> allClubSumMap = lmController.getAllClubSumMap(current_LM_Map);
       allClubSumMap.forEach((clubId, sumList) -> {

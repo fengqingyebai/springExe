@@ -12,6 +12,7 @@ import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
+import com.kendy.db.dao.GameRecordDao;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -27,7 +28,7 @@ import com.kendy.entity.ZijinInfo;
 import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.service.JifenService;
 import com.kendy.service.MemberService;
 import com.kendy.service.MoneyService;
@@ -59,8 +60,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -69,13 +68,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
@@ -85,6 +81,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
+import javax.annotation.Resource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
@@ -141,6 +138,8 @@ public class ChangciController extends BaseController implements Initializable {
   public JifenQueryController jifenQueryController; // 积分控制类
   @Autowired
   public MyController myController;
+  @Resource
+  private GameRecordDao gameRecordDao;
 
   // =================================================第一个tableView
   @FXML
@@ -329,7 +328,7 @@ public class ChangciController extends BaseController implements Initializable {
 
     // 绑定牌局表
     bindCellValueByTable(new WanjiaInfo(), tablePaiju);
-    //pay.setCellFactory(cellFactory);// 支付按钮：单独出来
+    pay.setCellFactory(cellFactory);// 支付按钮：单独出来
     copy.setCellFactory(cellFactoryCopy);// 复制按钮：单独出来
     //setColumnCenter(pay, copy);
 
@@ -458,10 +457,10 @@ public class ChangciController extends BaseController implements Initializable {
     }
   }
 
-  private void importExcelData(String tableId, List<GameRecord> gameRecords) {
+  private void importExcelData(String tableId, List<GameRecordModel> gameRecordModels) {
     // 1 填充总信息表
     moneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju, tableDangju, tableJiaoshou,
-        tableTeam, gameRecords, tableId);
+        tableTeam, gameRecordModels, tableId);
     // 2填充当局表和交收表和团队表的总和
     moneyService.setTotalNumOnTable(tableDangju, dataConstants.SumMap.get("当局"));
     moneyService.setTotalNumOnTable(tableJiaoshou, dataConstants.SumMap.get("交收"));
@@ -675,9 +674,9 @@ public class ChangciController extends BaseController implements Initializable {
     dataConstants.Team_Huishui_Map.remove(teamId);
     String clubId = myController.getClubId();
     lmController.currentRecordList.stream().forEach(e -> {
-      if (StringUtils.equals(e.getClubId(), clubId)
+      if (StringUtils.equals(e.getClubid(), clubId)
           && StringUtils.equals(e.getTeamId(), teamId)) {
-        e.setIsJiesuaned("1");
+        e.setIsjiesuaned("1");
       }
     });
 
@@ -970,6 +969,8 @@ public class ChangciController extends BaseController implements Initializable {
         // 保存当前Excel记录到数据库
         try {
           dbUtil.addGameRecordList(lmController.currentRecordList);
+
+
         } catch (Exception e) {
           ErrorUtil.err(e.getMessage(), e);
         }
@@ -1044,7 +1045,7 @@ public class ChangciController extends BaseController implements Initializable {
   public void setDangjuTeamInfo() {
     dataConstants.Dangju_Team_Huishui_List.forEach(info -> {
       String teamId = info.getTeamId();
-      List<GameRecord> teamHuishuiList = dataConstants.Total_Team_Huishui_Map.get(teamId);
+      List<GameRecordModel> teamHuishuiList = dataConstants.Total_Team_Huishui_Map.get(teamId);
       if (teamHuishuiList == null) {
         teamHuishuiList = new ArrayList<>();
       }
@@ -1393,10 +1394,10 @@ public class ChangciController extends BaseController implements Initializable {
       Map<String, String> maps = dbUtil.getLastLockedData();
       if (maps != null && maps.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(maps.get("Team_Huishui_Map"),
-            new TypeReference<Map<String, List<GameRecord>>>() {
+            new TypeReference<Map<String, List<GameRecordModel>>>() {
             });
         dataConstants.Total_Team_Huishui_Map = JSON.parseObject(maps.get("Total_Team_Huishui_Map"),
-            new TypeReference<Map<String, List<GameRecord>>>() {
+            new TypeReference<Map<String, List<GameRecordModel>>>() {
             });
       }
       // 初始化当局回水
@@ -1504,7 +1505,7 @@ public class ChangciController extends BaseController implements Initializable {
       Map<String, String> map = dbUtil.getLastLockedData();
       if (map != null && map.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"),
-            new TypeReference<Map<String, List<GameRecord>>>() {
+            new TypeReference<Map<String, List<GameRecordModel>>>() {
             });
       }
     }
@@ -1581,7 +1582,7 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public void importBlankExcelAction(ActionEvent event) {
     String tableId = RandomUtil.getRandomNumber(10000, 20000) + "";// 随机生成ID
-    List<GameRecord> blankDataList = new ArrayList<GameRecord>();
+    List<GameRecordModel> blankDataList = new ArrayList<GameRecordModel>();
     // 存储数据 {场次=infoList...}
     dataConstants.zjMap.put(tableId, blankDataList);
     currentLMName = "联盟1";
@@ -1679,10 +1680,10 @@ public class ChangciController extends BaseController implements Initializable {
 
       try {
         // 将人员名单文件缓存起来
-        List<GameRecord> gameRecords = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
+        List<GameRecordModel> gameRecordModels = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
             currentLMName, myController.getVersionType());
         indexLabel.setText(tableId);
-        importExcelData(tableId, gameRecords);
+        importExcelData(tableId, gameRecordModels);
 
         importZJBtn.setDisable(true); // 导入按钮设置为不可用
         ShowUtil.show("导入战绩文件成功", 2);

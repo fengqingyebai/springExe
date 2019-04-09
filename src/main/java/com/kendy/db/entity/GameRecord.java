@@ -107,6 +107,90 @@ public class GameRecord extends GenericEntity {
     private String jutype;
 
     /**
+     * 个人回保
+     */
+    @Column(name = "personal_huibao")
+    private String personalHuibao;
+
+    /**
+     * 个人回水=个人回水比例 * 负数战绩
+     */
+    @Column(name = "personal_huishui")
+    private String personalHuishui;
+
+    /**
+     * 联盟币扣减
+     */
+    @Column(name = "lmb_koujian")
+    private String lmbKoujian;
+
+    /**
+     * 保险再分配
+     */
+    @Column(name = "baoxian_zaifenpei")
+    private String baoxianZaifenpei;
+
+    /**
+     * 俱乐部再分配
+     */
+    @Column(name = "club_zaifenpei")
+    private String clubZaifenpei;
+
+    /**
+     * 是否庄位-加勒比海
+     */
+    @Column(name = "is_zhuangwei")
+    private String isZhuangwei;
+
+    /**
+     * 玩家手数-加勒比海
+     */
+    @Column(name = "wanjia_shoushu")
+    private String wanjiaShoushu;
+
+    /**
+     * 玩家总加注-加勒比海
+     */
+    @Column(name = "wanjia_zong_jiazhu")
+    private String wanjiaZongJiazhu;
+
+    /**
+     * 玩家总下注-加勒比海
+     */
+    @Column(name = "wanjia_zong_xiazhu")
+    private String wanjiaZongXiazhu;
+
+    /**
+     * 俱乐部分成-德州牛仔
+     */
+    @Column(name = "club_fencheng")
+    private String clubFencheng;
+
+    /**
+     * 联盟分成-德州牛仔
+     */
+    @Column(name = "lianmeng_fencheng")
+    private String lianmengFencheng;
+
+    /**
+     * 所属代理-德州牛仔
+     */
+    @Column(name = "suoshu_proxy")
+    private String suoshuProxy;
+
+    /**
+     * 代理返水-德州牛仔
+     */
+    @Column(name = "proxy_fanshui")
+    private String proxyFanshui;
+
+    /**
+     * 个人是否已经结算
+     */
+    @Column(name = "personal_jiesuan")
+    private String personalJiesuan;
+
+    /**
      * 获取软件时间
      *
      * @return soft_time - 软件时间
@@ -470,5 +554,257 @@ public class GameRecord extends GenericEntity {
      */
     public void setJutype(String jutype) {
         this.jutype = jutype == null ? null : jutype.trim();
+    }
+
+    /**
+     * 获取个人回保
+     *
+     * @return personal_huibao - 个人回保
+     */
+    public String getPersonalHuibao() {
+        return personalHuibao;
+    }
+
+    /**
+     * 设置个人回保
+     *
+     * @param personalHuibao 个人回保
+     */
+    public void setPersonalHuibao(String personalHuibao) {
+        this.personalHuibao = personalHuibao == null ? null : personalHuibao.trim();
+    }
+
+    /**
+     * 获取个人回水=个人回水比例 * 负数战绩
+     *
+     * @return personal_huishui - 个人回水=个人回水比例 * 负数战绩
+     */
+    public String getPersonalHuishui() {
+        return personalHuishui;
+    }
+
+    /**
+     * 设置个人回水=个人回水比例 * 负数战绩
+     *
+     * @param personalHuishui 个人回水=个人回水比例 * 负数战绩
+     */
+    public void setPersonalHuishui(String personalHuishui) {
+        this.personalHuishui = personalHuishui == null ? null : personalHuishui.trim();
+    }
+
+    /**
+     * 获取联盟币扣减
+     *
+     * @return lmb_koujian - 联盟币扣减
+     */
+    public String getLmbKoujian() {
+        return lmbKoujian;
+    }
+
+    /**
+     * 设置联盟币扣减
+     *
+     * @param lmbKoujian 联盟币扣减
+     */
+    public void setLmbKoujian(String lmbKoujian) {
+        this.lmbKoujian = lmbKoujian == null ? null : lmbKoujian.trim();
+    }
+
+    /**
+     * 获取保险再分配
+     *
+     * @return baoxian_zaifenpei - 保险再分配
+     */
+    public String getBaoxianZaifenpei() {
+        return baoxianZaifenpei;
+    }
+
+    /**
+     * 设置保险再分配
+     *
+     * @param baoxianZaifenpei 保险再分配
+     */
+    public void setBaoxianZaifenpei(String baoxianZaifenpei) {
+        this.baoxianZaifenpei = baoxianZaifenpei == null ? null : baoxianZaifenpei.trim();
+    }
+
+    /**
+     * 获取俱乐部再分配
+     *
+     * @return club_zaifenpei - 俱乐部再分配
+     */
+    public String getClubZaifenpei() {
+        return clubZaifenpei;
+    }
+
+    /**
+     * 设置俱乐部再分配
+     *
+     * @param clubZaifenpei 俱乐部再分配
+     */
+    public void setClubZaifenpei(String clubZaifenpei) {
+        this.clubZaifenpei = clubZaifenpei == null ? null : clubZaifenpei.trim();
+    }
+
+    /**
+     * 获取是否庄位-加勒比海
+     *
+     * @return is_zhuangwei - 是否庄位-加勒比海
+     */
+    public String getIsZhuangwei() {
+        return isZhuangwei;
+    }
+
+    /**
+     * 设置是否庄位-加勒比海
+     *
+     * @param isZhuangwei 是否庄位-加勒比海
+     */
+    public void setIsZhuangwei(String isZhuangwei) {
+        this.isZhuangwei = isZhuangwei == null ? null : isZhuangwei.trim();
+    }
+
+    /**
+     * 获取玩家手数-加勒比海
+     *
+     * @return wanjia_shoushu - 玩家手数-加勒比海
+     */
+    public String getWanjiaShoushu() {
+        return wanjiaShoushu;
+    }
+
+    /**
+     * 设置玩家手数-加勒比海
+     *
+     * @param wanjiaShoushu 玩家手数-加勒比海
+     */
+    public void setWanjiaShoushu(String wanjiaShoushu) {
+        this.wanjiaShoushu = wanjiaShoushu == null ? null : wanjiaShoushu.trim();
+    }
+
+    /**
+     * 获取玩家总加注-加勒比海
+     *
+     * @return wanjia_zong_jiazhu - 玩家总加注-加勒比海
+     */
+    public String getWanjiaZongJiazhu() {
+        return wanjiaZongJiazhu;
+    }
+
+    /**
+     * 设置玩家总加注-加勒比海
+     *
+     * @param wanjiaZongJiazhu 玩家总加注-加勒比海
+     */
+    public void setWanjiaZongJiazhu(String wanjiaZongJiazhu) {
+        this.wanjiaZongJiazhu = wanjiaZongJiazhu == null ? null : wanjiaZongJiazhu.trim();
+    }
+
+    /**
+     * 获取玩家总下注-加勒比海
+     *
+     * @return wanjia_zong_xiazhu - 玩家总下注-加勒比海
+     */
+    public String getWanjiaZongXiazhu() {
+        return wanjiaZongXiazhu;
+    }
+
+    /**
+     * 设置玩家总下注-加勒比海
+     *
+     * @param wanjiaZongXiazhu 玩家总下注-加勒比海
+     */
+    public void setWanjiaZongXiazhu(String wanjiaZongXiazhu) {
+        this.wanjiaZongXiazhu = wanjiaZongXiazhu == null ? null : wanjiaZongXiazhu.trim();
+    }
+
+    /**
+     * 获取俱乐部分成-德州牛仔
+     *
+     * @return club_fencheng - 俱乐部分成-德州牛仔
+     */
+    public String getClubFencheng() {
+        return clubFencheng;
+    }
+
+    /**
+     * 设置俱乐部分成-德州牛仔
+     *
+     * @param clubFencheng 俱乐部分成-德州牛仔
+     */
+    public void setClubFencheng(String clubFencheng) {
+        this.clubFencheng = clubFencheng == null ? null : clubFencheng.trim();
+    }
+
+    /**
+     * 获取联盟分成-德州牛仔
+     *
+     * @return lianmeng_fencheng - 联盟分成-德州牛仔
+     */
+    public String getLianmengFencheng() {
+        return lianmengFencheng;
+    }
+
+    /**
+     * 设置联盟分成-德州牛仔
+     *
+     * @param lianmengFencheng 联盟分成-德州牛仔
+     */
+    public void setLianmengFencheng(String lianmengFencheng) {
+        this.lianmengFencheng = lianmengFencheng == null ? null : lianmengFencheng.trim();
+    }
+
+    /**
+     * 获取所属代理-德州牛仔
+     *
+     * @return suoshu_proxy - 所属代理-德州牛仔
+     */
+    public String getSuoshuProxy() {
+        return suoshuProxy;
+    }
+
+    /**
+     * 设置所属代理-德州牛仔
+     *
+     * @param suoshuProxy 所属代理-德州牛仔
+     */
+    public void setSuoshuProxy(String suoshuProxy) {
+        this.suoshuProxy = suoshuProxy == null ? null : suoshuProxy.trim();
+    }
+
+    /**
+     * 获取代理返水-德州牛仔
+     *
+     * @return proxy_fanshui - 代理返水-德州牛仔
+     */
+    public String getProxyFanshui() {
+        return proxyFanshui;
+    }
+
+    /**
+     * 设置代理返水-德州牛仔
+     *
+     * @param proxyFanshui 代理返水-德州牛仔
+     */
+    public void setProxyFanshui(String proxyFanshui) {
+        this.proxyFanshui = proxyFanshui == null ? null : proxyFanshui.trim();
+    }
+
+    /**
+     * 获取个人是否已经结算
+     *
+     * @return personal_jiesuan - 个人是否已经结算
+     */
+    public String getPersonalJiesuan() {
+        return personalJiesuan;
+    }
+
+    /**
+     * 设置个人是否已经结算
+     *
+     * @param personalJiesuan 个人是否已经结算
+     */
+    public void setPersonalJiesuan(String personalJiesuan) {
+        this.personalJiesuan = personalJiesuan == null ? null : personalJiesuan.trim();
     }
 }

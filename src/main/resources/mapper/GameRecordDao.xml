@@ -28,5 +28,19 @@
     <result column="beginPlayerName" jdbcType="VARCHAR" property="beginplayername" />
     <result column="importTime" jdbcType="VARCHAR" property="importtime" />
     <result column="juType" jdbcType="VARCHAR" property="jutype" />
+    <result column="personal_huibao" jdbcType="VARCHAR" property="personalHuibao" />
+    <result column="personal_huishui" jdbcType="VARCHAR" property="personalHuishui" />
+    <result column="lmb_koujian" jdbcType="VARCHAR" property="lmbKoujian" />
+    <result column="baoxian_zaifenpei" jdbcType="VARCHAR" property="baoxianZaifenpei" />
+    <result column="club_zaifenpei" jdbcType="VARCHAR" property="clubZaifenpei" />
+    <result column="is_zhuangwei" jdbcType="VARCHAR" property="isZhuangwei" />
+    <result column="wanjia_shoushu" jdbcType="VARCHAR" property="wanjiaShoushu" />
+    <result column="wanjia_zong_jiazhu" jdbcType="VARCHAR" property="wanjiaZongJiazhu" />
+    <result column="wanjia_zong_xiazhu" jdbcType="VARCHAR" property="wanjiaZongXiazhu" />
+    <result column="club_fencheng" jdbcType="VARCHAR" property="clubFencheng" />
+    <result column="lianmeng_fencheng" jdbcType="VARCHAR" property="lianmengFencheng" />
+    <result column="suoshu_proxy" jdbcType="VARCHAR" property="suoshuProxy" />
+    <result column="proxy_fanshui" jdbcType="VARCHAR" property="proxyFanshui" />
+    <result column="personal_jiesuan" jdbcType="VARCHAR" property="personalJiesuan" />
   </resultMap>
 </mapper>

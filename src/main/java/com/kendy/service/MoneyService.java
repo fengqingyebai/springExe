@@ -25,12 +25,11 @@ import com.kendy.entity.WanjiaInfo;
 import com.kendy.entity.ZijinInfo;
 import com.kendy.enums.ColumnColorType;
 import com.kendy.enums.MoneyCreatorEnum;
-import com.kendy.enums.PermissionTabEnum;
 import com.kendy.excel.ExportMembersExcel;
 import com.kendy.excel.ExportTeamhsExcel;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.BankFlowModel;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.ErrorUtil;
@@ -123,13 +122,13 @@ public class MoneyService extends BasicService{
   /**
    * 导入战绩成功后 自动填充玩家信息表、牌局表、团队表以及当局 备注：这些表数据在当局范围内是固定不变的
    *
-   * @param gameRecords 符合当前俱乐部ID的记录
+   * @param gameRecordModels 符合当前俱乐部ID的记录
    * @time 2018年7月9日
    */
   public void fillTablerAfterImportZJ(TableView<TotalInfo> table,
       TableView<WanjiaInfo> tablePaiju, TableView<DangjuInfo> tableDangju,
       TableView<JiaoshouInfo> tableJiaoshou, TableView<TeamInfo> tableTeam,
-      List<GameRecord> gameRecords, String tableId) {
+      List<GameRecordModel> gameRecordModels, String tableId) {
 
     if (dataConstants.Team_Huishui_Map == null) { // add 2018-08-04
       dataConstants.Team_Huishui_Map = new LinkedHashMap<>();
@@ -142,24 +141,24 @@ public class MoneyService extends BasicService{
     ObservableList<WanjiaInfo> tableWanjiaInfoList = FXCollections.observableArrayList();
     TotalInfo info = null;
     WanjiaInfo wanjia;
-    List<GameRecord> teamHuishuiList = null;// 用于缓存和计算团累计团队回水
+    List<GameRecordModel> teamHuishuiList = null;// 用于缓存和计算团累计团队回水
     Set<String> relatedTeamIdSet = new HashSet<>();// 用于只展示本次战绩的团队信息
     dataConstants.Dangju_Team_Huishui_List = new LinkedList<>();// 每次导入都去初始化当局团队战绩信息
-    for (GameRecord r : gameRecords) {
+    for (GameRecordModel r : gameRecordModels) {
 
       /*************************************************** 填充信息表 *****************/
       info = new TotalInfo();
-      String playerId = r.getPlayerId();
+      String playerId = r.getPlayerid();
       String teamId = r.getTeamId();
       String yszj = r.getYszj();
       String playerName = r.getPlayerName();
-      String baoxian = r.getSinegleInsurance();
+      String baoxian = r.getSingleinsurance();
       String shishou = r.getShishou();
-      String chuHuishui = r.getChuHuishui();
+      String chuHuishui = r.getChuhuishui();
       String shuihouxian = r.getShuihouxian();
-      String shouHuishui = r.getShouHuishui();
-      String baohui = r.getHuiBao();
-      String heLirun = r.getHeLirun();
+      String shouHuishui = r.getShouhuishui();
+      String baohui = r.getHuibao();
+      String heLirun = r.getHelirun();
 
       // 团(团ID)
       info.setTuan(teamId);
@@ -190,7 +189,7 @@ public class MoneyService extends BasicService{
       wanjia = new WanjiaInfo();
       String yicunJifen = getYicunJifen(playerId);
       String heji = digit0(NumUtil.getNum(yicunJifen) + NumUtil.getNum(shishou) + "");
-      wanjia.setPaiju(r.getTableId());
+      wanjia.setPaiju(r.getTableid());
       wanjia.setWanjiaName(playerName);
       wanjia.setYicunJifen(yicunJifen);
       wanjia.setZhangji(shishou);
@@ -240,9 +239,9 @@ public class MoneyService extends BasicService{
    *
    * @time 2018年7月8日
    */
-  public void fillGameRecords(List<GameRecord> gameRecords, String tableId, String level,
+  public void fillGameRecords(List<GameRecordModel> gameRecordModels, String tableId, String level,
       String LMType) {
-    for (GameRecord r : gameRecords) {
+    for (GameRecordModel r : gameRecordModels) {
       setSingleGameRecord(r, tableId, level, LMType);
     }
   }
@@ -250,12 +249,12 @@ public class MoneyService extends BasicService{
   /**
    * 补全单条记录的值
    */
-  private void setSingleGameRecord(GameRecord r, String tableId, String level, String LMType) {
+  private void setSingleGameRecord(GameRecordModel r, String tableId, String level, String LMType) {
 
-    String teamId = getTeamId(r.getPlayerId());
+    String teamId = getTeamId(r.getPlayerid());
     // 计算收回险
     String yszj = r.getYszj();
-    String baoxian = r.getSinegleInsurance();
+    String baoxian = r.getSingleinsurance();
     String shishou = getShiShou(yszj);
     String chuHuishui = myController.getHuishuiByYSZJ(yszj, teamId, 1);
     String shuihouxian = getShuihouxian(baoxian);
@@ -264,29 +263,29 @@ public class MoneyService extends BasicService{
     String heLirun = NumUtil.digit2(getHeLirun(shouHuishui, chuHuishui, shuihouxian, huiBao));
 
     // 获取软件时间
-    r.setSoftDate(dataConstants.Date_Str);
+    r.setSoftTime(dataConstants.Date_Str);
     // 设置桌号
-    r.setTableId(tableId);
+    r.setTableid(tableId);
     // 设置联盟
-    r.setLmType(LMType);
+    r.setLmtype(LMType);
     // 设置团队ID
     r.setTeamId(teamId);
     // 实收
     r.setShishou(shishou);
     // 出回水
-    r.setChuHuishui(chuHuishui);
+    r.setChuhuishui(chuHuishui);
     // 回保
-    r.setHuiBao(huiBao);
+    r.setHuibao(huiBao);
     // 水后险
     r.setShuihouxian(shuihouxian);
     // 收回水
-    r.setShouHuishui(shouHuishui);
+    r.setShouhuishui(shouHuishui);
     // 合利润
-    r.setHeLirun(heLirun);
+    r.setHelirun(heLirun);
     // 级别
     r.setLevel(level);
     // 导入时间
-    r.setImportTime(TimeUtil.getDateTime());
+    r.setImporttime(TimeUtil.getDateTime());
     log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
   }
 
@@ -459,22 +458,22 @@ public class MoneyService extends BasicService{
     sum_teamHS_and_teamBS = 0;
     // 准备数据
     ObservableList<TeamInfo> list = FXCollections.observableArrayList();
-    Map<String, List<GameRecord>> test = dataConstants.Team_Huishui_Map;
+    Map<String, List<GameRecordModel>> test = dataConstants.Team_Huishui_Map;
     relatedTeamIdSet = dataConstants.Team_Huishui_Map.keySet();// 这是后期增加：查看所有团队
     relatedTeamIdSet.forEach(relatedTeamId -> {
       if (!"公司".equals(relatedTeamId)) {
         double sumOfZJ = 0.0;
         double sumOfHS = 0.0;
         double sumOfBS = 0.0;
-        List<GameRecord> teamLS = dataConstants.Team_Huishui_Map
+        List<GameRecordModel> teamLS = dataConstants.Team_Huishui_Map
             .getOrDefault(relatedTeamId, new ArrayList<>());
         //只获取未结算的数据
-        teamLS = teamLS.stream().filter(e -> "0".equals(e.getIsJiesuaned()))
+        teamLS = teamLS.stream().filter(e -> "0".equals(e.getIsjiesuaned()))
             .collect(Collectors.toList());
-        for (GameRecord info : teamLS) {
+        for (GameRecordModel info : teamLS) {
           sumOfZJ += Double.valueOf(info.getShishou());
-          sumOfHS += Math.abs(Double.valueOf(info.getChuHuishui()));
-          sumOfBS += Double.valueOf(info.getSinegleInsurance());// 就是回保
+          sumOfHS += Math.abs(Double.valueOf(info.getChuhuishui()));
+          sumOfBS += Double.valueOf(info.getSingleinsurance());// 就是回保
         }
         double sum = 0.0d;
         if (sumOfBS != 0) {// 需要乘以团队保险比例的
@@ -1834,7 +1833,7 @@ public class MoneyService extends BasicService{
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "名单登记表-德扑圈" + sdf.format(new Date());
     log.info("导出人员表Excel:" + title);
-    String[] rowsName = new String[]{"玩家ID", "玩家名称", "股东", "团队", "额度","是否父ID","抽水","回水"};
+    String[] rowsName = new String[]{"玩家ID", "玩家名称", "股东", "团队", "额度","是否父ID","回保","回水"};
     List<Object[]> dataList = new ArrayList<>();
     Object[] objs = null;
     Map<String, Player> memberMap = dataConstants.membersMap;
@@ -1850,7 +1849,7 @@ public class MoneyService extends BasicService{
       objs[3] = player.getTeamName();
       objs[4] = player.getEdu();
       objs[5] = player.getIsParent();
-      objs[6] = player.getChoushui();
+      objs[6] = player.getHuibao();
       objs[7] = player.getHuishui();
       dataList.add(objs);
     }

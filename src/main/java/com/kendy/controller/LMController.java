@@ -3,7 +3,6 @@ package com.kendy.controller;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.kendy.enums.PermissionTabEnum;
 import com.kendy.model.ClubInfo;
 import com.kendy.util.TableUtil;
 import java.net.URL;
@@ -48,7 +47,7 @@ import com.kendy.entity.LMDetailInfo;
 import com.kendy.entity.LMSumInfo;
 import com.kendy.excel.ExportAllLMExcel;
 import com.kendy.excel.ExportLMExcel;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.DialogUtil;
 import com.kendy.util.ErrorUtil;
@@ -158,16 +157,16 @@ public class LMController extends BaseController implements Initializable {
   private final String FLOW_PANE_ID = "flowPane";
 
   // 导入每场战绩时的所有俱乐部记录
-  public List<GameRecord> currentRecordList = new ArrayList<>();
+  public List<GameRecordModel> currentRecordList = new ArrayList<>();
 
   // {俱乐部ID : 俱乐部信息}
   public Map<String, Club> allClubMap = new HashMap<>();
 
   // {俱乐部ID : 俱乐部每一场信息}
-  public Map<String, List<GameRecord>> eachClubList = new HashMap<>();
+  public Map<String, List<GameRecordModel>> eachClubList = new HashMap<>();
 
   // 缓存三个联盟的信息
-  public List<Map<String, List<GameRecord>>> LMTotalList = new ArrayList<>();
+  public List<Map<String, List<GameRecordModel>>> LMTotalList = new ArrayList<>();
 
   public ListView<String> _clubListView = new ListView<>();
 
@@ -292,7 +291,7 @@ public class LMController extends BaseController implements Initializable {
     // 锁定数据后同步到缓存中
     if (currentRecordList != null) {
       currentRecordList.forEach(record -> {
-        String clubId = record.getClubId();
+        String clubId = record.getClubid();
         if (allClubMap.get(clubId) == null) {
           allClubMap.put(clubId, new Club(clubId, record.getClubName(), "0"));
         }
@@ -431,13 +430,13 @@ public class LMController extends BaseController implements Initializable {
    * @time 2017年11月26日
    */
   public Map<String, List<LMSumInfo>> getAllClubSumMap(
-      Map<String, List<GameRecord>> current_LM_Map) {
+      Map<String, List<GameRecordModel>> current_LM_Map) {
     Map<String, List<LMSumInfo>> map = new HashMap<>();
 
-    for (Map.Entry<String, List<GameRecord>> entry : current_LM_Map.entrySet()) {
+    for (Map.Entry<String, List<GameRecordModel>> entry : current_LM_Map.entrySet()) {
       List<LMSumInfo> tempList = new ArrayList<>();
       String clubId = entry.getKey();
-      List<GameRecord> list = entry.getValue();
+      List<GameRecordModel> list = entry.getValue();
 
       if (list == null) {
         log.warn("根据详情找不到俱乐部信息:" + clubId);// 如果有回查功能就有可能出现这个问题
@@ -458,10 +457,10 @@ public class LMController extends BaseController implements Initializable {
       double sumOfEachClubZJ = 0d;
       double sumOfEachClubInsure = 0d;// 这个要全部全和
       int sumOfEachClubPersonCount = 0;
-      for (GameRecord record : list) {
+      for (GameRecordModel record : list) {
         sumOfEachClubZJ += NumUtil.getNum(record.getYszj());
 //        sumOfEachClubInsure += NumUtil.getNum(record.getSinegleInsurance());
-        sumOfEachClubInsure += NumUtil.getNum(record.getClubInsurance());
+        sumOfEachClubInsure += NumUtil.getNum(record.getClubinsurance());
         sumOfEachClubPersonCount += NumUtil.getNum(record.getPersonCount());
       }
       info1.setLmSumZJ(NumUtil.digit0("" + sumOfEachClubZJ));
@@ -559,7 +558,7 @@ public class LMController extends BaseController implements Initializable {
     // {联盟Index : {俱乐部ID : 俱乐部配额信息}}
     // Map<String,Map<String,List<ClubQuota>>> totalMap = new HashMap<>();
     int lmType = getCurrentLMType() - 1;
-    Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(lmType);// 遍历这三个
+    Map<String, List<GameRecordModel>> current_LM_Map = LMTotalList.get(lmType);// 遍历这三个
     Map<String, List<LMSumInfo>> allClubSumMap = getAllClubSumMap(current_LM_Map);
     allClubSumMap.forEach((clubId, sumList) -> {
       Club club = allClubMap.get(clubId);
@@ -599,8 +598,8 @@ public class LMController extends BaseController implements Initializable {
     tableLMDetail.setItems(null);
     // List<Record> list = eachClubList.get(clubId);
     int LMTypeIndex = this.getCurrentLMType() - 1;
-    Map<String, List<GameRecord>> LMMap = LMTotalList.get(LMTypeIndex);
-    List<GameRecord> list = LMMap.get(clubId);
+    Map<String, List<GameRecordModel>> LMMap = LMTotalList.get(LMTypeIndex);
+    List<GameRecordModel> list = LMMap.get(clubId);
 
     ObservableList<LMDetailInfo> obList = FXCollections.observableArrayList();
     if (list == null) {
@@ -613,9 +612,9 @@ public class LMController extends BaseController implements Initializable {
     }
 
     list.forEach(record -> {
-      String tableId = record.getTableId();
+      String tableId = record.getTableid();
       String zj = record.getYszj();
-      String insure = record.getClubInsurance();
+      String insure = record.getClubinsurance();
       String personNumbers = record.getPersonCount();
       obList.add(new LMDetailInfo(tableId, zj, insure, personNumbers));
 
@@ -632,25 +631,25 @@ public class LMController extends BaseController implements Initializable {
    * @param list 某个俱乐部的所有场次信息，具体到每一条战绩记录
    * @time 2017年11月25日
    */
-  private List<GameRecord> computSumList(final List<GameRecord> list, boolean isNeedSort) {
-    List<GameRecord> sumList = new ArrayList<>();
-    Map<String, List<GameRecord>> map = new HashMap<>();// key是tableId
+  private List<GameRecordModel> computSumList(final List<GameRecordModel> list, boolean isNeedSort) {
+    List<GameRecordModel> sumList = new ArrayList<>();
+    Map<String, List<GameRecordModel>> map = new HashMap<>();// key是tableId
     String tableId = "";// 以tableId进行分类求和
-    for (GameRecord record : list) {
-      tableId = record.getTableId();
-      List<GameRecord> _list = map.get(tableId);
+    for (GameRecordModel record : list) {
+      tableId = record.getTableid();
+      List<GameRecordModel> _list = map.get(tableId);
       if (_list == null) {
         _list = new ArrayList<>();
       }
       _list.add(record);
       map.put(tableId, _list);
     }
-    for (Map.Entry<String, List<GameRecord>> entry : map.entrySet()) {
-      List<GameRecord> eachClubList = entry.getValue();
+    for (Map.Entry<String, List<GameRecordModel>> entry : map.entrySet()) {
+      List<GameRecordModel> eachClubList = entry.getValue();
       double sumOfEachClubZJ = 0d;
       double sumOfEachClubInsure = 0d;// 只取其中一个， 不求和（因为已经求和了）
       int sumOfEachClubPersonCount = 0;
-      for (GameRecord record : eachClubList) {
+      for (GameRecordModel record : eachClubList) {
         sumOfEachClubZJ += NumUtil.getNum(record.getYszj());
         // sumOfEachClubInsure = NumUtil.getNum(record.getInsurance());
         //sumOfEachClubInsure = NumUtil.getNum(record.getSinegleInsurance());
@@ -661,14 +660,14 @@ public class LMController extends BaseController implements Initializable {
         // 这里应该清空数据并返回
         continue;
       }
-      sumOfEachClubInsure = NumUtil.getNum(eachClubList.get(0).getClubInsurance());
-      GameRecord sumRecord = new GameRecord();
-      sumRecord.setTableId(entry.getKey());
+      sumOfEachClubInsure = NumUtil.getNum(eachClubList.get(0).getClubinsurance());
+      GameRecordModel sumRecord = new GameRecordModel();
+      sumRecord.setTableid(entry.getKey());
       sumRecord.setYszj(NumUtil
           .digit0("" + ((sumOfEachClubZJ + sumOfEachClubInsure) * Constants.CURRENT_HS_RATE)));
       // sumRecord.setInsurance(NumUtil.digit0(""+(sumOfEachClubInsure * Constants.CURRENT_HS_RATE
       // )));
-      sumRecord.setClubInsurance(
+      sumRecord.setClubinsurance(
           NumUtil.digit0("" + (sumOfEachClubInsure * Constants.CURRENT_HS_RATE)));
       sumRecord.setPersonCount(sumOfEachClubPersonCount + "");
       // 添加到最后的总和列表中
@@ -677,11 +676,11 @@ public class LMController extends BaseController implements Initializable {
     }
     // 自定义场次排序（从低到高）
     if (isNeedSort) {
-      Collections.sort(sumList, new Comparator<GameRecord>() {
+      Collections.sort(sumList, new Comparator<GameRecordModel>() {
         @Override
-        public int compare(GameRecord r1, GameRecord r2) {
-          String o1 = r1.getTableId();
-          String o2 = r2.getTableId();
+        public int compare(GameRecordModel r1, GameRecordModel r2) {
+          String o1 = r1.getTableid();
+          String o2 = r2.getTableid();
           o1 = o1.replace("第", "").replaceAll("局", "");
           o2 = o2.replace("第", "").replaceAll("局", "");
           Integer index1;
@@ -776,16 +775,16 @@ public class LMController extends BaseController implements Initializable {
 
     String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
     if (StringUtil.isNotBlank(maxRecordTime)) {
-      List<GameRecord> list = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
+      List<GameRecordModel> list = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
       // 处理从数据库返回的结果为Map
       // 即把List<Record>转为Map<String,List<Record>>
-      Map<String, List<GameRecord>> map = new HashMap<>();
+      Map<String, List<GameRecordModel>> map = new HashMap<>();
       if (list == null) {
         list = new ArrayList<>();
       }
       list.forEach(record -> {
-        String clubId = record.getClubId();
-        List<GameRecord> _list = map.get(clubId);
+        String clubId = record.getClubid();
+        List<GameRecordModel> _list = map.get(clubId);
         if (_list == null) {
           _list = new ArrayList<>();
         }
@@ -897,7 +896,7 @@ public class LMController extends BaseController implements Initializable {
         return;
       }
 
-      List<GameRecord> todayTotalList = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
+      List<GameRecordModel> todayTotalList = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
       if (CollectionUtils.isEmpty(todayTotalList)) {
         return;
       }
@@ -979,42 +978,42 @@ public class LMController extends BaseController implements Initializable {
   }
 
 
-  private Map<String, ClubInfo> getLMClubInfo(final List<GameRecord> todayTotalList,
+  private Map<String, ClubInfo> getLMClubInfo(final List<GameRecordModel> todayTotalList,
       List<String> selectedEduShareLMList) {
 
     // 已勾选共享额度中的联盟中的俱乐部对象{clubId : 计算结果}
     Map<String, ClubInfo> clubInfoMap = new HashMap<>();
     for (String LMType : selectedEduShareLMList) {
 
-      List<GameRecord> currentLMGameRecords = todayTotalList.stream()
-          .filter(record -> LMType.equals(record.getLmType()))
+      List<GameRecordModel> currentLMGameRecordModels = todayTotalList.stream()
+          .filter(record -> LMType.equals(record.getLmtype()))
           .collect(Collectors.toList());
 
-      if (CollectionUtils.isEmpty(currentLMGameRecords)) {
+      if (CollectionUtils.isEmpty(currentLMGameRecordModels)) {
         continue;
       }
 
       // 最新的当天该联盟的所有战绩记录（包含当局记录）
-      Map<String, List<GameRecord>> map = currentLMGameRecords.stream()
-          .collect(Collectors.groupingBy(GameRecord::getClubId));
+      Map<String, List<GameRecordModel>> map = currentLMGameRecordModels.stream()
+          .collect(Collectors.groupingBy(GameRecordModel::getClubid));
 
       // 计算总值
       int LMTYPE = Integer.valueOf(LMType.replace("联盟", ""));
-      for (Map.Entry<String, List<GameRecord>> entry : map.entrySet()) {
+      for (Map.Entry<String, List<GameRecordModel>> entry : map.entrySet()) {
         String clubId = entry.getKey();
         Club currentClub = allClubMap.get(clubId);
         if (currentClub == null) {
           continue;
         }
         String clubName = currentClub.getName();
-        List<GameRecord> recordList = entry.getValue();
+        List<GameRecordModel> recordList = entry.getValue();
         recordList = computSumList(recordList, false);// 求和统计（针对每一场求和）
 
         Double sumOfZJ = 0d;
         Double sumOfBX = 0d;
-        for (GameRecord record : recordList) {
+        for (GameRecordModel record : recordList) {
           sumOfZJ += NumUtil.getNum(record.getYszj());
-          sumOfBX += NumUtil.getNum(record.getSinegleInsurance());
+          sumOfBX += NumUtil.getNum(record.getSingleinsurance());
         }
 
         // 结余=sum（当天总账+已结算+桌费）
@@ -1351,7 +1350,7 @@ public class LMController extends BaseController implements Initializable {
       return;
     }
 
-    Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
+    Map<String, List<GameRecordModel>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
     if (MapUtil.isNullOrEmpty(current_LM_Map)) {
       ShowUtil.show("该联盟无数据可以导出");
       return;
@@ -1435,7 +1434,7 @@ public class LMController extends BaseController implements Initializable {
    *
    * @time 2017年12月14日
    */
-  private Map<String, Club> getLMClub(Map<String, List<GameRecord>> current_LM_Map) {
+  private Map<String, Club> getLMClub(Map<String, List<GameRecordModel>> current_LM_Map) {
     Map<String, Club> _map = new HashMap<>();
     current_LM_Map.forEach((clubId, list) -> {
       _map.put(clubId, allClubMap.get(clubId));
@@ -1498,7 +1497,7 @@ public class LMController extends BaseController implements Initializable {
 
       int lmType = getCurrentLMType();
 
-      Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
+      Map<String, List<GameRecordModel>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
       if (MapUtil.isNullOrEmpty(current_LM_Map)) {
         return;
       }
@@ -1526,7 +1525,7 @@ public class LMController extends BaseController implements Initializable {
 
     int lmType = getCurrentLMType();
 
-    Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
+    Map<String, List<GameRecordModel>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
     if (MapUtil.isNullOrEmpty(current_LM_Map)) {
       return 0d;
     }
@@ -1661,7 +1660,7 @@ public class LMController extends BaseController implements Initializable {
       return;
     }
 
-    Map<String, List<GameRecord>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
+    Map<String, List<GameRecordModel>> current_LM_Map = LMTotalList.get(getCurrentLMType() - 1);
     if (MapUtil.isNullOrEmpty(current_LM_Map)) {
       ShowUtil.show("该联盟无数据可以导出");
       return;
@@ -1696,10 +1695,10 @@ public class LMController extends BaseController implements Initializable {
   public void compute3LM() {
 
     // 数据结构：[{LMType,List<LM_Record>}]
-    List<Map<String, List<GameRecord>>> tempTotalList = new ArrayList<>();
-    Map<String, List<GameRecord>> map1 = new HashMap<>();// 代理联盟1，依此类推
-    Map<String, List<GameRecord>> map2 = new HashMap<>();
-    Map<String, List<GameRecord>> map3 = new HashMap<>();
+    List<Map<String, List<GameRecordModel>>> tempTotalList = new ArrayList<>();
+    Map<String, List<GameRecordModel>> map1 = new HashMap<>();// 代理联盟1，依此类推
+    Map<String, List<GameRecordModel>> map2 = new HashMap<>();
+    Map<String, List<GameRecordModel>> map3 = new HashMap<>();
     tempTotalList.add(map1);
     tempTotalList.add(map2);
     tempTotalList.add(map3);
@@ -1707,23 +1706,23 @@ public class LMController extends BaseController implements Initializable {
     // 数据来源 eachClubList = new HashMap<>() {俱乐部ID : 俱乐部每一场信息}
     String lmType;
     String clubId;
-    for (Map.Entry<String, List<GameRecord>> entry : eachClubList.entrySet()) {
+    for (Map.Entry<String, List<GameRecordModel>> entry : eachClubList.entrySet()) {
       clubId = entry.getKey();
-      List<GameRecord> singleClubList = entry.getValue();
-      for (GameRecord record : singleClubList) {
-        lmType = record.getLmType();
+      List<GameRecordModel> singleClubList = entry.getValue();
+      for (GameRecordModel record : singleClubList) {
+        lmType = record.getLmtype();
         if (LM[0].equals(lmType)) {// "联盟1"
-          List<GameRecord> _list = map1.getOrDefault(clubId, new ArrayList<>());
+          List<GameRecordModel> _list = map1.getOrDefault(clubId, new ArrayList<>());
           _list.add(record);
           map1.put(clubId, _list);
         }
         if (LM[1].equals(lmType)) {// "联盟2"
-          List<GameRecord> _list = map2.getOrDefault(clubId, new ArrayList<>());
+          List<GameRecordModel> _list = map2.getOrDefault(clubId, new ArrayList<>());
           _list.add(record);
           map2.put(clubId, _list);
         }
         if (LM[2].equals(lmType)) {// "联盟3"
-          List<GameRecord> _list = map3.getOrDefault(clubId, new ArrayList<>());
+          List<GameRecordModel> _list = map3.getOrDefault(clubId, new ArrayList<>());
           _list.add(record);
           map3.put(clubId, _list);
         }

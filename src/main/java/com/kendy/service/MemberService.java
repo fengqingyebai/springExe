@@ -9,7 +9,7 @@ import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
 import com.kendy.entity.Player;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.NumUtil;
 import com.kendy.util.StringUtil;
 import javafx.beans.value.ChangeListener;
@@ -102,12 +102,12 @@ public class MemberService {
     String zj = "";// 战绩
     Double sumOfZJ = 0d;// 战绩总和
     if (dataConstants.Total_Team_Huishui_Map.size() != 0) {
-      List<GameRecord> list = dataConstants.Total_Team_Huishui_Map.get(teamId);
+      List<GameRecordModel> list = dataConstants.Total_Team_Huishui_Map.get(teamId);
       if (list != null) {
-        for (GameRecord info : list) {
-          if (info.getPlayerId().equals(wanjiaId)) {
+        for (GameRecordModel info : list) {
+          if (info.getPlayerid().equals(wanjiaId)) {
             zj = info.getShishou();
-            obList.add(new MemberZJInfo(info.getTableId(), zj));
+            obList.add(new MemberZJInfo(info.getTableid(), zj));
             sumOfZJ += NumUtil.getNum(zj);
           }
         }

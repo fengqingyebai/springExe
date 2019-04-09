@@ -97,9 +97,9 @@ public class AddController extends BaseController implements Initializable {
   @FXML
   private TextField beizhuField;// 备注
   @FXML
-  private TextField choushuiField;// 抽水
+  private TextField huibaoField;// 个人回保
   @FXML
-  private TextField huishuiField;// 回水
+  private TextField huishuiField;// 个人回水
 
 
   // =====================================================================新增实时开销对话框
@@ -203,7 +203,7 @@ public class AddController extends BaseController implements Initializable {
     player.setTeamName(StringUtils.defaultString(teamField.getText()).trim());
     player.setPlayerName(StringUtils.defaultString(playerNameField.getText()).trim());
     player.setEdu(StringUtils.defaultString(beizhuField.getText()).trim());
-    player.setChoushui(StringUtils.defaultString(choushuiField.getText()).trim());
+    player.setHuibao(StringUtils.defaultString(huibaoField.getText()).trim());
     player.setHuishui(StringUtils.defaultString(huishuiField.getText()).trim());
     if (!StringUtil.isBlank(player.getgameId()) && !StringUtil.isBlank(player.getTeamName())) {
       dataConstants.membersMap.put(player.getgameId(), player);

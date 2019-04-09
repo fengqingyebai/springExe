@@ -43,7 +43,7 @@ public class Main extends Application {
       Scene scene = new Scene(root);
       scene.getStylesheets().add("css/myCss.css");
       primaryStage.setScene(scene);
-      primaryStage.setResizable(true);
+      primaryStage.setResizable(false);
       primaryStage.show();
       primaryStage0 = primaryStage;
       FXUtil.stage = primaryStage;

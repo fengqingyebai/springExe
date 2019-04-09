@@ -4,6 +4,8 @@ package com.kendy.db;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
+import com.kendy.db.dao.GameRecordDao;
+import com.kendy.db.entity.GameRecord;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubStaticInfo;
@@ -25,7 +27,7 @@ import com.kendy.entity.ZjClubStaticInfo;
 import com.kendy.entity.ZjTeamStaticDetailInfo;
 import com.kendy.entity.ZjTeamStaticInfo;
 import com.kendy.model.BankFlowModel;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
@@ -39,7 +41,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,9 +53,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 
@@ -66,6 +70,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DBUtil {
+
+  @Resource
+  GameRecordDao gameRecordDao;
 
   private Logger loger = LoggerFactory.getLogger(DBUtil.class);
 
@@ -220,7 +227,7 @@ public class DBUtil {
       ps.setString(4, player.getTeamName());
       ps.setString(5, player.getEdu());
       ps.setString(6, "0");
-      ps.setString(7, player.getChoushui());
+      ps.setString(7, player.getHuibao());
       ps.setString(8, player.getHuishui());
       ps.execute();
     } catch (SQLException e) {
@@ -366,7 +373,7 @@ public class DBUtil {
           ps.setString(4, player.getTeamName());
           ps.setString(5, player.getEdu());
           ps.setString(6, "0");
-          ps.setString(7, player.getChoushui());
+          ps.setString(7, player.getHuibao());
           ps.setString(8, player.getHuishui());
           ps.addBatch();
           // ps.execute();//批量插入应该用ps.executeBatch()
@@ -2660,35 +2667,35 @@ public class DBUtil {
   /**
    * 插入记录 注意：批量插入有性能问题，需要后期优化 不插入团队ID, 玩家名称， 和俱乐部名称，需要时自动去关联查询
    */
-  public void addGameRecord(final GameRecord record) throws Exception {
+  public void addGameRecord(final GameRecordModel record) throws Exception {
     try {
       con = DBConnection.getConnection();
       String sql;
       sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
-      ps.setString(1, record.getSoftDate());
-      ps.setString(2, record.getClubId());
-      ps.setString(3, record.getTableId());
-      ps.setString(4, record.getPlayerId());
+      ps.setString(1, record.getSoftTime());
+      ps.setString(2, record.getClubid());
+      ps.setString(3, record.getTableid());
+      ps.setString(4, record.getPlayerid());
       ps.setString(5, record.getYszj());
-      ps.setString(6, record.getSinegleInsurance());
-      ps.setString(7, record.getClubInsurance());
-      ps.setString(8, record.getCurrentTableInsurance());
+      ps.setString(6, record.getSingleinsurance());
+      ps.setString(7, record.getClubinsurance());
+      ps.setString(8, record.getCurrenttableinsurance());
       ps.setString(9, record.getShishou());
-      ps.setString(10, record.getChuHuishui());
-      ps.setString(11, record.getShouHuishui());
+      ps.setString(10, record.getChuhuishui());
+      ps.setString(11, record.getShouhuishui());
       ps.setString(12, record.getShuihouxian());
-      ps.setString(13, record.getHuiBao());
-      ps.setString(14, record.getHeLirun());
-      ps.setString(15, record.getLmType());
-      ps.setString(16, record.getFinisedTime());
-      ps.setString(17, record.getIsJiesuaned());
+      ps.setString(13, record.getHuibao());
+      ps.setString(14, record.getHelirun());
+      ps.setString(15, record.getLmtype());
+      ps.setString(16, record.getFinishedTime());
+      ps.setString(17, record.getIsjiesuaned());
       ps.setString(18, record.getLevel());
-      ps.setString(19, record.getSumHandsCount());
-      ps.setString(20, record.getIsCleared());
+      ps.setString(19, record.getSumhandscount());
+      ps.setString(20, record.getIscleared());
       ps.setString(21, record.getPlayerName()); // 2012-12-02 add
-      ps.setString(22, record.getImportTime()); // 2012-12-10 add
-      ps.setString(23, record.getJuType()); // 2012-12-10 add
+      ps.setString(22, record.getImporttime()); // 2012-12-10 add
+      ps.setString(23, record.getJutype()); // 2012-12-10 add
       ps.execute();
     } catch (SQLException e) {
       throw new Exception("添加战绩记录失败", e);
@@ -2728,11 +2735,14 @@ public class DBUtil {
    *
    * @time 2017年11月19日
    */
-  public void addGameRecordList(final List<GameRecord> recordList) throws Exception {
+  public void addGameRecordList(final List<GameRecordModel> recordList) throws Exception {
     if (CollectUtil.isHaveValue(recordList)) {
       long start = System.currentTimeMillis();
-      for (GameRecord record : recordList) {
-        addGameRecord(record);
+      for (GameRecordModel record : recordList) {
+        //addGameRecord(record);
+        GameRecord entity = new GameRecord();
+        BeanUtils.copyProperties(record, entity);
+        gameRecordDao.insert(entity);
       }
       long end = System.currentTimeMillis();
       loger.info("导入{}条白名单记录进数据库，耗时：{}毫秒", recordList.size(), (end - start));
@@ -2767,8 +2777,8 @@ public class DBUtil {
    *
    * @time 2018年7月9日
    */
-  public List<GameRecord> getGameRecordsByMaxTime(String maxRecordTime) {
-    List<GameRecord> list = new ArrayList<>();
+  public List<GameRecordModel> getGameRecordsByMaxTime(String maxRecordTime) {
+    List<GameRecordModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
       String sql = GAME_RECORD_SQL + " where soft_time =  ?";
@@ -2784,34 +2794,34 @@ public class DBUtil {
     return list;
   }
 
-  private List<GameRecord> getGameRecordResult(ResultSet rs) throws Exception {
-    List<GameRecord> list = new ArrayList<>();
+  private List<GameRecordModel> getGameRecordResult(ResultSet rs) throws Exception {
+    List<GameRecordModel> list = new ArrayList<>();
     while (rs.next()) {
-      GameRecord record = new GameRecord();
-      record.setSoftDate(rs.getString(1));
-      record.setClubId(rs.getString(2));
-      record.setTableId(rs.getString(3));
-      record.setPlayerId(rs.getString(4));
+      GameRecordModel record = new GameRecordModel();
+      record.setSoftTime(rs.getString(1));
+      record.setClubid(rs.getString(2));
+      record.setTableid(rs.getString(3));
+      record.setPlayerid(rs.getString(4));
       record.setYszj(rs.getString(5));
-      record.setSinegleInsurance(rs.getString(6));
-      record.setClubInsurance(rs.getString(7));
-      record.setCurrentTableInsurance(rs.getString(8));
+      record.setSingleinsurance(rs.getString(6));
+      record.setClubinsurance(rs.getString(7));
+      record.setCurrenttableinsurance(rs.getString(8));
       record.setShishou(rs.getString(9));
-      record.setChuHuishui(rs.getString(10));
-      record.setShouHuishui(rs.getString(11));
+      record.setChuhuishui(rs.getString(10));
+      record.setShouhuishui(rs.getString(11));
       record.setShuihouxian(rs.getString(12));
-      record.setHuiBao(rs.getString(13));
-      record.setHeLirun(rs.getString(14));
-      record.setLmType(rs.getString(15));
-      record.setFinisedTime(rs.getString(16));
-      record.setIsJiesuaned(rs.getString(17));
+      record.setHuibao(rs.getString(13));
+      record.setHelirun(rs.getString(14));
+      record.setLmtype(rs.getString(15));
+      record.setFinishedTime(rs.getString(16));
+      record.setIsjiesuaned(rs.getString(17));
       record.setLevel(rs.getString(18));
-      record.setSumHandsCount(rs.getString(19));
-      record.setIsCleared(rs.getString(20));
+      record.setSumhandscount(rs.getString(19));
+      record.setIscleared(rs.getString(20));
       // 每21列是原始名称，不做处理
       // 单独设置团队ID和俱乐部名称
-      record.setImportTime(rs.getString(22));
-      record.setJuType(rs.getString(23));
+      record.setImporttime(rs.getString(22));
+      record.setJutype(rs.getString(23));
       record.setPlayerName(rs.getString(24));
       record.setTeamId(StringUtil.nvl(rs.getString(25), "")); // 可能关联不到该人员
       record.setClubName(rs.getString(26));
@@ -2849,8 +2859,8 @@ public class DBUtil {
    *
    * @time 2018年7月9日
    */
-  public List<GameRecord> getGameRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
-    List<GameRecord> list = new ArrayList<>();
+  public List<GameRecordModel> getGameRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
+    List<GameRecordModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
       String sql =
@@ -2873,8 +2883,8 @@ public class DBUtil {
    *
    * @time 2018年7月9日
    */
-  public List<GameRecord> getGameRecordsByClubId(String clubId) {
-    List<GameRecord> list = new ArrayList<>();
+  public List<GameRecordModel> getGameRecordsByClubId(String clubId) {
+    List<GameRecordModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
       String sql = GAME_RECORD_SQL + " where  r.clubId = ?";
@@ -2896,8 +2906,8 @@ public class DBUtil {
    *
    * @time 2017年11月25日
    */
-  public List<GameRecord> getAllGameRecords() {
-    List<GameRecord> list = new ArrayList<>();
+  public List<GameRecordModel> getAllGameRecords() {
+    List<GameRecordModel> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
       String sql = GAME_RECORD_SQL + "where 1=1";
@@ -2999,7 +3009,7 @@ public class DBUtil {
   public List<TotalInfo2> getStaticDetailRecords(String clubId, String teamId, String softTime) {
     List<TotalInfo2> finalList = new ArrayList<>();
     try {
-      List<GameRecord> list = new ArrayList<>();
+      List<GameRecordModel> list = new ArrayList<>();
       con = DBConnection.getConnection();
       String sql =
           GAME_RECORD_SQL + " where  r.clubId = ? and m.teamId = ? and r.soft_time =  ? ";
@@ -3012,17 +3022,17 @@ public class DBUtil {
       finalList = list.stream().map(r -> {
         TotalInfo2 info = new TotalInfo2();
         info.setTuan(r.getTeamId());
-        info.setWanjiaId(r.getPlayerId());
+        info.setWanjiaId(r.getPlayerid());
         info.setWanjia(r.getPlayerName());
         info.setJifen(r.getYszj());
         info.setShishou(r.getShishou());
-        info.setShouHuishui(r.getShouHuishui());
-        info.setChuHuishui(r.getChuHuishui());
+        info.setShouHuishui(r.getShouhuishui());
+        info.setChuHuishui(r.getChuhuishui());
         info.setShuihouxian(r.getShuihouxian());
-        info.setBaohui(r.getHuiBao());
-        info.setBaoxian(r.getSinegleInsurance()); // 待查看
-        info.setHeLirun(r.getHeLirun());
-        info.setTableId(r.getTableId());
+        info.setBaohui(r.getHuibao());
+        info.setBaoxian(r.getSingleinsurance()); // 待查看
+        info.setHeLirun(r.getHelirun());
+        info.setTableId(r.getTableid());
 
         return info;
       }).collect(Collectors.toList());

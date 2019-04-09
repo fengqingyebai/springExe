@@ -21,7 +21,7 @@ public class Player {
   public String isParent = "0";
 
   //抽水
-  public String choushui;
+  public String huibao;
 
   //额度
   public String huishui;
@@ -31,7 +31,7 @@ public class Player {
     super();
   }
 
-  public Player(String gameId, String teamName, String gudong, String playerName, String edu, String isParent, String choushui, String huishui) {
+  public Player(String gameId, String teamName, String gudong, String playerName, String edu, String isParent, String huibao, String huishui) {
     super();
     this.gameId = gameId;
     this.teamName = teamName;
@@ -39,7 +39,7 @@ public class Player {
     this.playerName = playerName;
     this.edu = edu;
     this.isParent = isParent;
-    this.choushui = choushui;
+    this.huibao = huibao;
     this.huishui = huishui;
   }
 
@@ -85,12 +85,12 @@ public class Player {
     this.edu = edu;
   }
 
-  public String getChoushui() {
-    return choushui;
+  public String getHuibao() {
+    return huibao;
   }
 
-  public void setChoushui(String choushui) {
-    this.choushui = choushui;
+  public void setHuibao(String huibao) {
+    this.huibao = huibao;
   }
 
   public String getHuishui() {
@@ -110,13 +110,6 @@ public class Player {
     this.isParent = isParent;
   }
 
-  //===========================================================
-  @Override
-  public String toString() {
-    return "Player [gameId=" + gameId + ", teamName=" + teamName + ", gudong=" + gudong
-        + ", playerName="
-        + playerName + ", edu=" + edu + "]";
-  }
 
 
 }

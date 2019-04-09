@@ -35,7 +35,7 @@ import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.model.CombineID;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.other.Wrap;
 import com.kendy.service.MoneyService;
 import com.kendy.util.CollectUtil;
@@ -79,8 +79,8 @@ public class ExcelReaderUtil {
   public static void main(String[] args) throws Exception {
 
     String excelPath = PathUtil.getUserDeskPath() + "/战绩导出-24-299.xls";
-    List<GameRecord> basicRecords =
-        MyExcelUtils.getInstance().readExcel2Objects(excelPath, GameRecord.class, 1, 0);
+    List<GameRecordModel> basicRecords =
+        MyExcelUtils.getInstance().readExcel2Objects(excelPath, GameRecordModel.class, 1, 0);
 
     // log.info("finishes..." + basicRecords.size());
   }
@@ -142,9 +142,9 @@ public class ExcelReaderUtil {
           // 是否父ID
           String isParent = getCellValue(row.getCell(5));
           isParent = StringUtil.nvl(isParent, "0");
-          // 抽水
-          String choushui = getCellValue(row.getCell(6));
-          choushui = StringUtil.nvl(choushui, "");
+          // 回保
+          String huibao = getCellValue(row.getCell(6));
+          huibao = StringUtil.nvl(huibao, "");
           // 回水
           String huishui = getCellValue(row.getCell(7));
           huishui = StringUtil.nvl(huishui);
@@ -155,7 +155,7 @@ public class ExcelReaderUtil {
               gameId = getCellValue(row.getCell(0));
             }
             gudong = StringUtil.isBlank(gudong) ? "W" : gudong;// 股东为空的默认设置为W
-            player = new Player(gameId, team, gudong, playerName, edu, isParent, choushui, huishui);
+            player = new Player(gameId, team, gudong, playerName, edu, isParent, huibao, huishui);
             membersMap.put(gameId, player);
           }
         }
@@ -303,7 +303,7 @@ public class ExcelReaderUtil {
    *
    * @time 2018年1月10日
    */
-  public List<GameRecord> readZJRecord(String excelFilePath, String userClubId, String LMType,
+  public List<GameRecordModel> readZJRecord(String excelFilePath, String userClubId, String LMType,
       int versionType) throws Exception {
     if (0 == versionType) {
       return null;
@@ -316,10 +316,10 @@ public class ExcelReaderUtil {
   /*
    * 判断总手数为0
    */
-  private void judgeSumHandsCount(List<GameRecord> gameRecords) {
+  private void judgeSumHandsCount(List<GameRecordModel> gameRecordModels) {
     boolean isSumHandsCountZero =
-        gameRecords.stream().allMatch(record -> "0".equals(record.getSumHandsCount()));
-    if (isSumHandsCountZero || CollectUtil.isEmpty(gameRecords)) {
+        gameRecordModels.stream().allMatch(record -> "0".equals(record.getSumhandscount()));
+    if (isSumHandsCountZero || CollectUtil.isEmpty(gameRecordModels)) {
       ShowUtil.show("提示：总手数为0！");
     }
   }
@@ -355,40 +355,40 @@ public class ExcelReaderUtil {
    *
    * 两个功能： A:导入到场次信息 B:导入到联盟Tab
    */
-  public List<GameRecord> readZJRecord_NewVersion(String excelFilePath, String userClubId,
+  public List<GameRecordModel> readZJRecord_NewVersion(String excelFilePath, String userClubId,
       String LMType) throws Exception {// 新增了联盟类型
 
     // 获取所有记录
-    List<GameRecord> gameRecords =
-        MyExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecord.class, 1, 0);
+    List<GameRecordModel> gameRecordModels =
+        MyExcelUtils.getInstance().readExcel2Objects(excelFilePath, GameRecordModel.class, 1, 0);
 
-    if (CollectUtil.isHaveValue(gameRecords)) {
-      Optional<GameRecord> noneExistPlayer =
-          gameRecords.stream().filter(e -> e.getClubId().equals(myController.getClubId()))
-              .filter(e -> dataConstans.membersMap.get(e.getPlayerId()) == null).findFirst();
+    if (CollectUtil.isHaveValue(gameRecordModels)) {
+      Optional<GameRecordModel> noneExistPlayer =
+          gameRecordModels.stream().filter(e -> e.getClubid().equals(myController.getClubId()))
+              .filter(e -> dataConstans.membersMap.get(e.getPlayerid()) == null).findFirst();
       if (noneExistPlayer.isPresent()) {
-        GameRecord gameRecord = noneExistPlayer.get();
-        throw new Exception(" 玩家【" + gameRecord.getPlayerName() + "】，ID【"
-            + gameRecord.getPlayerId() + "】不存在于系统中，请先建立该玩家信息！");
+        GameRecordModel gameRecordModel = noneExistPlayer.get();
+        throw new Exception(" 玩家【" + gameRecordModel.getPlayerName() + "】，ID【"
+            + gameRecordModel.getPlayerid() + "】不存在于系统中，请先建立该玩家信息！");
       }
     }
     String tableId = FileUtil.getTableId(excelFilePath);
     // 补全每条记录的值
-    moneyService.fillGameRecords(gameRecords, tableId, getLevel(excelFilePath), LMType);
+    moneyService.fillGameRecords(gameRecordModels, tableId, getLevel(excelFilePath), LMType);
     // 判断总手数为0
-    judgeSumHandsCount(gameRecords);
+    judgeSumHandsCount(gameRecordModels);
 
     // TODO 添加所有记录到联盟对帐表final?
-    lmController.currentRecordList = gameRecords;
+    lmController.currentRecordList = gameRecordModels;
 
     // 只返回当前俱乐部的记录
-    List<GameRecord> _gameRecords = gameRecords.stream()
-        .filter(e -> e.getClubId().equals(userClubId)).collect(Collectors.toList());
+    List<GameRecordModel> _gameRecordModels = gameRecordModels.stream()
+        .filter(e -> e.getClubid().equals(userClubId)).collect(Collectors.toList());
 
     // 存储数据 {场次=infoList...}
-    dataConstans.zjMap.put(tableId, _gameRecords);
+    dataConstans.zjMap.put(tableId, _gameRecordModels);
 
-    return _gameRecords;
+    return _gameRecordModels;
   }
 
 

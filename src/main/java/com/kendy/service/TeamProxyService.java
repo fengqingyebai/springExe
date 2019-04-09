@@ -1,6 +1,5 @@
 package com.kendy.service;
 
-import com.kendy.enums.PermissionTabEnum;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,17 +25,15 @@ import com.kendy.entity.Huishui;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.excel.ExportExcel;
-import com.kendy.model.GameRecord;
+import com.kendy.model.GameRecordModel;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -95,7 +92,7 @@ public class TeamProxyService extends BasicService{
   }
 
   // 克隆场次信息的团队数据 {团队ID : 团队原始数据列表 }
-  public Map<String, List<GameRecord>> allTeamDataMap = new HashMap<>();
+  public Map<String, List<GameRecordModel>> allTeamDataMap = new HashMap<>();
 
   /**
    * 初始化代理服务类
@@ -241,25 +238,25 @@ public class TeamProxyService extends BasicService{
     double sumHB = 0d;
     double sumBX = 0d;
     int sumRC = 0;
-    Map<String, List<GameRecord>> teamMap = getTotalTeamHuishuiMap();
+    Map<String, List<GameRecordModel>> teamMap = getTotalTeamHuishuiMap();
     if (teamMap != null && teamMap.size() == 0) {
       log.error("进入未解决的问区域......");
     }
-    List<GameRecord> teamList = teamMap.get(newValue.toString().toUpperCase());
+    List<GameRecordModel> teamList = teamMap.get(newValue.toString().toUpperCase());
     ObservableList<ProxyTeamInfo> obList = FXCollections.observableArrayList();
     if (teamList != null) {
-      for (GameRecord info : teamList) {
-        obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerId(), info.getPlayerName(),
-            info.getYszj(), info.getShishou(), NumUtil.getNum(info.getChuHuishui()) * (-1) + "",
+      for (GameRecordModel info : teamList) {
+        obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerid(), info.getPlayerName(),
+            info.getYszj(), info.getShishou(), NumUtil.getNum(info.getChuhuishui()) * (-1) + "",
             // 出回水是否等于回水
-            info.getHuiBao(), // 保险是否等于回保
-            info.getTableId(), info.getSinegleInsurance()// 保险
+            info.getHuibao(), // 保险是否等于回保
+            info.getTableid(), info.getSingleinsurance()// 保险
         ));
         sumYSZJ += NumUtil.getNum(info.getYszj());
         sumZJ += NumUtil.getNum(info.getShishou());
-        sumBX += NumUtil.getNum(info.getSinegleInsurance());
-        sumHS += (NumUtil.getNum(info.getChuHuishui())) * (-1);
-        sumHB += NumUtil.getNum(info.getHuiBao());
+        sumBX += NumUtil.getNum(info.getSingleinsurance());
+        sumHS += (NumUtil.getNum(info.getChuhuishui())) * (-1);
+        sumHB += NumUtil.getNum(info.getHuibao());
         sumRC += 1;
       }
     }
@@ -296,7 +293,7 @@ public class TeamProxyService extends BasicService{
    *
    * @time 2018年1月20日
    */
-  public String getTeamFWF_GD(String teamId, List<GameRecord> list) {
+  public String getTeamFWF_GD(String teamId, List<GameRecordModel> list) {
     if (StringUtil.isBlank(teamId)) {
       return "0";
     }
@@ -308,10 +305,10 @@ public class TeamProxyService extends BasicService{
 
     // 备注：之前是该团队的所有历史数据都参与计算，现在改为该团队的每天服务费相加
     double sumTeamFWF = 0.0;
-    Map<String, List<GameRecord>> teamMap =
-        list.stream().collect(Collectors.groupingBy(GameRecord::getSoftDate));
-    for (Map.Entry<String, List<GameRecord>> entry : teamMap.entrySet()) {
-      List<GameRecord> teamEveryDayList = entry.getValue();
+    Map<String, List<GameRecordModel>> teamMap =
+        list.stream().collect(Collectors.groupingBy(GameRecordModel::getSoftTime));
+    for (Map.Entry<String, List<GameRecordModel>> entry : teamMap.entrySet()) {
+      List<GameRecordModel> teamEveryDayList = entry.getValue();
       String teamFWF_GD_EveryDay = getTeamFWF_GD_EveryDay(teamId, teamEveryDayList, hs);
       sumTeamFWF += NumUtil.getNum(teamFWF_GD_EveryDay);
     }
@@ -324,16 +321,16 @@ public class TeamProxyService extends BasicService{
    *
    * @time 2018年5月18日
    */
-  private String getTeamFWF_GD_EveryDay(String teamId, List<GameRecord> teamEveryDayList,
+  private String getTeamFWF_GD_EveryDay(String teamId, List<GameRecordModel> teamEveryDayList,
       Huishui hs) {
 
     // 加载数据{teamId={}}
     double sumHS = 0d;
     double sumHB = 0d;
-    for (GameRecord info : teamEveryDayList) {
+    for (GameRecordModel info : teamEveryDayList) {
       String yszj = info.getYszj();
       String chuHuishui = myController.getHuishuiByYSZJ(yszj, teamId, 1);
-      String baohui = NumUtil.digit1(moneyService.getHuiBao(info.getSinegleInsurance(), teamId));
+      String baohui = NumUtil.digit1(moneyService.getHuiBao(info.getSingleinsurance(), teamId));
       sumHS += (NumUtil.getNum(chuHuishui)) * (-1);
       sumHB += NumUtil.getNum(baohui);
     }
@@ -350,21 +347,21 @@ public class TeamProxyService extends BasicService{
   /**
    * 获取最新锁定数据（指导入战绩）+可能已经导入的战绩
    */
-  public Map<String, List<GameRecord>> getTotalTeamHuishuiMap() {
-    Map<String, List<GameRecord>> teamMap = new HashMap<>();
+  public Map<String, List<GameRecordModel>> getTotalTeamHuishuiMap() {
+    Map<String, List<GameRecordModel>> teamMap = new HashMap<>();
     // 深层复制
     teamMap = copy_Total_Team_Huishui_Map();
 
     // 加上最新导入的当局信息（可能没有）
     if (dataConstants.Dangju_Team_Huishui_List.size() > 0) {
-      for (GameRecord info : dataConstants.Dangju_Team_Huishui_List) {
+      for (GameRecordModel info : dataConstants.Dangju_Team_Huishui_List) {
         String teamId = info.getTeamId();
-        List<GameRecord> teamHuishuiList = teamMap.getOrDefault(teamId, new ArrayList<>());
+        List<GameRecordModel> teamHuishuiList = teamMap.getOrDefault(teamId, new ArrayList<>());
 
         // add 去重
         boolean isExist = false;
-        for (GameRecord teamInfo : teamHuishuiList) {
-          if (StringUtils.equals(teamInfo.getTableId(), info.getTableId())
+        for (GameRecordModel teamInfo : teamHuishuiList) {
+          if (StringUtils.equals(teamInfo.getTableid(), info.getTableid())
               && StringUtils.equals(teamInfo.getPlayerName(), info.getPlayerName())) {
             isExist = true;
           }
@@ -383,17 +380,17 @@ public class TeamProxyService extends BasicService{
    *
    * @time 2017年10月29日
    */
-  private Map<String, List<GameRecord>> copy_Total_Team_Huishui_Map() {
-    Map<String, List<GameRecord>> teamMap = new HashMap<>();
+  private Map<String, List<GameRecordModel>> copy_Total_Team_Huishui_Map() {
+    Map<String, List<GameRecordModel>> teamMap = new HashMap<>();
     // 复制锁定数据(不影响已锁定的数据）
     // 深层复制（代替以上代码）
-    for (Map.Entry<String, List<GameRecord>> entry : dataConstants.Total_Team_Huishui_Map
+    for (Map.Entry<String, List<GameRecordModel>> entry : dataConstants.Total_Team_Huishui_Map
         .entrySet()) {
       String teamId = entry.getKey();
-      List<GameRecord> list = entry.getValue();
-      List<GameRecord> tempList = new ArrayList<>();
-      for (GameRecord tInfo : list) {
-        GameRecord tempHs = new GameRecord();
+      List<GameRecordModel> list = entry.getValue();
+      List<GameRecordModel> tempList = new ArrayList<>();
+      for (GameRecordModel tInfo : list) {
+        GameRecordModel tempHs = new GameRecordModel();
         BeanUtils.copyProperties(tInfo, tempHs);
         tempList.add(tempHs);
       }
