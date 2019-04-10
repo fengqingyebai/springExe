@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kendy.db.dao.CurrentMoneyDao">
+  <resultMap id="BaseResultMap" type="com.kendy.db.entity.CurrentMoney">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="money" jdbcType="VARCHAR" property="money" />
+    <result column="lmb" jdbcType="VARCHAR" property="lmb" />
+    <result column="edu" jdbcType="VARCHAR" property="edu" />
+    <result column="sum" jdbcType="VARCHAR" property="sum" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="decription" jdbcType="VARCHAR" property="decription" />
+  </resultMap>
+</mapper>

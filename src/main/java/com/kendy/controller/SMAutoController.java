@@ -1,6 +1,10 @@
 package com.kendy.controller;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import com.kendy.db.dao.CurrentMoneyDao;
+import com.kendy.db.entity.CurrentMoney;
+import com.kendy.db.entity.CurrentMoneyPK;
+import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.enums.ExcelAutoDownType;
 import com.kendy.enums.MoneyCreatorEnum;
@@ -38,6 +42,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.swing.filechooser.FileSystemView;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -134,6 +139,9 @@ public class SMAutoController extends BaseController implements Initializable {
 
   @Autowired
   ChangciController changciController;
+
+  @Resource
+  CurrentMoneyService currentMoneyService;
 
   @FXML
   public TextField smNextDayRangeFieldd; // 次日上码配置
@@ -410,7 +418,11 @@ public class SMAutoController extends BaseController implements Initializable {
           @Override
           public void run() {
             // 自动上码
-            reqAndHandleBuyinList();
+            if (changciController.isEditingView()) {
+              reqAndHandleBuyinList();
+            } else {
+              logInfo("用户正在查看历史数据，程序不进行爬取，正在等待下一个任务...");
+            }
           }
         });
         // logInfo("此处等待10秒...");
@@ -534,11 +546,12 @@ public class SMAutoController extends BaseController implements Initializable {
             String finalLmb = NumUtil.digit2(NumUtil.getNum(cmi.getCmiLmb()) + NumUtil.getNum(buyStack) + "");
             cmi.setCmiLmb(finalLmb);
 
+            // 保存到数据库
+            moneyService.saveOrUpdate2DB(cmi);
+
             // 保存到实时金额表
             combineIDController.tableCurrentMoneyInfo.refresh();
             logInfo(playerName + "将实时金额" + cmi.getShishiJine() + "修改为" + finalSSJE);
-
-            // TODO 保存到数据库
 
           } else {
             checkRangeResult.setOk(false);
@@ -652,6 +665,10 @@ public class SMAutoController extends BaseController implements Initializable {
     Player player = dataConstants.membersMap.get(playerId);
     if (player == null) {
       return new RangeResult(false, -1, "玩家不存在", playerId,
+          playerName, "-", buyStack, "-", "-", null);
+    }
+    if (changciController.isLockedView()) {
+      return new RangeResult(false, -1, "锁定页面", playerId,
           playerName, "-", buyStack, "-", "-", null);
     }
     CurrentMoneyInfo cmi = moneyService.getInfoById(playerId);

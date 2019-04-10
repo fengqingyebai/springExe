@@ -1,9 +1,11 @@
 package com.kendy.controller;
 
+import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.enums.MoneyCreatorEnum;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,9 @@ public class AddController extends BaseController implements Initializable {
 
   @Autowired
   ChangciController changciController;
+
+  @Resource
+  CurrentMoneyService currentMoneyService;
 
   // =====================================================================新增团队回水对话框
   @FXML
@@ -307,7 +312,10 @@ public class AddController extends BaseController implements Initializable {
     }
     // 添加实时金额
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(player.getPlayerName(), cmMoney.getText(),
-        player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), "0");
+        player.getgameId(), player.getEdu(), MoneyCreatorEnum.USER.getCreatorName(), "0");
+
+    // 保存到数据库
+    moneyService.saveOrUpdate2DB(tempMoneyInfo);
     moneyService.addInfo(tempMoneyInfo);
     ShowUtil.show("添加成功", 2);
     moneyService.flush_SSJE_table();
@@ -340,6 +348,8 @@ public class AddController extends BaseController implements Initializable {
     }
     // 添加实时金额
     CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(name, cmMoney.getText(), "", "", MoneyCreatorEnum.USER.getCreatorName(), "");
+
+    moneyService.saveOrUpdate2DB(tempMoneyInfo);
     moneyService.addInfo(tempMoneyInfo);
     ShowUtil.show("添加成功", 2);
     moneyService.flush_SSJE_table();

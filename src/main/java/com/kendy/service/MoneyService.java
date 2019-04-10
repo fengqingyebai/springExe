@@ -11,7 +11,10 @@ import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
 import com.kendy.db.dao.GameRecordDao;
+import com.kendy.db.entity.CurrentMoney;
+import com.kendy.db.entity.CurrentMoneyPK;
 import com.kendy.db.entity.GameRecord;
+import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -115,6 +118,9 @@ public class MoneyService extends BasicService {
 
   @Resource
   GameRecordDao gameRecordDao;
+
+  @Resource
+  CurrentMoneyService currentMoneyService;
 
   // {玩家ID=CurrentMoneyInfo}
   public Map<String, CurrentMoneyInfo> Table_CMI_Map = new HashMap<>();
@@ -1602,6 +1608,7 @@ public class MoneyService extends BasicService {
     for (CurrentMoneyInfo moneyInfo : tableCurrentMoneyInfo.getItems()) {
       if (playerId.equals(moneyInfo.getWanjiaId())) {
         moneyInfo.setCmiLmb(wj.getHeji());
+        saveOrUpdate2DB(moneyInfo);
         return;
       }
     }
@@ -1615,6 +1622,8 @@ public class MoneyService extends BasicService {
         playerId, dataConstants.membersMap.get(playerId).getEdu(),
         MoneyCreatorEnum.DEFAULT.getCreatorName(), wj.getHeji());
     addInfo(tempMoneyInfo);
+    // 保存到数据库
+    saveOrUpdate2DB(tempMoneyInfo);
   }
 
   /**
@@ -2027,7 +2036,7 @@ public class MoneyService extends BasicService {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "实时金额表" + sdf.format(new Date());
     log.info("导出实时金额表Excel:" + title);
-    String[] rowsName = new String[]{"总和", "玩家ID", "名字", "实时金额", "额度"};
+    String[] rowsName = new String[]{"总和", "玩家ID", "名字", "实时金额", "联盟币余", "额度"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     ObservableList<CurrentMoneyInfo> currentInfoList = tableCurrentMoneyInfo.getItems();
@@ -2037,8 +2046,8 @@ public class MoneyService extends BasicService {
       objs[1] = info.getWanjiaId();
       objs[2] = info.getMingzi();
       objs[3] = info.getShishiJine();
-      objs[4] = info.getCmiEdu();
-      // objs[4] = info.getWanjiaId();
+      objs[4] = info.getCmiLmb();
+      objs[5] = info.getCmiEdu();
       dataList.add(objs);
     }
     String out = "D:/" + title;
@@ -2105,7 +2114,7 @@ public class MoneyService extends BasicService {
    * @time 2017年10月31日
    * @param cmiInfo
    */
-  public void saveOrUpdate(CurrentMoneyInfo cmiInfo) {
+  public void saveOrUpdate2FX(CurrentMoneyInfo cmiInfo) {
     if (cmiInfo == null) {
       return;
     }
@@ -2423,7 +2432,6 @@ public class MoneyService extends BasicService {
   /**
    * 复制一个实时金额表的记录
    *
-   * @time 2017年12月29日
    */
   public CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
@@ -2433,5 +2441,34 @@ public class MoneyService extends BasicService {
     return copyInfo;
   }
 
+  /**
+   * 将实时金额信息记录转为实体
+   */
+  public CurrentMoney change2CurrentMoney(CurrentMoneyInfo cmi){
+    CurrentMoney entity = new CurrentMoney();
+    entity.setId(cmi.getWanjiaId());
+    entity.setName(cmi.getMingzi());
+    entity.setMoney(cmi.getShishiJine());
+    entity.setLmb(cmi.getCmiLmb());
+    entity.setEdu(cmi.getCmiEdu());
+    entity.setSum(cmi.getCmSuperIdSum());
+    entity.setUpdateTime(new Date());
+    entity.setDecription(MoneyCreatorEnum.LIAN_MENG_BI.getCreatorName());
+    return entity;
+  }
+
+  /**
+   * 保存或更新到数据库
+   * @param cmi
+   */
+  public void saveOrUpdate2DB(CurrentMoneyInfo cmi){
+    try {
+      // 保存到数据库
+      currentMoneyService.saveOrUpdate(new CurrentMoneyPK(cmi.getWanjiaId(), cmi.getMingzi()),
+          change2CurrentMoney(cmi));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
 }

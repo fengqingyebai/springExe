@@ -13,6 +13,9 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.db.dao.GameRecordDao;
+import com.kendy.db.entity.CurrentMoney;
+import com.kendy.db.entity.CurrentMoneyPK;
+import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -22,7 +25,6 @@ import com.kendy.entity.PersonalInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
-import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
 import com.kendy.entity.WanjiaInfo;
@@ -40,6 +42,7 @@ import com.kendy.service.ZonghuiService;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
 import com.kendy.util.FileUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.PathUtil;
@@ -62,7 +65,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -88,6 +93,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
@@ -146,6 +152,8 @@ public class ChangciController extends BaseController implements Initializable {
   public MyController myController;
   @Resource
   private GameRecordDao gameRecordDao;
+  @Resource
+  private CurrentMoneyService currentMoneyService;
 
   // =================================================第一个tableView
   @FXML
@@ -434,6 +442,8 @@ public class ChangciController extends BaseController implements Initializable {
             moneyService.changeYicunJifen(tablePaiju, cmInfo.getMingzi(), newVal);
         if (isChangedOK) {
           cmInfo.setShishiJine(newVal);
+          //同步到数据库
+          moneyService.saveOrUpdate2DB(cmInfo);
         } else {
           cmInfo.setShishiJine(oldVal);
           tableCurrentMoneyInfo.refresh();
@@ -797,7 +807,7 @@ public class ChangciController extends BaseController implements Initializable {
           cell.setOnMouseClicked((MouseEvent t) -> {
             // 鼠标双击事件
             if (t.getClickCount() == 2) {
-              if (lockedLabel.isVisible()) {
+              if (isLockedView()) {
                 return;
               }
               // 双击执行的代码
@@ -853,7 +863,7 @@ public class ChangciController extends BaseController implements Initializable {
           cell.setEditable(false);// 不让其可编辑
           cell.setOnMouseClicked((MouseEvent t) -> {
             // 鼠标双击事件
-            if (t.getClickCount() == 2 && cell.getIndex() < tableCurrentMoneyInfo.getItems().size()) {
+            if (t.getClickCount() == 2 && isEditingView() && cell.getIndex() < tableCurrentMoneyInfo.getItems().size()) {
               CurrentMoneyInfo cmi = tableCurrentMoneyInfo.getItems().get(cell.getIndex());
               if (cmi != null && StringUtil.isAllNotBlank(cmi.getWanjiaId(), cmi.getMingzi())) {
                 // 双击执行的代码
@@ -879,6 +889,8 @@ public class ChangciController extends BaseController implements Initializable {
       String oldLmb = StringUtils.defaultString(cmi.getCmiLmb(), "0");
       addMoney = StringUtil.nvl(addMoney);
       cmi.setCmiLmb(NumUtil.digit2(NumUtil.getNum(oldLmb) + NumUtil.getNum(addMoney) + ""));
+      // 保存到数据库
+      moneyService.saveOrUpdate2DB(cmi);
       tableCurrentMoneyInfo.refresh();
     }
   }
@@ -1039,8 +1051,6 @@ public class ChangciController extends BaseController implements Initializable {
         // 保存当前Excel记录到数据库
         try {
           dbUtil.addGameRecordList(lmController.currentRecordList);
-
-
         } catch (Exception e) {
           ErrorUtil.err(e.getMessage(), e);
         }
@@ -1387,6 +1397,7 @@ public class ChangciController extends BaseController implements Initializable {
     openKaixiaoDialogBtn.setVisible(false);
     addCurrentMoneyLink.setVisible(false);
     importZJHBox.setVisible(false);
+    spiderNode.setVisible(false);
     tableCurrentMoneyInfo.setEditable(false);
     tableTeam.getColumns().get(5).setVisible(false);
     tableTeam.refresh();
@@ -1407,6 +1418,7 @@ public class ChangciController extends BaseController implements Initializable {
     openKaixiaoDialogBtn.setVisible(true);
     addCurrentMoneyLink.setVisible(true);
     importZJHBox.setVisible(true);
+    spiderNode.setVisible(true);
     tableCurrentMoneyInfo.setEditable(true);
     tableTeam.getColumns().get(5).setVisible(true);
     tableTeam.refresh();
@@ -1543,6 +1555,13 @@ public class ChangciController extends BaseController implements Initializable {
       String content =
           "实时金额名称：" + info.getMingzi() + " 金额：" + info.getShishiJine() + "\r\n你确定要删除所选中的实时金额吗?";
       if (AlertUtil.confirm(content)) {
+        // 先删除数据库
+        try {
+          currentMoneyService.remove(new CurrentMoneyPK(info.getWanjiaId(), info.getMingzi()));
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        // 删除实时金额表
         tableCurrentMoneyInfo.getItems().remove(index);
         tableCurrentMoneyInfo.refresh();
         moneyService.flush_SSJE_table();
@@ -1870,6 +1889,86 @@ public class ChangciController extends BaseController implements Initializable {
    */
   public void delBankAction(ActionEvent event) {
     moneyService.delBank();
+  }
+
+  /**
+   * 当前是否为锁定页面
+   * 若为锁定页面，则联盟币购买时不进行修改实时金额表，避免修改了历史数据
+   * @return
+   */
+  public boolean isLockedView(){
+    return lockedLabel.isVisible();
+  }
+
+  public boolean isEditingView(){
+    return !isLockedView();
+  }
+
+
+  /**
+   * 保存实时金额表到数据库
+   * @param event
+   */
+  @FXML
+  public void saveAllMoney2DBAction(ActionEvent event) {
+    if (TableUtil.isNullOrEmpty(tableCurrentMoneyInfo)) {
+      ShowUtil.show("实时金额表无数据，无须同步！");
+      return;
+    }
+    if (FXUtil.confirm("同步金额", "同步所有金额到数据库，请先关闭自动爬取, 您是否要现在同步数据？")) {
+      // TODO 添加遮罩层
+      // 获取待覆盖到数据库中的数据
+      List<CurrentMoney> datas =
+          tableCurrentMoneyInfo.getItems().stream()
+          .filter(e -> !StringUtils.isAllBlank(e.getWanjiaId(), e.getMingzi()))
+          .map(e -> moneyService.change2CurrentMoney(e))
+          .collect(Collectors.toList());
+      //覆盖
+      try {
+        currentMoneyService.removeAll();
+        currentMoneyService.save(datas);
+        ShowUtil.show("同步成功！", 2);
+      } catch(Exception e) {
+        ErrorUtil.err("同步失败", e);
+      }
+    }
+  }
+
+  /**
+   * 强制从数据库覆盖本地实时金额表
+   * @param event
+   */
+  @FXML
+  public void forceReplaceMoneyFromDBAction(ActionEvent event) {
+    if (isLockedView()) {
+      return;
+    }
+    if (FXUtil.confirm("强制修改", "请先关闭自动爬取, 即将从数据库强制覆盖所有金额到财务软件，您是否要现在要覆盖数据？")) {
+      List<CurrentMoney> moneyDBList = currentMoneyService.getAll();
+      if (CollectionUtils.isEmpty(moneyDBList)) {
+        if (!FXUtil.confirm("数据库无数据，是否仍要覆盖？")) {
+         return;
+        }
+      }
+      List<CurrentMoneyInfo> items = new ArrayList<>();
+      for (CurrentMoney entity : moneyDBList) {
+        CurrentMoneyInfo item = new CurrentMoneyInfo();
+        item.setCreator(MoneyCreatorEnum.DEFAULT.getCreatorName());
+        item.setMingzi(entity.getName());
+        item.setShishiJine(entity.getMoney());
+        item.setWanjiaId(entity.getId());
+        item.setCmiEdu(entity.getEdu());
+        item.setColor("");
+        item.setCmSuperIdSum(entity.getSum());
+        item.setCmiLmb(entity.getLmb());
+        items.add(item);
+      }
+      tableCurrentMoneyInfo.setItems(FXCollections.observableArrayList(items));
+      tableCurrentMoneyInfo.refresh();
+      // 刷新
+      moneyService.flush_SSJE_table();
+      ShowUtil.show("从数据库强制覆盖本地实时金额表完成", 2);
+    }
   }
 
   @Override

@@ -2,12 +2,10 @@ package com.kendy.controller;
 
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
@@ -15,7 +13,6 @@ import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Player;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
-import com.kendy.service.TgWaizhaiService;
 import com.kendy.service.WaizhaiService;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.ShowUtil;
@@ -27,9 +24,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -332,7 +326,7 @@ public class DelController extends BaseController implements Initializable {
         CurrentMoneyInfo info = moneyService.getInfoById(playerId);
         if (info != null) {
           info.setCmiEdu(newEdu);
-          moneyService.saveOrUpdate(info);
+          moneyService.saveOrUpdate2FX(info);
           moneyService.refreshRecord();
           moneyService.flush_SSJE_table();
         }

@@ -43,7 +43,9 @@
 
 		<!--<table tableName="man" domainObjectName="Man" mapperName="ManDao">
 		</table>-->
-		<table tableName="game_record" domainObjectName="GameRecord" mapperName="GameRecordDao">
+		<!--<table tableName="game_record" domainObjectName="GameRecord" mapperName="GameRecordDao">-->
+		<!--</table>-->
+		<table tableName="current_money" domainObjectName="CurrentMoney" mapperName="CurrentMoneyDao">
 		</table>
 
 

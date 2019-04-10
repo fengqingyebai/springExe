@@ -592,42 +592,6 @@ public class DataConstans {
 
     this.SM_Detail_Map_Locked = null;
     this.SM_Detail_Map_Locked = map;
-    // 复制当前上码的人个详情表,缓存到锁定中
-    // 开启线程异步执行
-    // new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
-    // List<ShangmaDetailInfo> list = null;
-    // List<ShangmaDetailInfo> srcList = null;
-    // ShangmaDetailInfo info = null;
-    // for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map
-    // .entrySet()) {
-    // srcList = entry.getValue();
-    // if (srcList == null || srcList.size() == 0) {
-    // list = new ArrayList<ShangmaDetailInfo>();
-    // map.put(entry.getKey(), list);
-    // } else {
-    // list = new ArrayList<ShangmaDetailInfo>();
-    // for (ShangmaDetailInfo detail : srcList) {
-    // info = new ShangmaDetailInfo();
-    // info.setShangmaDetailName(detail.getShangmaDetailName());
-    // info.setShangmaJu(detail.getShangmaJu());
-    // info.setShangmaPlayerId(detail.getShangmaPlayerId());
-    // info.setShangmaShishou(detail.getShangmaShishou());
-    // info.setShangmaSM(detail.getShangmaSM());
-    // info.setShangmaPreSM(detail.getShangmaPreSM());
-    // info.setShangmaHasPayed(detail.getShangmaHasPayed());
-    // list.add(info);
-    // }
-    // map.put(entry.getKey(), list);
-    // }
-    // }
-    //
-    // this.SM_Detail_Map_Locked = null;
-    // this.SM_Detail_Map_Locked = map;
-    // }
-    // }).start();
   }
 
   // 撤销时当局恢复上码表的个人详情
@@ -660,59 +624,7 @@ public class DataConstans {
 
     this.SM_Detail_Map = null;
     this.SM_Detail_Map = map;
-    // new Thread(new Runnable() {
-    // @Override
-    // public void run() {
-    // Map<String, List<ShangmaDetailInfo>> map = new HashMap<>();
-    // List<ShangmaDetailInfo> list = null;
-    // List<ShangmaDetailInfo> srcList = null;
-    // ShangmaDetailInfo info = null;
-    // for (Map.Entry<String, List<ShangmaDetailInfo>> entry : this.SM_Detail_Map_Locked
-    // .entrySet()) {
-    // srcList = entry.getValue();
-    // if (srcList == null || srcList.size() == 0) {
-    // list = new ArrayList<ShangmaDetailInfo>();
-    // map.put(entry.getKey(), list);
-    // } else {
-    // list = new ArrayList<ShangmaDetailInfo>();
-    // for (ShangmaDetailInfo detail : srcList) {
-    // info = new ShangmaDetailInfo();
-    // info.setShangmaDetailName(detail.getShangmaDetailName());
-    // info.setShangmaJu(detail.getShangmaJu());
-    // info.setShangmaPlayerId(detail.getShangmaPlayerId());
-    // info.setShangmaShishou(detail.getShangmaShishou());
-    // info.setShangmaSM(detail.getShangmaSM());
-    // info.setShangmaPreSM(detail.getShangmaPreSM());
-    // info.setShangmaHasPayed(detail.getShangmaHasPayed());
-    // list.add(info);
-    // }
-    // map.put(entry.getKey(), list);
-    // }
-    // }
-    //
-    // this.SM_Detail_Map = null;
-    // this.SM_Detail_Map = map;
-    // }
-    // }).start();
   }
-
-  // public DBUtil getDbUtil() {
-  // return dbUtil;
-  // }
-  //
-  //
-  // public void setDbUtil(DBUtil dbUtil) {
-  // this.dbUtil = dbUtil;
-  // }
-
-  // public MyController getMyController() {
-  // return myController;
-  // }
-  //
-  //
-  // public void setMyController(MyController myController) {
-  // this.myController = myController;
-  // }
 
 
 }

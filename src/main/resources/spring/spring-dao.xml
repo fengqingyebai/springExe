@@ -46,7 +46,7 @@
   </bean>
 
   <!-- 6.配置基于注解的声明式事务 -->
-  <tx:annotation-driven />
+  <!--<tx:annotation-driven />-->
 
   <!-- 2.数据库连接池 -->
   <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
@@ -58,5 +58,13 @@
     <property name="username" value="root"/>
     <property name="password" value="123456"/>
   </bean>
+
+  <!-- 定义事务管理器 -->
+  <bean id="transactionManager"
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+  <!--使用注释事务 -->
+  <tx:annotation-driven  transaction-manager="transactionManager" />
 
 </beans>
