@@ -1315,6 +1315,7 @@ public class MoneyService extends BasicService {
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<ZijinInfo> tableZijin,
       TableView<KaixiaoInfo> tableKaixiao, TableView<ProfitInfo> tableProfit,
       TableView<DangjuInfo> tableDangju, TableView<JiaoshouInfo> tableJiaoshou,
+      TableView<PersonalInfo> tablePersonal,
       TableView<PingzhangInfo> tablePingzhang, Label LMLabel) {
     /************************************************ 战绩表 **************/
     ObservableList<TotalInfo> TotalInfoObservableList = tableTotal.getItems();
@@ -1343,6 +1344,13 @@ public class MoneyService extends BasicService {
       }
     }
     String sumOfTeam = tableTeam.getColumns().get(4).getText();
+
+    /************************************************ 个人累计表 **************/
+    ObservableList<PersonalInfo> personalItems = tablePersonal.getItems();
+    List<PersonalInfo> listPersonalInfo = new LinkedList<>();
+    for (PersonalInfo info : personalItems) {
+      listPersonalInfo.add(info);
+    }
 
     /************************************************ 实时金额表 **************/
     ObservableList<CurrentMoneyInfo> ObservableList = tableCurrentMoney.getItems();
@@ -1415,6 +1423,7 @@ public class MoneyService extends BasicService {
     map.put("平帐", JSON.toJSONString(listPingzhangInfo));
     map.put("平帐总和", sumOfPingzhangInfo);
     map.put("联盟对帐", getLMLabelText(LMLabel));
+    map.put("个人累计", JSON.toJSONString(listPersonalInfo));
 
     return map;
   }
@@ -1452,7 +1461,9 @@ public class MoneyService extends BasicService {
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<ZijinInfo> tableZijin,
       TableView<KaixiaoInfo> tableKaixiao, TableView<ProfitInfo> tableProfit,
       TableView<DangjuInfo> tableDangju, TableView<JiaoshouInfo> tableJiaoshou,
-      TableView<PingzhangInfo> tablePingzhang, Label LMLabel, int pageIndex) {
+      TableView<PingzhangInfo> tablePingzhang,
+      TableView<PersonalInfo> tablePersonal, Label LMLabel,
+      int pageIndex) {
 
     // 获取该页所有数据
     Map<String, String> map = dataConstants.All_Locked_Data_Map.get(pageIndex + "");
@@ -1490,6 +1501,17 @@ public class MoneyService extends BasicService {
     tableTeam.setItems(TeamInfo_OB_List);
     tableTeam.getColumns().get(4).setText(getJsonString(map, "团队回水总和"));
     tableTeam.refresh();
+
+    /****************************************************************************/
+    List<PersonalInfo> PersonalInfoList =
+        JSON.parseObject(getJsonString(map, "个人累计"), new TypeReference<List<PersonalInfo>>() {
+        });
+    ObservableList<PersonalInfo> PersonalInfo_OB_List = FXCollections.observableArrayList();
+    for (PersonalInfo infos : PersonalInfoList) {
+      PersonalInfo_OB_List.add(infos);
+    }
+    tablePersonal.setItems(PersonalInfo_OB_List);
+    tablePersonal.refresh();
 
     /****************************************************************************/
     List<CurrentMoneyInfo> CurrentMoneyInfoList = JSON.parseObject(getJsonString(map, "实时金额"),

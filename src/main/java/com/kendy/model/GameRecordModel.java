@@ -29,7 +29,7 @@ public class GameRecordModel extends BasicRecord {
 
   private String tableid; // 桌号,如第X局
 
-  private String isjiesuaned = "0"; // 是否已经结算过 0：未结算 1：已结算
+  private String isjiesuaned; // 是否已经结算过 0：未结算 1：已结算
 
   private String teamId; // 团队ID( 请注意：关联最新的人员表获取最新
 

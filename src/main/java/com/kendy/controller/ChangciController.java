@@ -996,7 +996,7 @@ public class ChangciController extends BaseController implements Initializable {
         try {
           mapOf10Tables = moneyService.lock10Tables(tableTotalInfo, tablePaiju, tableTeam,
               tableCurrentMoneyInfo, tableZijin, tableKaixiao, tableProfit, tableDangju,
-              tableJiaoshou, tablePingzhang, LMLabel);
+              tableJiaoshou, tablePersonal, tablePingzhang, LMLabel);
         } catch (Exception e) {
           ErrorUtil.err("锁定失败\r\n相关表数据不能为空");
           return;
@@ -1372,7 +1372,7 @@ public class ChangciController extends BaseController implements Initializable {
 
   public void clear10Tables() {
     // 清空相关表数据（保留类似昨日留底的表数据）
-    clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou, tablePingzhang);
+    clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou, tablePingzhang, tablePersonal);
     // tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit
     indexLabel.setText(INDEX_ZERO);
   }
@@ -1382,7 +1382,7 @@ public class ChangciController extends BaseController implements Initializable {
 
     moneyService.reCovery10TablesByPage(tableTotalInfo, tablePaiju, tableTeam,
         tableCurrentMoneyInfo, tableZijin, tableKaixiao, tableProfit, tableDangju, tableJiaoshou,
-        tablePingzhang, LMLabel, pageIndex);
+        tablePingzhang, tablePersonal, LMLabel, pageIndex);
   }
 
   /********************************************************** 分页控件代码 结束 *********/
