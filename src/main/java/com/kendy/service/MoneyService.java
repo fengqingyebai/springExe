@@ -10,11 +10,11 @@ import com.kendy.controller.GDController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
-import com.kendy.db.dao.GameRecordDao;
 import com.kendy.db.entity.CurrentMoney;
-import com.kendy.db.entity.CurrentMoneyPK;
+import com.kendy.db.entity.pk.CurrentMoneyPK;
 import com.kendy.db.entity.GameRecord;
 import com.kendy.db.service.CurrentMoneyService;
+import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -117,10 +117,11 @@ public class MoneyService extends BasicService {
   ChangciController changciController;
 
   @Resource
-  GameRecordDao gameRecordDao;
+  GameRecordService gameRecordService;
 
   @Resource
   CurrentMoneyService currentMoneyService;
+
 
   // {玩家ID=CurrentMoneyInfo}
   public Map<String, CurrentMoneyInfo> Table_CMI_Map = new HashMap<>();
@@ -136,8 +137,6 @@ public class MoneyService extends BasicService {
   /**
    * 导入战绩成功后 自动填充玩家信息表、牌局表、团队表以及当局 备注：这些表数据在当局范围内是固定不变的
    *
-   *
-   * @param tablePersonal
    * @param gameRecordModels 符合当前俱乐部ID的记录
    * @time 2018年7月9日
    */
@@ -255,15 +254,16 @@ public class MoneyService extends BasicService {
   /**
    * 填充个人累计表
    */
-  private void fillTablePersonal(TableView<PersonalInfo> tablePersonal, List<GameRecordModel> gameRecordModels) {
+  private void fillTablePersonal(TableView<PersonalInfo> tablePersonal,
+      List<GameRecordModel> gameRecordModels) {
     ObservableList<PersonalInfo> items = FXCollections.observableArrayList();
     // 从数据库获取当天未结算的个人记录
-    List<GameRecord> dbPersonalRecords = gameRecordDao
-        .getPersonalRecords(changciController.getSoftDate(), myController.getClubId());
-    for (GameRecordModel gameRecordModel : gameRecordModels) {
-      if (StringUtils.equals("1", gameRecordModel.getHshbType())) {
+    List<GameRecord> dbPersonalRecords = gameRecordService.getPersonalRecords(changciController.getSoftDate(), myController.getClubId());
+    for (GameRecordModel model : gameRecordModels) {
+      if (StringUtils.equals(Constants.PERSONAL_OF_HSHB, model.getHshbType())
+          && StringUtils.equals(Constants.PERSONAL_OF_UN_JIE_SUAN, model.getPersonalJiesuan())) {
         GameRecord entity = new GameRecord();
-        BeanUtils.copyProperties(gameRecordModel, entity);
+        BeanUtils.copyProperties(model, entity);
         dbPersonalRecords.add(entity);
       }
     }
@@ -292,6 +292,17 @@ public class MoneyService extends BasicService {
     // 刷新表
     tablePersonal.setItems(items);
     tablePersonal.refresh();
+
+    // 缓存总和
+    dataConstants.SumMap.put("个人累计回水回保总和", getPersonHsHbSum());
+  }
+
+  private double getPersonHsHbSum() {
+    double sumOfPersonalHsHb = 0d;
+    for (PersonalInfo item : changciController.tablePersonal.getItems()) {
+      sumOfPersonalHsHb += (NumUtil.getNum(item.getPersonalSumHS()) + NumUtil.getNum(item.getPersonalSumHB()));
+    }
+    return sumOfPersonalHsHb;
   }
 
 
@@ -370,7 +381,7 @@ public class MoneyService extends BasicService {
       if (personalHBRate > 0 || personalHSRate > 0) {
         r.setHshbType("1"); // 个人类型
         r.setPersonalHuibao(getPersonalHB(r.getSingleinsurance(), personalHBRate));
-        r.setPersonalHuishui(getPersonalHs(r.getYszj(), personalHSRate));
+        r.setPersonalHuishui(getPersonalHs(r.getShishou(), personalHSRate));
       }
     }
   }
@@ -378,9 +389,9 @@ public class MoneyService extends BasicService {
   /**
    * 个人回水：if(个人类型 && 战绩 < 0) => 个人回水比例 * |战绩|
    */
-  private String getPersonalHs(String yszj, double personalHSRate) {
-    if (NumUtil.getNum(yszj) < 0) {
-      return NumUtil.digit2(Math.abs(NumUtil.getNum(yszj)) * personalHSRate + "");
+  private String getPersonalHs(String shishou, double personalHSRate) {
+    if (NumUtil.getNum(shishou) < 0) {
+      return NumUtil.digit2(Math.abs(NumUtil.getNum(shishou)) * personalHSRate + "");
     }
     return "0";
   }
@@ -394,10 +405,8 @@ public class MoneyService extends BasicService {
 
   /**
    * 获取数值
-   * @param originVal
-   * @return
    */
-  private double getNumberFromUnknowStr(String originVal) {
+  public double getNumberFromUnknowStr(String originVal) {
     if (StringUtils.isBlank(originVal)) {
       return 0d;
     }
@@ -569,46 +578,49 @@ public class MoneyService extends BasicService {
 
 
   // 待返回的团队回水和团队保险总和
-  private double sum_teamHS_and_teamBS = 0.0;
+  // private double sum_teamHS_and_teamBS = 0.0;
 
-  // 填充团队表
+  /**
+   * 填充团队累计表
+   */
   private void fillTableTeam(TableView<TeamInfo> table, Set<String> relatedTeamIdSet) {
-    sum_teamHS_and_teamBS = 0;
+    double sum_teamHS_and_teamBS = 0;
     // 准备数据
     ObservableList<TeamInfo> list = FXCollections.observableArrayList();
-    Map<String, List<GameRecordModel>> test = dataConstants.Team_Huishui_Map;
     relatedTeamIdSet = dataConstants.Team_Huishui_Map.keySet();// 这是后期增加：查看所有团队
-    relatedTeamIdSet.forEach(relatedTeamId -> {
-      if (!"公司".equals(relatedTeamId)) {
+    for (String relatedTeamId : relatedTeamIdSet) {
+
+      if (!StringUtils.equals(Constants.COMPANY, relatedTeamId)) { // 非公司
         double sumOfZJ = 0.0;
         double sumOfHS = 0.0;
-        double sumOfBS = 0.0;
+        double sumOfHB = 0.0;
         List<GameRecordModel> teamLS = dataConstants.Team_Huishui_Map
             .getOrDefault(relatedTeamId, new ArrayList<>());
         //只获取未结算的数据
-        teamLS = teamLS.stream().filter(e -> "0".equals(e.getIsjiesuaned()))
+        teamLS = teamLS.stream()
+            .filter(e -> // StringUtils.equals(Constants.TEAM_OF_HSHB, e.getHshbType()) &&
+                StringUtils.equals(Constants.TEAM_OF_UN_JIE_SUAN, e.getIsjiesuaned())) // 新增条件
             .collect(Collectors.toList());
         for (GameRecordModel info : teamLS) {
-          sumOfZJ += Double.valueOf(info.getShishou());
-          sumOfHS += Math.abs(Double.valueOf(info.getChuhuishui()));
-          sumOfBS += Double.valueOf(info.getSingleinsurance());// 就是回保
+          sumOfZJ += NumUtil.getNum(info.getShishou());
+          sumOfHS += Math.abs(NumUtil.getNum(info.getChuhuishui()));
+          sumOfHB += NumUtil.getNum(info.getSingleinsurance());// 就是回保
         }
-        double sum = 0.0d;
-        if (sumOfBS != 0) {// 需要乘以团队保险比例的
-          // log.info(sumOfBS+"=="+getTeamInsuranceRate(relatedTeamId));
-          sumOfBS *= -getTeamInsuranceRate(relatedTeamId);
+        double sum = 0d;
+        if (sumOfHB != 0) {// 需要乘以团队保险比例的
+          sumOfHB *= -getTeamInsuranceRate(relatedTeamId);
         }
         if (isZjManaged(relatedTeamId)) {// 战绩代管理,不加战绩(个人记录有支付按钮，个人处理战绩)
-          sum = sumOfHS + sumOfBS;
+          sum = sumOfHS + sumOfHB;
         } else {
-          sum = sumOfHS + sumOfBS + sumOfZJ;// 战绩不代管理,加战绩(个人记录没有支付按钮，团队处理战绩)
+          sum = sumOfHS + sumOfHB + sumOfZJ;// 战绩不代管理,加战绩(个人记录没有支付按钮，团队处理战绩)
         }
         sum_teamHS_and_teamBS += sum;// 团队回水和团队保险的总和
         // 计算当局需要显示的团队记录
         list.add(new TeamInfo(relatedTeamId, digit0(sumOfZJ), NumUtil.digit1(sumOfHS + ""),
-            NumUtil.digit1(sumOfBS + ""), digit0(sum)));
+            NumUtil.digit1(sumOfHB + ""), digit0(sum)));
       }
-    });
+    }
     // 缓存总和
     dataConstants.SumMap.put("团队回水及保险总和", sum_teamHS_and_teamBS);
     // 填充团队表
@@ -617,7 +629,7 @@ public class MoneyService extends BasicService {
   }
 
   // 获取团队表的总和
-  public double getTeamSum(ObservableList<TeamInfo> resultTeamList) {
+  public double getSumMapValue(ObservableList<TeamInfo> resultTeamList) {
     Double sum = 0.0;
     for (TeamInfo teamInfo : resultTeamList) {
       sum += NumUtil.getNum(teamInfo.getTeamSum());
@@ -638,18 +650,19 @@ public class MoneyService extends BasicService {
     return 1.0d;
   }
 
-  // 战绩是否管理
+  /**
+   *  战绩是否管理
+   */
   private boolean isZjManaged(String teamId) {
-    boolean zjManage = false;
     Huishui hs = dataConstants.huishuiMap.get(teamId);
-    if (hs != null) {
-      if ("是".equals(hs.getZjManaged())) {
-        zjManage = true;
-      }
-    }
-    return zjManage;
+    return hs != null && StringUtils.equals("是", hs.getZjManaged());
   }
 
+  /**
+   * 初始化当局表和交收表
+   * @param tableDangju
+   * @param tableJiaoshou
+   */
   private void initTableDangjuAndTableJiaoshou(TableView<DangjuInfo> tableDangju,
       TableView<JiaoshouInfo> tableJiaoshou) {
 
@@ -751,18 +764,7 @@ public class MoneyService extends BasicService {
   }
 
   public String digit0(String str) {
-    java.text.DecimalFormat df = new java.text.DecimalFormat("#######0");
-    if (!StringUtil.isBlank(str)) {
-      String res = "0";
-      try {
-        res = df.format(Double.valueOf(str));
-      } catch (NumberFormatException e) {
-        res = "0";
-        log.error("检测到问题：" + res + "==" + e.getMessage());
-      }
-      return res;
-    }
-    return "0";
+    return NumUtil.digit0(str);
   }
 
   public String digit0(double num) {
@@ -1096,7 +1098,7 @@ public class MoneyService extends BasicService {
     setTotalNumOnTable(tablePingzhang, sumOfPingzhang);
 
     // 7更新团队回水表（若果之前有点击结算按钮）
-    double sumOfTeamHS = getTeamSum("团队回水及保险总和");// dataConstants.SumMap.get("团队回水及保险总和");
+    double sumOfTeamHS = getSumMapValue("团队回水及保险总和");// dataConstants.SumMap.get("团队回水及保险总和");
     setTotalNumOnTable(tableTeam, sumOfTeamHS, 4);
 
   }
@@ -1125,23 +1127,23 @@ public class MoneyService extends BasicService {
         String type = info.getProfitType();
         if ("总服务费".equals(type)) {
           info.setProfitAccount(
-              digit0(NumUtil.getNum(info.getProfitAccount()) + getTeamSum("服务费")));
+              digit0(NumUtil.getNum(info.getProfitAccount()) + getSumMapValue("服务费")));
 
         } else if ("总保险".endsWith(type)) {
-          info.setProfitAccount(digit0(NumUtil.getNum(info.getProfitAccount()) + getTeamSum("保险")));
+          info.setProfitAccount(digit0(NumUtil.getNum(info.getProfitAccount()) + getSumMapValue("保险")));
 
         } else if ("总回水".endsWith(type)) {
           info.setProfitAccount(
-              digit0(NumUtil.getNum(info.getProfitAccount()) + getTeamSum("团队回水")));
+              digit0(NumUtil.getNum(info.getProfitAccount()) + getSumMapValue("团队回水")));
 
         } else if ("总开销".endsWith(type)) {
           info.setProfitAccount(digit0(
-              (NumUtil.getNum(info.getProfitAccount()) + todayKaixiao - getTeamSum("上场开销")) + ""));
+              (NumUtil.getNum(info.getProfitAccount()) + todayKaixiao - getSumMapValue("上场开销")) + ""));
 
         } else if ("总回保".endsWith(type)) {
           // 无公式 总保回
           info.setProfitAccount(
-              digit0(NumUtil.getNum(info.getProfitAccount()) + (getTeamSum("总保回") * (-1)) + ""));
+              digit0(NumUtil.getNum(info.getProfitAccount()) + (getSumMapValue("总保回") * (-1)) + ""));
         }
       }
       table.setItems(list);
@@ -1163,17 +1165,18 @@ public class MoneyService extends BasicService {
     } catch (Exception e) {
       _LMVal = 0d;
     }
-    list.add(new PingzhangInfo("外债+利润+团队回水+联盟对帐",
-        digit0(sumOfProfit + sumOfCurrentMoney + getTeamSum("团队回水及保险总和") + _LMVal
-            + "")));// Double.valueOf(LMVal.getText())
+    list.add(new PingzhangInfo("外债+利润+团队回水+联盟对帐+个人回水",
+        digit0(sumOfProfit + sumOfCurrentMoney + getSumMapValue("团队回水及保险总和") + _LMVal
+            + getSumMapValue("个人累计回水回保总和") + "")));// Double.valueOf(LMVal.getText())
     list.add(new PingzhangInfo("资金", digit0(sumOfZijin + "")));
     table.setItems(list);
   }
 
+
   /**
    * 获取团队累计的一些信息（可能有问题）
    */
-  public double getTeamSum(String name) {
+  public double getSumMapValue(String name) {
     if (dataConstants.SumMap.get(name) == null) {
       return 0d;
     } else {
@@ -1615,6 +1618,46 @@ public class MoneyService extends BasicService {
 
 
   /**
+   * 个人累计支付时修改玩家实时金额 或 添加 实时金额
+   * @param personalInfo
+   * @throws Exception
+   */
+  public void updateOrAdd_SSJE_after_personal_Pay(PersonalInfo personalInfo) throws Exception {
+    // 1判断玩家是否在该金额表中
+    String playerId = personalInfo.getPersonalPlayerId();
+    String playerName = personalInfo.getPersonalPlayerName();
+    if (StringUtil.isBlank(playerId)) {
+      ShowUtil.show("支付按钮时找不到玩家" + playerName + "的ID!!请确认!");
+    }
+    // 修改金额表中的玩家金额
+    // 个人总和 = 回保累计 + 回水累计
+    double personalSum = NumUtil.getNum(personalInfo.getPersonalSumHB()) + NumUtil.getNum(personalInfo.getPersonalSumHS());
+    for (CurrentMoneyInfo moneyInfo : tableCurrentMoneyInfo.getItems()) {
+      if (playerId.equals(moneyInfo.getWanjiaId())) {
+        String ssje = personalSum + NumUtil.getNum(moneyInfo.getShishiJine()) + "";
+        if (ssje.contains(".")) {
+          ssje = NumUtil.digit2(ssje);
+        }
+        moneyInfo.setShishiJine(ssje);
+        saveOrUpdate2DB(moneyInfo);
+        return;
+      }
+    }
+    // 2 到这里，说明玩家不存在于金额表中，需要新增记录
+    Player p = dataConstants.membersMap.get(playerId);
+    if (p == null) {
+      throw new Exception("该玩家不存在于名单中，且匹配不到团ID!玩家名称：" + playerName + ",玩家ID:" + playerId);
+    }
+
+    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(playerName, NumUtil.digit1(personalSum + ""),
+        playerId, dataConstants.membersMap.get(playerId).getEdu(),
+        MoneyCreatorEnum.USER.getCreatorName(), "0");
+    addInfo(tempMoneyInfo);
+    // 保存到数据库
+    saveOrUpdate2DB(tempMoneyInfo);
+  }
+
+  /**
    * 支付时修改玩家实时金额 或 添加 实时金额
    *
    * @param wj 支付时的玩家信息
@@ -1660,6 +1703,19 @@ public class MoneyService extends BasicService {
         }
       }
     }
+  }
+
+  /**
+   * 根据玩家ID获取实时金额信息;
+   *
+   */
+  public CurrentMoneyInfo get_CMI_byId(String playerId) {
+    for (CurrentMoneyInfo item : tableCurrentMoneyInfo.getItems()) {
+      if (StringUtils.equals(playerId, item.getWanjiaId())) {
+        return item;
+      }
+    }
+    return null;
   }
 
   /**
@@ -2453,7 +2509,6 @@ public class MoneyService extends BasicService {
 
   /**
    * 复制一个实时金额表的记录
-   *
    */
   public CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
@@ -2466,7 +2521,7 @@ public class MoneyService extends BasicService {
   /**
    * 将实时金额信息记录转为实体
    */
-  public CurrentMoney change2CurrentMoney(CurrentMoneyInfo cmi){
+  public CurrentMoney change2CurrentMoney(CurrentMoneyInfo cmi) {
     CurrentMoney entity = new CurrentMoney();
     entity.setId(cmi.getWanjiaId());
     entity.setName(cmi.getMingzi());
@@ -2481,9 +2536,8 @@ public class MoneyService extends BasicService {
 
   /**
    * 保存或更新到数据库
-   * @param cmi
    */
-  public void saveOrUpdate2DB(CurrentMoneyInfo cmi){
+  public void saveOrUpdate2DB(CurrentMoneyInfo cmi) {
     try {
       // 保存到数据库
       currentMoneyService.saveOrUpdate(new CurrentMoneyPK(cmi.getWanjiaId(), cmi.getMingzi()),

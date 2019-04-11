@@ -2,7 +2,7 @@ package com.kendy.db.service.Impl;
 
 import com.kendy.db.dao.CurrentMoneyDao;
 import com.kendy.db.entity.CurrentMoney;
-import com.kendy.db.entity.CurrentMoneyPK;
+import com.kendy.db.entity.pk.CurrentMoneyPK;
 import com.kendy.db.service.CurrentMoneyService;
 import org.springframework.stereotype.Service;
 

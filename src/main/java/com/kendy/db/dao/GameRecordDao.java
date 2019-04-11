@@ -1,6 +1,8 @@
 package com.kendy.db.dao;
 
 import com.kendy.db.entity.GameRecord;
+import com.kendy.entity.TotalInfo2;
+import com.kendy.model.GameRecordModel;
 import java.util.List;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -10,6 +12,9 @@ import org.apache.ibatis.annotations.Update;
 import tk.mybatis.mapper.common.Mapper;
 
 public interface GameRecordDao extends GenericDao<GameRecord>, Mapper<GameRecord> {
+
+  @Update("update game_record set personal_jiesuan = '1' where playerId = #{playerId}")
+  int updatePersonalJieSuan(@Param("playerId")String playerId);
 
   @Select("select * from game_record r where clubId = #{clubId} and soft_time = #{softDate} and hshb_type = '1' and personal_jiesuan = '0' ")
   List<GameRecord> getPersonalRecords(@Param("softDate") String softDate, @Param("clubId") String clubId);
@@ -24,4 +29,18 @@ public interface GameRecordDao extends GenericDao<GameRecord>, Mapper<GameRecord
 //  public User getUserById(int id);
 //  @Select("select * from users")
 //  public List<User> getAllUser();
-}
+
+  List<GameRecordModel> test1();
+
+  List<GameRecordModel> getGameRecordsByMaxTime(@Param("maxRecordTime") String maxRecordTime);
+
+  List<GameRecordModel> getGameRecordsByMaxTimeAndClub(@Param("maxRecordTime") String maxRecordTime, @Param("clubId") String clubId);
+
+  List<GameRecordModel> getGameRecordsByClubId(@Param("clubId")String clubId);
+
+  List<GameRecordModel> getStaticDetailRecords(@Param("clubId")String clubId, @Param("teamId") String teamId, @Param("softTime") String softTime);
+
+  String getTotalZJByPId(@Param("playerId")String playerId);
+
+
+  }

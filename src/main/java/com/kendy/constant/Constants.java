@@ -43,4 +43,36 @@ public class Constants {
   public static final String LM1 = "联盟1";
   public static final String LM2 = "联盟2";
   public static final String LM3 = "联盟3";
+
+  /**
+   * 回水回保类型：团队
+   */
+  public static final String TEAM_OF_HSHB = "0";
+  /**
+   * 回水回保类型：个人
+   */
+  public static final String PERSONAL_OF_HSHB = "1";
+
+  /**
+   * 团队结算：未结算
+   * 备注：前提是回水回保类型是团队！
+   */
+  public static final String TEAM_OF_UN_JIE_SUAN = "0";
+  /**
+   * 团队结算：已结算
+   */
+  public static final String TEAM_OF_JIE_SUANED = "1";
+  /**
+   * 个人结算：未结算
+   * 备注：前提是回水回保类型是个人！
+   */
+  public static final String PERSONAL_OF_UN_JIE_SUAN = "0";
+  /**
+   * 个人结算：已结算
+   */
+  public static final String PERSONAL_OF_JIE_SUANED = "1";
+  /**
+   * 团队ID：公司
+   */
+  public static final String COMPANY = "公司";
 }

@@ -1,8 +1,10 @@
 package com.kendy.service;
 
+import com.kendy.db.service.GameRecordService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
@@ -34,6 +36,8 @@ public class MemberService {
   public DBUtil dbUtil;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+  @Resource
+  GameRecordService gameRecordService;
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void initMemberQuery(ListView<String> memberListView,
@@ -64,7 +68,7 @@ public class MemberService {
         }
 
         /**** 会员历史战绩区域赋值 ***/
-        String totalZJ = dbUtil.getTotalZJByPId(memberPlayerId.getText());
+        String totalZJ = gameRecordService.getTotalZJByPId(memberPlayerId.getText());
         memberTotalZJ.setText(totalZJ);
       }
     });

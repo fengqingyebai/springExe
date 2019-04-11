@@ -14,8 +14,10 @@ import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.db.dao.GameRecordDao;
 import com.kendy.db.entity.CurrentMoney;
-import com.kendy.db.entity.CurrentMoneyPK;
+import com.kendy.db.entity.pk.CurrentMoneyPK;
+import com.kendy.db.entity.pk.GameRecordPK;
 import com.kendy.db.service.CurrentMoneyService;
+import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -151,7 +153,7 @@ public class ChangciController extends BaseController implements Initializable {
   @Autowired
   public MyController myController;
   @Resource
-  private GameRecordDao gameRecordDao;
+  private GameRecordService gameRecordService;
   @Resource
   private CurrentMoneyService currentMoneyService;
 
@@ -374,7 +376,6 @@ public class ChangciController extends BaseController implements Initializable {
     cmiLmb.setCellFactory(cmiLmbCellFactory);
     setSSJEEditOnCommit();
 
-
     // 绑定资金表
     tableZijin.setEditable(true);
     bindCellValueByTable(new ZijinInfo(), tableZijin);
@@ -397,12 +398,10 @@ public class ChangciController extends BaseController implements Initializable {
     teamJiesuan.setStyle(Constants.CSS_CENTER);
     // 绑定个人表
     bindCellValueByTable(new PersonalInfo(), tablePersonal);
-
-
+    personalPay.setCellFactory(personalCellFactory);
 
     // 初始化实时金额表
     moneyService.iniitMoneyInfo(tableCurrentMoneyInfo);
-
 
     LMLabel.setTextFill(Color.web("#CD3700"));
     indexLabel.setTextFill(Color.web("#0076a3"));// 设置Label 的文本颜色。
@@ -474,7 +473,7 @@ public class ChangciController extends BaseController implements Initializable {
     }
   }
 
-  public static final List<String> NO_NEED_LOAD_TABS= Arrays.asList("基本信息","场次信息","总汇信息");
+  public static final List<String> NO_NEED_LOAD_TABS = Arrays.asList("基本信息", "场次信息", "总汇信息");
 
 
   /**
@@ -499,7 +498,7 @@ public class ChangciController extends BaseController implements Initializable {
   private void importExcelData(String tableId, List<GameRecordModel> gameRecordModels) {
     // 1 填充总信息表
     moneyService.fillTablerAfterImportZJ(tableTotalInfo, tablePaiju, tableDangju, tableJiaoshou,
-        tableTeam, tablePersonal,  gameRecordModels, tableId);
+        tableTeam, tablePersonal, gameRecordModels, tableId);
     // 2填充当局表和交收表和团队表的总和
     moneyService.setTotalNumOnTable(tableDangju, dataConstants.SumMap.get("当局"));
     moneyService.setTotalNumOnTable(tableJiaoshou, dataConstants.SumMap.get("交收"));
@@ -511,6 +510,86 @@ public class ChangciController extends BaseController implements Initializable {
   /**
    * 牌局表列中添加支付按钮
    */
+  Callback<TableColumn<PersonalInfo, String>, TableCell<PersonalInfo, String>> personalCellFactory = //
+      new Callback<TableColumn<PersonalInfo, String>, TableCell<PersonalInfo, String>>() {
+        @SuppressWarnings("rawtypes")
+        @Override
+        public TableCell call(final TableColumn<PersonalInfo, String> param) {
+          final TableCell<PersonalInfo, String> cell = new TableCell<PersonalInfo, String>() {
+
+            final Button btn = new Button("支付");
+
+            @Override
+            public void updateItem(String item, boolean empty) {
+              super.updateItem(item, empty);
+              if (empty) {
+                setGraphic(null);
+                setText(null);
+              } else {
+                btn.setOnAction(event -> {
+                  PersonalInfo personalInfo = getTableView().getItems().get(getIndex());
+                  if (StringUtils.equals(Constants.PERSONAL_OF_JIE_SUANED, personalInfo.getHasJiesuaned())) {
+                    ShowUtil.show("抱歉，已支付过！！");
+                    return;
+                  }
+                  if (getTableRow() != null) {
+                    try {
+                      // //支付时修改玩家实时金额 或 添加 实时金额
+                      moneyService.updateOrAdd_SSJE_after_personal_Pay(personalInfo);
+                      // 更新
+                      gameRecordService.updatePersonalJieSuan(personalInfo.getPersonalPlayerId());
+
+                      btn.setText("已支付");
+                      personalInfo.setHasJiesuaned(Constants.PERSONAL_OF_JIE_SUANED);
+                      CurrentMoneyInfo cmi = moneyService.get_CMI_byId(personalInfo.getPersonalPlayerId());
+                      ShowUtil.show("已将" + personalInfo.getPersonalPlayerName() + "的实时金额修改为   "
+                              + cmi.getShishiJine(),2);
+                      moneyService.flush_SSJE_table();// 刷新实时金额表
+
+                    } catch (Exception e) {
+                      ErrorUtil.err("支付失败", e);
+                    }
+                  }
+                });
+                PersonalInfo wj = getTableView().getItems().get(getIndex());
+                // 解决不时本应支付确显示成已支付的bug
+                if (StringUtils.equals(Constants.PERSONAL_OF_UN_JIE_SUAN, wj.getHasJiesuaned())) {
+                  btn.setText("支付");
+                } else {
+                  btn.setText("已支付");
+                }
+                setGraphic(btn);// 小林：这一行解决了支付按钮消失的问题
+                // 在此处增加是否要显示该按钮(如果玩家从属于某个非空或非公司的团队，则无需显示按钮)
+//                String tempTeamId = wj.getHasPayed();// 这个tempTeamId是hasPayed的内容,这里没有公司的人
+//                if (!StringUtil.isBlank(tempTeamId) && !"0".equals(tempTeamId)) {
+//                  // 获取团队信息
+//                  Huishui hs = dataConstants.huishuiMap.get(tempTeamId);
+//                  // 情况一：有从属团队的玩家，再分两种情况
+//                  if (hs != null) {
+//                    // A:若团队战绩要管理，需要显示支付按钮
+//                    if ("是".equals(hs.getZjManaged())) {
+//                      // log.debug("====teamId为不为空，要显示，要战绩管理：是");
+//                      setGraphic(btn);
+//                      // B:若团队战绩不要管理，无须显示支付按钮
+//                    } else {
+//                      // log.debug("hsPayed:====================hs为空："+hs.getZjManaged());
+//                      setGraphic(null);
+//                    }
+//                  }
+//                } else {
+//                  // log.debug("====teamId为空或为0，要显示+"+dataConstants.membersMap.get(wj.getWanjiaId()).getTeamName());
+//                  // 情况二：对于没有从从属的团队的玩家或者团队是公司的玩家，一定需要需要显示支付按钮
+//                  setGraphic(btn);
+//                }
+                // setGraphic(btn);
+                setText(null);
+              }
+            }
+          };
+          return cell;
+        }
+      };
+
   Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>> cellFactory = //
       new Callback<TableColumn<WanjiaInfo, String>, TableCell<WanjiaInfo, String>>() {
         @SuppressWarnings("rawtypes")
@@ -754,7 +833,8 @@ public class ChangciController extends BaseController implements Initializable {
         // 获取新记录
         CurrentMoneyInfo cmiInfo = moneyService.getInfoByName(teamName);
         if (cmiInfo == null) {// cmiInfo为null表示该团队不存在于实时金额表中
-          cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "", MoneyCreatorEnum.DEFAULT.getCreatorName(), "");// 玩家ID和额度为空
+          cmiInfo = new CurrentMoneyInfo(teamName, tempSSJE, "", "",
+              MoneyCreatorEnum.DEFAULT.getCreatorName(), "");// 玩家ID和额度为空
           moneyService.addInfo(cmiInfo);
           logger.info(String.format("点击结算按钮:新增一条团队记录进金额表,团队ID=%s,团队服务费=%s,金额=%s", teamID, fwfString,
               tempSSJE));
@@ -773,24 +853,6 @@ public class ChangciController extends BaseController implements Initializable {
         refreshBtn.fire();// 这个是为了让当局的团队总服务费能累加到利润表中的总团队服务费中
       }
     });
-  }
-
-
-  /**
-   * 利润表修改总团队服务费(累积该团队的服务费)
-   *
-   * @time 2018年1月5日
-   */
-  public void add2AllTeamFWF_from_tableProfit(TableView<ProfitInfo> table, Double teamFWF) {
-    try {
-      ProfitInfo profitInfo =
-          TableUtil.getItem(table).filtered(info -> "总团队服务费".equals(info.getProfitType())).get(0);
-      String allTeamFWF = NumUtil.digit0(NumUtil.getNum(profitInfo.getProfitAccount()) + teamFWF);
-      profitInfo.setProfitAccount(allTeamFWF);
-      table.refresh();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
 
@@ -863,7 +925,8 @@ public class ChangciController extends BaseController implements Initializable {
           cell.setEditable(false);// 不让其可编辑
           cell.setOnMouseClicked((MouseEvent t) -> {
             // 鼠标双击事件
-            if (t.getClickCount() == 2 && isEditingView() && cell.getIndex() < tableCurrentMoneyInfo.getItems().size()) {
+            if (t.getClickCount() == 2 && isEditingView() && cell.getIndex() < tableCurrentMoneyInfo
+                .getItems().size()) {
               CurrentMoneyInfo cmi = tableCurrentMoneyInfo.getItems().get(cell.getIndex());
               if (cmi != null && StringUtil.isAllNotBlank(cmi.getWanjiaId(), cmi.getMingzi())) {
                 // 双击执行的代码
@@ -944,7 +1007,8 @@ public class ChangciController extends BaseController implements Initializable {
     // 获取ObserableList
     ObservableList<CurrentMoneyInfo> list = tableCurrentMoneyInfo.getItems();
     list.add(
-        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu(), MoneyCreatorEnum.DEFAULT.getCreatorName(), ""));
+        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu(),
+            MoneyCreatorEnum.DEFAULT.getCreatorName(), ""));
     tableCurrentMoneyInfo.setItems(list);
   }
 
@@ -1088,8 +1152,6 @@ public class ChangciController extends BaseController implements Initializable {
   public String getExcelPath() {
     return excelDir.getText();
   }
-
-
 
 
   /**
@@ -1372,7 +1434,8 @@ public class ChangciController extends BaseController implements Initializable {
 
   public void clear10Tables() {
     // 清空相关表数据（保留类似昨日留底的表数据）
-    clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou, tablePingzhang, tablePersonal);
+    clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou, tablePingzhang,
+        tablePersonal);
     // tableCurrentMoneyInfo,tableZijin,tableKaixiao,tableProfit
     indexLabel.setText(INDEX_ZERO);
   }
@@ -1508,9 +1571,6 @@ public class ChangciController extends BaseController implements Initializable {
   public int getCurrentPage() {
     return Integer.parseInt(pageInput.getText());
   }
-
-
-
 
 
   /**
@@ -1671,7 +1731,7 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public void importBlankExcelAction(ActionEvent event) {
     String tableId = RandomUtil.getRandomNumber(10000, 20000) + "";// 随机生成ID
-    List<GameRecordModel> blankDataList = new ArrayList<GameRecordModel>();
+    List<GameRecordModel> blankDataList = new ArrayList<>();
     // 存储数据 {场次=infoList...}
     dataConstants.zjMap.put(tableId, blankDataList);
     currentLMName = "联盟1";
@@ -1769,8 +1829,9 @@ public class ChangciController extends BaseController implements Initializable {
 
       try {
         // 将人员名单文件缓存起来
-        List<GameRecordModel> gameRecordModels = excelReaderUtil.readZJRecord(excelFilePath, userClubId,
-            currentLMName, myController.getVersionType());
+        List<GameRecordModel> gameRecordModels = excelReaderUtil
+            .readZJRecord(excelFilePath, userClubId,
+                currentLMName, myController.getVersionType());
         indexLabel.setText(tableId);
         importExcelData(tableId, gameRecordModels);
 
@@ -1784,10 +1845,7 @@ public class ChangciController extends BaseController implements Initializable {
   }
 
 
-
-
-
-    /**
+  /**
    * 撤销当局信息
    */
   public void openCancelAlertAction(ActionEvent event) {
@@ -1853,11 +1911,11 @@ public class ChangciController extends BaseController implements Initializable {
     }
   }
 
-  public void initSpiderToggleAction(){
-    spiderNode.selectedProperty().addListener(e->{
+  public void initSpiderToggleAction() {
+    spiderNode.selectedProperty().addListener(e -> {
       if (spiderNode.isSelected()) {
         smAutoController.startSpiderAction(new ActionEvent());
-      }else{
+      } else {
         smAutoController.stopSpiderAction(new ActionEvent());
       }
     });
@@ -1867,7 +1925,8 @@ public class ChangciController extends BaseController implements Initializable {
    * 打开新增实时金额对话框
    */
   public void openAddCurrentMoneyAction(ActionEvent event) {
-    myController.openBasedDialog("add_current_money_frame4.fxml", "新增实时金额", Constants.ADD_CURRENT_MONEY_FRAME);
+    myController.openBasedDialog("add_current_money_frame4.fxml", "新增实时金额",
+        Constants.ADD_CURRENT_MONEY_FRAME);
   }
 
   /**
@@ -1892,22 +1951,19 @@ public class ChangciController extends BaseController implements Initializable {
   }
 
   /**
-   * 当前是否为锁定页面
-   * 若为锁定页面，则联盟币购买时不进行修改实时金额表，避免修改了历史数据
-   * @return
+   * 当前是否为锁定页面 若为锁定页面，则联盟币购买时不进行修改实时金额表，避免修改了历史数据
    */
-  public boolean isLockedView(){
+  public boolean isLockedView() {
     return lockedLabel.isVisible();
   }
 
-  public boolean isEditingView(){
+  public boolean isEditingView() {
     return !isLockedView();
   }
 
 
   /**
    * 保存实时金额表到数据库
-   * @param event
    */
   @FXML
   public void saveAllMoney2DBAction(ActionEvent event) {
@@ -1920,15 +1976,15 @@ public class ChangciController extends BaseController implements Initializable {
       // 获取待覆盖到数据库中的数据
       List<CurrentMoney> datas =
           tableCurrentMoneyInfo.getItems().stream()
-          .filter(e -> !StringUtils.isAllBlank(e.getWanjiaId(), e.getMingzi()))
-          .map(e -> moneyService.change2CurrentMoney(e))
-          .collect(Collectors.toList());
+              .filter(e -> !StringUtils.isAllBlank(e.getWanjiaId(), e.getMingzi()))
+              .map(e -> moneyService.change2CurrentMoney(e))
+              .collect(Collectors.toList());
       //覆盖
       try {
         currentMoneyService.removeAll();
         currentMoneyService.save(datas);
         ShowUtil.show("同步成功！", 2);
-      } catch(Exception e) {
+      } catch (Exception e) {
         ErrorUtil.err("同步失败", e);
       }
     }
@@ -1936,7 +1992,6 @@ public class ChangciController extends BaseController implements Initializable {
 
   /**
    * 强制从数据库覆盖本地实时金额表
-   * @param event
    */
   @FXML
   public void forceReplaceMoneyFromDBAction(ActionEvent event) {
@@ -1947,7 +2002,7 @@ public class ChangciController extends BaseController implements Initializable {
       List<CurrentMoney> moneyDBList = currentMoneyService.getAll();
       if (CollectionUtils.isEmpty(moneyDBList)) {
         if (!FXUtil.confirm("数据库无数据，是否仍要覆盖？")) {
-         return;
+          return;
         }
       }
       List<CurrentMoneyInfo> items = new ArrayList<>();
@@ -1975,7 +2030,6 @@ public class ChangciController extends BaseController implements Initializable {
   public Class<?> getSubClass() {
     return getClass();
   }
-
 
 
 }

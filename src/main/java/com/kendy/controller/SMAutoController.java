@@ -1,15 +1,8 @@
 package com.kendy.controller;
 
-import com.alibaba.druid.support.json.JSONUtils;
-import com.kendy.db.dao.CurrentMoneyDao;
-import com.kendy.db.entity.CurrentMoney;
-import com.kendy.db.entity.CurrentMoneyPK;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.enums.ExcelAutoDownType;
-import com.kendy.enums.MoneyCreatorEnum;
-import com.kendy.exception.CMINoExistPlayerException;
-import com.kendy.exception.ExcelException;
 import com.kendy.model.CoinBuyerRusult;
 import com.kendy.model.CoinBuyerRusult.CoinBuyer;
 import com.kendy.model.RangeResult;
@@ -37,17 +30,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.swing.filechooser.FileSystemView;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -55,7 +45,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
-import com.kendy.entity.Huishui;
 import com.kendy.entity.Player;
 import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.ShangmaInfo;
@@ -511,7 +500,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
         // 联盟币购买条件判断
         RangeResult checkRangeResult = checkInRange(coinBuyer);
-        boolean passCheck = checkRangeResult.isOk(); // 是否同意
+        boolean passCheck = checkRangeResult.isInRange(); // 是否合范围
         logInfo(playerName + "是否合范围：" + (passCheck ? "是" : "否"));
         if (!passCheck) {
           addBuyResultRecord(checkRangeResult);
@@ -531,12 +520,12 @@ public class SMAutoController extends BaseController implements Initializable {
         if (CollectUtil.isEmpty(testList) || testList.contains(playerId)) {
           // 向后台申请购买， 成功后修改实时金额表
           buyLmbCode = buyLmbCoin(coinBuyer);
-          checkRangeResult.setCode(buyLmbCode);
+          checkRangeResult.setBuyCode(buyLmbCode);
           buyLmbOk = (buyLmbCode == 0);
           if (buyLmbOk) {
             // 金额修改
-            checkRangeResult.setOk(true);
-            logInfo(playerName + "正在模拟更新实时金额...");
+            checkRangeResult.setBuyOK(true);
+            logInfo(playerName + "购买成功，正在模拟更新实时金额...");
             CurrentMoneyInfo cmi = checkRangeResult.getCmi();
             // 设置实时金额
             String finalSSJE = NumUtil
@@ -554,7 +543,7 @@ public class SMAutoController extends BaseController implements Initializable {
             logInfo(playerName + "将实时金额" + cmi.getShishiJine() + "修改为" + finalSSJE);
 
           } else {
-            checkRangeResult.setOk(false);
+            checkRangeResult.setBuyOK(false);
           }
         }
         // 记录
@@ -575,23 +564,23 @@ public class SMAutoController extends BaseController implements Initializable {
         rangeRsult.getBuyStack(),
         rangeRsult.getCurrentMoney(),
         rangeRsult.getAvailableEdu(),
-        rangeRsult.isOk() ? "是" : "否",
-        (rangeRsult.isOk()) ? (rangeRsult.getCode() == 0 ? "成功" : "失败") : "-",
-        getFailDescription(rangeRsult, rangeRsult.getCode())
+        rangeRsult.isInRange() ? "是" : "否",
+        (rangeRsult.isInRange()) ? (rangeRsult.isBuyOK() ? "成功" : "失败") : "-",
+        getFailDescription(rangeRsult, rangeRsult.getBuyCode())
     );
-    logInfo(rangeRsult.getPlayerName() + "开始记录入表。。。" + JSON.toJSONString(smAutoInfo));
     addItem(smAutoInfo);
   }
 
   private String getFailDescription(Result checkRangeResult, int buyLmbCode) {
-    if (checkRangeResult.isOk()) {
-      if (buyLmbCode == 3003) {
-        return "联盟币不足";
-      }
-      return "";
-    } else {
-      return checkRangeResult.getDescription();
+    if (!checkRangeResult.isInRange()) {
+      return "不足额度";
     }
+    if (!checkRangeResult.isBuyOK()) {
+      if (buyLmbCode == 3003) {
+        return "后台联盟币不足";
+      }
+    }
+    return buyLmbCode + "";
   }
 
   /**
@@ -624,7 +613,7 @@ public class SMAutoController extends BaseController implements Initializable {
               StringUtils.equals("0", realBuyResult.getResult());
 
           String coinBuyStr = (buyLmbOk ? "成功" : "失败");
-          log.info(String.format("%s[%s]申请%s数量%s,联盟币购买结果是[%s], 后台返回：%s",
+          logInfo(String.format("%s[%s]申请%s数量%s,联盟币购买结果是[%s], 后台返回：%s",
               playerName, playerId, buyType, buyStack, coinBuyStr, result));
 
           return Integer.valueOf(realBuyResult.getIErrCode());
@@ -664,16 +653,16 @@ public class SMAutoController extends BaseController implements Initializable {
     String buyStack = coinBuyer.getGrantNums(); // 购买数量
     Player player = dataConstants.membersMap.get(playerId);
     if (player == null) {
-      return new RangeResult(false, -1, "玩家不存在", playerId,
+      return new RangeResult("玩家不存在", playerId,
           playerName, "-", buyStack, "-", "-", null);
     }
     if (changciController.isLockedView()) {
-      return new RangeResult(false, -1, "锁定页面", playerId,
+      return new RangeResult("锁定页面", playerId,
           playerName, "-", buyStack, "-", "-", null);
     }
     CurrentMoneyInfo cmi = moneyService.getInfoById(playerId);
     if (cmi == null) {
-      return new RangeResult(false, -1, "金额表不存在", playerId,
+      return new RangeResult("金额表不存在", playerId,
           playerName, "-", buyStack, "-", "-", null);
     }
     String parentId = combineIDController.hasCombineIdRelation(playerId);
@@ -699,10 +688,10 @@ public class SMAutoController extends BaseController implements Initializable {
     String ssje = cmi.getShishiJine();
     String edu = cmi.getCmiEdu();
     if (checkPass(ssje, edu, buyStack)) {
-      return new RangeResult(true, 0, "同意购买", cmi.getWanjiaId(),
+      return new RangeResult(true, "", cmi.getWanjiaId(),
           player.getPlayerName(), player.getgameId(), buyStack, ssje, edu, cmi);
     }
-    return new RangeResult(false, -1, "拦截不足币", cmi.getWanjiaId(),
+    return new RangeResult(false,  "拦截不足币", cmi.getWanjiaId(),
         player.getPlayerName(), player.getgameId(), buyStack, ssje, edu, null);
   }
 
@@ -716,7 +705,7 @@ public class SMAutoController extends BaseController implements Initializable {
   private RangeResult checkInRangeWithConbineRalation(String parentId, Player player, CurrentMoneyInfo currentCmi, String buyStack) {
     CurrentMoneyInfo parentCmi = moneyService.getInfoById(parentId);
     if (parentCmi == null) {
-      return new RangeResult(false, -1, "父ID不存在", player.getgameId(),
+      return new RangeResult(false, "父ID不存在", player.getgameId(),
           player.getPlayerName(), "-", buyStack, "-", "-", null);
     }
     List<CurrentMoneyInfo> cmiList = new ArrayList<>();
@@ -736,10 +725,10 @@ public class SMAutoController extends BaseController implements Initializable {
       }
     }
     if (checkPass(ssje + "", edu + "", buyStack)) {
-      return new RangeResult(true, 0, "同意购买", player.getgameId(),
+      return new RangeResult(true, "", player.getgameId(),
           player.getPlayerName(), player.getgameId(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), currentCmi);
     }
-    return new RangeResult(false, -1, "拦截不足币", player.getgameId(),
+    return new RangeResult(false, "拦截不足币", player.getgameId(),
         player.getPlayerName(), player.getgameId(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), null);
 
   }

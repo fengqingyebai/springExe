@@ -44,18 +44,18 @@
                </font>
             </Label>
             <TextField fx:id="beizhuField" prefHeight="23.0" prefWidth="230.0" text="0" />
-            <Label fx:id="detailsLabel1111" prefHeight="15.0" prefWidth="82.0" text="个人回保" textAlignment="LEFT" wrapText="true">
-               <font>
-                  <Font size="12.0" />
-               </font>
-            </Label>
-            <TextField fx:id="huibaoField" prefHeight="23.0" prefWidth="230.0" text="0%" />
             <Label fx:id="detailsLabel11111" prefHeight="15.0" prefWidth="77.0" text="个人回水" textAlignment="LEFT" wrapText="true">
                <font>
                   <Font size="12.0" />
                </font>
             </Label>
             <TextField fx:id="huishuiField" prefHeight="23.0" prefWidth="230.0" text="0%" />
+            <Label fx:id="detailsLabel1111" prefHeight="15.0" prefWidth="82.0" text="个人回保" textAlignment="LEFT" wrapText="true">
+               <font>
+                  <Font size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="huibaoField" prefHeight="23.0" prefWidth="230.0" text="0%" />
       </children>
     </VBox>
     <HBox maxHeight="-Infinity" maxWidth="+Infinity" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1">

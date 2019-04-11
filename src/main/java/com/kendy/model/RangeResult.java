@@ -33,18 +33,46 @@ public class RangeResult extends Result {
    */
   CurrentMoneyInfo cmi;
 
-  public RangeResult(boolean ok, String description, String currentMoney,
-      String availableEdu) {
-    super(ok, description);
+  public RangeResult(String description, String currentMoney, String availableEdu) {
+    super();
     this.currentMoney = currentMoney;
     this.availableEdu = availableEdu;
   }
 
 
-  public RangeResult(boolean ok, int code, String description, String playerId,
+  public RangeResult(boolean isInRange, boolean isBuyOK, int buyCode, String description, String playerId,
       String playerName, String teamId, String buyStack, String currentMoney,
       String availableEdu, CurrentMoneyInfo cmi) {
-    super(ok, code, description);
+    super(isInRange, isBuyOK, buyCode, description);
+    this.playerId = playerId;
+    this.playerName = playerName;
+    this.teamId = teamId;
+    this.buyStack = buyStack;
+    this.currentMoney = currentMoney;
+    this.availableEdu = availableEdu;
+    this.cmi = cmi;
+  }
+
+  public RangeResult( String description, String playerId,
+      String playerName, String teamId, String buyStack, String currentMoney,
+      String availableEdu, CurrentMoneyInfo cmi) {
+    super();
+    this.description = description;
+    this.playerId = playerId;
+    this.playerName = playerName;
+    this.teamId = teamId;
+    this.buyStack = buyStack;
+    this.currentMoney = currentMoney;
+    this.availableEdu = availableEdu;
+    this.cmi = cmi;
+  }
+
+  public RangeResult(boolean isInRange, String description, String playerId,
+      String playerName, String teamId, String buyStack, String currentMoney,
+      String availableEdu, CurrentMoneyInfo cmi) {
+    super();
+    this.isInRange = isInRange;
+    this.description = description;
     this.playerId = playerId;
     this.playerName = playerName;
     this.teamId = teamId;

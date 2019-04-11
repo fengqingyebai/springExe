@@ -5,10 +5,10 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <id column="soft_time" jdbcType="VARCHAR" property="softTime" />
-    <id column="clubId" jdbcType="VARCHAR" property="clubid" />
-    <id column="tableId" jdbcType="VARCHAR" property="tableid" />
-    <id column="playerId" jdbcType="VARCHAR" property="playerid" />
+    <result column="soft_time" jdbcType="VARCHAR" property="softTime" />
+    <result column="clubId" jdbcType="VARCHAR" property="clubid" />
+    <result column="tableId" jdbcType="VARCHAR" property="tableid" />
+    <result column="playerId" jdbcType="VARCHAR" property="playerid" />
     <result column="yszj" jdbcType="VARCHAR" property="yszj" />
     <result column="singleInsurance" jdbcType="VARCHAR" property="singleinsurance" />
     <result column="clubInsurance" jdbcType="VARCHAR" property="clubinsurance" />
@@ -44,4 +44,40 @@
     <result column="personal_jiesuan" jdbcType="VARCHAR" property="personalJiesuan" />
     <result column="hshb_type" jdbcType="VARCHAR" property="hshbType" />
   </resultMap>
+
+  <resultMap id="GameRecordModelMap" type="com.kendy.model.GameRecordModel" extends="BaseResultMap">
+    <result column="teamId" property="teamId"    />
+    <result column="playerName" property="playerName" />
+    <result column="name" property="clubName" />
+  </resultMap>
+
+  <sql id="game_record_sql">
+    select r.*, m.playerName, ifnull(m.teamId, '') teamId, c.name from  game_record r left join members m on r.playerId = m.playerId left join club c on r.clubId = c.clubId
+  </sql>
+
+  <select id="getGameRecordsByClubId" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.clubId = #{clubId}
+  </select>
+
+  <select id="getGameRecordsByMaxTime" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.soft_time = #{maxRecordTime}
+  </select>
+
+  <select id="getGameRecordsByMaxTimeAndClub" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.soft_time = #{maxRecordTime} and r.clubId =  #{clubId}
+  </select>
+
+  <select id="getStaticDetailRecords" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.soft_time = #{softTime} and r.clubId =  #{clubId}  and m.teamId = #{teamId}
+  </select>
+
+  <select id="getTotalZJByPId" resultType="string">
+    <!--SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (<include refid="game_record_sql"></include>) hr where hr.playerId = #{playerId}-->
+    SELECT sum(hr.shishou) as sum from (<include refid="game_record_sql"></include>) hr where hr.playerId = #{playerId}
+  </select>
+
+
+  <select id="test1" resultMap="GameRecordModelMap">
+    select * from game_record
+  </select>
 </mapper>

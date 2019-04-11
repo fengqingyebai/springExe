@@ -1,9 +1,11 @@
 package com.kendy.controller;
 
+import com.kendy.util.NumUtil;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
@@ -104,11 +106,20 @@ public class DelController extends BaseController implements Initializable {
         obList.add("所属股东：" + player.getGudong());
         obList.add("额度：" + (StringUtil.isBlank(player.getEdu()) ? "无" : player.getEdu()));
         obList.add("实时金额：" + moneyService.get_SSJE_byId(playerId));
-        obList
-            .add("是否父ID：" + (dataConstants.Combine_Super_Id_Map.containsKey(playerId) ? "是" : "否"));
+        obList.add("是否父ID：" + (dataConstants.Combine_Super_Id_Map.containsKey(playerId) ? "是" : "否"));
         obList.add("是否子ID：" + (dataConstants.Combine_Sub_Id_Map.containsKey(playerId) ? "是" : "否"));
+        obList.add("个人回水：" + getPercent(player.getHuishui()));
+        obList.add("个人回保: " + getPercent(player.getHuibao()));
       }
     });
+  }
+
+  private String getPercent(String val){
+    if(StringUtils.contains(val, "%")){
+      return val.trim();
+    }
+    double value = moneyService.getNumberFromUnknowStr(val);
+    return NumUtil.getPercentStr(value);
   }
 
 

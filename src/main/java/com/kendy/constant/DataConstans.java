@@ -1,5 +1,6 @@
 package com.kendy.constant;
 
+import com.kendy.db.service.GameRecordService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,9 @@ public class DataConstans {
 
   @Autowired
   private DBUtil dbUtil;
+
+  @Resource
+  GameRecordService gameRecordService;
 
 
 //  public static Map<String, String> permissions = new HashMap<>();
@@ -456,7 +461,7 @@ public class DataConstans {
     String maxGameRecordTime = dbUtil.getMaxGameRecordTime();
     // String clubId = myController.currentClubId.getText();
     String clubId = dbUtil.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
-    List<GameRecordModel> gameRecordModels = dbUtil.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
+    List<GameRecordModel> gameRecordModels = gameRecordService.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
 
     if (StringUtil.isAnyBlank(maxGameRecordTime, clubId) || CollectUtil.isEmpty(gameRecordModels)) {
       // 清空所有数据

@@ -6,6 +6,7 @@ import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
+import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.ClubZhuofei;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.GDDetailInfo;
@@ -50,6 +51,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -84,6 +86,9 @@ public class GDController extends BaseController implements Initializable {
 
   @Autowired
   ChangciController changciController;
+
+  @Resource
+  GameRecordService gameRecordService;
 
   // 股东贡献值主表
   @FXML
@@ -219,7 +224,7 @@ public class GDController extends BaseController implements Initializable {
   private void initDataList() {
     String currentClubId = myController.currentClubId.getText();
     if (!StringUtil.isAnyBlank(currentClubId)) {
-      List<GameRecordModel> list = dbUtil.getGameRecordsByClubId(currentClubId);
+      List<GameRecordModel> list = gameRecordService.getGameRecordsByClubId(currentClubId);
       if (CollectUtil.isHaveValue(list)) {
         dataList = list;
       }

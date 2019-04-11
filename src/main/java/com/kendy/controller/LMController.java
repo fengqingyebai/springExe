@@ -3,6 +3,7 @@ package com.kendy.controller;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
+import com.kendy.db.service.GameRecordService;
 import com.kendy.model.ClubInfo;
 import com.kendy.util.TableUtil;
 import java.net.URL;
@@ -28,6 +29,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -96,6 +98,8 @@ public class LMController extends BaseController implements Initializable {
   public MyController myController;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+  @Resource
+  GameRecordService gameRecordService;
 
   // =====================================================================
   @FXML
@@ -775,7 +779,7 @@ public class LMController extends BaseController implements Initializable {
 
     String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
     if (StringUtil.isNotBlank(maxRecordTime)) {
-      List<GameRecordModel> list = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
+      List<GameRecordModel> list = gameRecordService.getGameRecordsByMaxTime(maxRecordTime);
       // 处理从数据库返回的结果为Map
       // 即把List<Record>转为Map<String,List<Record>>
       Map<String, List<GameRecordModel>> map = new HashMap<>();
@@ -896,7 +900,7 @@ public class LMController extends BaseController implements Initializable {
         return;
       }
 
-      List<GameRecordModel> todayTotalList = dbUtil.getGameRecordsByMaxTime(maxRecordTime);
+      List<GameRecordModel> todayTotalList = gameRecordService.getGameRecordsByMaxTime(maxRecordTime);
       if (CollectionUtils.isEmpty(todayTotalList)) {
         return;
       }

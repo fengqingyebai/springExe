@@ -6,36 +6,43 @@ package com.kendy.model;
  */
 public class Result {
 
-  boolean ok = false;
-  int code = -1;
+  boolean isInRange = false;
+  boolean isBuyOK = false;
+  int buyCode = -1;
   String description = "";
 
+  public Result() {
+  }
 
-  public Result(boolean ok, String description) {
-    this.ok = ok;
+  public Result(boolean isInRange, boolean isBuyOK, int buyCode, String description) {
+    this.isInRange = isInRange;
+    this.isBuyOK = isBuyOK;
+    this.buyCode = buyCode;
     this.description = description;
   }
 
-  public Result(boolean ok, int code, String description) {
-    this.ok = ok;
-    this.code = code;
-    this.description = description;
+  public boolean isInRange() {
+    return isInRange;
   }
 
-  public boolean isOk() {
-    return ok;
+  public void setInRange(boolean inRange) {
+    isInRange = inRange;
   }
 
-  public void setOk(boolean ok) {
-    this.ok = ok;
+  public boolean isBuyOK() {
+    return isBuyOK;
   }
 
-  public int getCode() {
-    return code;
+  public void setBuyOK(boolean buyOK) {
+    isBuyOK = buyOK;
   }
 
-  public void setCode(int code) {
-    this.code = code;
+  public int getBuyCode() {
+    return buyCode;
+  }
+
+  public void setBuyCode(int buyCode) {
+    this.buyCode = buyCode;
   }
 
   public String getDescription() {
@@ -46,5 +53,7 @@ public class Result {
     this.description = description;
   }
 
-  public static Result SUCCESS = new Result(Boolean.TRUE, "");
+  public  boolean isAllOK(){
+    return isInRange && isBuyOK && (buyCode == 0);
+  }
 }

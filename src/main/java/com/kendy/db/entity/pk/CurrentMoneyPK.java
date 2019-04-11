@@ -1,4 +1,4 @@
-package com.kendy.db.entity;
+package com.kendy.db.entity.pk;
 
 import java.io.Serializable;
 

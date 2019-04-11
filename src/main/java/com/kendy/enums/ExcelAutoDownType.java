@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 public enum ExcelAutoDownType {
   PU_TONG("1", "普通保险局"),
   AO_MA_HA("2", "奥马哈保险局"),
+  DUAN_PAI("5", "短牌"),
   JIA_LE_BI("8", "加勒比海"),
   DE_ZHOU_NIU_ZAI("9", "德州牛仔")
   ;

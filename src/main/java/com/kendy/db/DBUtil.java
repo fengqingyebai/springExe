@@ -6,6 +6,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.db.dao.GameRecordDao;
 import com.kendy.db.entity.GameRecord;
+import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubStaticInfo;
@@ -72,7 +73,7 @@ import org.springframework.stereotype.Component;
 public class DBUtil {
 
   @Resource
-  GameRecordDao gameRecordDao;
+  private GameRecordService gameRecordService;
 
   private Logger loger = LoggerFactory.getLogger(DBUtil.class);
 
@@ -132,30 +133,6 @@ public class DBUtil {
     return list;
   }
 
-  /**
-   * 会员历史战绩查询
-   */
-  public String getTotalZJByPId(String playerId) {
-    try {
-      con = DBConnection.getConnection();
-      String sql = "SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (" + GAME_RECORD_SQL
-          + ") hr where hr.playerId = ?";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, playerId);
-      ResultSet rs = ps.executeQuery();
-      String res = "";
-      while (rs.next()) {
-        res = rs.getString(2);
-        break;
-      }
-      return StringUtil.isBlank(res) ? "0.0" : NumUtil.digit0(res);
-    } catch (Exception e) {
-      ErrorUtil.err("会员历史战绩查询失败", e);
-    } finally {
-      close(con, ps);
-    }
-    return "0.0";
-  }
 
 
   // 删除一条人员名单---未测试
@@ -513,35 +490,6 @@ public class DBUtil {
       }
       map = JSON.parseObject(res, new TypeReference<Map<String, String>>() {
       });
-      // ======================================================把锁定的详细数据单独加进来
-      // 2018-9-17 注释
-      /*try {
-        sql = "select * from last_locked_data_detail ";
-        ps = con.prepareStatement(sql);
-        rs = ps.executeQuery();
-        Map<String, Map<String, String>> locked_data_detail_map = new HashMap<>();
-        while (rs.next()) {
-          locked_data_detail_map.put(rs.getString(1),
-              JSON.parseObject(rs.getString(2), new TypeReference<Map<String, String>>() {}));
-        }
-        map.put("All_Locked_Data_Map", JSON.toJSONString(locked_data_detail_map));
-        loger.info("中途加载当天详细锁定数据,总局数：" + locked_data_detail_map.size());
-      } catch (Exception e) {
-        loger.error("中途加载当天详细锁定数据失败，原因" + e.getMessage());
-      }*/
-
-      // ======================================================
-      // //资金
-      // Map<String,String> zijinMap = _map.get("资金");
-      // //实时开销(可以实时金额那里拿)
-      // Map<String,String> presentPayoutMap = _map.get("实时开销");
-      // //时实金额
-      // Map<String,String> presentMoneyMap = _map.get("时实金额");
-      // loger.info(JSON.toJSONString(presentMoneyMap));
-      // //昨日利润
-      // Map<String,String> yesterdayProfitMap = _map.get("昨日利润");
-      // //联盟对帐
-      // Map<String,String> LMMap = _map.get("联盟对帐");
 
     } catch (SQLException e) {
       ErrorUtil.err("查找最新的锁定数据失败", e);
@@ -1647,6 +1595,11 @@ public class DBUtil {
    */
   public String getValueByKey(final String key) {
     String value = "{}";
+    value = getValueString(key, value);
+    return value;
+  }
+
+  private String getValueString(String key, String value) {
     try {
       con = DBConnection.getConnection();
       String sql = "select value from  others o where o.key = '" + key + "'";
@@ -1666,19 +1619,7 @@ public class DBUtil {
 
   public String getValueByKeyWithoutJson(final String key) {
     String value = "";
-    try {
-      con = DBConnection.getConnection();
-      String sql = "select value from  others o where o.key = '" + key + "'";
-      ps = con.prepareStatement(sql);
-      ResultSet rs = ps.executeQuery();
-      while (rs.next()) {
-        value = rs.getString(1);
-      }
-    } catch (SQLException e) {
-      ErrorUtil.err("根据key(" + key + ")获取others表记录失败", e);
-    } finally {
-      close(con, ps);
-    }
+    value = getValueString(key, value);
     return value;
   }
 
@@ -2667,45 +2608,6 @@ public class DBUtil {
   private final String GAME_RECORD_SQL =
       "select r.*, m.playerName, m.teamId, c.name from  game_record r left join members m on r.playerId = m.playerId left join club c on r.clubId = c.clubId ";
 
-  /**
-   * 插入记录 注意：批量插入有性能问题，需要后期优化 不插入团队ID, 玩家名称， 和俱乐部名称，需要时自动去关联查询
-   */
-  public void addGameRecord(final GameRecordModel record) throws Exception {
-    try {
-      con = DBConnection.getConnection();
-      String sql;
-      sql = "insert into game_record values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, record.getSoftTime());
-      ps.setString(2, record.getClubid());
-      ps.setString(3, record.getTableid());
-      ps.setString(4, record.getPlayerid());
-      ps.setString(5, record.getYszj());
-      ps.setString(6, record.getSingleinsurance());
-      ps.setString(7, record.getClubinsurance());
-      ps.setString(8, record.getCurrenttableinsurance());
-      ps.setString(9, record.getShishou());
-      ps.setString(10, record.getChuhuishui());
-      ps.setString(11, record.getShouhuishui());
-      ps.setString(12, record.getShuihouxian());
-      ps.setString(13, record.getHuibao());
-      ps.setString(14, record.getHelirun());
-      ps.setString(15, record.getLmtype());
-      ps.setString(16, record.getFinishedTime());
-      ps.setString(17, record.getIsjiesuaned());
-      ps.setString(18, record.getLevel());
-      ps.setString(19, record.getSumhandscount());
-      ps.setString(20, record.getIscleared());
-      ps.setString(21, record.getPlayerName()); // 2012-12-02 add
-      ps.setString(22, record.getImporttime()); // 2012-12-10 add
-      ps.setString(23, record.getJutype()); // 2012-12-10 add
-      ps.execute();
-    } catch (SQLException e) {
-      throw new Exception("添加战绩记录失败", e);
-    } finally {
-      close(con, ps);
-    }
-  }
 
   /**
    * 更改记录的已结算字段
@@ -2741,12 +2643,14 @@ public class DBUtil {
   public void addGameRecordList(final List<GameRecordModel> recordList) throws Exception {
     if (CollectUtil.isHaveValue(recordList)) {
       long start = System.currentTimeMillis();
+      List<GameRecord> entityData = new ArrayList<>();
       for (GameRecordModel record : recordList) {
         //addGameRecord(record);
         GameRecord entity = new GameRecord();
         BeanUtils.copyProperties(record, entity);
-        gameRecordDao.insert(entity);
+        entityData.add(entity);
       }
+      gameRecordService.save(entityData);
       long end = System.currentTimeMillis();
       loger.info("导入{}条白名单记录进数据库，耗时：{}毫秒", recordList.size(), (end - start));
     }
@@ -2775,63 +2679,7 @@ public class DBUtil {
     return maxRecordTime;
   }
 
-  /**
-   * 获取最新的战绩记录列表（单位：天）
-   *
-   * @time 2018年7月9日
-   */
-  public List<GameRecordModel> getGameRecordsByMaxTime(String maxRecordTime) {
-    List<GameRecordModel> list = new ArrayList<>();
-    try {
-      con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL + " where soft_time =  ?";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, maxRecordTime);
-      ResultSet rs = ps.executeQuery();
-      list = getGameRecordResult(rs);
-    } catch (Exception e) {
-      ErrorUtil.err("获取最新的战绩记录（单位：天）失败", e);
-    } finally {
-      close(con, ps);
-    }
-    return list;
-  }
 
-  private List<GameRecordModel> getGameRecordResult(ResultSet rs) throws Exception {
-    List<GameRecordModel> list = new ArrayList<>();
-    while (rs.next()) {
-      GameRecordModel record = new GameRecordModel();
-      record.setSoftTime(rs.getString(1));
-      record.setClubid(rs.getString(2));
-      record.setTableid(rs.getString(3));
-      record.setPlayerid(rs.getString(4));
-      record.setYszj(rs.getString(5));
-      record.setSingleinsurance(rs.getString(6));
-      record.setClubinsurance(rs.getString(7));
-      record.setCurrenttableinsurance(rs.getString(8));
-      record.setShishou(rs.getString(9));
-      record.setChuhuishui(rs.getString(10));
-      record.setShouhuishui(rs.getString(11));
-      record.setShuihouxian(rs.getString(12));
-      record.setHuibao(rs.getString(13));
-      record.setHelirun(rs.getString(14));
-      record.setLmtype(rs.getString(15));
-      record.setFinishedTime(rs.getString(16));
-      record.setIsjiesuaned(rs.getString(17));
-      record.setLevel(rs.getString(18));
-      record.setSumhandscount(rs.getString(19));
-      record.setIscleared(rs.getString(20));
-      // 每21列是原始名称，不做处理
-      // 单独设置团队ID和俱乐部名称
-      record.setImporttime(rs.getString(22));
-      record.setJutype(rs.getString(23));
-      record.setPlayerName(rs.getString(24));
-      record.setTeamId(StringUtil.nvl(rs.getString(25), "")); // 可能关联不到该人员
-      record.setClubName(rs.getString(26));
-      list.add(record);
-    }
-    return list;
-  }
 
   /**
    * 获取有效桌数统计
@@ -2857,73 +2705,6 @@ public class DBUtil {
     return map;
   }
 
-  /**
-   * 获取最新的战绩记录列表（单位：当天某俱乐部）
-   *
-   * @time 2018年7月9日
-   */
-  public List<GameRecordModel> getGameRecordsByMaxTimeAndClub(String maxRecordTime, String clubId) {
-    List<GameRecordModel> list = new ArrayList<>();
-    try {
-      con = DBConnection.getConnection();
-      String sql =
-          GAME_RECORD_SQL + " where r.soft_time =  ? and r.clubId = ? "; // and r.lmType='联盟1'
-      ps = con.prepareStatement(sql);
-      ps.setString(1, maxRecordTime);
-      ps.setString(2, clubId);
-      ResultSet rs = ps.executeQuery();
-      list = getGameRecordResult(rs);
-    } catch (Exception e) {
-      ErrorUtil.err("获取最新的战绩记录（单位：当天俱乐部）失败", e);
-    } finally {
-      close(con, ps);
-    }
-    return list;
-  }
-
-  /**
-   * TODO 关联部分未设值
-   *
-   * @time 2018年7月9日
-   */
-  public List<GameRecordModel> getGameRecordsByClubId(String clubId) {
-    List<GameRecordModel> list = new ArrayList<>();
-    try {
-      con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL + " where  r.clubId = ?";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, clubId);
-      ResultSet rs = ps.executeQuery();
-      list = getGameRecordResult(rs);
-    } catch (Exception e) {
-      ErrorUtil.err("获取最新的战绩记录（单位：当天俱乐部）失败", e);
-    } finally {
-      close(con, ps);
-    }
-    return list;
-  }
-
-
-  /**
-   * TODO 是否只获取当天的 获取最新的所有战绩记录列表（单位：天） 由于前面的会被删掉，帮只取最最后一天的数据
-   *
-   * @time 2017年11月25日
-   */
-  public List<GameRecordModel> getAllGameRecords() {
-    List<GameRecordModel> list = new ArrayList<>();
-    try {
-      con = DBConnection.getConnection();
-      String sql = GAME_RECORD_SQL + "where 1=1";
-      ps = con.prepareStatement(sql);
-      ResultSet rs = ps.executeQuery();
-      list = getGameRecordResult(rs);
-    } catch (Exception e) {
-      ErrorUtil.err("获取最新的战绩记录（单位：天）失败", e);
-    } finally {
-      close(con, ps);
-    }
-    return list;
-  }
 
   /**
    * 获取已锁定的战绩记录中最大的时间
@@ -3012,16 +2793,7 @@ public class DBUtil {
   public List<TotalInfo2> getStaticDetailRecords(String clubId, String teamId, String softTime) {
     List<TotalInfo2> finalList = new ArrayList<>();
     try {
-      List<GameRecordModel> list = new ArrayList<>();
-      con = DBConnection.getConnection();
-      String sql =
-          GAME_RECORD_SQL + " where  r.clubId = ? and m.teamId = ? and r.soft_time =  ? ";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, clubId);
-      ps.setString(2, teamId);
-      ps.setString(3, softTime);
-      ResultSet rs = ps.executeQuery();
-      list = getGameRecordResult(rs);
+      List<GameRecordModel> list = gameRecordService.getStaticDetailRecords(clubId, teamId, softTime);
       finalList = list.stream().map(r -> {
         TotalInfo2 info = new TotalInfo2();
         info.setTuan(r.getTeamId());
