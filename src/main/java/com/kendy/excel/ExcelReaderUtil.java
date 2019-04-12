@@ -1,5 +1,6 @@
 package com.kendy.excel;
 
+import com.kendy.db.entity.Player;
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
@@ -32,7 +33,6 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
 import com.kendy.entity.Huishui;
-import com.kendy.entity.Player;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.model.CombineID;
 import com.kendy.model.GameRecordModel;

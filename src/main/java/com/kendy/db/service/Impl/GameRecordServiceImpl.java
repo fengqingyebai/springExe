@@ -87,4 +87,6 @@ public class GameRecordServiceImpl extends GenericServiceImpl<GameRecordDao, Gam
   public int updatePersonalJieSuan(String playerId) {
     return getDao().updatePersonalJieSuan(playerId);
   }
+
+
 }

@@ -1,24 +1,23 @@
 package com.kendy.controller;
 
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
-import com.kendy.entity.Player;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.TgWaizhaiService;
@@ -32,9 +31,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -68,6 +64,8 @@ public class CombineIDController extends BaseController implements Initializable
   public MoneyService moneyService; // 配帐控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+  @Resource
+  PlayerService playerService;
 
   // =====================================================================合并ID对话框
   public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
@@ -176,9 +174,9 @@ public class CombineIDController extends BaseController implements Initializable
     Set<Player> set = new HashSet<>();
     if (StringUtil.isNotBlank(searchText)) {
       dataConstants.membersMap.forEach((mId, mPlayer) -> {
-        if (mPlayer.getPlayerName().contains(searchText)
-            || mPlayer.getPlayerName().toLowerCase().contains(searchText.trim().toLowerCase())
-            || mPlayer.getPlayerName().toUpperCase().contains(searchText.trim().toUpperCase())
+        if (mPlayer.getPlayername().contains(searchText)
+            || mPlayer.getPlayername().toLowerCase().contains(searchText.trim().toLowerCase())
+            || mPlayer.getPlayername().toUpperCase().contains(searchText.trim().toUpperCase())
             || StringUtils.contains(mId, searchText)
         ) {
           set.add(mPlayer);
@@ -189,7 +187,7 @@ public class CombineIDController extends BaseController implements Initializable
     leftPlayerListView.setItems(list);
     if (set.size() > 0) {
       set.forEach(play -> {
-        leftPlayerListView.getItems().add(play.getPlayerName() + " " + play.getgameId());
+        leftPlayerListView.getItems().add(play.getPlayername() + " " + play.getPlayerid());
       });
 
     }
@@ -241,7 +239,7 @@ public class CombineIDController extends BaseController implements Initializable
     for (String subId : subIdSet) {
       player = dataConstants.membersMap.get(subId);
       if (player != null) {
-        playerName = player.getPlayerName();
+        playerName = player.getPlayername();
         obList.add(playerName + " " + subId);
       } else {
         ShowUtil.show("匹配不到子ID信息，子ID为：" + subId);
@@ -300,10 +298,10 @@ public class CombineIDController extends BaseController implements Initializable
       }
       String parentId = getIdFromStr(parentIdStr);
       // add 合并前先判断父子ID是否在同一个团队
-      String teamId = dataConstants.membersMap.get(parentId).getTeamName();
+      String teamId = dataConstants.membersMap.get(parentId).getTeamid();
       for (String subIdStr : obSubIdlist) {
         String subId = getIdFromStr(subIdStr);
-        String _teamId = dataConstants.membersMap.get(subId).getTeamName();
+        String _teamId = dataConstants.membersMap.get(subId).getTeamid();
         if (!teamId.equalsIgnoreCase(_teamId)) {
           ShowUtil.show("合并失败：父子ID不在同一个团队中，请确认！");
           return;

@@ -1,5 +1,7 @@
 package com.kendy.service;
 
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import com.kendy.enums.MoneyCreatorEnum;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,7 +24,6 @@ import com.kendy.controller.BaseController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
-import com.kendy.entity.Player;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.WaizhaiInfo;
 import com.kendy.util.CollectUtil;
@@ -58,6 +60,8 @@ public class WaizhaiService {
   @Autowired
   public BaseController baseController;
 
+  @Resource
+  PlayerService playerService;
 
   public DecimalFormat df = new DecimalFormat("#.00");
 
@@ -327,10 +331,10 @@ public class WaizhaiService {
           }
           boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(pId);
           Player _player = dataConstants.membersMap.get(pId);// 1528833636
-          String teamID = _player.getTeamName();// 如ST,公司
+          String teamID = _player.getTeamid();// 如ST,公司
           // 将联合ID的金额设置到对应的团队里
           if (isSuperId) {
-            String playerName = dataConstants.membersMap.get(pId).getPlayerName();
+            String playerName = dataConstants.membersMap.get(pId).getPlayername();
             if ("公司".equals(teamID)) {
               final String _cmSuperIdSum = cmi.getCmSuperIdSum();
               cmi.setShishiJine(_cmSuperIdSum);
@@ -338,7 +342,7 @@ public class WaizhaiService {
 //                  pId, _cmSuperIdSum));
               continue;
             }
-            final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamName();
+            final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamid();
             Optional<CurrentMoneyInfo> teamInfoOpt =
                 eachList.stream().filter(info -> info.getMingzi().equals(_teamId)).findFirst();
             if (teamInfoOpt.isPresent()) {
@@ -360,8 +364,8 @@ public class WaizhaiService {
           }
           // 非公司团队，非父节点，累加进其所属的团队中
           else if (!"公司".equals(teamID)) {
-            String playerName = dataConstants.membersMap.get(pId).getPlayerName();
-            final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamName();
+            String playerName = dataConstants.membersMap.get(pId).getPlayername();
+            final String _teamId = "团队" + dataConstants.membersMap.get(pId).getTeamid();
             Optional<CurrentMoneyInfo> teamInfoOpt =
                 eachList.stream().filter(info -> info.getMingzi().equals(_teamId)).findFirst();
             if (teamInfoOpt.isPresent()) {
@@ -486,7 +490,7 @@ public class WaizhaiService {
   private String getPlayerName(String playerId) {
     String name = "";
     try {
-      name = dataConstants.membersMap.get(playerId).getPlayerName() + "[" + playerId + "]";
+      name = dataConstants.membersMap.get(playerId).getPlayername() + "[" + playerId + "]";
     } catch (Exception e) {
       log.error("找不到ID为" + playerId + "的人员名字！");
     }

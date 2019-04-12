@@ -8,8 +8,9 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBConnection;
 import com.kendy.db.DBUtil;
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.Huishui;
-import com.kendy.entity.Player;
 import com.kendy.enums.KeyEnum;
 import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.model.CombineID;
@@ -35,6 +36,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -80,6 +82,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -139,6 +142,9 @@ public class MyController extends BaseController implements Initializable {
   public JifenQueryController jifenQueryController; // 积分控制类
   @Autowired
   public ChangciController changciController;
+
+  @Resource
+  PlayerService playerService;
 
 
   private static Tooltip tooltip = null;
@@ -544,7 +550,8 @@ public class MyController extends BaseController implements Initializable {
             excelReaderUtil.readMembersRecord(new File(membersFilePath));
         dataConstants.membersMap.putAll(allPlayers);// 求并集,key相同的会被替换掉
         // 插入到数据库
-        dbUtil.insertMembers(allPlayers);
+        List<Player> players = (List<Player>) allPlayers.values();
+        playerService.save(players);
 
         ShowUtil.show("导入人员名单成功", 2);
         // 刷新相关缓存
@@ -1154,13 +1161,13 @@ public class MyController extends BaseController implements Initializable {
         dataConstants.huishuiMap.remove(teamId);
 
         // 清空数据库与缓存中属于该团队的人员记录
-        dbUtil.delMembers_after_delTeam(teamId);
+        playerService.deleteByTeamId(teamId);
         synchronized (dataConstants.membersMap) {
           Iterator<Map.Entry<String, Player>> ite = dataConstants.membersMap.entrySet().iterator();
           while (ite.hasNext()) {
             Map.Entry<String, Player> entry = ite.next();
             Player player = entry.getValue();
-            if (player.getTeamName().trim().toUpperCase().equals(teamId)) {
+            if (player.getTeamid().trim().toUpperCase().equals(teamId)) {
               ite.remove();// 删除
             }
           }

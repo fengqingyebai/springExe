@@ -1,6 +1,8 @@
 package com.kendy.service;
 
 import com.kendy.controller.ChangciController;
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,7 +28,6 @@ import com.kendy.controller.SMController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
-import com.kendy.entity.Player;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.ShangmaInfo;
 import com.kendy.entity.ShangmaNextday;
@@ -80,6 +82,9 @@ public class ShangmaService {
 
   @Autowired
   ChangciController changciController;
+  
+  @Resource
+  PlayerService playerService;
 
   public TableView<ShangmaInfo> tableSM;
   public TableView<ShangmaDetailInfo> tableSMD;
@@ -243,7 +248,7 @@ public class ShangmaService {
       String teamId = "";
       for (Map.Entry<String, Player> entry : memberMap.entrySet()) {
         Player wanjia = entry.getValue();
-        teamId = wanjia.getTeamName();
+        teamId = wanjia.getTeamid();
         if (!StringUtil.isBlank(teamId)) {
           list = teamWanjiaMap.get(teamId);
           list = list == null ? new ArrayList<>() : list;
@@ -276,7 +281,7 @@ public class ShangmaService {
           CurrentMoneyInfo cmiInfo = cmiMap.get(playerId);
           if (cmiInfo == null) {
             Player player = dataConstants.membersMap.get(playerId);
-            playerName = player.getPlayerName();
+            playerName = player.getPlayername();
             edu = player.getEdu();
             yicunJifen = "";// 最关键的区别
 
@@ -577,8 +582,8 @@ public class ShangmaService {
       return;
     }
     // 2从人员信息中获取团队ID
-    String playerId = player.getgameId();
-    String teamId = player.getTeamName();
+    String playerId = player.getPlayerid();
+    String teamId = player.getTeamid();
     // 3加载数据
     setTeamAvailabe(teamId);// 勾选团队
     shangmaTeamId.setText(teamId);
@@ -614,11 +619,12 @@ public class ShangmaService {
 
       for (Map.Entry<String, Player> entry : tempMap.entrySet()) {
         p = entry.getValue();
-        if (!StringUtil.isBlank(p.getPlayerName()) && (p.getPlayerName().contains(searchText)
-            || p.getPlayerName().toLowerCase().contains(searchText.toLowerCase())
-            || p.getPlayerName().toUpperCase().contains(searchText.toUpperCase())
+        String playername = p.getPlayername();
+        if (!StringUtil.isBlank(playername) && (playername.contains(searchText)
+            || playername.toLowerCase().contains(searchText.toLowerCase())
+            || playername.toUpperCase().contains(searchText.toUpperCase())
 
-            || p.getgameId().contains(searchText))) {
+            || p.getPlayerid().contains(searchText))) {
           idList.add(entry.getKey());
         }
       }
@@ -658,7 +664,7 @@ public class ShangmaService {
     List<ShangmaDetailInfo> list = detailMap.get(playerId);
     if (list == null) {
       list = new ArrayList<>();
-      String playerName = dataConstants.membersMap.get(playerId).getPlayerName();
+      String playerName = dataConstants.membersMap.get(playerId).getPlayername();
       if (StringUtil.isBlank(playerName)) {
         ShowUtil.show("ID:" + playerId + "找不到对应的玩家名称", 1);
       }
@@ -681,7 +687,7 @@ public class ShangmaService {
     List<ShangmaDetailInfo> list = detailMap.get(playerId);
     if (list == null) {
       list = new ArrayList<>();
-      String playerName = dataConstants.membersMap.get(playerId).getPlayerName();
+      String playerName = dataConstants.membersMap.get(playerId).getPlayername();
       if (StringUtil.isBlank(playerName)) {
         ShowUtil.show("ID:" + playerId + "找不到对应的玩家名称", 1);
       }
@@ -1012,7 +1018,7 @@ public class ShangmaService {
               // 设置实收
               sdi.setShangmaShishou(info.getZhangji());
               // add2017-09-24 加载主表
-              loadShangmaTable(dataConstants.membersMap.get(playerId).getTeamName(), tableSM);
+              loadShangmaTable(dataConstants.membersMap.get(playerId).getTeamid(), tableSM);
               break;
             }
           }
@@ -1403,7 +1409,7 @@ public class ShangmaService {
           CurrentMoneyInfo cmiInfo = cmiMap.get(playerId);
           if (cmiInfo == null) {
             Player player = dataConstants.membersMap.get(playerId);
-            playerName = player.getPlayerName();
+            playerName = player.getPlayername();
             edu = player.getEdu();
             yicunJifen = "";// 最关键的区别
 

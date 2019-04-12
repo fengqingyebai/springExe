@@ -1,6 +1,8 @@
 package com.kendy.controller;
 
+import com.kendy.db.entity.Player;
 import com.kendy.db.service.CurrentMoneyService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.enums.ExcelAutoDownType;
 import com.kendy.model.CoinBuyerRusult;
@@ -45,7 +47,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
-import com.kendy.entity.Player;
 import com.kendy.entity.SMAutoInfo;
 import com.kendy.entity.ShangmaInfo;
 import com.kendy.enums.KeyEnum;
@@ -131,6 +132,9 @@ public class SMAutoController extends BaseController implements Initializable {
 
   @Resource
   CurrentMoneyService currentMoneyService;
+  
+  @Resource
+  PlayerService playerService;
 
   @FXML
   public TextField smNextDayRangeFieldd; // 次日上码配置
@@ -689,10 +693,10 @@ public class SMAutoController extends BaseController implements Initializable {
     String edu = cmi.getCmiEdu();
     if (checkPass(ssje, edu, buyStack)) {
       return new RangeResult(true, "", cmi.getWanjiaId(),
-          player.getPlayerName(), player.getgameId(), buyStack, ssje, edu, cmi);
+          player.getPlayername(), player.getTeamid(), buyStack, ssje, edu, cmi);
     }
     return new RangeResult(false,  "拦截不足币", cmi.getWanjiaId(),
-        player.getPlayerName(), player.getgameId(), buyStack, ssje, edu, null);
+        player.getPlayername(), player.getTeamid(), buyStack, ssje, edu, null);
   }
 
 
@@ -705,8 +709,8 @@ public class SMAutoController extends BaseController implements Initializable {
   private RangeResult checkInRangeWithConbineRalation(String parentId, Player player, CurrentMoneyInfo currentCmi, String buyStack) {
     CurrentMoneyInfo parentCmi = moneyService.getInfoById(parentId);
     if (parentCmi == null) {
-      return new RangeResult(false, "父ID不存在", player.getgameId(),
-          player.getPlayerName(), "-", buyStack, "-", "-", null);
+      return new RangeResult(false, "父ID不存在", player.getPlayerid(),
+          player.getPlayername(), "-", buyStack, "-", "-", null);
     }
     List<CurrentMoneyInfo> cmiList = new ArrayList<>();
     cmiList.add(parentCmi);
@@ -725,11 +729,11 @@ public class SMAutoController extends BaseController implements Initializable {
       }
     }
     if (checkPass(ssje + "", edu + "", buyStack)) {
-      return new RangeResult(true, "", player.getgameId(),
-          player.getPlayerName(), player.getgameId(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), currentCmi);
+      return new RangeResult(true, "", player.getPlayerid(),
+          player.getPlayername(), player.getTeamid(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), currentCmi);
     }
-    return new RangeResult(false, "拦截不足币", player.getgameId(),
-        player.getPlayerName(), player.getgameId(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), null);
+    return new RangeResult(false, "拦截不足币", player.getPlayerid(),
+        player.getPlayername(), player.getTeamid(), buyStack, NumUtil.digit0(ssje), NumUtil.digit0(edu), null);
 
   }
 

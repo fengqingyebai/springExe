@@ -1,6 +1,8 @@
 package com.kendy.constant;
 
+import com.kendy.db.entity.Player;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.db.service.PlayerService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +25,6 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
-import com.kendy.entity.Player;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.UserInfos;
@@ -49,6 +50,9 @@ public class DataConstans {
 
   @Resource
   GameRecordService gameRecordService;
+
+  @Resource
+  PlayerService playerService;
 
 
 //  public static Map<String, String> permissions = new HashMap<>();
@@ -303,10 +307,10 @@ public class DataConstans {
 
     try {
       // 初始化人员数据
-      List<Player> memberList = dbUtil.getAllMembers();
+      List<Player> memberList = playerService.getAll();
       membersMap = new HashMap<>();
       memberList.forEach(player -> {
-        membersMap.put(player.getgameId(), player);
+        membersMap.put(player.getPlayerid(), player);
       });
 
       // 初始化团队回水
@@ -550,7 +554,7 @@ public class DataConstans {
       String playerName = "";
       for (Map.Entry<String, Player> entry : memberMap.entrySet()) {
         Player wanjia = entry.getValue();
-        playerName = wanjia.getPlayerName();
+        playerName = wanjia.getPlayername();
         if (!StringUtil.isBlank(playerName) && playerName.equals(name)) {
           return entry.getKey();// playerId
         }

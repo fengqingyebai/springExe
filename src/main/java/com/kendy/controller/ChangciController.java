@@ -12,12 +12,12 @@ import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
-import com.kendy.db.dao.GameRecordDao;
 import com.kendy.db.entity.CurrentMoney;
+import com.kendy.db.entity.Player;
 import com.kendy.db.entity.pk.CurrentMoneyPK;
-import com.kendy.db.entity.pk.GameRecordPK;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -25,7 +25,6 @@ import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.PersonalInfo;
 import com.kendy.entity.PingzhangInfo;
-import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
@@ -156,6 +155,8 @@ public class ChangciController extends BaseController implements Initializable {
   private GameRecordService gameRecordService;
   @Resource
   private CurrentMoneyService currentMoneyService;
+  @Resource
+  PlayerService playerService;
 
   // =================================================第一个tableView
   @FXML
@@ -526,8 +527,8 @@ public class ChangciController extends BaseController implements Initializable {
                 setGraphic(null);
                 setText(null);
               } else {
+                PersonalInfo personalInfo = getTableView().getItems().get(getIndex());
                 btn.setOnAction(event -> {
-                  PersonalInfo personalInfo = getTableView().getItems().get(getIndex());
                   if (StringUtils.equals(Constants.PERSONAL_OF_JIE_SUANED, personalInfo.getHasJiesuaned())) {
                     ShowUtil.show("抱歉，已支付过！！");
                     return;
@@ -538,6 +539,11 @@ public class ChangciController extends BaseController implements Initializable {
                       moneyService.updateOrAdd_SSJE_after_personal_Pay(personalInfo);
                       // 更新
                       gameRecordService.updatePersonalJieSuan(personalInfo.getPersonalPlayerId());
+
+                      personalInfo.setHasJiesuaned("1");
+                      personalInfo.setPersonalSumHB("0");
+                      personalInfo.setPersonalSumHS("0");
+                      tablePersonal.refresh();
 
                       btn.setText("已支付");
                       personalInfo.setHasJiesuaned(Constants.PERSONAL_OF_JIE_SUANED);
@@ -551,9 +557,9 @@ public class ChangciController extends BaseController implements Initializable {
                     }
                   }
                 });
-                PersonalInfo wj = getTableView().getItems().get(getIndex());
+                //PersonalInfo wj = getTableView().getItems().get(getIndex());
                 // 解决不时本应支付确显示成已支付的bug
-                if (StringUtils.equals(Constants.PERSONAL_OF_UN_JIE_SUAN, wj.getHasJiesuaned())) {
+                if (StringUtils.equals(Constants.PERSONAL_OF_UN_JIE_SUAN, personalInfo.getHasJiesuaned())) {
                   btn.setText("支付");
                 } else {
                   btn.setText("已支付");
@@ -1007,7 +1013,8 @@ public class ChangciController extends BaseController implements Initializable {
     // 获取ObserableList
     ObservableList<CurrentMoneyInfo> list = tableCurrentMoneyInfo.getItems();
     list.add(
-        new CurrentMoneyInfo(player.getPlayerName(), SSJE, player.getgameId(), player.getEdu(),
+        new CurrentMoneyInfo(
+            player.getPlayername(), SSJE, player.getPlayerid(), player.getEdu(),
             MoneyCreatorEnum.DEFAULT.getCreatorName(), ""));
     tableCurrentMoneyInfo.setItems(list);
   }

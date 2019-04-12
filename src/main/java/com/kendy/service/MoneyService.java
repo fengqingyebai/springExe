@@ -11,10 +11,12 @@ import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
 import com.kendy.db.entity.CurrentMoney;
+import com.kendy.db.entity.Player;
 import com.kendy.db.entity.pk.CurrentMoneyPK;
 import com.kendy.db.entity.GameRecord;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
@@ -23,7 +25,6 @@ import com.kendy.entity.KaixiaoInfo;
 import com.kendy.entity.KeyValue;
 import com.kendy.entity.PersonalInfo;
 import com.kendy.entity.PingzhangInfo;
-import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TotalInfo;
@@ -79,6 +80,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
@@ -121,6 +123,9 @@ public class MoneyService extends BasicService {
 
   @Resource
   CurrentMoneyService currentMoneyService;
+
+  @Resource
+  PlayerService playerService;
 
 
   // {玩家ID=CurrentMoneyInfo}
@@ -281,7 +286,7 @@ public class MoneyService extends BasicService {
         sumOfHB += NumUtil.getNum(entity.getPersonalHuibao());
       }
       PersonalInfo info = new PersonalInfo(playerId,
-          dataConstants.membersMap.get(playerId).getPlayerName(),
+          dataConstants.membersMap.get(playerId).getPlayername(),
           NumUtil.digit0(sumOfZJ),
           NumUtil.digit2(sumOfHS + ""),
           NumUtil.digit2(sumOfHB + ""),
@@ -294,7 +299,7 @@ public class MoneyService extends BasicService {
     tablePersonal.refresh();
 
     // 缓存总和
-    dataConstants.SumMap.put("个人累计回水回保总和", getPersonHsHbSum());
+    //dataConstants.SumMap.put("个人累计回水回保总和", getPersonHsHbSum());
   }
 
   private double getPersonHsHbSum() {
@@ -501,15 +506,15 @@ public class MoneyService extends BasicService {
     Player player = dataConstants.membersMap.get(playerId);
     String teamId = "";
     if (player != null) {
-      teamId = player.getTeamName();
+      teamId = player.getTeamid();
       teamId = StringUtil.isBlank(teamId) ? "" : teamId.toUpperCase();
     }
     // add 2017-10-26
     else {
-      Player tempPlayer = dbUtil.getMemberById(playerId);
-      if (tempPlayer != null && !StringUtil.isBlank(tempPlayer.getTeamName())) {
+      Player tempPlayer = playerService.get(playerId);
+      if (tempPlayer != null && !StringUtil.isBlank(tempPlayer.getTeamid())) {
         dataConstants.membersMap.put(playerId, tempPlayer);
-        teamId = tempPlayer.getTeamName();
+        teamId = tempPlayer.getTeamid();
         teamId = StringUtil.isBlank(teamId) ? "" : teamId.toUpperCase();
       }
     }
@@ -590,7 +595,9 @@ public class MoneyService extends BasicService {
     relatedTeamIdSet = dataConstants.Team_Huishui_Map.keySet();// 这是后期增加：查看所有团队
     for (String relatedTeamId : relatedTeamIdSet) {
 
-      if (!StringUtils.equals(Constants.COMPANY, relatedTeamId)) { // 非公司
+      // 非公司
+      boolean noCompanyTeam = !StringUtils.equals(Constants.COMPANY, relatedTeamId);
+      if (noCompanyTeam) {
         double sumOfZJ = 0.0;
         double sumOfHS = 0.0;
         double sumOfHB = 0.0;
@@ -598,9 +605,13 @@ public class MoneyService extends BasicService {
             .getOrDefault(relatedTeamId, new ArrayList<>());
         //只获取未结算的数据
         teamLS = teamLS.stream()
-            .filter(e -> // StringUtils.equals(Constants.TEAM_OF_HSHB, e.getHshbType()) &&
+            .filter(e -> StringUtils.equals(Constants.TEAM_OF_HSHB, e.getHshbType()) &&
                 StringUtils.equals(Constants.TEAM_OF_UN_JIE_SUAN, e.getIsjiesuaned())) // 新增条件
             .collect(Collectors.toList());
+        // add 2019-04-12 过滤掉有个人回水的
+        if (CollectionUtils.isEmpty(teamLS)) {
+          continue;
+        }
         for (GameRecordModel info : teamLS) {
           sumOfZJ += NumUtil.getNum(info.getShishou());
           sumOfHS += Math.abs(NumUtil.getNum(info.getChuhuishui()));
@@ -804,12 +815,12 @@ public class MoneyService extends BasicService {
       }
       Player player = dataConstants.membersMap.get(playerId);// add 现在根据玩家去匹配
       CurrentMoneyInfo cmi;
-      if (player == null || StringUtil.isBlank(player.getgameId())) {
+      if (player == null || StringUtil.isBlank(player.getPlayerid())) {
         // 实时金额中的人名找不到对应的玩家ID
         cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "",
             MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
       } else {
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getgameId(), player.getEdu(),
+        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getPlayerid(), player.getEdu(),
             MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
       }
       observableList1.add(cmi);
@@ -1165,9 +1176,11 @@ public class MoneyService extends BasicService {
     } catch (Exception e) {
       _LMVal = 0d;
     }
+    // 获取个人累计回水回保
+    double personHsHbSum = getPersonHsHbSum();
     list.add(new PingzhangInfo("外债+利润+团队回水+联盟对帐+个人回水",
         digit0(sumOfProfit + sumOfCurrentMoney + getSumMapValue("团队回水及保险总和") + _LMVal
-            + getSumMapValue("个人累计回水回保总和") + "")));// Double.valueOf(LMVal.getText())
+            + personHsHbSum + "")));// Double.valueOf(LMVal.getText())
     list.add(new PingzhangInfo("资金", digit0(sumOfZijin + "")));
     table.setItems(list);
   }
@@ -2045,11 +2058,11 @@ public class MoneyService extends BasicService {
       player = entry.getValue();
       objs = new Object[rowsName.length];
       objs[0] = pId;
-      objs[1] = player.getPlayerName();
+      objs[1] = player.getPlayername();
       objs[2] = player.getGudong();
-      objs[3] = player.getTeamName();
+      objs[3] = player.getTeamid();
       objs[4] = player.getEdu();
-      objs[5] = player.getIsParent();
+      objs[5] = player.getIsparent();
       objs[6] = player.getHuibao();
       objs[7] = player.getHuishui();
       dataList.add(objs);

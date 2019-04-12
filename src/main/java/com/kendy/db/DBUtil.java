@@ -4,9 +4,9 @@ package com.kendy.db;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
-import com.kendy.db.dao.GameRecordDao;
 import com.kendy.db.entity.GameRecord;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankModel;
 import com.kendy.entity.ClubStaticInfo;
@@ -14,7 +14,6 @@ import com.kendy.entity.ClubZhuofei;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JifenInfo;
 import com.kendy.entity.KaixiaoInfo;
-import com.kendy.entity.Player;
 import com.kendy.entity.ShangmaNextday;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
@@ -59,7 +58,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 
@@ -72,10 +70,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class DBUtil {
 
+  private Logger loger = LoggerFactory.getLogger(DBUtil.class);
+
   @Resource
   private GameRecordService gameRecordService;
 
-  private Logger loger = LoggerFactory.getLogger(DBUtil.class);
+  @Resource
+  private PlayerService playerService;
+
 
   private Connection con = null;
   private PreparedStatement ps = null;
@@ -135,43 +137,6 @@ public class DBUtil {
 
 
 
-  // 删除一条人员名单---未测试
-  public void delMember(final String playerId) {
-    try {
-      con = DBConnection.getConnection();
-      String sql;
-      if (!StringUtil.isBlank(playerId)) {
-        sql = "delete from members where playerId = '" + playerId + "'";
-        ps = con.prepareStatement(sql);
-        ps.execute();
-      }
-    } catch (SQLException e) {
-      ErrorUtil.err("根据ID(" + playerId + ")删除人员失败", e);
-    } finally {
-      close(con, ps);
-    }
-  }
-
-  /**
-   * 删除团队时顺带删除所有该团队的人
-   *
-   * @time 2017年11月14日
-   */
-  public void delMembers_after_delTeam(final String teamId) {
-    try {
-      con = DBConnection.getConnection();
-      String sql;
-      if (!StringUtil.isBlank(teamId)) {
-        sql = "delete from members where teamId = '" + teamId.toUpperCase() + "'";
-        ps = con.prepareStatement(sql);
-        ps.execute();
-      }
-    } catch (SQLException e) {
-      ErrorUtil.err(teamId + ",删除此团队时顺带删除所有该团队的人失败", e);
-    } finally {
-      close(con, ps);
-    }
-  }
 
   // 删除一条团队
   public void delHuishui(final String teamId) {
@@ -191,187 +156,7 @@ public class DBUtil {
   }
 
 
-  // 插入一条人员名单---未测试
-  public void addMember(final Player player) {
-    try {
-      con = DBConnection.getConnection();
-      String sql;
-      sql = "insert into members values(?,?,?,?,?,?,?,?)";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, player.getgameId());
-      ps.setString(2, player.getPlayerName());
-      ps.setString(3, player.getGudong());
-      ps.setString(4, player.getTeamName());
-      ps.setString(5, player.getEdu());
-      ps.setString(6, "0");
-      ps.setString(7, player.getHuibao());
-      ps.setString(8, player.getHuishui());
-      ps.execute();
-    } catch (SQLException e) {
-      ErrorUtil.err(player.toString() + ",插入一条人员名单失败", e);
-    } finally {
-      close(con, ps);
-    }
-  }
 
-  /**
-   * 根据玩家ID查询玩家信息
-   *
-   * @time 2017年10月26日
-   */
-  public Player getMemberById(String playerId) {
-    Player player = new Player();
-    if (StringUtil.isBlank(playerId)) {
-      return player;
-    }
-    try {
-      con = DBConnection.getConnection();
-      String sql;
-      sql =
-          "select m.playerId,m.playerName,m.teamId,m.gudong,m.edu,m.isParent from members m where playerId = ? ";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, playerId);
-      ResultSet rs = ps.executeQuery();
-      while (rs.next()) {
-        player.setGameId(playerId);
-        player.setPlayerName(rs.getString(2));
-        player.setTeamName(rs.getString(3));
-        player.setGudong(rs.getString(4));
-        player.setEdu(rs.getString(5));
-        break;
-      }
-      loger.error("玩家ID(" + playerId + ")不存在！");
-      return player;
-    } catch (SQLException e) {
-      ErrorUtil.err("根据玩家ID查询玩家信息失败", e);
-      return player;
-    } finally {
-      close(con, ps);
-    }
-  }
-
-  /**
-   * 保存或者修改玩家信息
-   *
-   * @param player 玩家信息
-   * @time 2017年10月31日
-   */
-  public void saveOrUpdate(final Player player) {
-
-    if (isHasMember(player.getgameId())) {
-      updateMember(player);
-    } else {
-      addMember(player);
-    }
-  }
-
-
-  /**
-   * 玩家是否存在
-   *
-   * @param playerId 玩家ID
-   * @time 2017年10月31日
-   */
-  public boolean isHasMember(String playerId) {
-    boolean hasMember = false;
-    try {
-      // 获取数据
-      con = DBConnection.getConnection();
-      String sql = "select count(*) from members  where playerName = ?";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, playerId);
-      ResultSet rs = ps.executeQuery();
-      while (rs.next()) {
-        if (rs.getInt(1) == 1) {
-          hasMember = true;
-          break;
-        }
-      }
-    } catch (Exception e) {
-
-    } finally {
-      close(con, ps);
-    }
-    return hasMember;
-  }
-
-  // 修改人员名单---未测试
-  public void updateMember(final Player player) {
-    try {
-      con = DBConnection.getConnection();
-      String sql;
-      sql = "update members set playerName=?,gudong=?,teamId=?,edu=? where playerId =?";
-      ps = con.prepareStatement(sql);
-      ps.setString(1, player.getPlayerName());
-      ps.setString(2, player.getGudong());
-      ps.setString(3, player.getTeamName());
-      ps.setString(4, player.getEdu());
-      ps.setString(5, player.getgameId());
-      // ps.setString(6, "0");//是否是父类
-      ps.executeUpdate();
-      loger.info("================修改人员...finishes");
-    } catch (SQLException e) {
-      ErrorUtil.err("修改人员名单失败", e);
-    } finally {
-      close(con, ps);
-    }
-  }
-
-
-  /**
-   * 导入人员名单
-   *
-   * @time 2017年11月19日
-   */
-  public void insertMembers(final Map<String, Player> map) {
-    if (map != null && map.size() > 0) {
-      String incorrectPlayerName = "";
-      long start = System.currentTimeMillis();
-      try {
-        con = DBConnection.getConnection();
-        String sql;
-        if (map != null && map.size() > 0) {
-          sql = "delete from members";
-          ps = con.prepareStatement(sql);
-          ps.execute();
-        }
-
-        Player player;
-        sql = "insert into members values(?,?,?,?,?,?,?,?)";
-        ps = con.prepareStatement(sql);
-        int count = 0;
-        con.setAutoCommit(false);
-        for (Map.Entry<String, Player> entry : map.entrySet()) {
-          player = entry.getValue();
-          incorrectPlayerName = player.getPlayerName();
-          ps.setString(1, player.getgameId());
-          ps.setString(2, player.getPlayerName());
-          ps.setString(3, player.getGudong());
-          ps.setString(4, player.getTeamName());
-          ps.setString(5, player.getEdu());
-          ps.setString(6, "0");
-          ps.setString(7, player.getHuibao());
-          ps.setString(8, player.getHuishui());
-          ps.addBatch();
-          // ps.execute();//批量插入应该用ps.executeBatch()
-          if ((++count) % map.size() == 0) { // 每500条刷新并写入数据库
-            ps.executeBatch();
-            con.commit();
-            // 清空stmt中积攒的sql
-            ps.clearBatch();
-          }
-        }
-        ps.executeBatch();
-        ps.clearBatch();
-        long end = System.currentTimeMillis();
-        loger.info("导入人员名单完成，耗时：" + (end - start) + "毫秒");
-      } catch (SQLException e) {
-        ErrorUtil.err(incorrectPlayerName + "=导入人员名单进数据库失败", e);
-      } finally {
-        close(con, ps);
-      }
-    }
-  }
 
   // 导入昨日留底数据（仅在导入和锁定最后一场时用到）
   public void insertPreData(String dataTime, String preData) {
@@ -847,37 +632,6 @@ public class DBUtil {
     return tail;
   }
 
-
-  /**
-   * 获取所有的人员名单
-   */
-  public List<Player> getAllMembers() {
-    List<Player> result = new ArrayList<Player>();
-    try {
-      con = DBConnection.getConnection();
-      String sql = "select * from members";
-      ps = con.prepareStatement(sql);
-      ResultSet rs = ps.executeQuery();
-      Player p;
-      while (rs.next()) {
-        p = new Player();
-        p.setGameId(rs.getString(1));
-        p.setPlayerName(rs.getString(2));
-        p.setGudong(rs.getString(3));
-        p.setTeamName(rs.getString(4));
-        p.setEdu(rs.getString(5));
-        p.setIsParent(rs.getString(6));
-        p.setHuibao(rs.getString(7));
-        p.setHuishui(rs.getString(8));
-        result.add(p);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    } finally {
-      close(con, ps);
-    }
-    return result;
-  }
 
 
   /**

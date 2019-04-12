@@ -1,6 +1,8 @@
 package com.kendy.controller;
 
+import com.kendy.db.entity.Player;
 import com.kendy.db.service.CurrentMoneyService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.enums.MoneyCreatorEnum;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -10,8 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
@@ -19,7 +19,6 @@ import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.KaixiaoInfo;
-import com.kendy.entity.Player;
 import com.kendy.service.JifenService;
 import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
@@ -76,6 +75,9 @@ public class AddController extends BaseController implements Initializable {
 
   @Resource
   CurrentMoneyService currentMoneyService;
+
+  @Resource
+  PlayerService playerService;
 
   // =====================================================================新增团队回水对话框
   @FXML
@@ -203,18 +205,19 @@ public class AddController extends BaseController implements Initializable {
   public void addNewPlayerOKAction(ActionEvent event) {
 
     Player player = new Player();
-    player.setGameId(StringUtils.defaultString(gameIdField.getText()).trim());
+    player.setPlayerid(StringUtils.defaultString(gameIdField.getText()).trim());
     player.setGudong(StringUtils.defaultString(gudongField.getText()).trim());
-    player.setTeamName(StringUtils.defaultString(teamField.getText()).trim());
-    player.setPlayerName(StringUtils.defaultString(playerNameField.getText()).trim());
+    player.setTeamid(StringUtils.defaultString(teamField.getText()).trim());
+    player.setPlayername(StringUtils.defaultString(playerNameField.getText()).trim());
     player.setEdu(StringUtils.defaultString(beizhuField.getText()).trim());
     player.setHuibao(StringUtils.defaultString(huibaoField.getText()).trim());
     player.setHuishui(StringUtils.defaultString(huishuiField.getText()).trim());
-    if (!StringUtil.isBlank(player.getgameId()) && !StringUtil.isBlank(player.getTeamName())) {
-      dataConstants.membersMap.put(player.getgameId(), player);
+    player.setIsparent("0");
+    if (!StringUtil.isBlank(player.getPlayerid()) && !StringUtil.isBlank(player.getTeamid())) {
+      dataConstants.membersMap.put(player.getTeamid(), player);
       dataConstants.refresh_SM_Detail_Map();
       // dataConstants.refreshTeamIdAndPlayerId();
-      dbUtil.addMember(player);
+      playerService.saveOrUpdate(player.getPlayerid(), player);
       log.info("新增玩家信息:" + player);
       ShowUtil.show("已经添加该人员", 2);
     }
@@ -311,8 +314,8 @@ public class AddController extends BaseController implements Initializable {
       }
     }
     // 添加实时金额
-    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(player.getPlayerName(), cmMoney.getText(),
-        player.getgameId(), player.getEdu(), MoneyCreatorEnum.USER.getCreatorName(), "0");
+    CurrentMoneyInfo tempMoneyInfo = new CurrentMoneyInfo(player.getPlayername(), cmMoney.getText(),
+        player.getPlayerid(), player.getEdu(), MoneyCreatorEnum.USER.getCreatorName(), "0");
 
     // 保存到数据库
     moneyService.saveOrUpdate2DB(tempMoneyInfo);
@@ -321,7 +324,7 @@ public class AddController extends BaseController implements Initializable {
     moneyService.flush_SSJE_table();
     moneyService.scrolById(playerId);
     logger.info("手动修改实时金额数据记录(新增人员)：名称：{}，ID:{}, 金额：{}"
-        , player.getPlayerName(),player.getgameId(), cmMoney.getText() );
+        , player.getPlayername(), player.getPlayerid(), cmMoney.getText() );
 
     // 获取到新增人员窗口的实例
     Stage addNewPlayerStage = dataConstants.framesNameMap.get(Constants.ADD_CURRENT_MONEY_FRAME);

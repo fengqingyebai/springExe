@@ -1,5 +1,7 @@
 package com.kendy.service;
 
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +22,6 @@ import com.kendy.controller.BaseController;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
-import com.kendy.entity.Player;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TeamInfo;
 import com.kendy.entity.TypeValueInfo;
@@ -58,6 +60,9 @@ public class TgWaizhaiService {
   public BaseController baseController;
   @Autowired
   MoneyService moneyService;
+
+  @Resource
+  PlayerService playerService;
 
 
   private final String UNKNOW_TG_TEAM = "未知托管团队";
@@ -223,10 +228,10 @@ public class TgWaizhaiService {
       if (!StringUtil.isAnyBlank(infos.getWanjiaId(), infos.getMingzi())) {
         String playerId = infos.getWanjiaId();
         Player player = dataConstants.membersMap.get(playerId);
-        if (player == null || StringUtil.isBlank(player.getTeamName())
-            || !tgTeamIdSet.contains(player.getTeamName().toUpperCase())) {
+        if (player == null || StringUtil.isBlank(player.getTeamid())
+            || !tgTeamIdSet.contains(player.getTeamid().toUpperCase())) {
           continue;
-        } else if (tgTeamIdSet.contains(player.getTeamName().toUpperCase())) {
+        } else if (tgTeamIdSet.contains(player.getTeamid().toUpperCase())) {
           SSJE_obList.add(moneyService.copyCurrentMoneyInfo(infos)); // 深层克隆
         }
       }
@@ -252,7 +257,7 @@ public class TgWaizhaiService {
           if (p == null) {
             return UNKNOW_TG_TEAM;
           } else {
-            return p.getTeamName();
+            return p.getTeamid();
           }
         }));
 
@@ -312,7 +317,7 @@ public class TgWaizhaiService {
             log.error("玩家" + cmi.getWanjiaId() + ",找不到！");
             return UNKNOW_TG_TEAM;
           }
-          return p.getTeamName();
+          return p.getTeamid();
         }));
 
     return finalList;

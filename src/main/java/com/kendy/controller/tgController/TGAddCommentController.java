@@ -1,5 +1,7 @@
 package com.kendy.controller.tgController;
 
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,33 +11,17 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
-import com.kendy.controller.BankFlowController;
 import com.kendy.controller.BaseController;
-import com.kendy.controller.GDController;
-import com.kendy.controller.LMController;
 import com.kendy.controller.MyController;
-import com.kendy.controller.QuotaController;
-import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
-import com.kendy.entity.Player;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
-import com.kendy.service.AutoDownloadZJExcelService;
-import com.kendy.service.JifenService;
-import com.kendy.service.MemberService;
-import com.kendy.service.MoneyService;
-import com.kendy.service.ShangmaService;
-import com.kendy.service.TGExportExcelService;
-import com.kendy.service.TeamProxyService;
-import com.kendy.service.TgWaizhaiService;
-import com.kendy.service.WaizhaiService;
-import com.kendy.service.ZonghuiService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.ShowUtil;
@@ -67,6 +53,9 @@ public class TGAddCommentController extends BaseController implements Initializa
   public TGController tgController; // 托管控制类
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+  
+  @Resource
+  PlayerService playerService;
 
 
   @FXML
@@ -145,8 +134,8 @@ public class TGAddCommentController extends BaseController implements Initializa
     searchField.textProperty().addListener(event -> {
       String text = searchField.getText();
       List<String> playerNames = players.parallelStream()
-          .filter(info -> info.getPlayerName().contains(text))
-          .map(info -> info.getPlayerName() + "##" + info.getgameId()).collect(Collectors.toList());
+          .filter(info -> info.getPlayername().contains(text))
+          .map(info -> info.getPlayername() + "##" + info.getPlayerid()).collect(Collectors.toList());
       playersView.setItems(FXCollections.observableArrayList(playerNames));
     });
   }

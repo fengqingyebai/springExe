@@ -1,10 +1,13 @@
 package com.kendy.controller;
 
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import com.kendy.util.NumUtil;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,7 +15,6 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.CurrentMoneyInfo;
-import com.kendy.entity.Player;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.WaizhaiService;
@@ -57,6 +59,9 @@ public class DelController extends BaseController implements Initializable {
 
   @Autowired
   public DataConstans dataConstants; // 数据控制类
+  
+  @Resource
+  PlayerService playerService;
 
   // =====================================================================删除人员对话框
   @FXML
@@ -100,9 +105,9 @@ public class DelController extends BaseController implements Initializable {
         if (player == null) {
           return;
         }
-        obList.add("玩家名称：" + player.getPlayerName());
-        obList.add("玩家ID：" + player.getgameId());
-        obList.add("所属团队：" + player.getTeamName());
+        obList.add("玩家名称：" + player.getPlayername());
+        obList.add("玩家ID：" + player.getPlayerid());
+        obList.add("所属团队：" + player.getTeamid());
         obList.add("所属股东：" + player.getGudong());
         obList.add("额度：" + (StringUtil.isBlank(player.getEdu()) ? "无" : player.getEdu()));
         obList.add("实时金额：" + moneyService.get_SSJE_byId(playerId));
@@ -129,7 +134,7 @@ public class DelController extends BaseController implements Initializable {
     Set<Player> set = new HashSet<>();
     if (!StringUtil.isBlank(name)) {
       dataConstants.membersMap.forEach((mId, mPlayer) -> {
-        if (mPlayer.getPlayerName().contains(name)) {
+        if (mPlayer.getPlayername().contains(name)) {
           set.add(mPlayer);
         }
       });
@@ -145,7 +150,7 @@ public class DelController extends BaseController implements Initializable {
     delMemberListView.setItems(list);
     if (set.size() > 0) {
       set.forEach(play -> {
-        delMemberListView.getItems().add(play.getPlayerName() + " " + play.getgameId());
+        delMemberListView.getItems().add(play.getPlayername() + " " + play.getPlayerid());
       });
 
     }
@@ -190,7 +195,7 @@ public class DelController extends BaseController implements Initializable {
           dataConstants.membersMap.remove(playerId);// 从人员表中移动
           moneyService.del_SSJE_byId(playerId);// 更新实时金额表
           // ConsUtil.refreshTeamIdAndPlayerId();//获取最新的团队ID与玩家ID列表的映射
-          dbUtil.delMember(playerId);// 从数据库中删除
+          playerService.remove(playerId);// 从数据库中删除
         }
         // 情况二：是子ID
         if (isSubId) {
@@ -205,7 +210,7 @@ public class DelController extends BaseController implements Initializable {
           subIdSet.remove(playerId);
           // 删除子节点
           dataConstants.Combine_Sub_Id_Map.remove(playerId);
-          dbUtil.delMember(playerId);// 从数据库中删除
+          playerService.remove(playerId);// 从数据库中删除
           dbUtil.saveOrUpdateCombineId(superId, subIdSet);// 删除合并ID(实际上是更新合并ID)
         }
         // 情况三：是父ID
@@ -218,13 +223,13 @@ public class DelController extends BaseController implements Initializable {
               dataConstants.Combine_Sub_Id_Map.remove(subId);// 删除子节点
               moneyService.del_SSJE_byId(subId);// 更新实时金额表
               dataConstants.membersMap.remove(subId);// 从人员表中移动
-              dbUtil.delMember(subId);// 从数据库中删除
+              playerService.remove(subId);// 从数据库中删除
             }
             // 最后再删除父节点
             dataConstants.membersMap.remove(playerId);// 从人员表中移动
             moneyService.del_SSJE_byId(playerId);// 更新实时金额表
             dataConstants.Combine_Super_Id_Map.remove(playerId);
-            dbUtil.delMember(playerId);// 从数据库中删除
+            playerService.remove(playerId);// 从数据库中删除
             dbUtil.cancelCombineId(playerId);// 删除合并ID
             // ConsUtil.refreshTeamIdAndPlayerId();//获取最新的团队ID与玩家ID列表的映射,跟删除人员的顺序不可调换
           }
@@ -273,7 +278,7 @@ public class DelController extends BaseController implements Initializable {
         // 1 理新常量表中的member
         Player player = dataConstants.membersMap.get(playerId);
         if (player != null) {
-          player.setPlayerName(newName);
+          player.setPlayername(newName);
         } else {
           ShowUtil.show("用户不存在！");
           return;
@@ -285,7 +290,7 @@ public class DelController extends BaseController implements Initializable {
         moneyService.updatePlayerName(playerId, oldName, newName);
 
         // 3 更新数据库
-        dbUtil.updateMember(player);
+        playerService.saveOrUpdate(player.getPlayerid(), player);
 
         // 4 更新其他（特补充）
         moneyService.flush_SSJE_table();
@@ -343,7 +348,7 @@ public class DelController extends BaseController implements Initializable {
         }
 
         // 3 更新数据库
-        dbUtil.updateMember(player);
+        playerService.saveOrUpdate(player.getPlayerid(), player);
 
         // 4 更新其他（特补充）
         // 修改实时上码额度
@@ -389,10 +394,10 @@ public class DelController extends BaseController implements Initializable {
 
         // 2，修改缓存中的人员信息
         Player player = dataConstants.membersMap.get(playerId);
-        player.setTeamName(newTeam);
+        player.setTeamid(newTeam);
 
         // 3，同步到数据库
-        dbUtil.updateMember(player);
+        playerService.saveOrUpdate(player.getPlayerid(), player);
 
         // 4，同步实时上码中的数据(实时金额不用)
 
@@ -433,7 +438,7 @@ public class DelController extends BaseController implements Initializable {
         player.setGudong(newGD);
 
         // 3，同步到数据库
-        dbUtil.updateMember(player);
+        playerService.saveOrUpdate(player.getPlayerid(), player);
 
         // 4，同步实时上码中的数据(实时金额不用)
 

@@ -1,6 +1,8 @@
 package com.kendy.service;
 
+import com.kendy.db.entity.Player;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.db.service.PlayerService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.MemberZJInfo;
-import com.kendy.entity.Player;
 import com.kendy.model.GameRecordModel;
 import com.kendy.util.NumUtil;
 import com.kendy.util.StringUtil;
@@ -38,6 +39,9 @@ public class MemberService {
   public DataConstans dataConstants; // 数据控制类
   @Resource
   GameRecordService gameRecordService;
+
+  @Resource
+  PlayerService playerService;
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void initMemberQuery(ListView<String> memberListView,
@@ -99,8 +103,8 @@ public class MemberService {
     // 根据名称获取团队ID
     Player wanjia = dataConstants.membersMap.get(wanjiaId);
     String teamId = "";
-    if (wanjia != null && !StringUtil.isBlank(wanjia.getTeamName())) {
-      teamId = wanjia.getTeamName();
+    if (wanjia != null && !StringUtil.isBlank(wanjia.getTeamid())) {
+      teamId = wanjia.getTeamid();
     }
     ObservableList<MemberZJInfo> obList = FXCollections.observableArrayList();
     String zj = "";// 战绩
@@ -132,7 +136,7 @@ public class MemberService {
     Set<Player> set = new HashSet<>();
     if (!StringUtil.isBlank(name)) {
       dataConstants.membersMap.forEach((mId, mPlayer) -> {
-        if (mPlayer.getPlayerName().contains(name)) {
+        if (mPlayer.getPlayername().contains(name)) {
           set.add(mPlayer);
         }
       });
@@ -141,7 +145,7 @@ public class MemberService {
     memberListView.setItems(list);
     if (set.size() > 0) {
       set.forEach(play -> {
-        memberListView.getItems().add(play.getPlayerName() + " " + play.getgameId());
+        memberListView.getItems().add(play.getPlayername() + " " + play.getPlayerid());
       });
     }
     memberListView.refresh();

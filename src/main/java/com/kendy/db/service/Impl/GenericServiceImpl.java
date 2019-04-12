@@ -204,6 +204,8 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
     return i;
   }
 
+
+
   /*
    * (non-Javadoc)
    *
@@ -307,5 +309,7 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
       }
     }
   }
+
+
 
 }

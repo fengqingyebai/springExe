@@ -6,14 +6,15 @@ import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
+import com.kendy.db.entity.Player;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.ClubZhuofei;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.GDDetailInfo;
 import com.kendy.entity.GDInputInfo;
 import com.kendy.entity.GudongRateInfo;
 import com.kendy.entity.KaixiaoInfo;
-import com.kendy.entity.Player;
 import com.kendy.entity.ProfitInfo;
 import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.model.GameRecordModel;
@@ -89,6 +90,9 @@ public class GDController extends BaseController implements Initializable {
 
   @Resource
   GameRecordService gameRecordService;
+
+  @Resource
+  PlayerService playerService;
 
   // 股东贡献值主表
   @FXML
