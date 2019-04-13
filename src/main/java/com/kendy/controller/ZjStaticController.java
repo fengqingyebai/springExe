@@ -252,7 +252,7 @@ public class ZjStaticController extends BaseController implements Initializable 
     table.getColumns().addAll(cols);
   }
 
-  private JFXButton getDownloadButn(MyTable<?> table) {
+  public JFXButton getDownloadButn(MyTable<?> table) {
     JFXButton exportBtn = new JFXButton("导出");
     exportBtn.setStyle("-fx-background-color: #DAF2E3; -fx-font-size: 20");
     exportBtn.setPrefWidth(120);

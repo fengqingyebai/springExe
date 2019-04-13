@@ -214,7 +214,7 @@ public class AddController extends BaseController implements Initializable {
     player.setHuishui(StringUtils.defaultString(huishuiField.getText()).trim());
     player.setIsparent("0");
     if (!StringUtil.isBlank(player.getPlayerid()) && !StringUtil.isBlank(player.getTeamid())) {
-      dataConstants.membersMap.put(player.getTeamid(), player);
+      dataConstants.membersMap.put(player.getPlayerid(), player);
       dataConstants.refresh_SM_Detail_Map();
       // dataConstants.refreshTeamIdAndPlayerId();
       playerService.saveOrUpdate(player.getPlayerid(), player);

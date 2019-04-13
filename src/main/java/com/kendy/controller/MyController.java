@@ -319,6 +319,7 @@ public class MyController extends BaseController implements Initializable {
     addSubTab("银行流水", "bank_flow_frame.fxml");
     addSubTab("历史统计", "history_static_tab_frame.fxml");
     addSubTab("战绩统计", "zj_static_tab_frame.fxml");
+    addSubTab("联盟币统计", "lian_meng_bi_tab_frame.fxml");
   }
 
   /**

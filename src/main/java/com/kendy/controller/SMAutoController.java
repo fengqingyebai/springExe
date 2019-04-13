@@ -543,7 +543,7 @@ public class SMAutoController extends BaseController implements Initializable {
             moneyService.saveOrUpdate2DB(cmi);
 
             // 保存到实时金额表
-            combineIDController.tableCurrentMoneyInfo.refresh();
+            changciController.tableCurrentMoneyInfo.refresh();
             logInfo(playerName + "将实时金额" + cmi.getShishiJine() + "修改为" + finalSSJE);
 
           } else {
@@ -554,8 +554,8 @@ public class SMAutoController extends BaseController implements Initializable {
         addBuyResultRecord(checkRangeResult);
 
       } catch (Exception e) {
-        logInfo("玩家【" + coinBuyer.getNickName() + "】自动购买联盟币失败，请看日志！！");
-        logger.error("处理玩家【{}】自动购买联盟币报错，原因：{}", coinBuyer.getNickName(), e.getMessage());
+        logInfo("玩家【" + coinBuyer.getNickName() + "】自动购买联盟币报错，请看日志！！");
+        logger.error("处理玩家【{}】自动购买联盟币报错，原因：{}", coinBuyer.getNickName(), e);
       }
     }
   }

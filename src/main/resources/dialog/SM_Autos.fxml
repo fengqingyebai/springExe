@@ -83,7 +83,7 @@
       <HBox layoutX="43.0" layoutY="68.0" prefHeight="26.0" prefWidth="925.0">
          <children>
             <Label layoutX="43.0" layoutY="87.0" prefHeight="26.0" prefWidth="85.0" text="只购买以下ID：" />
-            <TextField fx:id="filterPlayIdFields" prefHeight="28.0" prefWidth="513.0" promptText="输入玩家ID，以##隔开，若无填写，则所有申请通过的玩家都会上码！！" text="2162968366##2162813955##2162971465##2162864256##2162932597##2162892097" />
+            <TextField fx:id="filterPlayIdFields" prefHeight="28.0" prefWidth="513.0" promptText="输入玩家ID，以##隔开，若无填写，则所有申请通过的玩家都会购买！！" />
             <Label prefHeight="26.0" prefWidth="11.0" text="   " />
             <Button mnemonicParsing="false" onAction="#load6PlayerIdsAction" prefHeight="23.0" prefWidth="75.0" text="加载6个人" />
             <Label prefHeight="26.0" prefWidth="237.0" text="     示例：2162968366##2162813955" textFill="#a49292" />

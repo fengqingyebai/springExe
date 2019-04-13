@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.scene.*?>
+<?import javafx.embed.swing.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.paint.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.LMBController">
+   <children>
+      <AnchorPane prefHeight="864.0" prefWidth="1296.0">
+         <children>
+            <TableView fx:id="tableGlb" layoutX="41.0" layoutY="81.0" prefHeight="385.0" prefWidth="1231.0">
+               <columns>
+                  <TableColumn fx:id="glbClubName" prefWidth="89.0" text="俱乐部名称" />
+                  <TableColumn fx:id="glbClubId" minWidth="0.0" prefWidth="97.0" text="俱乐部ID" />
+                  <TableColumn fx:id="glbBaoxianChouqu" minWidth="0.0" prefWidth="92.0" text="保险抽取" />
+                  <TableColumn fx:id="glbZhanjiChouqu" minWidth="0.0" prefWidth="96.0" text="战绩抽取" />
+                  <TableColumn fx:id="glbChouquHeji" minWidth="0.0" prefWidth="89.0" text="抽取合计" />
+                  <TableColumn fx:id="glbLianmengDaiShoushui" minWidth="0.0" prefWidth="84.0" text="联盟代收水" />
+                  <TableColumn fx:id="glbLianmengFanshui" minWidth="0.0" prefWidth="70.0" text="联盟返水" />
+                  <TableColumn fx:id="glbLianmengBXJiaoshou" minWidth="0.0" prefWidth="114.0" text="联盟保险交收" />
+                  <TableColumn fx:id="glbLianmengBXZhancheng" minWidth="0.0" prefWidth="148.0" text="联盟收取后台保险占成" />
+                  <TableColumn fx:id="glbClubHeji" minWidth="0.0" prefWidth="97.0" text="俱乐部合计" />
+               </columns>
+            </TableView>
+            <JFXButton fx:id="bankFlowTitle" buttonType="RAISED" layoutX="14.0" layoutY="23.0" opacity="0.78" prefHeight="52.0" prefWidth="188.0" text="俱乐部合计" textFill="#9c8617">
+               <effect>
+                  <Lighting>
+                     <bumpInput>
+                        <Shadow />
+                     </bumpInput>
+                     <light>
+                        <Light.Distant />
+                     </light>
+                  </Lighting>
+               </effect>
+               <font>
+                  <Font name="System Bold" size="26.0" />
+               </font>
+            </JFXButton>
+            <JFXButton fx:id="bankFlowTitle1" buttonType="RAISED" layoutX="14.0" layoutY="480.0" opacity="0.78" prefHeight="52.0" prefWidth="188.0" text="小游戏合计" textFill="#9c8617">
+               <effect>
+                  <Lighting>
+                     <bumpInput>
+                        <Shadow />
+                     </bumpInput>
+                     <light>
+                        <Light.Distant />
+                     </light>
+                  </Lighting>
+               </effect>
+               <font>
+                  <Font name="System Bold" size="26.0" />
+               </font>
+            </JFXButton>
+            <TableView fx:id="tableGame" layoutX="43.0" layoutY="538.0" prefHeight="272.0" prefWidth="1231.0">
+               <columns>
+                  <TableColumn fx:id="gameClubName" prefWidth="109.0" text="俱乐部名称" />
+                  <TableColumn fx:id="gameClubId" minWidth="0.0" prefWidth="115.0" text="俱乐部ID" />
+                  <TableColumn fx:id="gameLianmengFencheng" minWidth="0.0" prefWidth="140.0" text="联盟分成" />
+                  <TableColumn fx:id="gameClubFencheng" minWidth="0.0" prefWidth="157.0" text="俱乐部分成" />
+                  <TableColumn fx:id="gameClubHeji" minWidth="0.0" prefWidth="117.0" text="俱乐部合计" />
+               </columns>
+            </TableView>
+            <JFXButton buttonType="RAISED" defaultButton="true" layoutX="1114.0" layoutY="34.0" onAction="#refreshAction" prefHeight="30.0" prefWidth="122.0" ripplerFill="#2e80eb" style="-fx-background-color: #F0F0F0;" text="刷新页面" textFill="#b2370b">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXButton>
+            <Label layoutX="284.0" layoutY="499.0" prefHeight="30.0" prefWidth="54.0" text="小游戏：" />
+            <JFXTextField fx:id="gameTypeField" alignment="CENTER" layoutX="347.0" layoutY="503.0" prefHeight="23.0" prefWidth="177.0" promptText="请填写小游戏类型，以##隔开" text="加勒比海##德州牛仔" unFocusColor="#c3bd10" />
+            <JFXButton layoutX="524.0" layoutY="503.0" onAction="#saveGameTypeActioin" prefHeight="23.0" prefWidth="78.0" ripplerFill="#e1b970" text="刷新保存" textFill="#8a6606" />
+         </children>
+      </AnchorPane>
+   </children>
+</StackPane>

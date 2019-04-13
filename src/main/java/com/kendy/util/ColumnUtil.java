@@ -49,6 +49,10 @@ public class ColumnUtil {
     return getTableColumn(colName, colVal, ColumnColorType.COLUMN_RED, 85.0, t);
   }
 
+  public static <T> TableColumn<T, String> getTableRedColumn(String colName, String colVal, double width, T t) {
+    return getTableColumn(colName, colVal, ColumnColorType.COLUMN_RED, width, t);
+  }
+
   public static <T> TableColumn<T, String> getTableColumn(String colName, String colVal,
       ColumnColorType columnColorType, double width, T t) {
     TableColumn<T, String> col = new TableColumn<>(colName);
