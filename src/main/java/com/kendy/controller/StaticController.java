@@ -10,6 +10,7 @@ import com.kendy.entity.TotalInfo2;
 import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.util.AlertUtil;
+import com.kendy.util.ButtonUtil;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
@@ -329,7 +330,7 @@ public class StaticController extends BaseController implements Initializable {
       // 导出按钮
       table.setEntityClass(TeamStaticInfo.class);
       table.setExcelName(TITLE + TimeUtil.getDateTime());
-      JFXButton exportBtn = getDownloadButn(table);
+      JFXButton exportBtn = ButtonUtil.getDownloadButn(table);
 
       StackPane stackPane = new StackPane();
       stackPane.getChildren().addAll(table, exportBtn);
@@ -348,26 +349,6 @@ public class StaticController extends BaseController implements Initializable {
       stage.setScene(scene);
       stage.show();
     }
-  }
-
-  private JFXButton getDownloadButn(MyTable<?> table) {
-    JFXButton exportBtn = new JFXButton("导出");
-    exportBtn.setStyle("-fx-background-color: #DAF2E3; -fx-font-size: 20");
-    exportBtn.setPrefWidth(120);
-    exportBtn.setPrefHeight(40);
-    exportBtn.setId("exportBtn");
-    exportBtn.setOnAction(e -> {
-      if (TableUtil.isHasValue(table)) {
-        try {
-          logger.info("正在导出{}...", table.getExcelName());
-          table.export();
-          logger.info("导出完成{}" + table.getExcelName());
-        } catch (Exception ee) {
-          ErrorUtil.err("导出失败", ee);
-        }
-      }
-    });
-    return exportBtn;
   }
 
 
@@ -398,7 +379,7 @@ public class StaticController extends BaseController implements Initializable {
     // 导出按钮
     table.setEntityClass(TotalInfo2.class);
     table.setExcelName(teamId + "团队" + softTime + "-" + TimeUtil.getDateTime());
-    JFXButton exportBtn = getDownloadButn(table);
+    JFXButton exportBtn = ButtonUtil.getDownloadButn(table);
 
     StackPane stackPane = new StackPane();
     stackPane.getChildren().addAll(table, exportBtn);
@@ -445,7 +426,7 @@ public class StaticController extends BaseController implements Initializable {
       // 导出按钮
       table.setEntityClass(ClubStaticInfo.class);
       table.setExcelName(clubName.replaceAll("[?|/]","") + "每日汇总" + TimeUtil.getDateTime());
-      JFXButton exportBtn = getDownloadButn(table);
+      JFXButton exportBtn = ButtonUtil.getDownloadButn(table);
 
       StackPane stackPane = new StackPane();
       stackPane.getChildren().addAll(table, exportBtn);

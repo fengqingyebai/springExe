@@ -1,38 +1,49 @@
 package com.kendy.entity;
 
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import com.kendy.interfaces.Entity;
 import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
  * @author linzt
- * @date
  */
 public class GameInfo implements Entity {
 
   /**
    * 小游戏俱乐部ID
    */
+  @MyExcelField(title = "俱乐部ID", colWidth = 15)
   private SimpleStringProperty gameClubId = new SimpleStringProperty();
   /**
    * 小游戏俱乐部名称
    */
+  @MyExcelField(title = "俱乐部名称", colWidth = 15)
   private SimpleStringProperty gameClubName = new SimpleStringProperty();
+
+  @MyExcelField(title = "玩家ID", colWidth = 15)
+  private SimpleStringProperty gamePlayerId = new SimpleStringProperty();
+
+  @MyExcelField(title = "玩家名称", colWidth = 15)
+  private SimpleStringProperty gamePlayerName = new SimpleStringProperty();
+
+  @MyExcelField(title = "牌局", colWidth = 15)
+  private SimpleStringProperty gamePaiju = new SimpleStringProperty();
   /**
    * 小游戏联盟分成
    */
+  @MyExcelField(title = "联盟分成", colWidth = 15)
   private SimpleStringProperty gameLianmengFencheng = new SimpleStringProperty();
   /**
    * 小游戏俱乐部分成
    */
+  @MyExcelField(title = "俱乐部分成", colWidth = 15)
   private SimpleStringProperty gameClubFencheng = new SimpleStringProperty();
   /**
    * 小游戏合计
    */
+  @MyExcelField(title = "俱乐部合计", colWidth = 15)
   private SimpleStringProperty gameClubHeji = new SimpleStringProperty();
-  private SimpleStringProperty gamePlayerId = new SimpleStringProperty();
-  private SimpleStringProperty gamePlayerName = new SimpleStringProperty();
-  private SimpleStringProperty gamePaiju = new SimpleStringProperty();
 
   // 自定义额外数据
   private List<GameInfo> detailList;

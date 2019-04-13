@@ -4,25 +4,17 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.kendy.constant.DataConstans;
 import com.kendy.customize.MyTable;
-import com.kendy.db.entity.GameRecord;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.GameInfo;
 import com.kendy.entity.GlbInfo;
-import com.kendy.entity.TeamStaticInfo;
-import com.kendy.entity.ZjClubStaticDetailInfo;
-import com.kendy.entity.ZjTeamStaticDetailInfo;
-import com.kendy.entity.ZjTeamStaticInfo;
 import com.kendy.model.GameRecordModel;
+import com.kendy.util.ButtonUtil;
 import com.kendy.util.ColumnUtil;
-import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
-import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
-import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -64,9 +55,6 @@ public class LMBController extends BaseController implements Initializable {
 
   @Autowired
   DataConstans dataConstans;
-
-  @Autowired
-  ZjStaticController zjStaticController;
 
   @Resource
   GameRecordService gameRecordService;
@@ -155,7 +143,7 @@ public class LMBController extends BaseController implements Initializable {
       // 行双击
       if (e.getClickCount() == 2) {
         GlbInfo item = getSelectedRow(tableGlb);
-        if (item != null && StringUtil.isAllNotBlank(item.getGlbClubId())) {
+        if (item != null && item.getDetailList() != null) {
           openGlbInfoDetailView(item);
         }
       }
@@ -282,7 +270,7 @@ public class LMBController extends BaseController implements Initializable {
     // 导出按钮
     table.setEntityClass(GlbInfo.class);
     table.setExcelName(TITLE + TimeUtil.getDateTime());
-    JFXButton exportBtn = zjStaticController.getDownloadButn(table);
+    JFXButton exportBtn = ButtonUtil.getDownloadButn(table);
 
     StackPane stackPane = new StackPane();
     stackPane.getChildren().addAll(table, exportBtn);
@@ -412,7 +400,7 @@ public class LMBController extends BaseController implements Initializable {
     clubInfo.setGlbLianmengFanshui(digit(fanshui));
     clubInfo.setGlbLianmengBXJiaoshou(digit(baoxianJiaoshou));
     clubInfo.setGlbLianmengBXZhancheng(digit(baoxianZhancheng ));
-    clubInfo.setGlbClubHeji(digit(clubHeji + ""));
+    clubInfo.setGlbClubHeji(digit(clubHeji));
 
     if (type == 1) {
       clubInfo.setDetailList(details);
@@ -425,32 +413,14 @@ public class LMBController extends BaseController implements Initializable {
     }
     return clubInfo;
   }
+
   private String digit(double val){
-    return digit(String.valueOf(val));
+    return NumUtil.digit(val);
   }
 
   private String digit(String val){
-    if (StringUtils.isNotBlank(val)) {
-      if (!val.contains(".")) {
-        return val.trim();
-      }
-      if(val.length() > 10){
-        return NumUtil.digit2(val);
-      }
-      if("-0.0".equals(val)){
-        return "0";
-      }
-      return val;
-    }
-    return "0";
+    return NumUtil.digit(val);
   }
-
-
-
-
-
-
-
 
 
    /**********************************************************************************************
@@ -478,7 +448,7 @@ public class LMBController extends BaseController implements Initializable {
     // 导出按钮
     table.setEntityClass(GameInfo.class);
     table.setExcelName(TITLE + TimeUtil.getDateTime());
-    JFXButton exportBtn = zjStaticController.getDownloadButn(table);
+    JFXButton exportBtn = ButtonUtil.getDownloadButn(table);
 
     StackPane stackPane = new StackPane();
     stackPane.getChildren().addAll(table, exportBtn);

@@ -3,6 +3,7 @@ package com.kendy.util;
 import java.text.NumberFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -211,5 +212,34 @@ public class NumUtil {
 
   public static String getNumDivide2(Double d1, Double d2) {
     return digit2(getNumDivide(d1, d2) + "");
+  }
+
+  public static String digit(double val){
+    return digit(String.valueOf(val));
+  }
+
+  /**
+   * 获取数据
+   * 3.123 => 3.12
+   * 3.1 => 3.1
+   * -0.0 => 0
+   * 3 => 3
+   * @param val
+   * @return
+   */
+  public static String digit(String val){
+    if (StringUtils.isNotBlank(val)) {
+      if (!val.contains(".")) {
+        return val.trim();
+      }
+      if(val.contains(".") && StringUtils.substringAfterLast(val, ".").length() > 2){
+        return NumUtil.digit2(val);
+      }
+      if("-0.0".equals(val) || "0.0".equals(val) || "0.00".equals(val)){
+        return "0";
+      }
+      return val;
+    }
+    return "0";
   }
 }

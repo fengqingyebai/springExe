@@ -1,5 +1,6 @@
 package com.kendy.entity ;
 
+import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 import com.kendy.interfaces.Entity;
 import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,54 +14,67 @@ public class GlbInfo implements Entity {
   /**
    * 俱乐部ID
    */
+  @MyExcelField(title = "俱乐部ID", colWidth = 15)
   private SimpleStringProperty glbClubId = new SimpleStringProperty();
   /**
    * 俱乐部名称
    */
+  @MyExcelField(title = "俱乐部名称", colWidth = 15)
   private SimpleStringProperty  glbClubName = new SimpleStringProperty();
   /**
    * 玩家ID
    */
+  @MyExcelField(title = "玩家ID", colWidth = 15)
   private SimpleStringProperty  glbPlayerId = new SimpleStringProperty();
   /**
    * 玩家名称
    */
+  @MyExcelField(title = "玩家名称", colWidth = 15)
   private SimpleStringProperty glbPlayerName = new SimpleStringProperty();
   /**
    * 牌局
    */
+  @MyExcelField(title = "牌局", colWidth = 15)
   private SimpleStringProperty glbPaiju = new SimpleStringProperty();
   /**
    * 俱乐部保险抽取
    */
+  @MyExcelField(title = "保险抽取", colWidth = 15)
   private SimpleStringProperty  glbBaoxianChouqu = new SimpleStringProperty();
   /**
    * 俱乐部战绩抽取
    */
+  @MyExcelField(title = "战绩抽取", colWidth = 15)
   private SimpleStringProperty glbZhanjiChouqu = new SimpleStringProperty();
   /**
    * 俱乐部抽取合计
    */
+  @MyExcelField(title = "抽取合计", colWidth = 15)
   private SimpleStringProperty glbChouquHeji = new SimpleStringProperty();
   /**
    * 俱乐部联盟代收水
    */
+  @MyExcelField(title = "联盟代收水", colWidth = 15)
   private SimpleStringProperty  glbLianmengDaiShoushui = new SimpleStringProperty();
   /**
    * 俱乐部联盟返水
    */
+  @MyExcelField(title = "联盟返水", colWidth = 15)
   private SimpleStringProperty glbLianmengFanshui = new SimpleStringProperty();
   /**
    * 俱乐部联盟保险交收
    */
+  @MyExcelField(title = "联盟保险交收", colWidth = 15)
   private SimpleStringProperty  glbLianmengBXJiaoshou = new SimpleStringProperty();
   /**
    * 俱乐部联盟保险占成
    */
+  @MyExcelField(title = "联盟保险占成", colWidth = 15)
   private SimpleStringProperty  glbLianmengBXZhancheng = new SimpleStringProperty();
   /**
    * 俱乐部合计
    */
+  @MyExcelField(title = "俱乐部合计", colWidth = 15)
   private SimpleStringProperty  glbClubHeji = new SimpleStringProperty();
 
   public GlbInfo() {
