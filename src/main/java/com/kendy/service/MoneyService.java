@@ -512,20 +512,21 @@ public class MoneyService extends BasicService {
     String shuihouxian = r.getShuihouxian();
     String chuhuishui = "";
     String huibao = "";
-    // 团队类开
+    // 团队类型
     boolean isHsHbTypeOfTeam = StringUtils.equals(Constants.TEAM_OF_HSHB, r.getHshbType());
     if (isHsHbTypeOfTeam) {
       chuhuishui = r.getChuhuishui();
       huibao = r.getHuibao();
     } else {
-      shuihouxian = r.getPersonalHuishui();
+      chuhuishui = "-" + r.getPersonalHuishui(); // 取相反数
       huibao = r.getPersonalHuibao();
     }
 
     double _shouHushui = NumUtil.getNum(shouhuishui);
     if (_shouHushui >= 0) {
-      return _shouHushui + NumUtil.getNum(chuhuishui) + NumUtil.getNum(shuihouxian)
+       String finalHelirun = _shouHushui + NumUtil.getNum(chuhuishui) + NumUtil.getNum(shuihouxian)
           - NumUtil.getNum(huibao) + "";
+      return finalHelirun;
     } else {
       return "0";
     }
