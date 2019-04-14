@@ -38,4 +38,19 @@ public class TableUtil {
     }
   }
 
+  /**
+   * 获取表格的选中行
+   *
+   * @param table
+   * @param <T>
+   * @return
+   */
+  public static <T> T getSelectedRow(TableView<T> table) {
+    T selectedItem = null;
+    if (TableUtil.isHasValue(table)) {
+      selectedItem = table.getSelectionModel().getSelectedItem();
+    }
+    return selectedItem;
+  }
+
 }

@@ -391,6 +391,14 @@ public class CombineIDController extends BaseController implements Initializable
     return superId;
   }
 
+  public boolean isSuperId(String playerId){
+    return dataConstants.Combine_Super_Id_Map.containsKey(playerId);
+  }
+
+  public boolean isSubId(String playerId) {
+    return dataConstants.Combine_Sub_Id_Map.containsKey(playerId);
+  }
+
   /**
    * 检测合并ID
    *

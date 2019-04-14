@@ -7,6 +7,8 @@ package com.kendy.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXToggleButton;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
@@ -90,8 +92,10 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -354,6 +358,13 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public JFXToggleButton spiderNode; // 关闭和开启自动购买联盟币按钮
 
+  @FXML
+  public StackPane stackPane;
+
+
+  private final String ZERO = "0";
+  public final String INDEX_ZERO = "第0局";
+
   @Override
   public void initialize(URL url, ResourceBundle rb) {
 
@@ -361,6 +372,7 @@ public class ChangciController extends BaseController implements Initializable {
 
     // 绑定玩家信息表
     bindCellValueByTable(new TotalInfo(), tableTotalInfo);
+    setTableTotalInfoDialog();
 
     // 绑定牌局表
     bindCellValueByTable(new WanjiaInfo(), tablePaiju);
@@ -409,8 +421,58 @@ public class ChangciController extends BaseController implements Initializable {
     indexLabel.setFont(new Font("Arial", 30));
   }
 
-  private final String ZERO = "0";
-  public final String INDEX_ZERO = "第0局";
+  /**
+   * 双击第一个表格是展示相应的玩家信息
+   */
+  private void setTableTotalInfoDialog() {
+    tableTotalInfo.setOnMouseClicked(e -> {
+      // 行双击
+      if (e.getClickCount() == 2) {
+        TotalInfo item = TableUtil.getSelectedRow(tableTotalInfo);
+        if (item != null && StringUtils.isNotBlank(item.getWanjiaId())) {
+          // 具体业务逻辑
+          showModalDialog(stackPane, "玩家信息", getPlayerInfo(item.getWanjiaId()).toString());
+        }
+      }
+    });
+  }
+
+  /**
+   * 获取玩家信息
+   */
+  private StringBuilder getPlayerInfo(String playerId) {
+    StringBuilder sb = new StringBuilder();
+    String NEW_LINE = System.lineSeparator();
+    Player player = playerService.get(playerId);
+    if (player != null) {
+      sb.append("玩家名称：").append(player.getPlayername()).append(NEW_LINE);
+      sb.append("玩家ID：").append(player.getPlayerid()).append(NEW_LINE);
+      sb.append("所属团队：").append(player.getTeamid()).append(NEW_LINE);
+      sb.append("所属股东：").append(player.getGudong()).append(NEW_LINE);
+      sb.append("额度：").append(player.getEdu()).append(NEW_LINE);
+      sb.append("是否父ID：").append(combineIDController.isSuperId(player.getPlayerid()) ? "是" : "否")
+          .append(NEW_LINE);
+      sb.append("是否子ID：").append(combineIDController.isSubId(player.getPlayerid()) ? "是" : "否")
+          .append(NEW_LINE);
+      sb.append("个人回水：").append(player.getHuishui()).append(NEW_LINE);
+      sb.append("个人回保：").append(player.getHuibao()).append(NEW_LINE);
+    }
+    return sb;
+  }
+
+  /**
+   * 弹框提示
+   */
+  private void showModalDialog(StackPane stackPane, String header, String content) {
+    JFXDialogLayout dialogContent = new JFXDialogLayout();
+    dialogContent.setHeading(new Text(header));
+    Text text = new Text(content);
+    text.setLineSpacing(8);
+    dialogContent.setBody(text);
+    JFXDialog dialog = new JFXDialog(stackPane, dialogContent, JFXDialog.DialogTransition.CENTER);
+    dialog.show();
+  }
+
 
   /*
    * 每点击结算按钮就往这个静态变更累加（只针对当局） 撤销时清空为0 锁定时清空为0 平帐时与上场的总团队服务费相加
@@ -529,7 +591,8 @@ public class ChangciController extends BaseController implements Initializable {
               } else {
                 PersonalInfo personalInfo = getTableView().getItems().get(getIndex());
                 btn.setOnAction(event -> {
-                  if (StringUtils.equals(Constants.PERSONAL_OF_JIE_SUANED, personalInfo.getHasJiesuaned())) {
+                  if (StringUtils
+                      .equals(Constants.PERSONAL_OF_JIE_SUANED, personalInfo.getHasJiesuaned())) {
                     ShowUtil.show("抱歉，已支付过！！");
                     return;
                   }
@@ -547,9 +610,10 @@ public class ChangciController extends BaseController implements Initializable {
 
                       btn.setText("已支付");
                       personalInfo.setHasJiesuaned(Constants.PERSONAL_OF_JIE_SUANED);
-                      CurrentMoneyInfo cmi = moneyService.get_CMI_byId(personalInfo.getPersonalPlayerId());
+                      CurrentMoneyInfo cmi = moneyService
+                          .get_CMI_byId(personalInfo.getPersonalPlayerId());
                       ShowUtil.show("已将" + personalInfo.getPersonalPlayerName() + "的实时金额修改为   "
-                              + cmi.getShishiJine(),2);
+                          + cmi.getShishiJine(), 2);
                       moneyService.flush_SSJE_table();// 刷新实时金额表
 
                     } catch (Exception e) {
@@ -559,7 +623,8 @@ public class ChangciController extends BaseController implements Initializable {
                 });
                 //PersonalInfo wj = getTableView().getItems().get(getIndex());
                 // 解决不时本应支付确显示成已支付的bug
-                if (StringUtils.equals(Constants.PERSONAL_OF_UN_JIE_SUAN, personalInfo.getHasJiesuaned())) {
+                if (StringUtils
+                    .equals(Constants.PERSONAL_OF_UN_JIE_SUAN, personalInfo.getHasJiesuaned())) {
                   btn.setText("支付");
                 } else {
                   btn.setText("已支付");
@@ -2032,6 +2097,7 @@ public class ChangciController extends BaseController implements Initializable {
       ShowUtil.show("从数据库强制覆盖本地实时金额表完成", 2);
     }
   }
+
 
   @Override
   public Class<?> getSubClass() {
