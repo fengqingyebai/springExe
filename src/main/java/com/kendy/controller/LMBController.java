@@ -59,6 +59,9 @@ public class LMBController extends BaseController implements Initializable {
   @Resource
   GameRecordService gameRecordService;
 
+  @Autowired
+  ChangciController changciController;
+
 
   //======================================================俱乐部合计表
   @FXML
@@ -118,19 +121,21 @@ public class LMBController extends BaseController implements Initializable {
 
   @PostConstruct
   public void initData() {
-    getData();
+
   }
 
   private void getData() {
     if (CollectionUtils.isNotEmpty(todayDatas)) {
       todayDatas.clear();
     }
-    Map<String, List<GameRecordModel>> zjMap = dataConstans.zjMap;
-    if (zjMap != null) {
-      for (List<GameRecordModel> teamList : zjMap.values()) {
-        todayDatas.addAll(teamList);
-      }
-    }
+//    Map<String, List<GameRecordModel>> zjMap = dataConstans.zjMap;
+//    if (zjMap != null) {
+//      for (List<GameRecordModel> teamList : zjMap.values()) {
+//        todayDatas.addAll(teamList);
+//      }
+//    }
+    todayDatas = gameRecordService
+        .getGameRecordsByMaxTime(changciController.getSoftDate());
   }
 
 
@@ -162,6 +167,9 @@ public class LMBController extends BaseController implements Initializable {
 
     // 初始化游戏类型
     GAME_TYPES = getGameType();
+
+    // 初始化数据
+    getData();
   }
 
   @FXML
@@ -357,8 +365,8 @@ public class LMBController extends BaseController implements Initializable {
     String glbLianmengFanshui = detail.getGlbLianmengFanshui();
     String glbLianmengBXJiaoshou = detail.getGlbLianmengBXJiaoshou();
     String glbLianmengBXZhancheng = detail.getGlbLianmengBXZhancheng();
-    String clubHeji = NumUtil.getSum(glbLianmengDaiShoushui + glbLianmengFanshui + glbLianmengBXJiaoshou
-        + glbLianmengBXZhancheng);
+    String clubHeji = NumUtil.getSum(glbLianmengDaiShoushui, glbLianmengFanshui, glbLianmengBXJiaoshou
+        ,glbLianmengBXZhancheng);
     return NumUtil.digit2(clubHeji);
   }
 
