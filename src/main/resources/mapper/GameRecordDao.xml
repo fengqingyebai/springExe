@@ -71,6 +71,11 @@
     <include refid="game_record_sql"></include>  where r.soft_time = #{softTime} and r.clubId =  #{clubId}  and m.teamId = #{teamId}
   </select>
 
+  <select id="getRecordsByPlayerId" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>
+    where r.soft_time = #{softTime} and r.clubId =  #{clubId}  and m.playerId = #{playerId} and r.personal_jiesuan = '0'
+  </select>
+
   <select id="getTotalZJByPId" resultType="string">
     <!--SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (<include refid="game_record_sql"></include>) hr where hr.playerId = #{playerId}-->
     SELECT sum(hr.shishou) as sum from (<include refid="game_record_sql"></include>) hr where hr.playerId = #{playerId}

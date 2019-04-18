@@ -7,12 +7,14 @@ package com.kendy.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXToggleButton;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
+import com.kendy.customize.MyTable;
 import com.kendy.db.DBUtil;
 import com.kendy.db.entity.CurrentMoney;
 import com.kendy.db.entity.Player;
@@ -25,6 +27,7 @@ import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.JiaoshouInfo;
 import com.kendy.entity.KaixiaoInfo;
+import com.kendy.entity.PersonalDetailInfo;
 import com.kendy.entity.PersonalInfo;
 import com.kendy.entity.PingzhangInfo;
 import com.kendy.entity.ProfitInfo;
@@ -43,7 +46,9 @@ import com.kendy.service.ShangmaService;
 import com.kendy.service.TeamProxyService;
 import com.kendy.service.ZonghuiService;
 import com.kendy.util.AlertUtil;
+import com.kendy.util.ButtonUtil;
 import com.kendy.util.ClipBoardUtil;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.FileUtil;
@@ -76,6 +81,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -96,6 +102,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -412,6 +419,15 @@ public class ChangciController extends BaseController implements Initializable {
     // 绑定个人表
     bindCellValueByTable(new PersonalInfo(), tablePersonal);
     personalPay.setCellFactory(personalCellFactory);
+    tablePersonal.setOnMouseClicked(e -> {
+      // 行双击
+      if (e.getClickCount() == 2) {
+        PersonalInfo item = getSelectedRow(tablePersonal);
+        if (item != null && item.getPersonalPlayerId() != null) {
+          openPersonalInfoDetailailView(item.getPersonalPlayerName(), item.getPersonalPlayerId());
+        }
+      }
+    });
 
     // 初始化实时金额表
     moneyService.iniitMoneyInfo(tableCurrentMoneyInfo);
@@ -419,6 +435,130 @@ public class ChangciController extends BaseController implements Initializable {
     LMLabel.setTextFill(Color.web("#CD3700"));
     indexLabel.setTextFill(Color.web("#0076a3"));// 设置Label 的文本颜色。
     indexLabel.setFont(new Font("Arial", 30));
+  }
+
+  private Stage stage; // 查看视图
+  /**
+   * 打开个人回水详情列表
+   */
+  private void openPersonalInfoDetailailView(String playerName, String playerId) {
+    String clubId = myController.getClubId();
+    String softDate = getSoftDate();
+    List<GameRecordModel> records = gameRecordService.getRecordsByPlayerId(softDate, clubId, playerId);
+    List<PersonalDetailInfo> detailList = getPersonalDataList(records);
+    addPersonalSum(detailList);
+    String TITLE = playerName + "的回水详情";
+    MyTable<PersonalDetailInfo> table = new MyTable<>();
+
+    setPersonalDeailColumns(table);
+    table.setEditable(false);
+
+    // 获取值
+    table.getItems().addAll(detailList);
+    table.getSelectionModel().clearSelection();
+
+    // 导出按钮
+    table.setEntityClass(PersonalDetailInfo.class);
+    table.setExcelName(TITLE + TimeUtil.getDateTime());
+    JFXButton exportBtn = ButtonUtil.getDownloadButn(table);
+
+    StackPane stackPane = new StackPane();
+    stackPane.getChildren().addAll(table, exportBtn);
+    stackPane.setAlignment(Pos.BOTTOM_CENTER);
+
+    if (stage == null) { // 共享一个舞台
+      stage = new Stage();
+    }
+    // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
+    ShowUtil.setIcon(stage);
+    stage.setTitle(TITLE);
+    stage.setWidth(1050);
+    stage.setHeight(450);
+
+    Scene scene = new Scene(stackPane);
+    stage.setScene(scene);
+    stage.show();
+  }
+
+  private void addPersonalSum(List<PersonalDetailInfo> detailList) {
+    if (CollectionUtils.isNotEmpty(detailList)) {
+      PersonalDetailInfo firstInfo = detailList.get(0);
+      PersonalDetailInfo sumInfo = new PersonalDetailInfo();
+      sumInfo.setClubId(firstInfo.getClubId());
+      sumInfo.setClubName(firstInfo.getClubName());
+      sumInfo.setTeamId(firstInfo.getTeamId());
+      sumInfo.setPlayerId(firstInfo.getPlayerId());
+      sumInfo.setPlayerName(firstInfo.getPlayerName());
+      sumInfo.setJuType("-");
+      sumInfo.setTableId("合计");
+      double jifen = 0;
+      double shishou = 0;
+      double baoxiao = 0;
+      double chuhuishui = 0;
+      double huibao = 0;
+      for (PersonalDetailInfo detail : detailList) {
+        jifen += NumUtil.getNum(detail.getJifen());
+        shishou += NumUtil.getNum(detail.getShishou());
+        baoxiao += NumUtil.getNum(detail.getBaoxian());
+        chuhuishui += NumUtil.getNum(detail.getChuHuishui());
+        huibao += NumUtil.getNum(detail.getHuibao());
+      }
+      sumInfo.setJifen(NumUtil.digit(jifen));
+      sumInfo.setShishou(NumUtil.digit(shishou));
+      sumInfo.setBaoxian(NumUtil.digit(baoxiao));
+      sumInfo.setChuHuishui(NumUtil.digit(chuhuishui));
+      sumInfo.setHuibao(NumUtil.digit(huibao));
+      detailList.add(sumInfo);
+    }
+  }
+
+  private List<PersonalDetailInfo> getPersonalDataList(List<GameRecordModel> records) {
+    List<PersonalDetailInfo> personalDetailInfos = new ArrayList<>();
+    for (GameRecordModel record : records) {
+      PersonalDetailInfo info = new PersonalDetailInfo();
+      info.setClubId(record.getClubid());
+      info.setClubName(record.getClubName());
+      info.setTeamId(record.getTeamId());
+      info.setPlayerId(record.getPlayerid());
+      info.setPlayerName(record.getBeginplayername());
+      info.setJifen(record.getYszj());
+      info.setShishou(record.getShishou());
+      info.setBaoxian(record.getSingleinsurance());
+      info.setChuHuishui(record.getPersonalHuishui());
+      info.setHuibao(NumUtil.digit(record.getPersonalHuibao()));
+      info.setJuType(record.getJutype());
+      info.setTableId(record.getTableid());
+      personalDetailInfos.add(info);
+    }
+    return personalDetailInfos;
+  }
+
+  private void setPersonalDeailColumns(MyTable<PersonalDetailInfo> table) {
+    List<TableColumn<PersonalDetailInfo, String>> cols = Arrays.asList(
+        getTableColumn("俱乐部ID", "clubId"),
+        getTableColumn("俱乐部名称", "clubName"),
+        getTableColumn("团队ID", "teamId"),
+        getTableColumn("玩家ID", "playerId"),
+        getTableColumn("玩家名称", "playerName"),
+        getTableColumn("类型", "juType"),
+        getTableColumn("牌局", "tableId"),
+        getTableColumn("计分", "jifen"),
+        getTableColumn("实收", "shishou"),
+        getTableColumn("保险", "baoxian"),
+        getTableColumn("出回水", "chuHuishui"),
+        getTableColumn("回保", "huibao")
+    );
+    table.getColumns().addAll(cols);
+  }
+
+
+  /**
+   * 获取动态数据表的列
+   */
+  private <T> TableColumn<T, String> getTableColumn(String colName,
+      String colVal) {
+    T t = (T) (new PersonalDetailInfo());
+    return ColumnUtil.getTableRedColumn(colName, colVal, t);
   }
 
   /**

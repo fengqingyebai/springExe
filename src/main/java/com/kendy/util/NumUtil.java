@@ -223,7 +223,10 @@ public class NumUtil {
    * 3.123 => 3.12
    * 3.1 => 3.1
    * -0.0 => 0
+   * -0 => 0
+   * -0.00 => 0
    * 3 => 3
+   * 3.00 => 3
    * @param val
    * @return
    */
@@ -232,10 +235,13 @@ public class NumUtil {
       if (!val.contains(".")) {
         return val.trim();
       }
+      if (StringUtils.endsWith(val, ".00")) {
+        return StringUtils.substringBeforeLast(val, ".");
+      }
       if(val.contains(".") && StringUtils.substringAfterLast(val, ".").length() > 2){
         return NumUtil.digit2(val);
       }
-      if("-0.0".equals(val) || "0.0".equals(val) || "0.00".equals(val)){
+      if("-0.0".equals(val) || "0.0".equals(val) || "0.00".equals(val) || "-0.00".equals(val) || "-0".equals(val)){
         return "0";
       }
       return val;

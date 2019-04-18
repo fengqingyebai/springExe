@@ -62,6 +62,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Observable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -96,7 +97,7 @@ import org.springframework.stereotype.Component;
  * @time 2017年10月28日 下午5:19:48
  */
 @Component
-public class MoneyService extends BasicService {
+public class MoneyService {
 
   private Logger log = LoggerFactory.getLogger(MoneyService.class);
 

@@ -42,5 +42,5 @@ public interface GameRecordDao extends GenericDao<GameRecord>, Mapper<GameRecord
 
   String getTotalZJByPId(@Param("playerId")String playerId);
 
-
-  }
+  List<GameRecordModel> getRecordsByPlayerId( @Param("softTime") String softTime, @Param("clubId")String clubId, @Param("playerId") String playerId);
+}

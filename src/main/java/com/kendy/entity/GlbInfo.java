@@ -37,6 +37,11 @@ public class GlbInfo implements Entity {
   @MyExcelField(title = "牌局", colWidth = 15)
   private SimpleStringProperty glbPaiju = new SimpleStringProperty();
   /**
+   * 类型
+   */
+  @MyExcelField(title = "类型", colWidth = 15)
+  private SimpleStringProperty glbType = new SimpleStringProperty();
+  /**
    * 俱乐部保险抽取
    */
   @MyExcelField(title = "保险抽取", colWidth = 15)
@@ -58,6 +63,9 @@ public class GlbInfo implements Entity {
   private SimpleStringProperty  glbLianmengDaiShoushui = new SimpleStringProperty();
   /**
    * 俱乐部联盟返水
+   * 小游戏庄位为1时返水为0
+   * 小游戏加勒比海联盟返水=战绩S列相反值 * 0.1
+   * 小游戏德州牛仔读取N列，即俱乐部分成
    */
   @MyExcelField(title = "联盟返水", colWidth = 15)
   private SimpleStringProperty glbLianmengFanshui = new SimpleStringProperty();
@@ -76,6 +84,20 @@ public class GlbInfo implements Entity {
    */
   @MyExcelField(title = "俱乐部合计", colWidth = 15)
   private SimpleStringProperty  glbClubHeji = new SimpleStringProperty();
+
+  /**
+   * 是否为庄位
+   * 1是 0否
+   */
+  private SimpleStringProperty  glbIsZhuangWei = new SimpleStringProperty();
+  /**
+   * 原始战绩
+   */
+  private SimpleStringProperty  glbYszj = new SimpleStringProperty();
+  /**
+   * 俱乐部分成
+   */
+  private SimpleStringProperty  glbClubFencheng = new SimpleStringProperty();
 
   public GlbInfo() {
   }
@@ -245,5 +267,53 @@ public class GlbInfo implements Entity {
 
   public void setDetailList(List<GlbInfo> detailList) {
     this.detailList = detailList;
+  }
+
+  public String getGlbType() {
+    return glbType.get();
+  }
+
+  public SimpleStringProperty glbTypeProperty() {
+    return glbType;
+  }
+
+  public void setGlbType(String glbType) {
+    this.glbType.set(glbType);
+  }
+
+  public String getGlbIsZhuangWei() {
+    return glbIsZhuangWei.get();
+  }
+
+  public SimpleStringProperty glbIsZhuangWeiProperty() {
+    return glbIsZhuangWei;
+  }
+
+  public void setGlbIsZhuangWei(String glbIsZhuangWei) {
+    this.glbIsZhuangWei.set(glbIsZhuangWei);
+  }
+
+  public String getGlbYszj() {
+    return glbYszj.get();
+  }
+
+  public SimpleStringProperty glbYszjProperty() {
+    return glbYszj;
+  }
+
+  public void setGlbYszj(String glbYszj) {
+    this.glbYszj.set(glbYszj);
+  }
+
+  public String getGlbClubFencheng() {
+    return glbClubFencheng.get();
+  }
+
+  public SimpleStringProperty glbClubFenchengProperty() {
+    return glbClubFencheng;
+  }
+
+  public void setGlbClubFencheng(String glbClubFencheng) {
+    this.glbClubFencheng.set(glbClubFencheng);
   }
 }

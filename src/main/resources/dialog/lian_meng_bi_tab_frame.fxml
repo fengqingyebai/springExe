@@ -17,7 +17,6 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
 <StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.LMBController">
    <children>
       <AnchorPane prefHeight="864.0" prefWidth="1296.0">
@@ -83,9 +82,13 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </JFXButton>
-            <Label layoutX="284.0" layoutY="499.0" prefHeight="30.0" prefWidth="54.0" text="小游戏：" />
-            <JFXTextField fx:id="gameTypeField" alignment="CENTER" layoutX="347.0" layoutY="503.0" prefHeight="23.0" prefWidth="177.0" promptText="请填写小游戏类型，以##隔开" text="加勒比海##德州牛仔" unFocusColor="#c3bd10" />
-            <JFXButton layoutX="524.0" layoutY="503.0" onAction="#saveGameTypeActioin" prefHeight="23.0" prefWidth="78.0" ripplerFill="#e1b970" text="刷新保存" textFill="#8a6606" />
+            <Label layoutX="227.0" layoutY="499.0" prefHeight="30.0" prefWidth="54.0" text="小游戏：" />
+            <JFXTextField fx:id="gameTypeField" alignment="CENTER" layoutX="290.0" layoutY="503.0" prefHeight="23.0" prefWidth="215.0" promptText="请填写小游戏类型，以##隔开" text="加勒比海##德州牛仔" unFocusColor="#c3bd10" />
+            <JFXButton layoutX="1075.0" layoutY="505.0" onAction="#saveGameTypeActioin" prefHeight="23.0" prefWidth="78.0" ripplerFill="#e1b970" text="刷新保存" textFill="#8a6606" />
+            <Label layoutX="576.0" layoutY="500.0" prefHeight="30.0" prefWidth="137.0" text="加勒比海联盟分成比例：" />
+            <JFXTextField fx:id="jlbLianmengFenchengRate" alignment="CENTER" layoutX="705.0" layoutY="503.0" prefHeight="23.0" prefWidth="54.0" promptText="请填写小游戏类型，以##隔开" text="90%" unFocusColor="#c3bd10" />
+            <Label layoutX="830.0" layoutY="499.0" prefHeight="30.0" prefWidth="145.0" text="加勒比海俱乐部分成比例：" />
+            <JFXTextField fx:id="jlbClubFenchengRate" alignment="CENTER" layoutX="974.0" layoutY="504.0" prefHeight="23.0" prefWidth="54.0" promptText="请填写小游戏类型，以##隔开" text="10%" unFocusColor="#c3bd10" />
          </children>
       </AnchorPane>
    </children>

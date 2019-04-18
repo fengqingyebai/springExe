@@ -4,6 +4,7 @@ import com.kendy.db.entity.GameRecord;
 import com.kendy.db.entity.pk.GameRecordPK;
 import com.kendy.model.GameRecordModel;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface GameRecordService extends GenericService<GameRecord, GameRecordPK> {
 
@@ -35,5 +36,7 @@ public interface GameRecordService extends GenericService<GameRecord, GameRecord
   List<GameRecord> getPersonalRecords(String softDate, String clubId);
 
   int updatePersonalJieSuan(String playerId);
+
+  List<GameRecordModel> getRecordsByPlayerId(String softTime, String clubId, String playerId);
 
 }

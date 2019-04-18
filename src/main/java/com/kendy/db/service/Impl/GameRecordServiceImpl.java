@@ -88,5 +88,11 @@ public class GameRecordServiceImpl extends GenericServiceImpl<GameRecordDao, Gam
     return getDao().updatePersonalJieSuan(playerId);
   }
 
+  @Override
+  public List<GameRecordModel> getRecordsByPlayerId(String softTime, String clubId,
+      String playerId) {
+    return getDao().getRecordsByPlayerId(softTime, clubId, playerId);
+  }
+
 
 }

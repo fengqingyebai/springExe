@@ -53,6 +53,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -226,8 +227,8 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月18日
    */
   private void initDataList() {
-    String currentClubId = myController.currentClubId.getText();
-    if (!StringUtil.isAnyBlank(currentClubId)) {
+    String currentClubId = myController.getClubId();
+    if (StringUtils.isNotBlank(currentClubId)) {
       List<GameRecordModel> list = gameRecordService.getGameRecordsByClubId(currentClubId);
       if (CollectUtil.isHaveValue(list)) {
         dataList = list;
@@ -489,18 +490,19 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年1月31日
    */
   public Double getTeamPersonProfit(final GameRecordModel record) {
-    String playerId = record.getPlayerid();
-    String teamId = getTeamIdWithUperCase(playerId);
-    String zhanji = record.getYszj();
-    String baoxian = record.getSingleinsurance();
-    String chuHuishui = myController.getHuishuiByYSZJ(zhanji, teamId, 1);
-    String shuihouxian =
-        NumUtil.digit1((-1) * Double.valueOf(baoxian) * Constants.CURRENT_HS_RATE + "");
-    String shouHuishui = myController.getHuishuiByYSZJ(zhanji, "", 2);
-    String baohui = NumUtil.digit1(moneyService.getHuiBao(baoxian, teamId));
-    Double personProfit = NumUtil.getNum(NumUtil.getSum(shouHuishui, chuHuishui, shuihouxian))
-        - (NumUtil.getNum(baohui));
-    return personProfit;
+//    String playerId = record.getPlayerid();
+//    String teamId = getTeamIdWithUperCase(playerId);
+//    String zhanji = record.getYszj();
+//    String baoxian = record.getSingleinsurance();
+//    String chuHuishui = myController.getHuishuiByYSZJ(zhanji, teamId, 1);
+//    String shuihouxian =
+//        NumUtil.digit1((-1) * Double.valueOf(baoxian) * Constants.CURRENT_HS_RATE + "");
+//    String shouHuishui = myController.getHuishuiByYSZJ(zhanji, "", 2);
+//    String baohui = NumUtil.digit1(moneyService.getHuiBao(baoxian, teamId));
+//    Double personProfit = NumUtil.getNum(NumUtil.getSum(shouHuishui, chuHuishui, shuihouxian))
+//        - (NumUtil.getNum(baohui));
+//    return personProfit;
+    return NumUtil.getNum(record.getHelirun());
   }
 
   /**
@@ -528,7 +530,7 @@ public class GDController extends BaseController implements Initializable {
     // 三个股东表设置模拟的空行数据
     setTableMockData(tableYSGu, 9);// 12表示前多少行是模拟数据，可以编辑
     setTableMockData(tableEncourageGu, 9);
-    setTableMockData(tablekfGu, 10);
+    setTableMockData(tablekfGu, 20);
 
     // 明细表
     changciController.bindCellValue(name, ysgu, jl3, jl7, total, salary);
