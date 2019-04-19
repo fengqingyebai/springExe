@@ -1,5 +1,6 @@
 package com.kendy.controller;
 
+import com.kendy.util.ColumnUtil;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -338,7 +339,7 @@ public class BankFlowController extends BaseController implements Initializable 
     col.setStyle(Constants.CSS_CENTER);
     col.setPrefWidth(COL_WIDTH);
     col.setCellValueFactory(new PropertyValueFactory<BankFlowInfo, String>(colVal));
-    col.setCellFactory(getColorCellFactory(new BankFlowInfo()));
+    col.setCellFactory(ColumnUtil.getColorCellFactory(new BankFlowInfo()));
     col.setSortable(false);
     return col;
   }

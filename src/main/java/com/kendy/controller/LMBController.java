@@ -4,9 +4,11 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.kendy.constant.DataConstans;
 import com.kendy.customize.MyTable;
+import com.kendy.db.entity.GameRecord;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.GameInfo;
 import com.kendy.entity.GlbInfo;
+import com.kendy.enums.ExcelAutoDownType;
 import com.kendy.model.GameRecordModel;
 import com.kendy.util.ButtonUtil;
 import com.kendy.util.ColumnUtil;
@@ -118,6 +120,8 @@ public class LMBController extends BaseController implements Initializable {
   @FXML
   private JFXTextField jlbClubFenchengRate; // 加勒比俱乐部分成比例
 
+  private static final String JIA_LE_BI_HAI = ExcelAutoDownType.JIA_LE_BI.getName();
+
 
   private Collection<GameRecordModel> todayDatas = new ArrayList<>(500);
   private List<String> GAME_TYPES = new ArrayList<>();
@@ -135,6 +139,57 @@ public class LMBController extends BaseController implements Initializable {
     }
     todayDatas = gameRecordService
         .getGameRecordsByMaxTime(changciController.getSoftDate());
+
+    // 修改额外数据
+    set_game_etra_data(todayDatas);
+  }
+
+
+  /**
+   * 修改加勒比海的联盟分成和俱乐部分成
+   * @param todayDatas
+   */
+  private void set_game_etra_data(Collection<GameRecordModel> todayDatas){
+
+    if (CollectionUtils.isNotEmpty(todayDatas)) {
+      for (GameRecordModel model : todayDatas) {
+        if (isGameType(model.getJutype())) {
+          // 设置小游戏俱乐部分成
+          model.setLianmengFencheng(computeFencheng(model, true));
+          // 设置小游戏联盟分成
+          model.setClubFencheng(computeFencheng(model, false));
+          boolean isZhuangWei = StringUtils.equals("1", model.getIsZhuangwei());
+          if (isZhuangWei) {
+            // 第一个表合计小游戏战绩抽取=是庄位=>对应战绩列*2
+            // 设置小游戏战绩抽取(Q列彩池合计)
+            model.setSingleinsurance(computeGameZJChouqu(model));
+          } else {
+            // 第一个表合计小游戏联盟返水=不是庄位=>取详细表的俱乐部分成
+            // 设置小游戏联盟返水(Y列 = 俱乐部再分配=战绩抽取)
+            model.setClubZaifenpei(model.getSingleinsurance());
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   *
+   * @param model
+   * @param isLMFencheng
+   * @return
+   */
+  private String computeFencheng(GameRecordModel model, boolean isLMFencheng){
+    String yszj = model.getYszj();
+    if (isLMFencheng) {
+      return NumUtil.digit(Math.abs(NumUtil.getNum(yszj))*(-1)*get_LM_fencheng_rate());
+    }
+    return NumUtil.digit(Math.abs(NumUtil.getNum(yszj))*(-1)*get_club_fencheng_rate());
+  }
+
+  private String computeGameZJChouqu(GameRecordModel model){
+    String yszj = model.getYszj();
+    return NumUtil.digit(NumUtil.getNum(yszj) * 2);
   }
 
 
@@ -341,10 +396,10 @@ public class LMBController extends BaseController implements Initializable {
         if (isGameType(model.getJutype())) {
           detail
               .setGlbBaoxianChouqu("0");
-          detail.setGlbZhanjiChouqu("0");
+          detail.setGlbZhanjiChouqu(digit(model.getSingleinsurance())); // see 方法set_game_etra_data()
           detail.setGlbChouquHeji("0");
           detail.setGlbLianmengDaiShoushui("0");
-          detail.setGlbLianmengFanshui(digit(getGameLianmengFanshui(detail))); // 小游戏联盟返水= Y列 = 俱乐部再分配
+          detail.setGlbLianmengFanshui(digit(model.getClubZaifenpei())); // see 方法set_game_etra_data()
           detail.setGlbLianmengBXJiaoshou("0");
           detail.setGlbLianmengBXZhancheng("0");
           detail.setGlbClubHeji("0");

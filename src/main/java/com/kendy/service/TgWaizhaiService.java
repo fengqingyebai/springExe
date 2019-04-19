@@ -2,6 +2,7 @@ package com.kendy.service;
 
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
+import com.kendy.util.ColumnUtil;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -140,7 +141,7 @@ public class TgWaizhaiService {
       lastNameCol.setPrefWidth(65);
       lastNameCol
           .setCellValueFactory(new PropertyValueFactory<CurrentMoneyInfo, String>("shishiJine"));
-      lastNameCol.setCellFactory(baseController.getColorCellFactory(new CurrentMoneyInfo()));
+      lastNameCol.setCellFactory(ColumnUtil.getColorCellFactory(new CurrentMoneyInfo()));
       table.setPrefWidth(150);
       table.getColumns().addAll(firstNameCol, lastNameCol);
 

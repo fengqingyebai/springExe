@@ -39,6 +39,7 @@ import com.kendy.model.BankFlowModel;
 import com.kendy.model.GameRecordModel;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.ClipBoardUtil;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.FXUtil;
 import com.kendy.util.NumUtil;
@@ -390,6 +391,15 @@ public class MoneyService {
 
     log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
   }
+
+  /**
+   * TODO
+   * @param recordModel
+   */
+  private void set_Jialebi_etra_data(GameRecordModel recordModel){
+    // 是加勒比海，是庄位
+  }
+
 
   /**
    * 设置个人的回水和回保
@@ -2037,7 +2047,7 @@ public class MoneyService {
     col.setPrefWidth(110);
     col.setCellValueFactory(new PropertyValueFactory<KeyValue, String>(colVal));
     if (columnColorType == ColumnColorType.COLUMN_RED) {
-      col.setCellFactory(myController.getColorCellFactory(new KeyValue()));
+      col.setCellFactory(ColumnUtil.getColorCellFactory(new KeyValue()));
     }
     col.setSortable(false);
     return col;

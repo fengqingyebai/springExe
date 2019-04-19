@@ -23,6 +23,7 @@ import com.kendy.service.TeamProxyService;
 import com.kendy.service.WaizhaiService;
 import com.kendy.util.AlertUtil;
 import com.kendy.util.CollectUtil;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.MapUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -522,7 +523,7 @@ public class GDController extends BaseController implements Initializable {
     // 主表
     KF_gudongName.setEditable(true);
     changciController.bindCellValue(gudongName, gudongProfit);
-    gudongProfit.setCellFactory(getColorCellFactory(new GudongRateInfo()));
+    gudongProfit.setCellFactory(ColumnUtil.getColorCellFactory(new GudongRateInfo()));
 
     // 绑定数据（股东原始股表\股东奖励股表\客服占股表）
     bind3TableColumns();
@@ -645,7 +646,7 @@ public class GDController extends BaseController implements Initializable {
       lastNameCol.setPrefWidth(92);
       lastNameCol
           .setCellValueFactory(new PropertyValueFactory<GudongRateInfo, String>("gudongProfit"));
-      lastNameCol.setCellFactory(getColorCellFactory(new GudongRateInfo()));
+      lastNameCol.setCellFactory(ColumnUtil.getColorCellFactory(new GudongRateInfo()));
       table.setPrefWidth(210);
 
       TableColumn tempValCol = new TableColumn("0");
@@ -653,7 +654,7 @@ public class GDController extends BaseController implements Initializable {
       tempValCol.setPrefWidth(60);
       tempValCol
           .setCellValueFactory(new PropertyValueFactory<GudongRateInfo, String>("description"));
-      tempValCol.setCellFactory(getColorCellFactory(new GudongRateInfo()));
+      tempValCol.setCellFactory(ColumnUtil.getColorCellFactory(new GudongRateInfo()));
       table.setPrefWidth(210 + 60);
 
       table.getColumns().addAll(firstNameCol, lastNameCol, tempValCol);

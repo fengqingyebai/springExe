@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.model.ClubInfo;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.TableUtil;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -1407,14 +1408,14 @@ public class LMController extends BaseController implements Initializable {
       col2.setStyle(style);
       col2.setPrefWidth(With2);
       col2.setCellValueFactory(new PropertyValueFactory<LMSumInfo, String>("lmSumZJ"));
-      col2.setCellFactory(getColorCellFactory(new LMSumInfo()));// 红色注释
+      col2.setCellFactory(ColumnUtil.getColorCellFactory(new LMSumInfo()));// 红色注释
 
       TableColumn col3 = new TableColumn("总保险");
       col3.setSortable(false);
       col3.setStyle(style);
       col3.setPrefWidth(With3);
       col3.setCellValueFactory(new PropertyValueFactory<LMSumInfo, String>("lmSumInsure"));
-      col3.setCellFactory(getColorCellFactory(new LMSumInfo()));// 红色注释
+      col3.setCellFactory(ColumnUtil.getColorCellFactory(new LMSumInfo()));// 红色注释
 
       TableColumn col4 = new TableColumn("总人数");
       col4.setSortable(false);

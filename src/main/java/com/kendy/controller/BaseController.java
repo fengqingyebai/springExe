@@ -2,6 +2,7 @@ package com.kendy.controller;
 
 import com.kendy.constant.DataConstans;
 import com.kendy.enums.PermissionTabEnum;
+import com.kendy.util.ColumnUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
@@ -73,34 +74,8 @@ public class BaseController {
     column.setStyle("-fx-alignment: CENTER;");
     column.setSortable(false);// 禁止排序
     if (entity != null) {
-      column.setCellFactory(getColorCellFactory(entity));
+      column.setCellFactory(ColumnUtil.getColorCellFactory(entity));
     }
-  }
-
-
-  public <T> Callback<TableColumn<T, String>, TableCell<T, String>> getColorCellFactory(
-      T t) {
-    return new Callback<TableColumn<T, String>, TableCell<T, String>>() {
-      public TableCell<T, String> call(TableColumn<T, String> param) {
-        TableCell<T, String> cell = new TableCell<T, String>() {
-          @Override
-          public void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
-            this.setTextFill(null);
-            if (!isEmpty() && item != null) {
-              if (StringUtil.isNegativeNumber(item)) {
-                this.setTextFill(Color.RED);
-              } else {
-                this.setTextFill(Color.BLACK);
-              }
-              setText(item);
-            }
-          }
-        };
-        cell.setEditable(false);// 不让其可编辑
-        return cell;
-      }
-    };
   }
 
 
