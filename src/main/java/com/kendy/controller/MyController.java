@@ -339,6 +339,7 @@ public class MyController extends BaseController implements Initializable {
       return subTab;
     } catch (Exception e) {
       ErrorUtil.err(tabName + "tab加载失败", e);
+      e.printStackTrace();
     }
     return null;
   }

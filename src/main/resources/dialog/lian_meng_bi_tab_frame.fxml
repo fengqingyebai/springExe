@@ -65,7 +65,7 @@
                   <Font name="System Bold" size="26.0" />
                </font>
             </JFXButton>
-            <TableView fx:id="tableGame" layoutX="43.0" layoutY="538.0" prefHeight="272.0" prefWidth="1231.0">
+            <TableView fx:id="tableGame" layoutX="43.0" layoutY="564.0" prefHeight="246.0" prefWidth="1231.0">
                <columns>
                   <TableColumn fx:id="gameClubName" prefWidth="109.0" text="俱乐部名称" />
                   <TableColumn fx:id="gameClubId" minWidth="0.0" prefWidth="115.0" text="俱乐部ID" />
@@ -73,6 +73,9 @@
                   <TableColumn fx:id="gameClubFencheng" minWidth="0.0" prefWidth="157.0" text="俱乐部分成" />
                   <TableColumn fx:id="gameClubHeji" minWidth="0.0" prefWidth="117.0" text="俱乐部合计" />
                </columns>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
             </TableView>
             <JFXButton buttonType="RAISED" defaultButton="true" layoutX="1114.0" layoutY="34.0" onAction="#refreshAction" prefHeight="30.0" prefWidth="122.0" ripplerFill="#2e80eb" style="-fx-background-color: #F0F0F0;" text="刷新页面" textFill="#b2370b">
                <cursor>
@@ -84,11 +87,20 @@
             </JFXButton>
             <Label layoutX="227.0" layoutY="499.0" prefHeight="30.0" prefWidth="54.0" text="小游戏：" />
             <JFXTextField fx:id="gameTypeField" alignment="CENTER" layoutX="290.0" layoutY="503.0" prefHeight="23.0" prefWidth="215.0" promptText="请填写小游戏类型，以##隔开" text="加勒比海##德州牛仔" unFocusColor="#c3bd10" />
-            <JFXButton layoutX="1075.0" layoutY="505.0" onAction="#saveGameTypeActioin" prefHeight="23.0" prefWidth="78.0" ripplerFill="#e1b970" text="刷新保存" textFill="#8a6606" />
             <Label layoutX="576.0" layoutY="500.0" prefHeight="30.0" prefWidth="137.0" text="加勒比海联盟分成比例：" />
             <JFXTextField fx:id="jlbLianmengFenchengRate" alignment="CENTER" layoutX="705.0" layoutY="503.0" prefHeight="23.0" prefWidth="54.0" promptText="请填写小游戏类型，以##隔开" text="90%" unFocusColor="#c3bd10" />
             <Label layoutX="830.0" layoutY="499.0" prefHeight="30.0" prefWidth="145.0" text="加勒比海俱乐部分成比例：" />
             <JFXTextField fx:id="jlbClubFenchengRate" alignment="CENTER" layoutX="974.0" layoutY="504.0" prefHeight="23.0" prefWidth="54.0" promptText="请填写小游戏类型，以##隔开" text="10%" unFocusColor="#c3bd10" />
+            <Label layoutX="227.0" layoutY="532.0" prefHeight="30.0" prefWidth="137.0" text="德州牛仔庄位玩家ID: " />
+            <JFXTextField fx:id="dezhouNiuzaiField" alignment="CENTER" layoutX="350.0" layoutY="532.0" prefHeight="23.0" prefWidth="411.0" promptText="请填写德州牛仔庄位玩家ID，以##隔开" unFocusColor="#c3bd10" />
+            <JFXButton alignment="CENTER" defaultButton="true" layoutX="1098.0" layoutY="505.0" onAction="#saveConfigActioin" prefHeight="43.0" prefWidth="122.0" ripplerFill="#2e80eb" style="-fx-background-color: #F0F0F0;" text="保存配置" textAlignment="CENTER" textFill="#56b00c">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </JFXButton>
          </children>
       </AnchorPane>
    </children>

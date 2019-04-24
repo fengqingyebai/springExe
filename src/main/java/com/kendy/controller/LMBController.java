@@ -1,15 +1,19 @@
 package com.kendy.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.kendy.constant.DataConstans;
 import com.kendy.customize.MyTable;
+import com.kendy.db.DBUtil;
 import com.kendy.db.entity.GameRecord;
+import com.kendy.db.entity.pk.GameRecordPK;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.GameInfo;
 import com.kendy.entity.GlbInfo;
 import com.kendy.enums.ExcelAutoDownType;
 import com.kendy.model.GameRecordModel;
+import com.kendy.model.LmbCache;
 import com.kendy.util.ButtonUtil;
 import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
@@ -17,6 +21,7 @@ import com.kendy.util.FXUtil;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
+import com.kendy.util.TextFieldUtil;
 import com.kendy.util.TimeUtil;
 import java.net.URL;
 import java.util.ArrayList;
@@ -64,6 +69,9 @@ public class LMBController extends BaseController implements Initializable {
 
   @Autowired
   ChangciController changciController;
+
+  @Autowired
+  DBUtil dbUtil;
 
 
   //======================================================俱乐部合计表
@@ -119,20 +127,23 @@ public class LMBController extends BaseController implements Initializable {
   private JFXTextField jlbLianmengFenchengRate; // 加勒比联盟分成比例
   @FXML
   private JFXTextField jlbClubFenchengRate; // 加勒比俱乐部分成比例
+  @FXML
+  private JFXTextField dezhouNiuzaiField; // 德州牛仔输入框（输入的ID视为庄家）
 
   private static final String JIA_LE_BI_HAI = ExcelAutoDownType.JIA_LE_BI.getName();
+  private static final String DE_ZHOU_NIU_ZAI = ExcelAutoDownType.DE_ZHOU_NIU_ZAI.getName();
+  private static final String ZHUANG_WEI = "1";
 
 
+  private static final String LMB_NAME = "lian_meng_bi";
   private Collection<GameRecordModel> todayDatas = new ArrayList<>(500);
-  private List<String> GAME_TYPES = new ArrayList<>();
+  private LmbCache lmbCache ; // 缓存联盟币界面数据
   private Stage stage; // 查看视图
 
 
-  @PostConstruct
-  public void initData() {
-
-  }
-
+  /**
+   * 从数据库获取今日数据
+   */
   private void getData() {
     if (CollectionUtils.isNotEmpty(todayDatas)) {
       todayDatas.clear();
@@ -154,23 +165,53 @@ public class LMBController extends BaseController implements Initializable {
     if (CollectionUtils.isNotEmpty(todayDatas)) {
       for (GameRecordModel model : todayDatas) {
         if (isGameType(model.getJutype())) {
-          // 设置小游戏俱乐部分成
-          model.setLianmengFencheng(computeFencheng(model, true));
-          // 设置小游戏联盟分成
-          model.setClubFencheng(computeFencheng(model, false));
-          boolean isZhuangWei = StringUtils.equals("1", model.getIsZhuangwei());
+          // 针对德州牛仔，根据设置的人员ID设置是否庄位
+          if (StringUtils.equals(DE_ZHOU_NIU_ZAI, model.getJutype())) {
+            if (!StringUtils.equals(ZHUANG_WEI, model.getIsZhuangwei())) { // 非庄位，则设置庄位，并更新到数据库
+              setDezhouZhuangwei(model);
+            }
+          }
+
+          // 针对加勒比海，根据设置占比，设置俱乐部分成、联盟分成、联盟返水
+          if (StringUtils.equals(JIA_LE_BI_HAI, model.getJutype())) {
+            // 设置小游戏俱乐部分成
+            model.setLianmengFencheng(computeFencheng(model, true));
+            // 设置小游戏联盟分成
+            model.setClubFencheng(computeFencheng(model, false));
+          }
+
+          // 设置小游戏其他字段
+          boolean isZhuangWei = StringUtils.equals(ZHUANG_WEI, model.getIsZhuangwei());
           if (isZhuangWei) {
             // 第一个表合计小游戏战绩抽取=是庄位=>对应战绩列*2
             // 设置小游戏战绩抽取(Q列彩池合计)
             model.setSingleinsurance(computeGameZJChouqu(model));
+            model.setClubZaifenpei("0");
           } else {
             // 第一个表合计小游戏联盟返水=不是庄位=>取详细表的俱乐部分成
             // 设置小游戏联盟返水(Y列 = 俱乐部再分配=战绩抽取)
-            model.setClubZaifenpei(model.getSingleinsurance());
+            model.setClubZaifenpei(model.getClubFencheng());
+            model.setSingleinsurance("0");
           }
+
         }
       }
     }
+  }
+
+  /**
+   * 针对德州牛仔，根据设置的人员ID设置是否庄位
+   * @param model
+   */
+  private void setDezhouZhuangwei(GameRecordModel model) {
+    model.setIsZhuangwei(ZHUANG_WEI);
+    // 更新到数据库
+    GameRecord entity = gameRecordService.get(
+        new GameRecordPK(model.getSoftTime(), model.getClubid(), model.getTableid(),
+            model.getPlayerid()));
+    entity.setIsZhuangwei(ZHUANG_WEI);
+    gameRecordService.updateNotNull(entity);
+    logger.info("德州牛仔使用人工设置的庄位ID:{}", model.getPlayerid());
   }
 
   /**
@@ -182,9 +223,9 @@ public class LMBController extends BaseController implements Initializable {
   private String computeFencheng(GameRecordModel model, boolean isLMFencheng){
     String yszj = model.getYszj();
     if (isLMFencheng) {
-      return NumUtil.digit(Math.abs(NumUtil.getNum(yszj))*(-1)*get_LM_fencheng_rate());
+      return NumUtil.digit(NumUtil.getNum(yszj)*(-1)*get_LM_fencheng_rate());
     }
-    return NumUtil.digit(Math.abs(NumUtil.getNum(yszj))*(-1)*get_club_fencheng_rate());
+    return NumUtil.digit(NumUtil.getNum(yszj)*(-1)*get_club_fencheng_rate());
   }
 
   private String computeGameZJChouqu(GameRecordModel model){
@@ -219,13 +260,76 @@ public class LMBController extends BaseController implements Initializable {
       }
     });
 
-    // 初始化游戏类型
-    GAME_TYPES = getGameType();
+    // 初始化配置项
+    initConfig();
+
+  }
+
+  /**
+   * 从数据库加载
+   */
+  private void loadLmbCacheFromDB(){
+    LmbCache _lmbCache = null;
+    try {
+      String cacheJson = dbUtil.getValueByKey(LMB_NAME);
+      _lmbCache = JSON.parseObject(cacheJson, LmbCache.class);
+      if (_lmbCache != null) {
+        // 设置值
+
+        lmbCache = _lmbCache;
+      }
+    } catch (Exception e) {
+      ErrorUtil.err("加载配置项失败");
+    }
+  }
+
+  /**
+   * 点击保存时获取最新缓存
+   */
+  private void refreshLmbCache(){
+    // 设置小游戏类型
+    lmbCache.setGameTypes(TextFieldUtil.defaultSplit(gameTypeField));
+
+    // 设置加勒比海
+    lmbCache.setJialebiClubFenchengRate(StringUtils.defaultString(jlbClubFenchengRate.getText()));
+    lmbCache.setJialebiLMFenchengRate(StringUtils.defaultString(jlbLianmengFenchengRate.getText()));
+
+    // 设置德州牛仔
+    lmbCache.setDezhouZhuangweiIds(TextFieldUtil.defaultSplit(dezhouNiuzaiField));
+  }
+
+  /**
+   * 从缓存中设置界面内容
+   */
+  private void setUIText(){
+    // 设置小游戏类型
+    TextFieldUtil.setDefaultContent(gameTypeField, lmbCache.getGameTypes());
+    // 设置德州牛仔
+    TextFieldUtil.setDefaultContent(dezhouNiuzaiField, lmbCache.getDezhouZhuangweiIds());
+    // 设置加勒比海
+    jlbClubFenchengRate.setText(lmbCache.getJialebiClubFenchengRate());
+    jlbLianmengFenchengRate.setText(lmbCache.getJialebiLMFenchengRate());
+  }
+
+
+  /**
+   * 初始化配置项
+   */
+  private void initConfig() {
+
+    // 从数据库加载
+    loadLmbCacheFromDB();
+
+    // 设置界面选项值
+    setUIText();
 
     // 初始化数据
     getData();
   }
 
+  /**
+   * 点击刷新按钮
+   */
   @FXML
   public void refreshAction() {
     MaskerPaneUtil.addMaskerPane(stackPane);
@@ -260,7 +364,9 @@ public class LMBController extends BaseController implements Initializable {
       String clubId;
       for (final GameRecordModel recordModel : todayDatas) {
         clubId = recordModel.getClubid();
-        if (isGameType(recordModel.getJutype())) {
+
+        if (isGameType(recordModel.getJutype()) && !StringUtils.equals(ZHUANG_WEI, recordModel.getIsZhuangwei())) {
+          // 属于小游戏且不是庄位
           List<GameRecordModel> gameList = gameMap.getOrDefault(clubId, new ArrayList<>());
           gameList.add(recordModel);
           gameMap.put(clubId, gameList);
@@ -278,24 +384,14 @@ public class LMBController extends BaseController implements Initializable {
     }
   }
 
-  /**
-   * 获取小游戏类型列表
-   */
-  private List<String> getGameType() {
-    List<String> _gameTypes = new ArrayList<>();
-    String gameTypeText = gameTypeField.getText();
-    if (StringUtils.isNotBlank(gameTypeText)) {
-      for (String gameType : gameTypeText.trim().split("##")) {
-        _gameTypes.add(gameType);
-      }
-    }
-    return _gameTypes;
-  }
 
   @FXML
-  private void saveGameTypeActioin() {
-    GAME_TYPES = getGameType();
-    // TODO 保存到数据库
+  private void saveConfigActioin() {
+    // 刷新缓存
+    refreshLmbCache();
+
+    // 保存到数据库
+    dbUtil.saveOrUpdateOthers(LMB_NAME, JSON.toJSONString(lmbCache));
     FXUtil.info("小游戏类型保存成功, 已更新到软件系统，刷新生效哦！");
   }
 
@@ -303,7 +399,7 @@ public class LMBController extends BaseController implements Initializable {
    * 战绩记录是否为小游戏类型
    */
   private boolean isGameType(String gameType) {
-    return GAME_TYPES.contains(gameType);
+    return lmbCache.getGameTypes().contains(gameType);
   }
 
 
@@ -507,7 +603,7 @@ public class LMBController extends BaseController implements Initializable {
   private double getGameLianmengFanshui(GlbInfo glbInfo){
     double fanshui = 0;
     if (isGameType(glbInfo.getGlbType())) { // 累加小游戏，目前只修改联盟返水
-      boolean isGameZhuangwei = StringUtils.equals("1", glbInfo.getGlbIsZhuangWei());
+      boolean isGameZhuangwei = StringUtils.equals(ZHUANG_WEI, glbInfo.getGlbIsZhuangWei());
       if (isGameZhuangwei) {
         if (StringUtils.equals("加勒比海", glbInfo.getGlbType())) {
           fanshui = NumUtil.getNum(glbInfo.getGlbYszj()) * (-1) * (0.1);
@@ -649,7 +745,8 @@ public class LMBController extends BaseController implements Initializable {
     GameInfo clubInfo = new GameInfo();
     clubInfo.setGameLianmengFencheng(NumUtil.digit2(sumLianmengFencheng + ""));
     clubInfo.setGameClubFencheng(NumUtil.digit2(sumClubFencheng + ""));
-    clubInfo.setGameClubHeji(NumUtil.digit2(sumLianmengFencheng + sumClubFencheng + ""));
+    // 小游戏俱乐部合计 = 俱乐部分成
+    clubInfo.setGameClubHeji(NumUtil.digit2(sumClubFencheng + ""));
     if (type == 1) {
       clubInfo.setDetailList(details);
       clubInfo.setGameClubId(details.get(0).getGameClubId());
