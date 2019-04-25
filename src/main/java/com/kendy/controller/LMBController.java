@@ -558,19 +558,19 @@ public class LMBController extends BaseController implements Initializable {
   private GlbInfo getSumGlbInfo(List<GlbInfo> details, int type) {
     double baoxianChouqu = 0;
     double zhanjiChouqu = 0;
-    double chouquHeji = 0;
     double daiShoushui = 0;
     double fanshui = 0;
     double baoxianJiaoshou = 0;
     double baoxianZhancheng = 0;
     double clubHeji = 0;
     for (GlbInfo detail : details) {
-      if (isGameType(detail.getGlbType())) { // 累加小游戏，目前只修改联盟返水
-        fanshui += getGameLianmengFanshui(detail);
+      if (isGameType(detail.getGlbType())) { // 累加小游戏，目前只修改战绩抽取和联盟返水
+        fanshui += NumUtil.getNum(detail.getGlbLianmengFanshui()); // getGameLianmengFanshui(detail);
+        zhanjiChouqu += NumUtil.getNum(detail.getGlbZhanjiChouqu());
+
       } else {
         baoxianChouqu += NumUtil.getNum(detail.getGlbBaoxianChouqu());
         zhanjiChouqu += NumUtil.getNum(detail.getGlbZhanjiChouqu());
-        chouquHeji += (baoxianChouqu + zhanjiChouqu);
         daiShoushui += NumUtil.getNum(detail.getGlbLianmengDaiShoushui());
         fanshui += NumUtil.getNum(detail.getGlbLianmengFanshui());
         baoxianJiaoshou += NumUtil.getNum(detail.getGlbLianmengBXJiaoshou());
@@ -578,10 +578,14 @@ public class LMBController extends BaseController implements Initializable {
         clubHeji += NumUtil.getNum(detail.getGlbClubHeji());
       }
     }
+    // 设置抽取合计
+    for (GlbInfo detail : details) {
+      detail.setGlbChouquHeji(digit(NumUtil.getSum(detail.getGlbBaoxianChouqu(), detail.getGlbZhanjiChouqu())));
+    }
     GlbInfo clubInfo = new GlbInfo();
     clubInfo.setGlbBaoxianChouqu(digit(baoxianChouqu));
     clubInfo.setGlbZhanjiChouqu(digit(zhanjiChouqu));
-    clubInfo.setGlbChouquHeji(digit(chouquHeji));
+    clubInfo.setGlbChouquHeji(digit(baoxianChouqu + zhanjiChouqu));
     clubInfo.setGlbLianmengDaiShoushui(digit(daiShoushui));
     clubInfo.setGlbLianmengFanshui(digit(fanshui));
     clubInfo.setGlbLianmengBXJiaoshou(digit(baoxianJiaoshou));
@@ -598,24 +602,6 @@ public class LMBController extends BaseController implements Initializable {
       clubInfo.setGlbClubId("-");
     }
     return clubInfo;
-  }
-
-  private double getGameLianmengFanshui(GlbInfo glbInfo){
-    double fanshui = 0;
-    if (isGameType(glbInfo.getGlbType())) { // 累加小游戏，目前只修改联盟返水
-      boolean isGameZhuangwei = StringUtils.equals(ZHUANG_WEI, glbInfo.getGlbIsZhuangWei());
-      if (isGameZhuangwei) {
-        if (StringUtils.equals("加勒比海", glbInfo.getGlbType())) {
-          fanshui = NumUtil.getNum(glbInfo.getGlbYszj()) * (-1) * (0.1);
-
-        } else if (StringUtils.equals("德州牛仔", glbInfo.getGlbType())) {
-          fanshui = NumUtil.getNum(glbInfo.getGlbClubFencheng()); //读取N列，即俱乐部分成
-        } else {
-          logger.error("牌局类开不确认！");
-        }
-      }
-    }
-    return fanshui;
   }
 
   private String digit(double val) {
