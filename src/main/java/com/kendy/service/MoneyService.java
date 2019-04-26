@@ -2430,15 +2430,18 @@ public class MoneyService {
     for (Map.Entry<String, List<CurrentMoneyInfo>> entry : superIdSubListMap.entrySet()) {
       superId = entry.getKey();
       CurrentMoneyInfo superInfo = superIdInfoMap.get(superId);
+//      Player player = dataConstants.membersMap.get(superId);
+//      String superEdu = NumUtil.digit(player.getEdu());
 
       // 计算父节点总和
       List<CurrentMoneyInfo> subInfoList = entry.getValue();
       Double superIdSum = 0d;// 合并ID节点总和
       for (CurrentMoneyInfo info : subInfoList) {
-        superIdSum += NumUtil.getNum(info.getShishiJine());
+        superIdSum += NumUtil.getNum(info.getShishiJine()) + NumUtil.getNum(info.getCmiLmb());
       }
+      String sumSuper = NumUtil.getSum(superInfo.getShishiJine(), superInfo.getCmiLmb(), superInfo.getCmiEdu());
       superInfo
-          .setCmSuperIdSum(NumUtil.digit0(superIdSum + NumUtil.getNum(superInfo.getShishiJine())));
+          .setCmSuperIdSum(NumUtil.digit0(NumUtil.getSum(superIdSum+"", sumSuper)));
 
       // 添加空行和子节点
       srcList.add(superInfo);// 先添加父节点

@@ -747,61 +747,61 @@ public class SMAutoController extends BaseController implements Initializable {
    *
    * @time 2018年3月27日
    */
-  private String getAvailable(SMResultModel resultModel, String selectTeamAvailabel,
-      String playerId, String playerName) {
-    List<ShangmaInfo> smList = resultModel.getSmList();
-    String available = "0";
-    // 勾选了团队上码
-    if ("1".equals(selectTeamAvailabel)) {
-      return "0";
-    } else {
-      // 以下是没有勾选团队上码的情况
-      boolean personNode = not_supter_not_sub(playerId);
-      if (personNode) {
-        // 情况1：私人节点ID
-        available = getOnePersonAvailabel(smList, playerId);
-      } else {
-        // 情况2：有联合ID
-        available = getLianheAvailabel(smList, playerId);
-      }
-
-    }
-    return available;
-  }
+//  private String getAvailable(SMResultModel resultModel, String selectTeamAvailabel,
+//      String playerId, String playerName) {
+//    List<ShangmaInfo> smList = resultModel.getSmList();
+//    String available = "0";
+//    // 勾选了团队上码
+//    if ("1".equals(selectTeamAvailabel)) {
+//      return "0";
+//    } else {
+//      // 以下是没有勾选团队上码的情况
+//      boolean personNode = not_supter_not_sub(playerId);
+//      if (personNode) {
+//        // 情况1：私人节点ID
+//        available = getOnePersonAvailabel(smList, playerId);
+//      } else {
+//        // 情况2：有联合ID
+//        available = getLianheAvailabel(smList, playerId);
+//      }
+//
+//    }
+//    return available;
+//  }
 
   /**
    * 联合额度
    *
    * @time 2018年3月27日
    */
-  public String getLianheAvailabel(List<ShangmaInfo> smList, String playerId) {
-    String superId = dataConstants.Combine_Super_Id_Map.containsKey(playerId) ? playerId
-        : dataConstants.Combine_Sub_Id_Map.get(playerId);
-
-    if (StringUtil.isBlank(superId)) {
-      log.error(playerId + "非父非子！");
-      return "0";
-    }
-
-    String availaibel = smList.stream().filter(info -> superId.equals(info.getShangmaPlayerId()))
-        .map(ShangmaInfo::getShangmaLianheEdu).findFirst().orElseGet(() -> "0");
-
-    return availaibel;
-  }
+//  public String getLianheAvailabel(List<ShangmaInfo> smList, String playerId) {
+//    String superId = dataConstants.Combine_Super_Id_Map.containsKey(playerId) ? playerId
+//        : dataConstants.Combine_Sub_Id_Map.get(playerId);
+//
+//    if (StringUtil.isBlank(superId)) {
+//      log.error(playerId + "非父非子！");
+//      return "0";
+//    }
+//
+//    String availaibel = smList.stream().filter(info -> superId.equals(info.getShangmaPlayerId()))
+//        .map(ShangmaInfo::getShangmaLianheEdu).findFirst().orElseGet(() -> "0");
+//
+//    return availaibel;
+//  }
 
   /**
    * 私人可上码（非父非子ID）
    *
    * @time 2018年3月27日
    */
-  public String getOnePersonAvailabel(List<ShangmaInfo> smList, String playerId) {
-    String availaibel = smList.stream().filter(info -> playerId.equals(info.getShangmaPlayerId()))
-        .map(ShangmaInfo::getShangmaAvailableEdu).findFirst().orElseGet(() -> "0");
-    if (StringUtil.isBlank(availaibel)) {
-      availaibel = "000000";
-    }
-    return availaibel;
-  }
+//  public String getOnePersonAvailabel(List<ShangmaInfo> smList, String playerId) {
+//    String availaibel = smList.stream().filter(info -> playerId.equals(info.getShangmaPlayerId()))
+//        .map(ShangmaInfo::getShangmaAvailableEdu).findFirst().orElseGet(() -> "0");
+//    if (StringUtil.isBlank(availaibel)) {
+//      availaibel = "000000";
+//    }
+//    return availaibel;
+//  }
 
   /**
    * 往日志表添加记录
@@ -846,16 +846,16 @@ public class SMAutoController extends BaseController implements Initializable {
 
   }
 
-  /**
-   * 判断是否私人节点（非父非子）
-   *
-   * @time 2018年3月31日
-   */
-  private boolean not_supter_not_sub(String playerId) {
-    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(playerId);
-    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(playerId);
-    return !isSuperId && !isSubId;
-  }
+//  /**
+//   * 判断是否私人节点（非父非子）
+//   *
+//   * @time 2018年3月31日
+//   */
+//  private boolean not_supter_not_sub(String playerId) {
+//    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(playerId);
+//    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(playerId);
+//    return !isSuperId && !isSubId;
+//  }
 
   /**
    * 是否有过滤节点
