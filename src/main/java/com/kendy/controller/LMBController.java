@@ -167,7 +167,8 @@ public class LMBController extends BaseController implements Initializable {
         if (isGameType(model.getJutype())) {
           // 针对德州牛仔，根据设置的人员ID设置是否庄位
           if (StringUtils.equals(DE_ZHOU_NIU_ZAI, model.getJutype())) {
-            if (!StringUtils.equals(ZHUANG_WEI, model.getIsZhuangwei())) { // 非庄位，则设置庄位，并更新到数据库
+            if (lmbCache.getDezhouZhuangweiIds().contains(model.getPlayerid())
+                && !StringUtils.equals(ZHUANG_WEI, model.getIsZhuangwei())) { // 非庄位，则设置庄位，并更新到数据库
               setDezhouZhuangwei(model);
             }
           }
