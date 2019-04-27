@@ -608,16 +608,17 @@ public class MyController extends BaseController implements Initializable {
     if (!StringUtil.isBlank(preDataFilePath)) {
       // 将人员名单文件缓存起来
       try {
-        dataConstants.preDataMap = excelReaderUtil.readPreDataRecord(new File(preDataFilePath));
-        if (dataConstants.preDataMap.size() == 0) {
+        Map<String, String> _preDataMap = excelReaderUtil.readPreDataRecord(new File(preDataFilePath));
+        if (_preDataMap.size() == 0) {
           ShowUtil.show("导入昨日留底失败!");
         } else {
-          ShowUtil.show("导入昨日留底成功", 2);
 
           // 保存到数据库、
           String dataTime = "2017-01-01";// 第一次导入时是没有时间的，故到时可以改,注意这里没有匹配人员ID
           String json_preData = JSON.toJSONString(dataConstants.preDataMap);
           dbUtil.insertPreData(dataTime, json_preData);
+          dataConstants.preDataMap = _preDataMap;
+          ShowUtil.show("导入昨日留底成功", 2);
         }
       } catch (Exception e) {
         ShowUtil.show("导入昨日留底出错,原因：" + e.getMessage());
@@ -625,25 +626,6 @@ public class MyController extends BaseController implements Initializable {
       }
     }
   }
-
-
-
-
-  /**
-   * 检查共享额度
-   *
-   * @deprecated
-   */
-  private void checkOverShareEdu() {
-    String overShareEduResult = lmController.getOverShareEduResult(false);
-    if (StringUtils.isNotBlank(overShareEduResult)) {
-      ShowUtil.show("超出共享额度", false, overShareEduResult);
-    }
-  }
-
-
-
-
 
 
   /**
@@ -904,8 +886,6 @@ public class MyController extends BaseController implements Initializable {
       if (!handleNewDayTimeOK()) {
         return;
       }
-
-      // excelDir.setText("C:\\Users\\kendy\\Desktop\\2018-07-26已锁定\\已锁定-1532541147231-07月26号-战绩导出-24-09.xls");
 
       // 清空所有缓存数据
       dataConstants.clearAllData();

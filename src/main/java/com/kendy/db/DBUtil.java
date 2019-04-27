@@ -136,8 +136,6 @@ public class DBUtil {
   }
 
 
-
-
   // 删除一条团队
   public void delHuishui(final String teamId) {
     try {
@@ -156,10 +154,25 @@ public class DBUtil {
   }
 
 
-
-
   // 导入昨日留底数据（仅在导入和锁定最后一场时用到）
   public void insertPreData(String dataTime, String preData) {
+    try {
+      con = DBConnection.getConnection();
+      String sql = "replace into yesterday_data values(?,?)";
+      ps = con.prepareStatement(sql);
+      ps.setString(1, dataTime);
+      ps.setString(2, preData);
+      ps.execute();
+      loger.info("================昨日留底插入进数据库...finishes");
+    } catch (Exception e) {
+      ErrorUtil.err("昨日留底插入失败:" + e.getMessage());
+      e.printStackTrace();
+    } finally {
+      close(con, ps);
+    }
+  }
+
+  public void _insertPreData(String dataTime, String preData) {
     try {
       con = DBConnection.getConnection();
       String sql;
@@ -192,6 +205,7 @@ public class DBUtil {
       loger.info("================昨日留底插入进数据库...finishes");
     } catch (SQLException e) {
       ErrorUtil.err("昨日留底插入失败", e);
+      e.printStackTrace();
     } finally {
       close(con, ps);
     }
@@ -631,7 +645,6 @@ public class DBUtil {
     }
     return tail;
   }
-
 
 
   /**
@@ -2434,7 +2447,6 @@ public class DBUtil {
   }
 
 
-
   /**
    * 获取有效桌数统计
    */
@@ -2503,8 +2515,8 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String aTeamBeginSQL =
-      "SELECT b.softTime, b.teamId, b.sumZJ, b.sumHS, b.sumHB, b.sumFWF, b.sumPerson, round(b.sumZJ + b.sumHS + b.sumHB - b.sumFWF, 1) sumProfit, b.HBRate, b.HSRate FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate >= 0 AND HBRate >= 0 AND (sumHS + sumHB) > FWFValid ) THEN TRUNCATE ( sumHS * HSRate + sumHB * HBRate, 1 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 1) * (- 1) sumHS, ROUND(sum(r.huiBao), 1) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
-          + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
+          "SELECT b.softTime, b.teamId, b.sumZJ, b.sumHS, b.sumHB, b.sumFWF, b.sumPerson, round(b.sumZJ + b.sumHS + b.sumHB - b.sumFWF, 1) sumProfit, b.HBRate, b.HSRate FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate >= 0 AND HBRate >= 0 AND (sumHS + sumHB) > FWFValid ) THEN TRUNCATE ( sumHS * HSRate + sumHB * HBRate, 1 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 1) * (- 1) sumHS, ROUND(sum(r.huiBao), 1) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
+              + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
       String aTeamEndSQL = "GROUP BY r.soft_time, t.teamId ) a ) b ORDER BY b.softTime, b.teamId ASC ";
 
       String allTeamBeginSQL = "";
@@ -2517,7 +2529,8 @@ public class DBUtil {
         allTeamBeginSQL = "SELECT min(c.softTime) 统计时间, min(c.teamId) 团队ID, sum(c.sumZJ) 总战绩, sum(c.sumHS) 总回水, sum(c.sumHB) 总回保, sum(c.sumFWF) 总服务费, sum(c.sumPerson) 总人数, sum(c.sumProfit) 总输赢, min(c.HBRate) 代理回保比例, min(c.HSRate) 代理回水比例 FROM( ";
         allTeamEndSQL = ")c GROUP BY c.teamId ORDER BY 总战绩 desc";
       }
-      String sql = allTeamBeginSQL + aTeamBeginSQL + aTeamConditionSQL + aTeamEndSQL + allTeamEndSQL;
+      String sql =
+          allTeamBeginSQL + aTeamBeginSQL + aTeamConditionSQL + aTeamEndSQL + allTeamEndSQL;
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
       while (rs.next()) {
@@ -2547,7 +2560,8 @@ public class DBUtil {
   public List<TotalInfo2> getStaticDetailRecords(String clubId, String teamId, String softTime) {
     List<TotalInfo2> finalList = new ArrayList<>();
     try {
-      List<GameRecordModel> list = gameRecordService.getStaticDetailRecords(clubId, teamId, softTime);
+      List<GameRecordModel> list = gameRecordService
+          .getStaticDetailRecords(clubId, teamId, softTime);
       finalList = list.stream().map(r -> {
         TotalInfo2 info = new TotalInfo2();
         info.setTuan(r.getTeamId());
@@ -2629,6 +2643,7 @@ public class DBUtil {
   public List<ClubStaticInfo> getClubEveryDayStatic(String lmType, String clubId) {
     return getClubStaticRecords(lmType, clubId, false);
   }
+
   /**
    * 导出所有俱乐部的统计数据
    */
@@ -2637,7 +2652,8 @@ public class DBUtil {
   }
 
 
-  private List<ClubStaticInfo> getClubStaticRecords(String lmType, String clubId, boolean isExportAllClubExcels) {
+  private List<ClubStaticInfo> getClubStaticRecords(String lmType, String clubId,
+      boolean isExportAllClubExcels) {
     List<ClubStaticInfo> list = new ArrayList<>();
     try {
       con = DBConnection.getConnection();
@@ -2646,10 +2662,11 @@ public class DBUtil {
               + ", 0) 总战绩 , ROUND( sum(r.shuihouxian), 0 ) 总保险, count(1) 总人数,  min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
               + " where r.isCleared = '0' and r.lmType = '" + lmType + "'";
       String sql = null;
-      if(isExportAllClubExcels){
-        sql = baseSql+ " GROUP BY r.clubId, r.soft_time ORDER BY r.clubId, r.soft_time ASC"; // 导出Excel所需
+      if (isExportAllClubExcels) {
+        sql = baseSql
+            + " GROUP BY r.clubId, r.soft_time ORDER BY r.clubId, r.soft_time ASC"; // 导出Excel所需
 
-      }else{
+      } else {
 
         if (StringUtils.isBlank(clubId)) {
           sql = baseSql + " GROUP BY r.clubId ORDER BY 总战绩 desc"; // 查看所有俱乐部的汇总统计
@@ -2698,12 +2715,12 @@ public class DBUtil {
   }
 
 
-
   /**
    * 战绩统计插入最新数据
+   *
    * @param clubId 当前俱乐部
    */
-  public void insertZjStaticData(String clubId){
+  public void insertZjStaticData(String clubId) {
     try {
       String sql = "";
       // 先删除
@@ -2729,7 +2746,6 @@ public class DBUtil {
 
   /**
    * 战绩统计获取团队汇总信息
-   * @return
    */
   public List<ZjTeamStaticInfo> getZjTeamStaticsRecordsByClub(String clubId) {
     // 更新最新数据到战绩表game_record_zj
@@ -2784,8 +2800,8 @@ public class DBUtil {
         info.setDetailPersonSumYszj(rs.getString(6)); // TODO 重写SQL设置个人的累计战绩
         list.add(info);
       }
-      if(loger.isDebugEnabled()){
-        loger.info("战绩统计{}团队结果耗时：{}毫秒",teamId, (System.currentTimeMillis() - start));
+      if (loger.isDebugEnabled()) {
+        loger.info("战绩统计{}团队结果耗时：{}毫秒", teamId, (System.currentTimeMillis() - start));
       }
     } catch (SQLException e) {
       ErrorUtil.err("战绩统计每个团队结果失败", e);
@@ -2798,7 +2814,6 @@ public class DBUtil {
 
   /**
    * 战绩统计：获取所有俱乐部的统计数据中
-   * @return
    */
   public List<ZjClubStaticInfo> getZjClubTotalStatic() {
     // 更新最新数据到战绩表game_record_zj
@@ -2830,7 +2845,6 @@ public class DBUtil {
 
   /**
    * 战绩统计：右边单个俱乐部统计
-   * @return
    */
   public List<ZjClubStaticDetailInfo> getZjClubStaticDetail(String clubId) {
     // 更新最新数据到战绩表game_record_zj
@@ -2847,7 +2861,7 @@ public class DBUtil {
       AtomicInteger indexObj = new AtomicInteger(1);
       while (rs.next()) {
         ZjClubStaticDetailInfo info = new ZjClubStaticDetailInfo();
-        info.setDetailClubIndex(indexObj.getAndIncrement()+"");
+        info.setDetailClubIndex(indexObj.getAndIncrement() + "");
         info.setDetailClubName(rs.getString(1));
         info.setDetailClubId(rs.getString(2));
         info.setDetailClubPlayerId(rs.getString(3));

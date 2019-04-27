@@ -1998,50 +1998,9 @@ public class LMController extends BaseController implements Initializable {
    */
   @FXML
   public void viewEduShareInfoAction(ActionEvent event) {
-    // getOverShareEduResult(true);
     checkOverSharedEdu2(true);
   }
 
-  /**
-   * 获取共享额度描述字符串
-   *
-   * @param needShowMasker 是否需要展示遮罩层
-   * @return 如needShowMasker为false, 则若返回值不为空，则代表已经超过共享额度
-   * @deprecated
-   */
-  public String getOverShareEduResult(boolean needShowMasker) {
-    List<String> selectedEduShareLMList = getSelectedEduShareLMList();
-    // TODO 排序，使当前联盟最后展示
-    String nextLine = System.lineSeparator();
-    StringBuilder sb = new StringBuilder();
-    sb.append("当前俱乐部ID: " + myController.getClubId()).append(nextLine);
-    int sumeEdu = 0;
-    int sumJieyu = 0;
-    for (String eduShareLm : selectedEduShareLMList) {
-      for (Node node : lmHbox.getChildren()) {
-        Button lmNode = (Button) node;
-        if (StringUtils.equals(lmNode.getText(), eduShareLm)) {
-          // 模拟点击当前联盟按钮并获取联盟结余
-          lmNode.fire();
-          String clubEdu = clickAndGetCurrentClubEdu();
-          double currentLmJieyu = getLmJieyu();
-          sb.append(lmNode.getText() + "的结余是: " + NumUtil.digit0(currentLmJieyu)).append(nextLine);
-          sumeEdu += Integer.valueOf(clubEdu);
-          sumJieyu += Double.valueOf(currentLmJieyu).intValue();
-          break;
-        }
-      }
-    }
-    sb.append("联盟结余是： ").append(sumJieyu).append(nextLine);
-    sb.append("共享额度是： ").append(sumeEdu).append(nextLine);
-    boolean isOverShareEdu = (sumJieyu + sumeEdu < 0);
-    sb.append("是否超出共享额度： ").append(isOverShareEdu ? "是" : "否");
-    if (needShowMasker) {
-      String content = sb.toString();
-      alertCreator("title", "header", content);
-    }
-    return (isOverShareEdu ? sb.toString() : "");
-  }
 
 
   private String clickAndGetCurrentClubEdu() {

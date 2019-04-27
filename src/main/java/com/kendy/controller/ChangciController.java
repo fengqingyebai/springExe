@@ -1987,6 +1987,9 @@ public class ChangciController extends BaseController implements Initializable {
   // 第一次获取获取联盟对账（原始数据）
   public String getLMValFirstTime() {
     String lm = dataConstants.preDataMap.get("联盟对帐");
+    if (StringUtils.isBlank(lm)) {
+      return "0";
+    }
     try {
       Double.valueOf(lm);
       return lm;

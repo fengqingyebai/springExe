@@ -91,12 +91,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * 场次信息服务类
- *
- * @author 林泽涛
- * @time 2017年10月28日 下午5:19:48
- */
 @Component
 public class MoneyService {
 
@@ -144,12 +138,6 @@ public class MoneyService {
   public DecimalFormat df = new DecimalFormat("#.00");
 
 
-  /**
-   * 导入战绩成功后 自动填充玩家信息表、牌局表、团队表以及当局 备注：这些表数据在当局范围内是固定不变的
-   *
-   * @param gameRecordModels 符合当前俱乐部ID的记录
-   * @time 2018年7月9日
-   */
   public void fillTablerAfterImportZJ(TableView<TotalInfo> table,
       TableView<WanjiaInfo> tablePaiju, TableView<DangjuInfo> tableDangju,
       TableView<JiaoshouInfo> tableJiaoshou, TableView<TeamInfo> tableTeam,
@@ -252,14 +240,6 @@ public class MoneyService {
     shangmaService.updateShangDetailMap(tablePaiju);
   }
 
-  /**
-   * 获取牌局玩家信息
-   * @param r
-   * @param playerId
-   * @param playerName
-   * @param shishou
-   * @return
-   */
   private WanjiaInfo getWanjiaInfo(GameRecordModel r, String playerId, String playerName,
       String shishou) {
     if (littleGameService.isLittleGame(r)) {
@@ -278,9 +258,6 @@ public class MoneyService {
     return wanjia;
   }
 
-  /**
-   * 设置第一个显示表的回水回保 若是团队回水回保类型，则设置团队的回水回保，否则，设置个人的回水回保
-   */
   private void setHsHbOfTotalInfo(TotalInfo info, GameRecordModel r) {
     String hshbType = r.getHshbType();
     if (StringUtils.equals(Constants.TEAM_OF_HSHB, hshbType)) {
@@ -294,9 +271,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 填充个人累计表
-   */
   private void fillTablePersonal(TableView<PersonalInfo> tablePersonal,
       List<GameRecordModel> gameRecordModels) {
     ObservableList<PersonalInfo> items = FXCollections.observableArrayList();
@@ -351,11 +325,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 补全每条记录的值(导入战绩后) 如软件时间、收回水出回水之类的
-   *
-   * @time 2018年7月8日
-   */
   public void fillGameRecords(List<GameRecordModel> gameRecordModels, String tableId, String level,
       String LMType) {
     for (GameRecordModel r : gameRecordModels) {
@@ -370,9 +339,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 补全单条记录的值(普通)
-   */
   private void setSingleGameRecord(GameRecordModel r, String tableId, String level, String LMType) {
 
     String teamId = getTeamId(r.getPlayerid());
@@ -420,9 +386,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 设置个人的回水和回保
-   */
   public void setPersonalHsHb(GameRecordModel r) {
     r.setHshbType("0"); // 默认为团队类型
     r.setPersonalHuibao("0");
@@ -441,9 +404,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 个人回水：if(个人类型 && 战绩 < 0) => 个人回水比例 * |战绩|
-   */
   private String getPersonalHs(String shishou, double personalHSRate) {
     if (NumUtil.getNum(shishou) < 0) {
       return NumUtil.digit2(Math.abs(NumUtil.getNum(shishou)) * personalHSRate + "");
@@ -451,16 +411,10 @@ public class MoneyService {
     return "0";
   }
 
-  /**
-   * 个人回保：if(个人类型) => 个人回水比例 * 保险 * （-1）
-   */
   private String getPersonalHB(String singleinsurance, double personalHBRate) {
     return NumUtil.digit2(NumUtil.getNum(singleinsurance) * personalHBRate * (-1) + "");
   }
 
-  /**
-   * 获取数值
-   */
   public double getNumberFromUnknowStr(String originVal) {
     if (StringUtils.isBlank(originVal)) {
       return 0d;
@@ -472,9 +426,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 计算回保 不要参考Excel上的公式！！ 新公式：保险 * 团队保险比例 * (-1)
-   */
   public String getHuiBao(String baoxian, String teamId) {
     if (StringUtil.isBlank(baoxian) || "0".equals(baoxian)) {
       return "0";
@@ -489,11 +440,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 计算水后险
-   *
-   * @time 2018年7月9日
-   */
   public String getShuihouxian(String baoxian) {
     String shuiHouXian =
         NumUtil.digit1((-1) * Double.valueOf(baoxian) * Constants.CURRENT_HS_RATE + "");
@@ -503,9 +449,6 @@ public class MoneyService {
     return shuiHouXian;
   }
 
-  /**
-   * 计算实收 公式：战绩>0,则乘以0.95，若小于0，则直接返回原战绩 若是12.63则直接取整数
-   */
   public String getShiShou(String zhanji) {
     Double zj = Double.valueOf(zhanji);
     if (zj > 0) {
@@ -519,9 +462,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 计算出回水 公式：相应团的回水比例 乘以|原始战绩|，若回水比例为无（如公司），则直接返回
-   */
   public String getChuhuishui(String zhanji, String teamId) {
     Huishui hs = dataConstants.huishuiMap.get(teamId);
     if (hs == null) {
@@ -533,10 +473,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 计算合利润 公式：IF(收回水>0,收回水+出回水+水后检 - 回保, 0)\
-   * TODO 引入个人累计，待修改
-   */
   public String getHeLirun(GameRecordModel r) {
     String shouhuishui = r.getShouhuishui();
     String shuihouxian = r.getShuihouxian();
@@ -562,11 +498,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 获取团队ID
-   *
-   * @time 2018年7月8日
-   */
   public String getTeamId(String playerId) {
     Player player = dataConstants.membersMap.get(playerId);
     String teamId = "";
@@ -649,9 +580,6 @@ public class MoneyService {
   // 待返回的团队回水和团队保险总和
   // private double sum_teamHS_and_teamBS = 0.0;
 
-  /**
-   * 填充团队累计表
-   */
   private void fillTableTeam(TableView<TeamInfo> table, Set<String> relatedTeamIdSet) {
     double sum_teamHS_and_teamBS = 0;
     // 准备数据
@@ -725,17 +653,11 @@ public class MoneyService {
     return 1.0d;
   }
 
-  /**
-   * 战绩是否管理
-   */
   private boolean isZjManaged(String teamId) {
     Huishui hs = dataConstants.huishuiMap.get(teamId);
     return hs != null && StringUtils.equals("是", hs.getZjManaged());
   }
 
-  /**
-   * 初始化当局表和交收表
-   */
   private void initTableDangjuAndTableJiaoshou(TableView<DangjuInfo> tableDangju,
       TableView<JiaoshouInfo> tableJiaoshou) {
 
@@ -757,9 +679,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 缓存一些固定总和
-   */
   public Map<String, Double> getSums(ObservableList<TotalInfo> lists) {
     List<String> jifenList = new ArrayList<>();
     List<String> shishouList = new ArrayList<>();
@@ -817,12 +736,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 获取实时金额表中的已存积分（根据玩家ID)
-   *
-   * @return 实时金额行的联盟币
-   * @time 2017年11月12日
-   */
   public String getYicunJifen(String playerId) {
     // 从当前实时金额表中获取最新的已存积分（波哥要求）
     ObservableList<CurrentMoneyInfo> list = tableCurrentMoneyInfo.getItems();
@@ -847,9 +760,6 @@ public class MoneyService {
   }
   // *****************************************************************************
 
-  /**
-   * 将前一次的实时金额数据备份到第二张表 2017-01-01
-   */
   public void fillTableCurrentMoneyInfo(TableView<CurrentMoneyInfo> table,
       TableView<ZijinInfo> tableZijin, TableView<ProfitInfo> tableProfit,
       TableView<KaixiaoInfo> tableKaixiao, Label LMLabel) {
@@ -865,27 +775,36 @@ public class MoneyService {
         JSON.parseObject(map.get(name), new TypeReference<Map<String, String>>() {
         });
     final String FLAG = "###";
-    jineMap.forEach((mingziAndID, shishsijine) -> { // mingziAndID 之前是mingzi
-      String mingzi = "";
-      String playerId = "";
-      if (mingziAndID.contains(FLAG)) {
-        mingzi = mingziAndID.split(FLAG)[0];
-        playerId = mingziAndID.split(FLAG)[1];
-        playerId = playerId.replace("#", "");// playerId中含有#号，则删除#号（不严谨）
-      } else {
-        mingzi = mingziAndID;
+    jineMap.forEach((mingziAndID, cmiJson) -> { // mingziAndID 之前是mingzi
+//      String mingzi = "";
+//      String playerId = "";
+//      if (mingziAndID.contains(FLAG)) {
+//        mingzi = mingziAndID.split(FLAG)[0];
+//        playerId = mingziAndID.split(FLAG)[1];
+//        playerId = playerId.replace("#", "");// playerId中含有#号，则删除#号（不严谨）
+//      } else {
+//        mingzi = mingziAndID;
+//      }
+//      Player player = dataConstants.membersMap.get(playerId);// add 现在根据玩家去匹配
+//      CurrentMoneyInfo cmi;
+//      if (player == null || StringUtil.isBlank(player.getPlayerid())) {
+//        // 实时金额中的人名找不到对应的玩家ID
+//        cmi = new CurrentMoneyInfo(mingzi, cmiJson, "", "",
+//            MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+//      } else {
+//        cmi = new CurrentMoneyInfo(mingzi, cmiJson, player.getPlayerid(), player.getEdu(),
+//            MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+//      }
+      try {
+        CurrentMoneyInfo cmi = JSON.parseObject(cmiJson, CurrentMoneyInfo.class);
+        if (cmi != null) {
+          observableList1.add(cmi);
+        }else {
+          log.info("导入昨日表后cmi为空！cmiJson是：" + cmiJson);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
-      Player player = dataConstants.membersMap.get(playerId);// add 现在根据玩家去匹配
-      CurrentMoneyInfo cmi;
-      if (player == null || StringUtil.isBlank(player.getPlayerid())) {
-        // 实时金额中的人名找不到对应的玩家ID
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, "", "",
-            MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
-      } else {
-        cmi = new CurrentMoneyInfo(mingzi, shishsijine, player.getPlayerid(), player.getEdu(),
-            MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
-      }
-      observableList1.add(cmi);
     });
     table.setItems(observableList1);
     table.refresh();
@@ -1003,9 +922,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 获取实时金额表的总和 = sum(实时金额) + sum(联盟币)
-   */
   private Double getSumOfTableCurrentMoney(TableView<CurrentMoneyInfo> table) {
     // 获取ObserableList
     ObservableList<CurrentMoneyInfo> list = table.getItems();
@@ -1024,9 +940,6 @@ public class MoneyService {
     return sumOfTableCurrentMoney;
   }
 
-  /**
-   * 计算资金表的总和
-   */
   private Double getSumOfTableZijin(TableView<ZijinInfo> table) {
     // 获取ObserableList
     ObservableList<ZijinInfo> list = table.getItems();
@@ -1042,9 +955,6 @@ public class MoneyService {
     return sumOfTable;
   }
 
-  /**
-   * 计算利润表的总和
-   */
   private Double getSumOfTableProfit(TableView<ProfitInfo> table) {
     // 获取ObserableList
     ObservableList<ProfitInfo> list = table.getItems();
@@ -1059,9 +969,6 @@ public class MoneyService {
     return sumOfTable;
   }
 
-  /**
-   * 计算开销表的总和
-   */
   private Double getSumOfTableKaixiao(TableView<KaixiaoInfo> table) {
     Double sumOfTable = 0.0;
     // 获取ObserableList
@@ -1077,9 +984,6 @@ public class MoneyService {
     return sumOfTable;
   }
 
-  /**
-   * 计算平帐表的总和
-   */
   private Double getSumOfTablePingzhang(TableView<PingzhangInfo> table) {
     // 获取ObserableList
     ObservableList<PingzhangInfo> list = table.getItems();
@@ -1094,9 +998,6 @@ public class MoneyService {
     return sumOfTable;
   }
 
-  /**
-   * 设置总和，显示在界面上 适用于资金表、开销表、交收表、平帐表、当局表
-   */
   public void setTotalNumOnTable(TableView<? extends Entity> table, double sum) {
     table.getColumns().get(1).setText(digit0(sum + ""));
   }
@@ -1107,11 +1008,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 利润表修改总团队服务费(累积该团队的服务费)
-   *
-   * @time 2018年1月5日
-   */
   public void add2AllTeamFWF_from_tableProfit(TableView<ProfitInfo> table, Double teamFWF) {
     try {
       ProfitInfo profitInfo =
@@ -1124,9 +1020,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 点击刷新同步按钮时计算各面板总金额
-   */
   public void refreshSumPane(TableView<TeamInfo> tableTeam, TableView<ZijinInfo> tableZijin,
       TableView<KaixiaoInfo> tableKaixiao, TableView<ProfitInfo> tableProfit,
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<PingzhangInfo> tablePingzhang,
@@ -1176,11 +1069,6 @@ public class MoneyService {
 
   }
 
-  /**
-   * 清空利润表
-   *
-   * @time 2018年2月25日
-   */
   public void clearTableProfit(TableView<ProfitInfo> tableProfit) {
     // 清空利润表
     if (gdController.has_quotar_oneKey) {
@@ -1189,9 +1077,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 更新利润表
-   */
   public void updateTableProfit(TableView<ProfitInfo> table, double todayKaixiao) {
     // 获取ObserableList
     try {
@@ -1228,9 +1113,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 更新平帐表
-   */
   public void updateTablePingzhang(TableView<PingzhangInfo> table, Double sumOfZijin,
       Double sumOfProfit, Double sumOfCurrentMoney, Label LMVal) {
     // 获取ObserableList
@@ -1253,9 +1135,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 获取团队累计的一些信息（可能有问题）
-   */
   public double getSumMapValue(String name) {
     if (dataConstants.SumMap.get(name) == null) {
       return 0d;
@@ -1264,11 +1143,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 获取下一个要展示的位置
-   *
-   * @time 2017年11月12日
-   */
   private Integer getNextSelectedIndex(TableView<CurrentMoneyInfo> table,
       String searchText) {
     List<Integer> indexList = new LinkedList<>();
@@ -1321,9 +1195,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 搜索
-   */
   public void searchRowAction(TableView<CurrentMoneyInfo> table, String searchText) {
     int nextIndex = getNextSelectedIndex(table, searchText);
     if (-1 == nextIndex) {
@@ -1334,9 +1205,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 根据玩家ID获取行记录
-   */
   public CurrentMoneyInfo searchRowByPlayerId(String playerId) {
     if (StringUtils.isNotBlank(playerId)) {
       for (CurrentMoneyInfo item : changciController.tableCurrentMoneyInfo.getItems()) {
@@ -1348,9 +1216,6 @@ public class MoneyService {
     return null;
   }
 
-  /**
-   * 编辑实时金额后修改对应的已存积分 备注：如果没有找到供修改的记录，也要让其通过
-   */
   public boolean changeYicunJifen(TableView<WanjiaInfo> tablePaiju, String playerName,
       String newYicunJifen) {
     boolean isOK = false;
@@ -1390,9 +1255,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 缓存十个表数据
-   */
   public Map<String, String> lock10Tables(TableView<TotalInfo> tableTotal,
       TableView<WanjiaInfo> tableWanjia, TableView<TeamInfo> tableTeam,
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<ZijinInfo> tableZijin,
@@ -1521,9 +1383,6 @@ public class MoneyService {
 
   }
 
-  /**
-   * 从上场锁定的数据中获取信息
-   */
   public String getLockedInfo(String keyOfJu, String subKey) {
     String value = "";// 可能是JSONString,也可能是普通字符串
     if (dataConstants.Index_Table_Id_Map.size() != 0) {
@@ -1536,9 +1395,6 @@ public class MoneyService {
     return value;
   }
 
-  /**
-   * 根据分页自动恢复该页锁定的10个表数据
-   */
   public void reCovery10TablesByPage(TableView<TotalInfo> tableTotal,
       TableView<WanjiaInfo> tableWanjia, TableView<TeamInfo> tableTeam,
       TableView<CurrentMoneyInfo> tableCurrentMoney, TableView<ZijinInfo> tableZijin,
@@ -1697,9 +1553,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 个人累计支付时修改玩家实时金额 或 添加 实时金额
-   */
   public void updateOrAdd_SSJE_after_personal_Pay(PersonalInfo personalInfo) throws Exception {
     // 1判断玩家是否在该金额表中
     String playerId = personalInfo.getPersonalPlayerId();
@@ -1737,12 +1590,6 @@ public class MoneyService {
     saveOrUpdate2DB(tempMoneyInfo);
   }
 
-  /**
-   * 支付时修改玩家实时金额 或 添加 实时金额
-   *
-   * @param wj 支付时的玩家信息
-   * @time 2017年11月12日
-   */
   public void updateOrAdd_SSJE_after_Pay(WanjiaInfo wj) throws Exception {
     // 1判断玩家是否在该金额表中
     String playerId = wj.getWanjiaId();
@@ -1771,9 +1618,6 @@ public class MoneyService {
     saveOrUpdate2DB(tempMoneyInfo);
   }
 
-  /**
-   * 更新实时金额表的映射 {玩家ID=CurrentMoneyInfo}
-   */
   public void update_Table_CMI_Map() {
     Table_CMI_Map.clear();
     if (tableCurrentMoneyInfo != null && tableCurrentMoneyInfo.getItems() != null) {
@@ -1785,9 +1629,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 根据玩家ID获取实时金额信息;
-   */
   public CurrentMoneyInfo get_CMI_byId(String playerId) {
     for (CurrentMoneyInfo item : tableCurrentMoneyInfo.getItems()) {
       if (StringUtils.equals(playerId, item.getWanjiaId())) {
@@ -1797,11 +1638,6 @@ public class MoneyService {
     return null;
   }
 
-  /**
-   * 根据玩家ID获取实时金额（在少量的情况下可以用）;
-   *
-   * @time 2017年11月12日
-   */
   public String get_SSJE_byId(String playerId) {
     update_Table_CMI_Map();
     CurrentMoneyInfo ssjeInfo = Table_CMI_Map.get(playerId);
@@ -1811,11 +1647,6 @@ public class MoneyService {
     return StringUtil.isBlank(ssjeInfo.getShishiJine()) ? "0" : ssjeInfo.getShishiJine();
   }
 
-  /**
-   * 根据玩家ID删除实时金额记录
-   *
-   * @time 2017年11月12日
-   */
   public void del_SSJE_byId(String playerId) {
     if (!StringUtil.isBlank(playerId) && tableCurrentMoneyInfo != null
         && tableCurrentMoneyInfo.getItems().size() > 0) {
@@ -1837,9 +1668,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 将前一次的实时金额数据备份到第01表=== 非2017-01-01
-   */
   public void fillTableCurrentMoneyInfo2(TableView<TeamInfo> tableTeam,
       TableView<CurrentMoneyInfo> table, TableView<ZijinInfo> tableZijin,
       TableView<ProfitInfo> tableProfit, TableView<KaixiaoInfo> tableKaixiao, Label LMLabel) {
@@ -1960,14 +1788,8 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 共享同一个舞台
-   */
   private Stage stage;
 
-  /**
-   * 展示当前总的金额
-   */
   public void showSumPersonSSJE(TableView<CurrentMoneyInfo> tableCurrentMoney, int rowIndex) {
     CurrentMoneyInfo item = tableCurrentMoneyInfo.getItems().get(rowIndex);
     TableView<KeyValue> table = new TableView<>();
@@ -2054,11 +1876,6 @@ public class MoneyService {
     ClipBoardUtil.setClipboardImage(img);
   }
 
-  /**
-   * 动态生成列
-   *
-   * @param columnColorType 红色和非红色
-   */
   private TableColumn<KeyValue, String> getTableColumnCommon(String colName, String colVal,
       ColumnColorType columnColorType) {
     TableColumn<KeyValue, String> col = new TableColumn<>(colName);
@@ -2073,11 +1890,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 修改玩家名称
-   *
-   * @time 2017年10月29日
-   */
   public void updatePlayerName(String playerId, String oldeName, String newName) {
     ObservableList<CurrentMoneyInfo> obList = tableCurrentMoneyInfo.getItems();
     boolean isExist = false;
@@ -2104,11 +1916,6 @@ public class MoneyService {
 
   }
 
-  /***********************************************************************************
-   *
-   * 导出人员表Excel
-   *
-   *********************************************************************************/
   public void exportMemberExcel() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "名单登记表-德扑圈" + sdf.format(new Date());
@@ -2143,12 +1950,6 @@ public class MoneyService {
     }
   }
 
-
-  /***********************************************************************************
-   *
-   * 导出团队回水表Excel
-   *
-   *********************************************************************************/
 
   public void exportTeamhsExcel() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -2187,8 +1988,6 @@ public class MoneyService {
     }
   }
 
-  /************************* 导出实时金额Excel ************************************/
-
   public void exportSSJEAction(TableView<CurrentMoneyInfo> tableCurrentMoneyInfo) {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "实时金额表" + sdf.format(new Date());
@@ -2217,7 +2016,6 @@ public class MoneyService {
     }
   }
 
-  /************************* 导出合并ID列表 ************************************/
   public void exportCombineIDAction() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
     String title = "数据库中的合并ID表" + sdf.format(new Date());
@@ -2256,21 +2054,6 @@ public class MoneyService {
     }
   }
 
-  /***************************************** 刷新实时金额表新方案 ************************************
-   /* 1 更新实时金额表的具体记录
-   /*    A：操作类型（增，删，改）
-   /*
-   /* 2 更新实时金额表的所有记录
-   /*    A：合并ID总和及上下空行
-   /*    B：滚动到那一条记录（无则不选）
-   /****************************************** 刷新实时金额表新方案 ************************************
-
-   /**
-   * 增加 and 修改实时金额
-   *
-   * @time 2017年10月31日
-   * @param cmiInfo
-   */
   public void saveOrUpdate2FX(CurrentMoneyInfo cmiInfo) {
     if (cmiInfo == null) {
       return;
@@ -2285,11 +2068,6 @@ public class MoneyService {
     refreshRecord();
   }
 
-  /**
-   * 根据玩家ID获取实时金额表中的人员信息
-   *
-   * @time 2017年10月31日
-   */
   public CurrentMoneyInfo getInfoById(String playerId) {
     if (StringUtil.isBlank(playerId)) {
       return null;
@@ -2306,11 +2084,6 @@ public class MoneyService {
     return null;
   }
 
-  /**
-   * 根据名称获取金额表中的信息
-   *
-   * @time 2017年11月9日
-   */
   public CurrentMoneyInfo getInfoByName(String name) {
     if (StringUtil.isBlank(name)) {
       return null;
@@ -2327,25 +2100,14 @@ public class MoneyService {
     return null;
   }
 
-  /**
-   * 是否存于实时金额表（根据ID)
-   */
   public boolean isExistIn_SSJE_Table_byId(String playerId) {
     return getInfoById(playerId) != null;
   }
 
-  /**
-   * 是否存于实时金额表（根据名称)
-   */
   public boolean isExistIn_SSJE_Table_byName(String name) {
     return getInfoByName(name) != null;
   }
 
-  /**
-   * 添加一条实时金额信息
-   *
-   * @time 2017年10月31日
-   */
   public void addInfo(CurrentMoneyInfo info) {
     if (tableCurrentMoneyInfo != null && tableCurrentMoneyInfo.getItems() != null) {
       ObservableList<CurrentMoneyInfo> obList = tableCurrentMoneyInfo.getItems();
@@ -2353,27 +2115,16 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 刷新金额表
-   */
   public void refreshRecord() {
     if (tableCurrentMoneyInfo != null && tableCurrentMoneyInfo.getItems() != null) {
       tableCurrentMoneyInfo.refresh();
     }
   }
 
-  /**
-   * 判断金额表是否为空
-   */
   private boolean isTableNotNull() {
     return tableCurrentMoneyInfo != null && tableCurrentMoneyInfo.getItems() != null;
   }
 
-  /**
-   * 刷新最新的实时金额（最重要！！！！） 即添加进合并ID
-   *
-   * @time 2017年11月1日
-   */
   public void flush_SSJE_table() {
     LinkedList<CurrentMoneyInfo> srcList = new LinkedList<>();
     if (!isTableNotNull()) {
@@ -2478,9 +2229,6 @@ public class MoneyService {
     tableCurrentMoneyInfo.refresh();
   }
 
-  /**
-   * 滚动到指定行（根据玩家ID)
-   */
   public boolean scrolById(String playerId) {
     boolean isExist = false;// 检查该玩家是否存在
     if (isTableNotNull() && playerId != null) {
@@ -2507,9 +2255,6 @@ public class MoneyService {
     return isExist;
   }
 
-  /**
-   * 滚动到指定行（根据玩家名称)
-   */
   public boolean scrolByName(String playerName) {
     boolean isExist = false;// 检查该玩家是否存在
     if (isTableNotNull() && playerName != null) {
@@ -2537,9 +2282,6 @@ public class MoneyService {
   }
 
 
-  /**
-   * 新增资金类型
-   */
   public void addBank() {
     TextInputDialog dialog = new TextInputDialog();
     ShowUtil.setIcon(dialog);
@@ -2563,9 +2305,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 删除银行类型
-   */
   public void delBank() {
     TableView<ZijinInfo> tableZijin = changciController.tableZijin;
     ZijinInfo selectedZijin = tableZijin.getSelectionModel().getSelectedItem();
@@ -2589,9 +2328,6 @@ public class MoneyService {
     }
   }
 
-  /**
-   * 复制一个实时金额表的记录
-   */
   public CurrentMoneyInfo copyCurrentMoneyInfo(CurrentMoneyInfo info) {
     CurrentMoneyInfo copyInfo = new CurrentMoneyInfo(info.getMingzi(), info.getShishiJine(),
         info.getWanjiaId(), info.getCmiEdu(), info.getCreator(), info.getCmiLmb());
@@ -2600,9 +2336,6 @@ public class MoneyService {
     return copyInfo;
   }
 
-  /**
-   * 将实时金额信息记录转为实体
-   */
   public CurrentMoney change2CurrentMoney(CurrentMoneyInfo cmi) {
     CurrentMoney entity = new CurrentMoney();
     entity.setId(cmi.getWanjiaId());
@@ -2616,9 +2349,6 @@ public class MoneyService {
     return entity;
   }
 
-  /**
-   * 保存或更新到数据库
-   */
   public void saveOrUpdate2DB(CurrentMoneyInfo cmi) {
     try {
       // 保存到数据库

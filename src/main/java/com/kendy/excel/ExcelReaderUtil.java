@@ -1,6 +1,7 @@
 package com.kendy.excel;
 
 import com.kendy.db.entity.Player;
+import com.kendy.entity.CurrentMoneyInfo;
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
@@ -439,7 +440,7 @@ public class ExcelReaderUtil {
     preDataMap.put("联盟对帐", JSON.toJSONString(LMMap));//
 
     is.close();
-    log.info("结束----------导入昨日留底Excel" + " ==size:" + preDataMap.size());
+    log.info("结束----------导入昨日留底Excel" + " ==size:" + presentMoneyMap.size());
     return preDataMap;
   }
 
@@ -508,29 +509,51 @@ public class ExcelReaderUtil {
    */
   private Map<String, String> getMapByPosition_SSJE(Sheet sheet, int x, int y, int x2)
       throws Exception {
-    Map<String, String> resultMap = new LinkedHashMap<>();
-    String key = "";
+//      Map<String,String> stringMap=new HashMap<>();
+//      return stringMap;
+    Map<String, String> resultMap = new HashMap<>();
+    String playerName = "";
     String playerId = "";
     for (int i = x; i <= x2; i++) {
       Row row = sheet.getRow(i);
-      if (row == null) {// 针对实时金额Map有读取到row为空的情况，这里是直接退出循环，不影响结果。后面要分析。
+      if (row == null ) {// 针对实时金额Map有读取到row为空的情况，这里是直接退出循环，不影响结果。后面要分析。
+        log.info("实时资金读取终止，行数：" + i);
         break;
       }
-      Cell keyCell = row.getCell(y);
-      if (keyCell == null) {
+      Cell playerNameCell = row.getCell(y);
+      if (playerNameCell == null) {
+        log.info("===============玩家名称为空，行数：" + i);
         continue;
       }
-      key = keyCell.toString();
-      Cell valueCell = row.getCell(y + 1);
-      if (valueCell == null) {
-        if (resultMap.get(key) != null) {
-          log.error("重复===================================" + key);
-          throw new Exception("重复项：" + key + ",请检查！");
+      playerName = playerNameCell.toString();
+      Cell moneyCell = row.getCell(y + 1);
+      if (moneyCell == null) {
+        if (resultMap.get(playerName) != null) {
+          log.error("重复===================================" + playerName);
+          throw new Exception("重复项：" + playerName + ",请检查！");
         }
-        resultMap.put(key, "0");
+        CurrentMoneyInfo cmi = new CurrentMoneyInfo();
+        cmi.setCreator("");
+        cmi.setMingzi(playerName);
+        cmi.setShishiJine("0");
+        cmi.setWanjiaId("");
+        cmi.setCmiEdu("");
+        cmi.setColor("");
+        cmi.setCmSuperIdSum("");
+        cmi.setCmiLmb("0");
+        resultMap.put(playerName, JSON.toJSONString(cmi));
         continue;
       }
-      valueCell.setCellType(CellType.STRING);
+      moneyCell.setCellType(CellType.STRING);
+
+      String cmiLmb = "0";
+      Cell lmbCell = row.getCell(y + 2);// ID列，即第I列
+      if (lmbCell == null) {
+        cmiLmb = "0";
+      } else {
+        lmbCell.setCellType(CellType.STRING);
+        cmiLmb = StringUtils.defaultString(lmbCell.getStringCellValue(), "0");
+      }
 
       Cell idCell = row.getCell(y + 3);// ID列，即第J列
       if (idCell == null) {
@@ -540,23 +563,41 @@ public class ExcelReaderUtil {
         playerId = idCell.getStringCellValue();
       }
       // 添加
-      if (!StringUtil.isBlank(key) && !StringUtil.isBlank(key.trim())) {
-        if (key.endsWith(".0")) {// 过滤诸如123被读成123.0的情况
-          key = key.substring(0, key.lastIndexOf("."));
+      if (StringUtils.isNotBlank(playerName) && StringUtils.isNotBlank(playerName.trim())) {
+        if (playerName.endsWith(".0")) {// 过滤诸如123被读成123.0的情况
+          playerName = playerName.substring(0, playerName.lastIndexOf("."));
         }
-        // if(key.endsWith("'")) {//过滤诸如123被读成123.0的情况
-        // key = key.substring(0, key.lastIndexOf("'"));
-        // }
-        if (resultMap.get(key) != null) {
-          log.error("重复===================================" + key);
-          throw new Exception("重复项：" + key + ",请检查！");
+        if (resultMap.get(playerName) != null) {
+          log.error("重复===================================" + playerName);
+          throw new Exception("重复项：" + playerName + ",请检查！");
         }
-        if (!StringUtil.isBlank(playerId)) {
-          key = key + "###" + playerId;
+        String nameAndIdKey = playerName;
+        if (StringUtils.isNotBlank(playerId)) {
+          nameAndIdKey = playerName + "###" + playerId;
         }
-        resultMap.put(key, valueCell.getStringCellValue());
+        Player player = dataConstans.membersMap.get(playerId);
+        String cmiEdu = "0";
+        if (player != null) {
+          cmiEdu = NumUtil.digit(player.getEdu());
+        }
+        CurrentMoneyInfo cmi = new CurrentMoneyInfo();
+        cmi.setCreator("");
+        cmi.setMingzi(playerName);
+        cmi.setShishiJine(NumUtil.digit(moneyCell.getStringCellValue()));
+        cmi.setWanjiaId(playerId);
+        cmi.setCmiEdu(cmiEdu);
+        cmi.setColor("");
+        cmi.setCmSuperIdSum("");
+        cmi.setCmiLmb(cmiLmb);
+        if (resultMap.containsKey(nameAndIdKey)) {
+          log.info("========================检测到重复：" + nameAndIdKey);
+        }
+        resultMap.put(nameAndIdKey, JSON.toJSONString(cmi));
+      } else {
+        log.info("===========================检测到为空, 已忽略！行数：" + i);
       }
     }
+    log.info("===========================实时金额数据：" + resultMap.size());
     return resultMap;
   }
 
