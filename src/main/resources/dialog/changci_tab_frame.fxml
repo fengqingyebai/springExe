@@ -145,32 +145,32 @@
                               <TableColumn fx:id="teamJiesuan" prefWidth="81.0" text="结算" />
                            </columns>
                         </TableView>
-                        <VBox layoutX="1136.0" layoutY="112.0" prefHeight="705.0" prefWidth="158.0">
+                        <VBox layoutX="1136.0" layoutY="90.0" prefHeight="727.0" prefWidth="158.0">
                            <children>
                               <Button fx:id="refreshBtn" layoutX="917.0" layoutY="156.0" mnemonicParsing="false" onAction="#refreshAction" prefHeight="23.0" prefWidth="148.0" text="平帐按钮" />
-                              <AnchorPane prefHeight="26.0" prefWidth="159.0" />
+                              <AnchorPane prefHeight="17.0" prefWidth="142.0" />
                               <TableView fx:id="tablePingzhang" layoutX="921.0" layoutY="522.0" prefHeight="99.0" prefWidth="138.0">
                                  <columns>
                                     <TableColumn fx:id="pingzhangType" prefWidth="72.0" text="平账" />
                                     <TableColumn fx:id="pingzhangMoney" prefWidth="64.0" />
                                  </columns>
                               </TableView>
-                              <AnchorPane prefHeight="26.0" prefWidth="159.0" />
+                              <AnchorPane prefHeight="17.0" prefWidth="142.0" />
                               <TableView fx:id="tableJiaoshou" layoutX="908.0" layoutY="674.0" prefHeight="104.0" prefWidth="141.0">
                                  <columns>
                                     <TableColumn fx:id="jiaoshouType" prefWidth="75.0" text="交收" />
                                     <TableColumn fx:id="jiaoshouMoney" prefWidth="64.0" />
                                  </columns>
                               </TableView>
-                              <AnchorPane prefHeight="24.0" prefWidth="159.0" />
-                              <TableView fx:id="tableProfit" layoutX="899.0" layoutY="244.0" prefHeight="245.0" prefWidth="142.0">
+                              <AnchorPane prefHeight="18.0" prefWidth="142.0" />
+                              <TableView fx:id="tableProfit" layoutX="899.0" layoutY="244.0" prefHeight="258.0" prefWidth="142.0">
                                  <columns>
                                     <TableColumn fx:id="profitType" prefWidth="59.0" text="利润" />
                                     <TableColumn fx:id="profitAccount" prefWidth="77.0" />
                                  </columns>
                               </TableView>
-                              <AnchorPane prefHeight="24.0" prefWidth="159.0" />
-                              <TableView fx:id="tableDangju" prefHeight="130.0" prefWidth="142.0">
+                              <AnchorPane prefHeight="16.0" prefWidth="142.0" />
+                              <TableView fx:id="tableDangju" prefHeight="161.0" prefWidth="142.0">
                                  <columns>
                                     <TableColumn fx:id="type" prefWidth="75.0" text="当局" />
                                     <TableColumn fx:id="money" prefWidth="64.0" />
@@ -183,7 +183,7 @@
                         </VBox>
                         <TextField fx:id="searchText" layoutX="819.0" layoutY="326.0" onDragEntered="#searchRowAction" onKeyPressed="#searchRowByEnterEvent" prefHeight="23.0" prefWidth="84.0" />
                         <Button fx:id="searchBtn" layoutX="902.0" layoutY="326.0" mnemonicParsing="false" onAction="#searchRowAction" prefHeight="23.0" prefWidth="43.0" text="搜索" />
-                        <Button fx:id="lockDangjuBtn" layoutX="1144.0" layoutY="57.0" mnemonicParsing="false" onAction="#lockDangjuAction" prefHeight="34.0" prefWidth="142.0" style="-fx-border-color: red;" text="锁定当局">
+                        <Button fx:id="lockDangjuBtn" layoutX="1144.0" layoutY="39.0" mnemonicParsing="false" onAction="#lockDangjuAction" prefHeight="34.0" prefWidth="142.0" style="-fx-border-color: red;" text="锁定当局">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>

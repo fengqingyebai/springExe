@@ -605,7 +605,7 @@ public class MoneyService {
           continue;
         }
         for (GameRecordModel info : teamLS) {
-          sumOfZJ += NumUtil.getNum(info.getShishou());
+          sumOfZJ += NumUtil.getNum(getTeamSumZhanji(info));
           sumOfHS += Math.abs(NumUtil.getNum(info.getChuhuishui()));
           sumOfHB += NumUtil.getNum(info.getSingleinsurance());// 就是回保
         }
@@ -629,6 +629,18 @@ public class MoneyService {
     // 填充团队表
     table.setItems(list);
     table.refresh();
+  }
+
+  /**
+   * 团队累计表中的团队总战绩
+   * 一般返回实收
+   * 小游戏返回原始战绩
+   */
+  private String getTeamSumZhanji(GameRecordModel model) {
+    if (littleGameService.isLittleGame(model)) {
+      return model.getYszj();
+    }
+    return model.getShishou();
   }
 
   // 获取团队表的总和
@@ -664,7 +676,7 @@ public class MoneyService {
     if (dataConstants.SumMap != null && dataConstants.SumMap.size() != 0) {
       // 初始化当局表
       ObservableList<DangjuInfo> list = FXCollections.observableArrayList();
-      List<String> tableDangjuList = Arrays.asList("服务费", "保险", "团队回水", "团队回保");
+      List<String> tableDangjuList = Arrays.asList("服务费", "保险", "团队回水", "团队回保", "小游戏当局利润");
       tableDangjuList.forEach(type -> {
         list.add(new DangjuInfo(type, dataConstants.SumMap.get(type) + ""));
       });
@@ -679,6 +691,19 @@ public class MoneyService {
     }
   }
 
+  private String getShiShouDif(String playerId){
+    for (GameRecordModel recordModel : dataConstants.Dangju_Team_Huishui_List) {
+      if (StringUtils.equals(recordModel.getPlayerid(), playerId)) {
+        if (littleGameService.isLittleGame(recordModel)) {
+          return recordModel.getYszj(); // 小游戏返回原始战绩
+        } else {
+          return recordModel.getShishou();
+        }
+      }
+    }
+    return "0";
+  }
+
   public Map<String, Double> getSums(ObservableList<TotalInfo> lists) {
     List<String> jifenList = new ArrayList<>();
     List<String> shishouList = new ArrayList<>();
@@ -688,16 +713,19 @@ public class MoneyService {
     List<String> shuihouxianList = new ArrayList<>();
     List<String> shouHuishuiList = new ArrayList<>();
     List<String> heLirunList = new ArrayList<>();
+    List<String> littleGameShishouList = new ArrayList<>();
 
     lists.forEach(info -> {
       jifenList.add(info.getJifen());
-      shishouList.add(info.getShishou());
+      //shishouList.add(info.getShishou());
+      shishouList.add(getShiShouDif(info.getWanjiaId()));
       baoxianList.add(info.getBaoxian());
       chuhuishuiList.add(info.getChuHuishui());
       baohuiList.add(info.getBaohui());
       shuihouxianList.add(info.getShuihouxian());
       shouHuishuiList.add(info.getShouHuishui());
       heLirunList.add(info.getHeLirun());
+      littleGameShishouList.add(info.getShishou());
     });
 
     Map<String, Double> cacheMap = new HashMap<>();
@@ -715,8 +743,10 @@ public class MoneyService {
     cacheMap.put("保险", cacheMap.get("总水后险"));
     cacheMap.put("团队回水", cacheMap.get("总出回水"));
     cacheMap.put("团队回保", cacheMap.get("总保回") * (-1));
+    cacheMap.put("小游戏当局利润", getSum(littleGameShishouList));
     double dj = Double.sum(cacheMap.get("服务费"), cacheMap.get("保险"))
-        + Double.sum(cacheMap.get("团队回水"), cacheMap.get("团队回保"));
+        + Double.sum(cacheMap.get("团队回水"), cacheMap.get("团队回保"))
+        + cacheMap.get("小游戏当局利润");
     cacheMap.put("当局", dj);// 总当局
     // 交收表
     cacheMap.put("客户输赢", cacheMap.get("总实收"));
@@ -1105,6 +1135,11 @@ public class MoneyService {
           info.setProfitAccount(
               digit0(
                   NumUtil.getNum(info.getProfitAccount()) + (getSumMapValue("总保回") * (-1)) + ""));
+
+        } else if ("小游戏利润".endsWith(type)) {
+          info.setProfitAccount(
+              digit0(
+                  NumUtil.getNum(info.getProfitAccount()) + getSumMapValue("小游戏当局利润")));
         }
       }
       table.setItems(list);

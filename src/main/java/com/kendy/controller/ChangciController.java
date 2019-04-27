@@ -1099,7 +1099,7 @@ public class ChangciController extends BaseController implements Initializable {
   }
 
   /**
-   * 刷新同步,即平帐按钮
+   * 平帐按钮
    */
   public void refreshAction(ActionEvent event) {
     moneyService.refreshSumPane(tableTeam, tableZijin, tableKaixiao, tableProfit,

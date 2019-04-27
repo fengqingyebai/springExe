@@ -151,7 +151,7 @@ public class ExcelReaderUtil {
           // 回水
           String huishui = getCellValue(row.getCell(7));
           huishui = StringUtil.nvl(huishui);
-          huibao = StringUtils.equals("0", huishui) ? "0%" : huishui;
+          huishui = StringUtils.equals("0", huishui) ? "0%" : huishui;
           if (!StringUtil.isBlank(gameId)) {
             try {
               gameId = new BigDecimal(gameId).toPlainString();// 不要科学记数法
@@ -428,7 +428,7 @@ public class ExcelReaderUtil {
     log.info("导入实时金额总共记录数：" + presentMoneyMap.size());
 
     // 昨日利润
-    Map<String, String> yesterdayProfitMap = getMapByPosition(sheet, 3, 11, 10);// 增加了总服务费
+    Map<String, String> yesterdayProfitMap = getMapByPosition(sheet, 3, 11, 11);// 增加了总服务费、小游戏利润
     // 联盟对帐
     Map<String, String> LMMap = getMapByPosition(sheet, 15, 11, 16);
 
@@ -522,7 +522,6 @@ public class ExcelReaderUtil {
       }
       Cell playerNameCell = row.getCell(y);
       if (playerNameCell == null) {
-        log.info("===============玩家名称为空，行数：" + i);
         continue;
       }
       playerName = playerNameCell.toString();
@@ -589,15 +588,12 @@ public class ExcelReaderUtil {
         cmi.setColor("");
         cmi.setCmSuperIdSum("");
         cmi.setCmiLmb(cmiLmb);
-        if (resultMap.containsKey(nameAndIdKey)) {
-          log.info("========================检测到重复：" + nameAndIdKey);
-        }
         resultMap.put(nameAndIdKey, JSON.toJSONString(cmi));
       } else {
-        log.info("===========================检测到为空, 已忽略！行数：" + i);
+        // 不做操作
       }
     }
-    log.info("===========================实时金额数据：" + resultMap.size());
+    log.info("昨日留底实时金额数据数：" + resultMap.size());
     return resultMap;
   }
 
