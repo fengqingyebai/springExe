@@ -45,6 +45,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.swing.JSpinner.DateEditor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -771,6 +772,26 @@ public class LMBController extends BaseController implements Initializable {
     }
     return 0d;
   }
+
+  /*******************************************************************************
+   *
+   *  对外常用方法
+   *
+   ******************************************************************************/
+
+  public boolean isLittleGame(GameRecordModel recordModel) {
+    return lmbCache.getGameTypes().contains(recordModel.getJutype());
+  }
+
+  public boolean isJLBH(GameRecordModel gameRecordModel) {
+    return StringUtils.equals(JIA_LE_BI_HAI, gameRecordModel.getJutype());
+  }
+
+  public boolean isDeZhou(GameRecordModel gameRecordModel) {
+    return StringUtils.equals(DE_ZHOU_NIU_ZAI, gameRecordModel.getJutype());
+  }
+
+
 
 
 }

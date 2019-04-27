@@ -552,7 +552,7 @@ public class MyController extends BaseController implements Initializable {
             excelReaderUtil.readMembersRecord(new File(membersFilePath));
         dataConstants.membersMap.putAll(allPlayers);// 求并集,key相同的会被替换掉
         // 插入到数据库
-        List<Player> players = (List<Player>) allPlayers.values();
+        List<Player> players = new ArrayList<>(allPlayers.values());
         playerService.save(players);
 
         ShowUtil.show("导入人员名单成功", 2);

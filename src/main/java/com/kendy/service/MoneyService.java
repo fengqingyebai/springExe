@@ -120,6 +120,9 @@ public class MoneyService {
   @Autowired
   ChangciController changciController;
 
+  @Autowired
+  LittleGameService littleGameService; // 小游戏服务类
+
   @Resource
   GameRecordService gameRecordService;
 
@@ -208,15 +211,7 @@ public class MoneyService {
       tableTotalInfoList.add(info);
 
       /*************************************************** 填充牌局表 *****************/
-      wanjia = new WanjiaInfo();
-      String lmb = getYicunJifen(playerId); // 联盟币代替已存积分
-      String heji = digit0(NumUtil.getNum(lmb) + NumUtil.getNum(shishou) + "");
-      wanjia.setPaiju(r.getTableid());
-      wanjia.setWanjiaName(playerName);
-      wanjia.setYicunJifen(lmb);
-      wanjia.setZhangji(shishou);
-      wanjia.setHeji(heji);
-      wanjia.setWanjiaId(playerId);
+      wanjia = getWanjiaInfo(r, playerId, playerName, shishou);
 
       /*************************************************** 缓存各团队回水记录 *****************/
       teamId = teamId.toUpperCase();
@@ -255,6 +250,32 @@ public class MoneyService {
     fillTablePersonal(tablePersonal, gameRecordModels);
     // 更新实时上码表的个人详情
     shangmaService.updateShangDetailMap(tablePaiju);
+  }
+
+  /**
+   * 获取牌局玩家信息
+   * @param r
+   * @param playerId
+   * @param playerName
+   * @param shishou
+   * @return
+   */
+  private WanjiaInfo getWanjiaInfo(GameRecordModel r, String playerId, String playerName,
+      String shishou) {
+    if (littleGameService.isLittleGame(r)) {
+      return littleGameService.getWanjiaInfo0(r, playerId, playerName, shishou);
+    }
+    WanjiaInfo wanjia;
+    wanjia = new WanjiaInfo();
+    String lmb = getYicunJifen(playerId); // 联盟币代替已存积分
+    String heji = digit0(NumUtil.getNum(lmb) + NumUtil.getNum(shishou) + "");
+    wanjia.setPaiju(r.getTableid());
+    wanjia.setWanjiaName(playerName);
+    wanjia.setYicunJifen(lmb);
+    wanjia.setZhangji(shishou);
+    wanjia.setHeji(heji);
+    wanjia.setWanjiaId(playerId);
+    return wanjia;
   }
 
   /**
@@ -338,12 +359,19 @@ public class MoneyService {
   public void fillGameRecords(List<GameRecordModel> gameRecordModels, String tableId, String level,
       String LMType) {
     for (GameRecordModel r : gameRecordModels) {
-      setSingleGameRecord(r, tableId, level, LMType);
+      if (littleGameService.isLittleGame(r)) {
+        // 小游戏战绩
+        littleGameService.setSingleGameRecord0(r, tableId, level, LMType);
+
+      } else {
+        // 普通战绩
+        setSingleGameRecord(r, tableId, level, LMType);
+      }
     }
   }
 
   /**
-   * 补全单条记录的值
+   * 补全单条记录的值(普通)
    */
   private void setSingleGameRecord(GameRecordModel r, String tableId, String level, String LMType) {
 
@@ -356,7 +384,6 @@ public class MoneyService {
     String shuihouxian = getShuihouxian(baoxian);
     String shouHuishui = myController.getHuishuiByYSZJ(yszj, "", 2);
     String huiBao = NumUtil.digit1(getHuiBao(baoxian, teamId));
-    // String heLirun = NumUtil.digit2(getHeLirun(shouHuishui, chuHuishui, shuihouxian, huiBao));
 
     // 初始名称
     r.setBeginplayername(r.getPlayerName());
@@ -368,6 +395,10 @@ public class MoneyService {
     r.setLmtype(LMType);
     // 设置团队ID
     r.setTeamId(teamId);
+    // 级别
+    r.setLevel(level);
+    // 导入时间
+    r.setImporttime(TimeUtil.getDateTime());
     // 实收
     r.setShishou(shishou);
     // 出回水
@@ -378,33 +409,21 @@ public class MoneyService {
     r.setShuihouxian(shuihouxian);
     // 收回水
     r.setShouhuishui(shouHuishui);
-    // 级别
-    r.setLevel(level);
-    // 导入时间
-    r.setImporttime(TimeUtil.getDateTime());
 
     // 个人回水、回保
     setPersonalHsHb(r);
 
-    // 合利润（个人累计有误，待修改）
+    // 合利润
     r.setHelirun(NumUtil.digit2(getHeLirun(r)));
 
     log.info("{}的保险是{}，计算出水后险是{}", r.getPlayerName(), baoxian, r.getShuihouxian());
-  }
-
-  /**
-   * TODO
-   * @param recordModel
-   */
-  private void set_Jialebi_etra_data(GameRecordModel recordModel){
-    // 是加勒比海，是庄位
   }
 
 
   /**
    * 设置个人的回水和回保
    */
-  private void setPersonalHsHb(GameRecordModel r) {
+  public void setPersonalHsHb(GameRecordModel r) {
     r.setHshbType("0"); // 默认为团队类型
     r.setPersonalHuibao("0");
     r.setPersonalHuishui("0");
@@ -548,7 +567,7 @@ public class MoneyService {
    *
    * @time 2018年7月8日
    */
-  private String getTeamId(String playerId) {
+  public String getTeamId(String playerId) {
     Player player = dataConstants.membersMap.get(playerId);
     String teamId = "";
     if (player != null) {

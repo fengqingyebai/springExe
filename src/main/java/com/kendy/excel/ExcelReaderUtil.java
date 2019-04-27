@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -145,9 +146,11 @@ public class ExcelReaderUtil {
           // 回保
           String huibao = getCellValue(row.getCell(6));
           huibao = StringUtil.nvl(huibao, "");
+          huibao = StringUtils.equals("0", huibao) ? "0%" : huibao;
           // 回水
           String huishui = getCellValue(row.getCell(7));
           huishui = StringUtil.nvl(huishui);
+          huibao = StringUtils.equals("0", huishui) ? "0%" : huishui;
           if (!StringUtil.isBlank(gameId)) {
             try {
               gameId = new BigDecimal(gameId).toPlainString();// 不要科学记数法
