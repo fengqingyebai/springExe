@@ -37,6 +37,7 @@ import com.kendy.excel.ExcelReaderUtil;
 import com.kendy.interfaces.Entity;
 import com.kendy.model.GameRecordModel;
 import com.kendy.service.JifenService;
+import com.kendy.service.LittleGameService;
 import com.kendy.service.PersonalService;
 import com.kendy.service.MemberService;
 import com.kendy.service.MoneyService;
@@ -103,6 +104,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.Notifications;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -164,6 +167,8 @@ public class ChangciController extends BaseController implements Initializable {
   PlayerService playerService;
   @Autowired
   PersonalService personalService;
+  @Autowired
+  LittleGameService littleGameService;
 
   // =================================================第一个tableView
   @FXML
@@ -367,6 +372,10 @@ public class ChangciController extends BaseController implements Initializable {
 
   private final String ZERO = "0";
   public final String INDEX_ZERO = "第0局";
+  public static final Object ssjeMonitor = new Object();
+
+  // 实时金额监视锁
+  private Object tableCurrentMoneyInfoLock = new Object();
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
@@ -1139,6 +1148,11 @@ public class ChangciController extends BaseController implements Initializable {
         if (!"0.00".equals(LMLabel.getText())) {
           LMLabel.setText(getNewLMVal(sumOfJS * (-1) + ""));
         } else {
+//          if (littleGameService.isLittleGame(ZhanjiType.getInstance().getGameName())) {
+//            // 若是小游戏，则不对联盟对账进行处理
+//
+//          } else {
+//          }
           LMLabel.setText(NumUtil.digit0(sumOfJS * (-1)) + "");
         }
         // 锁定并缓存十个表数据
@@ -1827,6 +1841,9 @@ public class ChangciController extends BaseController implements Initializable {
     importExcelData(tableId, blankDataList);
 
     importZJBtn.setDisable(true);// 导入不可用
+
+    // 记录当局是否为小游戏
+    ZhanjiType.getInstance().setBlankImport(indexLabel.getText());
     ShowUtil.show("导入空白战绩文件成功", 2);
   }
 
@@ -1918,7 +1935,10 @@ public class ChangciController extends BaseController implements Initializable {
         List<GameRecordModel> gameRecordModels = excelReaderUtil
             .readZJRecord(excelFilePath, userClubId,
                 currentLMName, myController.getVersionType());
+        // 记录是否为小游戏
+        recordZhanjiType(gameRecordModels);
         indexLabel.setText(tableId);
+        // 填充数据
         importExcelData(tableId, gameRecordModels);
 
         importZJBtn.setDisable(true); // 导入按钮设置为不可用
@@ -1927,6 +1947,17 @@ public class ChangciController extends BaseController implements Initializable {
       } catch (Exception e) {
         ErrorUtil.err("战绩导入失败", e);
       }
+    }
+  }
+
+  private void recordZhanjiType(List<GameRecordModel> gameRecordModels) {
+    if (CollectionUtils.isNotEmpty(gameRecordModels)) {
+      GameRecordModel recordModel = gameRecordModels.get(0);
+      boolean isGame = false;
+      if (littleGameService.isLittleGame(recordModel)) {
+        isGame = true;
+      }
+      ZhanjiType.getInstance().setZhanjiImport(isGame, recordModel.getTableid(), recordModel.getJutype());
     }
   }
 
@@ -2010,7 +2041,7 @@ public class ChangciController extends BaseController implements Initializable {
     });
   }
 
-  /**
+  /**当
    * 打开新增实时金额对话框
    */
   public void openAddCurrentMoneyAction(ActionEvent event) {
@@ -2119,6 +2150,67 @@ public class ChangciController extends BaseController implements Initializable {
   @Override
   public Class<?> getSubClass() {
     return getClass();
+  }
+
+
+  /**
+   * 战绩类型
+   */
+  public static class ZhanjiType{
+
+    Logger logger = LoggerFactory.getLogger(ZhanjiType.class);
+
+    private  boolean isLittleGame = false;
+    private  String tableId ;
+    private  String gameName;
+
+    private static ZhanjiType instance = new ZhanjiType();
+
+    public static ZhanjiType getInstance(){
+      return instance;
+    }
+
+    private ZhanjiType() {
+    }
+
+    public void setBlankImport(String tableId){
+      this.isLittleGame = false;
+      this.tableId = tableId;
+      this.gameName = "";
+    }
+
+    public void setZhanjiImport(boolean isLittleGame, String tableId, String gameName){
+      this.isLittleGame = isLittleGame;
+      this.tableId = tableId;
+      this.gameName = gameName;
+      if (logger.isInfoEnabled()) {
+        logger.info("{}是{}, 类型是：{}", tableId, isLittleGame? "小游戏" : "普通局" , gameName );
+      }
+    }
+
+    public boolean isLittleGame() {
+      return isLittleGame;
+    }
+
+    public void setLittleGame(boolean littleGame) {
+      isLittleGame = littleGame;
+    }
+
+    public String getTableId() {
+      return tableId;
+    }
+
+    public void setTableId(String tableId) {
+      this.tableId = tableId;
+    }
+
+    public String getGameName() {
+      return gameName;
+    }
+
+    public void setGameName(String gameName) {
+      this.gameName = gameName;
+    }
   }
 
 

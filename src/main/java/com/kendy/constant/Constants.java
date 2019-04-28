@@ -37,6 +37,9 @@ public class Constants {
   public static final double FINAL_HS_RATE_0975 = 0.975; // 回水比例，这个是固定值
   public static double CURRENT_HS_RATE = 0.95;// 默认的回水比例，会根据选择而变化
 
+  public static final double LITTLE_GAME_RATE_MY = 0.8; // 小游戏原始战绩我方抽取比例，后台抽取0.2
+  public static final double LITTLE_GAME_RATE_HOU_TAI = 0.2; // 小游戏原始战绩我方抽取比例，后台抽取0.2
+
   public static final String ORANGE = "#ff6d11";
   public static final String RED = "#d60812";
 

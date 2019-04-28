@@ -158,7 +158,12 @@ public class DBUtil {
   public void insertPreData(String dataTime, String preData) {
     try {
       con = DBConnection.getConnection();
-      String sql = "replace into yesterday_data values(?,?)";
+      // 先删除所有昨日留底数据
+      String sql = "delete from yesterday_data";
+      ps = con.prepareStatement(sql);
+      ps.execute();
+      // 执行插入操作
+      sql = "replace into yesterday_data values(?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, dataTime);
       ps.setString(2, preData);

@@ -6,7 +6,9 @@ import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BankFlowController;
 import com.kendy.controller.ChangciController;
+import com.kendy.controller.ChangciController.ZhanjiType;
 import com.kendy.controller.GDController;
+import com.kendy.controller.LMBController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
 import com.kendy.db.DBUtil;
@@ -63,7 +65,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -110,6 +111,8 @@ public class MoneyService {
   public ShangmaService shangmaService; // 上码控制类
   @Autowired
   public BankFlowController bankFlowController; // 银行流水类
+  @Autowired
+  LMBController lmbController;
 
   @Autowired
   ChangciController changciController;
@@ -125,6 +128,8 @@ public class MoneyService {
 
   @Resource
   PlayerService playerService;
+
+
 
 
   // {玩家ID=CurrentMoneyInfo}
@@ -192,6 +197,10 @@ public class MoneyService {
       info.setShouHuishui(shouHuishui);
       // 合利润
       info.setHeLirun(heLirun);
+      // 新增小游戏标识
+      if (ZhanjiType.getInstance().isLittleGame()) {
+        info.setIsLittleGame("1");
+      }
 
       //设置回水回保
       setHsHbOfTotalInfo(info, r);
@@ -236,9 +245,87 @@ public class MoneyService {
     fillTableTeam(tableTeam, relatedTeamIdSet);
     // 填充个人表
     fillTablePersonal(tablePersonal, gameRecordModels);
+    // 实时金额栏生成小游戏抬头
+    fillTableSSJE_GAME();
     // 更新实时上码表的个人详情
     shangmaService.updateShangDetailMap(tablePaiju);
   }
+
+  /**
+   * 针对小游戏添加抬头
+   */
+  private void fillTableSSJE_GAME() {
+
+    List<GameRecordModel> currentList = dataConstants.Dangju_Team_Huishui_List;
+    if (CollectionUtils.isNotEmpty(currentList)) {
+      // TODO 监视锁不能改变状态
+      synchronized (changciController.ssjeMonitor){
+        TableView<CurrentMoneyInfo> tableCurrentMoneyInfo = changciController.tableCurrentMoneyInfo;
+        double littleGameHoutaiProfit = 0;
+        double playerProfit = 0; // 当局客户利润，即客户输赢
+        for (GameRecordModel recordModel : currentList) {
+          if (littleGameService.isLittleGame(recordModel)) {
+            // 小游戏后台盈利：原始战绩 * 20 * （-1）
+            littleGameHoutaiProfit +=
+                NumUtil.getNum(recordModel.getYszj()) * Constants.LITTLE_GAME_RATE_HOU_TAI * (-1);
+            // 小游戏客户输赢
+            playerProfit +=
+                NumUtil.getNum(recordModel.getYszj());
+          }
+        }
+        String tableId = ZhanjiType.getInstance().getTableId();
+        if (littleGameHoutaiProfit !=  0) {
+          /************************************** 小游戏后台 **********************************************/
+          String dangjuGameHoutaiProfit = NumUtil.digit(littleGameHoutaiProfit);
+          String gameName = "小游戏后台";
+          CurrentMoneyInfo infoByName = getInfoByName(gameName);
+          if (infoByName == null) {
+            infoByName = new CurrentMoneyInfo(gameName,
+                NumUtil.digit(littleGameHoutaiProfit), "", "0",
+                MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+            // 若没有则新增一条
+            log.info("实时金额栏不存在小游戏后台，新增记录，实时金额为：{}, 桌号是：{}", dangjuGameHoutaiProfit, tableId);
+            changciController.tableCurrentMoneyInfo.getItems().add(infoByName);
+          } else {
+            String oldSSJE = infoByName.getShishiJine();
+            String newSSJE = NumUtil.digit(NumUtil.getNum(oldSSJE) + littleGameHoutaiProfit);
+            infoByName.setShishiJine(newSSJE);
+            log.info("小游戏后台修改台=====旧金额：{}, 当局小游戏后台利润：{}，小游戏后台总利润：{}, 桌号是：{}",
+                oldSSJE, dangjuGameHoutaiProfit, newSSJE, tableId);
+          }
+        }
+        if (playerProfit != 0) {
+          /************************************** 小游戏联盟对帐 **********************************************/
+          String dangjuPlayerProfit = NumUtil.digit(playerProfit);
+          String gameLMName = "小游戏联盟对帐";
+          CurrentMoneyInfo playerSSJEInfo = getInfoByName(gameLMName);
+          if (playerSSJEInfo == null) {
+            playerSSJEInfo = new CurrentMoneyInfo(gameLMName,
+                NumUtil.digit(dangjuPlayerProfit), "", "0",
+                MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+            // 若没有则新增一条
+            log.info("实时金额栏不存在小游戏联盟对帐，新增记录，实时金额为：{}, 桌号是：{}", dangjuPlayerProfit, tableId);
+            changciController.tableCurrentMoneyInfo.getItems().add(playerSSJEInfo);
+          } else {
+            String oldSSJE = playerSSJEInfo.getShishiJine();
+            String newSSJE = NumUtil.digit(NumUtil.getNum(oldSSJE) + playerProfit);
+            playerSSJEInfo.setShishiJine(newSSJE);
+            log.info("游戏联盟对帐修改====旧金额：{}, 当局客户输赢：{}，小游戏总联盟对帐：{}, 桌号是：{}",
+                oldSSJE, dangjuPlayerProfit, newSSJE, tableId);
+          }
+        }
+        if (littleGameHoutaiProfit > 0 || playerProfit > 0) {
+          // 刷新
+          changciController.tableCurrentMoneyInfo.refresh();
+        }
+      }
+    }
+
+
+
+  }
+
+
 
   private WanjiaInfo getWanjiaInfo(GameRecordModel r, String playerId, String playerName,
       String shishou) {
@@ -725,7 +812,9 @@ public class MoneyService {
       shuihouxianList.add(info.getShuihouxian());
       shouHuishuiList.add(info.getShouHuishui());
       heLirunList.add(info.getHeLirun());
-      littleGameShishouList.add(info.getShishou());
+      if (StringUtils.equals("1", info.getIsLittleGame())) {
+        littleGameShishouList.add(info.getShishou());
+      }
     });
 
     Map<String, Double> cacheMap = new HashMap<>();

@@ -791,6 +791,10 @@ public class LMBController extends BaseController implements Initializable {
     return StringUtils.equals(DE_ZHOU_NIU_ZAI, gameRecordModel.getJutype());
   }
 
+  public boolean isLittleGame(String juType) {
+    return lmbCache.getGameTypes().contains(juType);
+  }
+
 
 
 

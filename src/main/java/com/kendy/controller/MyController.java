@@ -606,6 +606,10 @@ public class MyController extends BaseController implements Initializable {
   public void importPreDataExcelAction(ActionEvent even) {
     String preDataFilePath = preDataDir.getText();
     if (!StringUtil.isBlank(preDataFilePath)) {
+      // 提示警告
+      if (!FXUtil.confirm("程序将默认清空以前昨日留底数据，确认?")) {
+        return;
+      }
       // 将人员名单文件缓存起来
       try {
         Map<String, String> _preDataMap = excelReaderUtil.readPreDataRecord(new File(preDataFilePath));

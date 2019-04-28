@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.ChangciController;
 import com.kendy.controller.LMBController;
@@ -50,7 +51,7 @@ public class LittleGameService {
   @Resource
   PlayerService playerService;
 
-  public static final double LITTLE_GAME_RATE = 0.8;
+
   /**
    * 补全单条记录的值（小游戏）
    */
@@ -129,7 +130,7 @@ public class LittleGameService {
    */
   private String getShiShou0(GameRecordModel r) {
     if (isJLBH(r)) {
-      return NumUtil.digit(NumUtil.getNum(r.getYszj()) * LITTLE_GAME_RATE * (-1));
+      return NumUtil.digit(NumUtil.getNum(r.getYszj()) * Constants.LITTLE_GAME_RATE_MY * (-1));
     }
     if (isDeZhou(r)) {
       return NumUtil.digit(NumUtil.getNum(r.getLianmengFencheng()));
@@ -140,6 +141,10 @@ public class LittleGameService {
 
   public boolean isLittleGame(GameRecordModel record) {
     return lmbController.isLittleGame(record);
+  }
+
+  public boolean isLittleGame(String juType) {
+    return lmbController.isLittleGame(juType);
   }
 
 
