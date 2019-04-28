@@ -549,6 +549,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
             // 保存到实时金额表
             changciController.tableCurrentMoneyInfo.refresh();
+            moneyService.flush_SSJE_table();
             logInfo(playerName + "将实时金额" + cmi.getShishiJine() + "修改为" + finalSSJE);
 
           } else {
@@ -667,12 +668,12 @@ public class SMAutoController extends BaseController implements Initializable {
     }
     if (changciController.isLockedView()) {
       return new RangeResult("锁定页面", playerId,
-          playerName, "-", buyStack, "-", "-", null);
+          playerName, player.getTeamid(), buyStack, "-", "-", null);
     }
     CurrentMoneyInfo cmi = moneyService.getInfoById(playerId);
     if (cmi == null) {
       return new RangeResult("金额表不存在", playerId,
-          playerName, "-", buyStack, "-", "-", null);
+          playerName, player.getTeamid(), buyStack, "-", "-", null);
     }
     String parentId = combineIDController.hasCombineIdRelation(playerId);
     if (StringUtils.isBlank(parentId)) {

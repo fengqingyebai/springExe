@@ -396,7 +396,7 @@ public class ChangciController extends BaseController implements Initializable {
     tableCurrentMoneyInfo.setEditable(true);
     bindCellValueByTable(new CurrentMoneyInfo(), tableCurrentMoneyInfo);
     cmSuperIdSum.setStyle(Constants.CSS_CENTER_BOLD);
-    cmSuperIdSum.setCellFactory(sumMoneyCellFactory);
+    //cmSuperIdSum.setCellFactory(sumMoneyCellFactory);
     shishiJine.setCellFactory(TextFieldTableCell.forTableColumn());
     cmiLmb.setCellFactory(cmiLmbCellFactory);
     setSSJEEditOnCommit();
@@ -1049,6 +1049,7 @@ public class ChangciController extends BaseController implements Initializable {
       // 保存到数据库
       moneyService.saveOrUpdate2DB(cmi);
       tableCurrentMoneyInfo.refresh();
+      moneyService.flush_SSJE_table();
     }
   }
 

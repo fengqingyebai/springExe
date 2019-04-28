@@ -1974,20 +1974,20 @@ public class MoneyService {
     stage.show();
 
     //截图功能与通知功能
-    try {
-      clipBord(list, totalDesc);
-      Platform.runLater(() -> {
-        Notifications.create().title("截图成功").darkStyle()
-            .text(item.getMingzi() + System.lineSeparator() + totalDesc)
-            .position(Pos.BOTTOM_LEFT).showInformation();
-      });
-    } catch (Exception e) {
-      Platform.runLater(() -> {
-        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_LEFT)
-            .showError();
-      });
-      e.printStackTrace();
-    }
+//    try {
+//      clipBord(list, totalDesc);
+//      Platform.runLater(() -> {
+//        Notifications.create().title("截图成功").darkStyle()
+//            .text(item.getMingzi() + System.lineSeparator() + totalDesc)
+//            .position(Pos.BOTTOM_LEFT).showInformation();
+//      });
+//    } catch (Exception e) {
+//      Platform.runLater(() -> {
+//        Notifications.create().title("截图失败").text(e.getMessage()).position(Pos.BOTTOM_LEFT)
+//            .showError();
+//      });
+//      e.printStackTrace();
+//    }
   }
 
   private void clipBord(List<KeyValue> list, String totalDesc) throws Exception {
