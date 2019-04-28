@@ -133,7 +133,7 @@ public class LittleGameService {
       return NumUtil.digit(NumUtil.getNum(r.getYszj()) * Constants.LITTLE_GAME_RATE_MY * (-1));
     }
     if (isDeZhou(r)) {
-      return NumUtil.digit(NumUtil.getNum(r.getLianmengFencheng()));
+      return NumUtil.digit(NumUtil.getNum(r.getClubFencheng()));
     }
     return "0";
   }

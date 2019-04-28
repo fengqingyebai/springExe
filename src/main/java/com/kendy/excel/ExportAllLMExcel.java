@@ -1,8 +1,10 @@
 package com.kendy.excel;
 
+import com.kendy.entity.Club;
+import com.kendy.entity.LMSumInfo;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.TimeUtil;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,18 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import com.kendy.entity.Club;
-import com.kendy.entity.LMSumInfo;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 导出联盟总帐Excel
@@ -32,7 +29,7 @@ import com.kendy.util.TimeUtil;
  */
 public class ExportAllLMExcel {
 
-  private static Logger log = Logger.getLogger(ExportAllLMExcel.class);
+  private static Logger log =  LoggerFactory.getLogger(ExportAllLMExcel.class);
 
   // 模板路径
   private static final String TEMPLE_PATH = "联盟总账模板.xls";
@@ -213,6 +210,12 @@ public class ExportAllLMExcel {
       for (int j = 0; j < tdLength; j++) {
         // 得到Excel工作表指定行的单元格
         Cell cell = row1.getCell(j);
+
+        if (cell == null) {
+          log.info("================cell 为空，行：{}, 列：{}", i+"", j+"");
+          continue;
+        }
+
 
         if (cell.getStringCellValue() != null && cell.getStringCellValue().length() > 0) {
           matcher = pattern.matcher(cell.getStringCellValue());

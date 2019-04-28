@@ -314,7 +314,7 @@ public class MoneyService {
                 oldSSJE, dangjuPlayerProfit, newSSJE, tableId);
           }
         }
-        if (littleGameHoutaiProfit > 0 || playerProfit > 0) {
+        if (littleGameHoutaiProfit != 0 || playerProfit != 0) {
           // 刷新
           changciController.tableCurrentMoneyInfo.refresh();
         }
