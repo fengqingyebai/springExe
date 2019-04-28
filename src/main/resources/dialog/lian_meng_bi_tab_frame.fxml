@@ -32,6 +32,7 @@
                   <TableColumn fx:id="glbLianmengFanshui" minWidth="0.0" prefWidth="70.0" text="联盟返水" />
                   <TableColumn fx:id="glbLianmengBXJiaoshou" minWidth="0.0" prefWidth="114.0" text="联盟保险交收" />
                   <TableColumn fx:id="glbLianmengBXZhancheng" minWidth="0.0" prefWidth="148.0" text="联盟收取后台保险占成" />
+                  <TableColumn fx:id="glbClubBaoxian" minWidth="0.0" prefWidth="97.0" text="俱乐部保险" />
                   <TableColumn fx:id="glbClubHeji" minWidth="0.0" prefWidth="97.0" text="俱乐部合计" />
                </columns>
             </TableView>
@@ -50,7 +51,7 @@
                   <Font name="System Bold" size="26.0" />
                </font>
             </JFXButton>
-            <JFXButton fx:id="bankFlowTitle1" buttonType="RAISED" layoutX="14.0" layoutY="480.0" opacity="0.78" prefHeight="52.0" prefWidth="188.0" text="小游戏合计" textFill="#9c8617">
+            <JFXButton fx:id="bankFlowTitle1" buttonType="RAISED" layoutX="14.0" layoutY="499.0" opacity="0.78" prefHeight="52.0" prefWidth="188.0" text="小游戏合计" textFill="#9c8617">
                <effect>
                   <Lighting>
                      <bumpInput>

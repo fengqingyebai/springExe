@@ -80,6 +80,11 @@ public class GlbInfo implements Entity {
   @MyExcelField(title = "联盟保险占成", colWidth = 15)
   private SimpleStringProperty  glbLianmengBXZhancheng = new SimpleStringProperty();
   /**
+   * 俱乐部保险再分配
+   */
+  @MyExcelField(title = "俱乐部保险", colWidth = 15)
+  private SimpleStringProperty  glbClubBaoxian = new SimpleStringProperty();
+  /**
    * 俱乐部合计
    */
   @MyExcelField(title = "俱乐部合计", colWidth = 15)
@@ -98,6 +103,7 @@ public class GlbInfo implements Entity {
    * 俱乐部分成
    */
   private SimpleStringProperty  glbClubFencheng = new SimpleStringProperty();
+
 
   public GlbInfo() {
   }
@@ -315,5 +321,17 @@ public class GlbInfo implements Entity {
 
   public void setGlbClubFencheng(String glbClubFencheng) {
     this.glbClubFencheng.set(glbClubFencheng);
+  }
+
+  public String getGlbClubBaoxian() {
+    return glbClubBaoxian.get();
+  }
+
+  public SimpleStringProperty glbClubBaoxianProperty() {
+    return glbClubBaoxian;
+  }
+
+  public void setGlbClubBaoxian(String glbClubBaoxian) {
+    this.glbClubBaoxian.set(glbClubBaoxian);
   }
 }

@@ -176,9 +176,9 @@ public class SMAutoController extends BaseController implements Initializable {
   @FXML
   public TextField downExcelPierodField;// 每隔多久去刷新
 
-  Charset charset = null;
+  private Charset charset = null;
 
-  HttpUtils httpUtils = HttpUtils.getInstance();
+  private HttpUtils httpUtils = HttpUtils.getInstance();
 
   private final String SM_AOTO_NEXT_DAY_DB_KEY =
       KeyEnum.SM_AOTO_NEXT_DAY_DB_KEY.getKeyName(); // 保存到数据库的key

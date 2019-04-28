@@ -103,6 +103,8 @@ public class LMBController extends BaseController implements Initializable {
   @FXML
   private TableColumn<GlbInfo, String> glbLianmengBXZhancheng;
   @FXML
+  private TableColumn<GlbInfo, String> glbClubBaoxian;
+  @FXML
   private TableColumn<GlbInfo, String> glbClubHeji;
 
   //===================================================================小游戏合计表
@@ -441,7 +443,7 @@ public class LMBController extends BaseController implements Initializable {
     // stage.setResizable(Boolean.FALSE); // 可手动放大缩小
     ShowUtil.setIcon(stage);
     stage.setTitle(TITLE);
-    stage.setWidth(1450);
+    stage.setWidth(1550);
     stage.setHeight(450);
 
     Scene scene = new Scene(stackPane);
@@ -463,7 +465,8 @@ public class LMBController extends BaseController implements Initializable {
         getTableColumn("俱乐部联盟代收水", "glbLianmengDaiShoushui", 2),
         getTableColumn("俱乐部联盟返水", "glbLianmengFanshui", 2),
         getTableColumn("俱乐部联盟保险交收", "glbLianmengBXJiaoshou", 2),
-        getTableColumn("俱乐部联盟保险占成", "glbLianmengBXZhancheng", 2)
+        getTableColumn("俱乐部联盟保险占成", "glbLianmengBXZhancheng", 2),
+        getTableColumn("俱乐部保险", "glbClubBaoxian", 2)
     );
     table.getColumns().addAll(cols);
   }
@@ -500,6 +503,7 @@ public class LMBController extends BaseController implements Initializable {
           detail.setGlbLianmengFanshui(digit(model.getClubZaifenpei())); // see 方法set_game_etra_data()
           detail.setGlbLianmengBXJiaoshou("0");
           detail.setGlbLianmengBXZhancheng("0");
+          detail.setGlbClubBaoxian("0");
           detail.setGlbClubHeji("0");
         } else {
           detail
@@ -514,6 +518,7 @@ public class LMBController extends BaseController implements Initializable {
           detail.setGlbLianmengBXZhancheng(digit(
               NumUtil.getNum(model.getSingleinsurance()) * (-1) * 0.95
                   * 0.1)); // 联盟收取后台保险占成=(Q列所属玩家保险*0.95*0.1)
+          detail.setGlbClubBaoxian(model.getBaoxianZaifenpei());
           detail.setGlbClubHeji(getClubHeji(detail));
         }
 
@@ -532,16 +537,13 @@ public class LMBController extends BaseController implements Initializable {
   }
 
   /**
-   * 第一个俱乐部合计 = 联盟代收水 + 联盟返水 + 联盟保险交收 + 联盟收取后台保险占成
+   * 第一个俱乐部合计 = 联盟返水 + 俱乐部保险
    */
   private String getClubHeji(GlbInfo detail) {
-    String glbLianmengDaiShoushui = detail.getGlbLianmengDaiShoushui();
     String glbLianmengFanshui = detail.getGlbLianmengFanshui();
-    String glbLianmengBXJiaoshou = detail.getGlbLianmengBXJiaoshou();
-    String glbLianmengBXZhancheng = detail.getGlbLianmengBXZhancheng();
+    String glbClubBaoxian = detail.getGlbClubBaoxian();
     String clubHeji = NumUtil
-        .getSum(glbLianmengDaiShoushui, glbLianmengFanshui, glbLianmengBXJiaoshou
-            , glbLianmengBXZhancheng);
+        .getSum(glbLianmengFanshui, glbClubBaoxian);
     return NumUtil.digit2(clubHeji);
   }
 
@@ -564,6 +566,7 @@ public class LMBController extends BaseController implements Initializable {
     double fanshui = 0;
     double baoxianJiaoshou = 0;
     double baoxianZhancheng = 0;
+    double clubBaoxian = 0;
     double clubHeji = 0;
     for (GlbInfo detail : details) {
       if (isGameType(detail.getGlbType())) { // 累加小游戏，目前只修改战绩抽取和联盟返水
@@ -577,6 +580,7 @@ public class LMBController extends BaseController implements Initializable {
         fanshui += NumUtil.getNum(detail.getGlbLianmengFanshui());
         baoxianJiaoshou += NumUtil.getNum(detail.getGlbLianmengBXJiaoshou());
         baoxianZhancheng += NumUtil.getNum(detail.getGlbLianmengBXZhancheng());
+        clubBaoxian += NumUtil.getNum(detail.getGlbClubBaoxian());
         clubHeji += NumUtil.getNum(detail.getGlbClubHeji());
       }
     }
@@ -592,6 +596,7 @@ public class LMBController extends BaseController implements Initializable {
     clubInfo.setGlbLianmengFanshui(digit(fanshui));
     clubInfo.setGlbLianmengBXJiaoshou(digit(baoxianJiaoshou));
     clubInfo.setGlbLianmengBXZhancheng(digit(baoxianZhancheng));
+    clubInfo.setGlbClubBaoxian(digit(clubBaoxian));
     clubInfo.setGlbClubHeji(digit(clubHeji));
 
     if (type == 1) {
