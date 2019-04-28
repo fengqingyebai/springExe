@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.swing.filechooser.FileSystemView;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -464,10 +465,14 @@ public class SMAutoController extends BaseController implements Initializable {
     }
     List<CoinBuyer> coinBuyers = coinBuyerRusult.getResult();
     if (coinBuyers != null) {
-      logInfo("获取联盟币玩家个数：" + coinBuyers.size());
+      // 只记录发放，过滤回收  mstType:1是发送， 2是回收
+      coinBuyers = coinBuyers.stream().filter(e->1==e.getMsgType()).collect(Collectors.toList());
+      logInfo("获取联盟币玩家个数（发放）：" + coinBuyers.size());
 
       // 真正的处理逻辑
-      handleAutoShangma(coinBuyers);
+      if (CollectionUtils.isNotEmpty(coinBuyers)) {
+        handleAutoShangma(coinBuyers);
+      }
     }
 
     logInfo("");
