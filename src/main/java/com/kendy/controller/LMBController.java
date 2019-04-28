@@ -504,7 +504,7 @@ public class LMBController extends BaseController implements Initializable {
           detail.setGlbLianmengBXJiaoshou("0");
           detail.setGlbLianmengBXZhancheng("0");
           detail.setGlbClubBaoxian("0");
-          detail.setGlbClubHeji("0");
+          detail.setGlbClubHeji(getClubHeji(detail));
         } else {
           detail
               .setGlbBaoxianChouqu(digit(NumUtil.getNum(model.getSingleinsurance()) * (-1))); // Q列相反值
@@ -572,6 +572,7 @@ public class LMBController extends BaseController implements Initializable {
       if (isGameType(detail.getGlbType())) { // 累加小游戏，目前只修改战绩抽取和联盟返水
         fanshui += NumUtil.getNum(detail.getGlbLianmengFanshui()); // getGameLianmengFanshui(detail);
         zhanjiChouqu += NumUtil.getNum(detail.getGlbZhanjiChouqu());
+        clubHeji += NumUtil.getNum(detail.getGlbClubHeji());
 
       } else {
         baoxianChouqu += NumUtil.getNum(detail.getGlbBaoxianChouqu());
