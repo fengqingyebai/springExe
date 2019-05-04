@@ -1,0 +1,465 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.kendy</groupId>
+  <artifactId>springExe</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+
+  <name>账务软件</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <spring.version>4.3.7.RELEASE</spring.version>
+    <poi.version>3.17</poi.version>
+    <main.path>com.kendy.application.Main</main.path>
+    <mapper.version>3.4.2</mapper.version>
+
+    <!--数据库配置-->
+    <db.jdbc.groupId>mysql</db.jdbc.groupId>
+    <db.jdbc.artifactId>mysql-connector-java</db.jdbc.artifactId>
+    <db.jdbc.version>5.1.40</db.jdbc.version>
+    <!--<db.jdbc.version>8.0.15</db.jdbc.version>-->
+    <db.jdbc.driverClassName>com.mysql.jdbc.Driver</db.jdbc.driverClassName>
+    <db.jdbc.url><![CDATA[jdbc:mysql://127.0.0.1:3306/financial?characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false]]></db.jdbc.url>
+    <db.jdbc.username>root</db.jdbc.username>
+    <db.jdbc.password><![CDATA[123456]]></db.jdbc.password>
+
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.spring.platform</groupId>
+        <artifactId>platform-bom</artifactId>
+        <version>1.1.2.RELEASE</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- Spring依赖 -->
+    <!-- 1.Spring核心依赖 -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+
+    <!-- 阿里fastjson -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.47</version>
+    </dependency>
+
+    <!-- 引入 apache collections -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-collections4</artifactId>
+      <version>4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-email</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.6</version>
+    </dependency>
+    <!-- 引入commons-lang3 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.7</version>
+    </dependency>
+    <!-- 日志组件 -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+    </dependency>
+
+    <!-- 邮箱组件 -->
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4.1</version>
+    </dependency>
+
+    <!-- POI Excel组件 -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml-schemas</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlbeans</groupId>
+      <artifactId>xmlbeans</artifactId>
+      <version>2.6.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+    <!-- 引进Excel4J -->
+    <dependency>
+      <groupId>com.github.crab2died</groupId>
+      <artifactId>Excel4J</artifactId>
+      <version>2.1.4-Final2</version>
+    </dependency>
+
+    <!-- 网络请求 -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.4.6</version>
+    </dependency>
+
+    <!-- 引入单机版缓存机制 ehcache -->
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>2.10.4</version>
+    </dependency>
+
+    <!-- 引入jfoenix -->
+    <dependency>
+      <groupId>com.jfoenix</groupId>
+      <artifactId>jfoenix</artifactId>
+      <version>8.0.4</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.controlsfx/controlsfx -->
+    <dependency>
+      <groupId>org.controlsfx</groupId>
+      <artifactId>controlsfx</artifactId>
+      <version>8.40.14</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.persistence</groupId>
+      <artifactId>persistence-api</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.belerweb/pinyin4j -->
+    <dependency>
+      <groupId>com.belerweb</groupId>
+      <artifactId>pinyin4j</artifactId>
+      <version>2.5.1</version>
+    </dependency>
+
+    <!--数据库配置-->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${db.jdbc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.4.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis-spring</artifactId>
+      <version>1.3.1</version>
+    </dependency>
+    <!--通用Mapper -->
+    <dependency>
+      <groupId>tk.mybatis</groupId>
+      <artifactId>mapper</artifactId>
+      <version>3.4.2</version>
+    </dependency>
+    <!-- 阿里连接池 -->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+
+    <!--引入Lombok-->
+      <!--<dependency>-->
+        <!--<groupId>org.projectlombok</groupId>-->
+        <!--<artifactId>lombok</artifactId>-->
+        <!--<version>1.18.2</version>-->
+        <!--<scope>provided</scope>-->
+      <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/org.jfxtras/ -->
+    <!--<dependency>-->
+      <!--<groupId>org.jfxtras</groupId>-->
+      <!--<artifactId>jmetro</artifactId>-->
+      <!--<version>4.2</version>-->
+    <!--</dependency>-->
+
+
+    <!--单元测试-->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>4.3.14.RELEASE</version>
+    </dependency>
+
+  </dependencies>
+
+  <!--<profiles>-->
+  <!--<profile>-->
+    <!--&lt;!&ndash; 开发环境配置 &ndash;&gt;-->
+    <!--<id>dev</id>-->
+    <!--<activation>-->
+      <!--<activeByDefault>true</activeByDefault>-->
+    <!--</activation>-->
+    <!--<properties>-->
+      <!--<profiles.active>dev</profiles.active>-->
+    <!--</properties>-->
+  <!--</profile>-->
+
+  <!--<profile>-->
+    <!--&lt;!&ndash; 生产环境配置 &ndash;&gt;-->
+    <!--<id>prod</id>-->
+    <!--<build>-->
+      <!--<plugins>-->
+      <!--</plugins>-->
+      <!--<resources>-->
+        <!--<resource>-->
+          <!--<directory>${prod.resources}</directory>-->
+          <!--<excludes>-->
+            <!--<exclude />-->
+          <!--</excludes>-->
+          <!--<filtering>true</filtering>-->
+        <!--</resource>-->
+      <!--</resources>-->
+    <!--</build>-->
+    <!--<properties>-->
+      <!--<profiles.active>prod</profiles.active>-->
+      <!--<db.jdbc.version>8.0.15</db.jdbc.version>-->
+    <!--</properties>-->
+  <!--</profile>-->
+  <!--</profiles>-->
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <shadedArtifactAttached>true</shadedArtifactAttached>
+          <shadedClassifierName>shaded</shadedClassifierName>
+          <transformers>
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <resource>META-INF/spring.handlers</resource>
+            </transformer>
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+              <resource>META-INF/spring.schemas</resource>
+            </transformer>
+            <transformer
+              implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+              <mainClass>${main.path}</mainClass>
+            </transformer>
+          </transformers>
+        </configuration>
+      </plugin>
+      <!-- 打包时标注中国时间 -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <id>timestamp-property</id>
+            <goals>
+              <goal>timestamp-property</goal>
+            </goals>
+            <configuration>
+              <name>current.time</name>
+              <locale>zh_CN</locale>
+              <pattern>yyyy-MM-dd-HH时mm分</pattern>
+              <timeZone>GMT+8</timeZone>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!--自动生成实体-->
+      <plugin>
+        <groupId>org.mybatis.generator</groupId>
+        <artifactId>mybatis-generator-maven-plugin</artifactId>
+        <version>1.3.5</version>
+        <configuration>
+          <configurationFile>src/main/mybatis-generator/generatorConfig.xml</configurationFile>
+          <verbose>true</verbose>
+          <overwrite>true</overwrite>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-core</artifactId>
+            <version>1.3.5</version>
+          </dependency>
+          <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.40</version>
+          </dependency>
+          <dependency>
+            <groupId>tk.mybatis</groupId>
+            <artifactId>mapper</artifactId>
+            <version>${mapper.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <!-- 使用launch4j进行打包成exe -->
+      <plugin>
+        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+        <artifactId>launch4j-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>l4j-clui</id>
+            <phase>package</phase>
+            <goals>
+              <goal>launch4j</goal>
+            </goals>
+            <configuration>
+              <headerType>gui</headerType>
+              <jar>${project.build.directory}/${artifactId}-${version}-shaded.jar</jar>
+              <outfile>${project.build.directory}/账务软件${current.time}.exe</outfile>
+              <downloadUrl>http://java.com/download</downloadUrl>
+              <classPath>
+                <mainClass>${main.path}</mainClass>
+                <preCp>anything</preCp>
+              </classPath>
+              <icon>src/main/resources/images/financial.ico</icon>
+              <jre>
+                <!--<path>C:/Program Files/Java/jre1.8.0_181</path>-->
+                <minVersion>1.8.0</minVersion>
+                <jdkPreference>preferJre</jdkPreference>
+              </jre>
+              <versionInfo>
+                <fileVersion>1.0.0.0</fileVersion>
+                <txtFileVersion>${project.version}</txtFileVersion>
+                <fileDescription>${project.name}</fileDescription>
+                <copyright>2018 kendy.com</copyright>
+                <productVersion>1.0.0.0</productVersion>
+                <txtProductVersion>1.0.0.0</txtProductVersion>
+                <productName>${project.name}</productName>
+                <companyName>肯迪工作室</companyName>
+                <internalName>kendy</internalName>
+                <originalFilename>肯迪-财务软件.exe</originalFilename>
+              </versionInfo>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <!-- 打包时引入相关资源文件-->
+    <resources>
+      <resource>
+        <filtering>false</filtering>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>false</filtering>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.*</include>
+          <include>mapper/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

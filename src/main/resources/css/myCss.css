@@ -1,0 +1,7 @@
+/*root类选择器给所有的元素设置样式*/
+.root {
+    -fx-background-image: url(http://pic.qiantucdn.com/58pic/19/65/72/05W58PICNRB_1024.jpg);
+    -fx-background-repeat:no-repeat; 
+    -fx-background-size:100% 100%;
+
+}

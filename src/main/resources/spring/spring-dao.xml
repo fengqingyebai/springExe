@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+  	http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-4.3.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+  <!-- 扫描service包下所有使用注解的类型 -->
+  <context:component-scan base-package="com.kendy.db.dao" />
+  <context:component-scan base-package="com.kendy.db.service" />
+
+  <!--这里应该要引进properties文件-->
+
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"/>
+    <!-- 配置MyBaties全局配置文件:mybatis-config.xml -->
+    <property name="configLocation" value="classpath:spring/mybatis-config.xml" />
+    <!-- 扫描entity包 使用别名 -->
+    <property name="typeAliasesPackage" value="cn.womusic.bp.db.entity" />
+    <!-- 扫描sql配置文件:mapper需要的xml文件 -->
+    <property name="mapperLocations" value="classpath:mapper/*.xml" />
+  </bean>
+
+  <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+    <constructor-arg index="0" ref="sqlSessionFactory" />
+  </bean>
+
+  <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+    <property name="basePackage" value="com.kendy.db.dao" />
+    <!-- 3.2.2版本新特性，markerInterface可以起到mappers配置的作用，详细情况需要看Marker接口类 -->
+    <!-- <property name="markerInterface" value="com.isea533.mybatis.util.MyMapper"/> -->
+    <property name="properties">
+      <value>
+        mappers=tk.mybatis.mapper.common.Mapper
+        ORDER=BEFORE
+        IDENTITY=select sys_guid() from dual
+      </value>
+    </property>
+  </bean>
+
+  <!-- 6.配置基于注解的声明式事务 -->
+  <!--<tx:annotation-driven />-->
+
+  <!-- 2.数据库连接池 -->
+  <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+    init-method="init" destroy-method="close">
+    <property name="name" value="financial"/>
+    <!-- 配置连接池属性 -->
+    <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+    <property name="url" value="jdbc:mysql://127.0.0.1:3306/financial?characterEncoding=UTF-8"/>
+    <property name="username" value="root"/>
+    <property name="password" value="123456"/>
+  </bean>
+
+  <!-- 定义事务管理器 -->
+  <bean id="transactionManager"
+    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+  <!--使用注释事务 -->
+  <tx:annotation-driven  transaction-manager="transactionManager" />
+
+</beans>

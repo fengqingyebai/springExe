@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-3.0.xsd
+  ">
+
+  <!--        <context:component-scan base-package="com.kendy.util" />      -->
+  <!--        <context:component-scan base-package="com.kendy.controller" />      -->
+  <!--        <context:component-scan base-package="com.kendy.service" />      -->
+  <!--        <context:annotation-config /> -->
+  <!--        <context:component-scan base-package="com.kendy" />      -->
+
+<!--  <context:annotation-config/>
+
+  <context:component-scan base-package="us.codecraft.jobhunter"/>-->
+
+  <!-- spring的注入要调整，以下写法比较乱 -->
+  <bean id="dbUtil" class="com.kendy.db.DBUtil"></bean>
+  <bean id="dataConstants" class="com.kendy.constant.DataConstans"></bean>
+  <context:component-scan base-package="com.kendy.controller"/>
+  <context:component-scan base-package="com.kendy.service"/>
+  <!--        <bean id="httpUtil" class="com.kendy.spider.HttpUtil"></bean>   -->
+  <bean id="customView" class="com.kendy.util.CustomView"></bean>
+  <bean id="excelReaderUtil" class="com.kendy.excel.ExcelReaderUtil"></bean>
+
+
+  <bean id="applicationProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="ignoreResourceNotFound" value="false" />
+    <property name="locations">
+      <list>
+        <value>classpath*:properties/*.properties</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- 引用配置文件加载器，并使支持@Value("${pb.version}")的形式 -->
+  <!-- DB模块中也有此配置, 如需增加请注意排序及ignore-unresolvable属性值必须为true -->
+  <context:property-placeholder properties-ref="applicationProperties" />
+
+  <import resource="classpath:spring/spring-dao.xml" />
+</beans>

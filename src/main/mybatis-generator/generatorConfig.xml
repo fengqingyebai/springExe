@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+
+	<!-- pom中添加dependency -->
+	<!-- <classPathEntry location="classpath:/ojdbc6-11.1.0.7.0.jar"/> -->
+
+	<context id="financial"  targetRuntime="MyBatis3Simple">
+
+		<plugin type="tk.mybatis.mapper.generator.MapperPlugin">
+			<property name="mappers" value="tk.mybatis.mapper.common.Mapper" />
+		</plugin>
+
+		<commentGenerator>
+			<property name="suppressDate" value="false" />
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://127.0.0.1:3306/financial?characterEncoding=UTF-8" userId="root" password="123456" />
+
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+
+		<javaModelGenerator targetPackage="com.kendy.db.entity" targetProject="src/main/java">
+			<property name="enableSubPackages" value="true" />
+			<property name="trimStrings" value="true" />
+			<property name="rootClass" value="com.kendy.db.entity.GenericEntity" />
+		</javaModelGenerator>
+
+		<sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources">
+			<property name="enableSubPackages" value="false" />
+		</sqlMapGenerator>
+
+		<javaClientGenerator targetPackage="com.kendy.db.dao" targetProject="src/main/java" type="XMLMAPPER">
+			<property name="enableSubPackages" value="true" />
+			<property name="rootInterface" value="com.kendy.db.dao.GenericDao" />
+		</javaClientGenerator>
+
+
+		<!--<table tableName="man" domainObjectName="Man" mapperName="ManDao">
+		</table>-->
+		<!--<table tableName="game_record" domainObjectName="GameRecord" mapperName="GameRecordDao">-->
+		<!--</table>-->
+		<!--<table tableName="current_money" domainObjectName="CurrentMoney" mapperName="CurrentMoneyDao">-->
+		<!--</table>-->
+		<table tableName="members" domainObjectName="Player" mapperName="PlayerDao">
+		</table>
+
+
+	</context>
+</generatorConfiguration>

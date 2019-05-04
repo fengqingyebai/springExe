@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kendy.db.dao.GameRecordDao">
+  <resultMap id="BaseResultMap" type="com.kendy.db.entity.GameRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="soft_time" jdbcType="VARCHAR" property="softTime" />
+    <result column="clubId" jdbcType="VARCHAR" property="clubid" />
+    <result column="tableId" jdbcType="VARCHAR" property="tableid" />
+    <result column="playerId" jdbcType="VARCHAR" property="playerid" />
+    <result column="yszj" jdbcType="VARCHAR" property="yszj" />
+    <result column="singleInsurance" jdbcType="VARCHAR" property="singleinsurance" />
+    <result column="clubInsurance" jdbcType="VARCHAR" property="clubinsurance" />
+    <result column="currentTableInsurance" jdbcType="VARCHAR" property="currenttableinsurance" />
+    <result column="shishou" jdbcType="VARCHAR" property="shishou" />
+    <result column="chuHuishui" jdbcType="VARCHAR" property="chuhuishui" />
+    <result column="shouHuishui" jdbcType="VARCHAR" property="shouhuishui" />
+    <result column="shuihouxian" jdbcType="VARCHAR" property="shuihouxian" />
+    <result column="huiBao" jdbcType="VARCHAR" property="huibao" />
+    <result column="heLirun" jdbcType="VARCHAR" property="helirun" />
+    <result column="lmType" jdbcType="VARCHAR" property="lmtype" />
+    <result column="finished_time" jdbcType="VARCHAR" property="finishedTime" />
+    <result column="isJiesuaned" jdbcType="VARCHAR" property="isjiesuaned" />
+    <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="sumHandsCount" jdbcType="VARCHAR" property="sumhandscount" />
+    <result column="isCleared" jdbcType="VARCHAR" property="iscleared" />
+    <result column="beginPlayerName" jdbcType="VARCHAR" property="beginplayername" />
+    <result column="importTime" jdbcType="VARCHAR" property="importtime" />
+    <result column="juType" jdbcType="VARCHAR" property="jutype" />
+    <result column="personal_huibao" jdbcType="VARCHAR" property="personalHuibao" />
+    <result column="personal_huishui" jdbcType="VARCHAR" property="personalHuishui" />
+    <result column="lmb_koujian" jdbcType="VARCHAR" property="lmbKoujian" />
+    <result column="baoxian_zaifenpei" jdbcType="VARCHAR" property="baoxianZaifenpei" />
+    <result column="club_zaifenpei" jdbcType="VARCHAR" property="clubZaifenpei" />
+    <result column="is_zhuangwei" jdbcType="VARCHAR" property="isZhuangwei" />
+    <result column="wanjia_shoushu" jdbcType="VARCHAR" property="wanjiaShoushu" />
+    <result column="wanjia_zong_jiazhu" jdbcType="VARCHAR" property="wanjiaZongJiazhu" />
+    <result column="wanjia_zong_xiazhu" jdbcType="VARCHAR" property="wanjiaZongXiazhu" />
+    <result column="club_fencheng" jdbcType="VARCHAR" property="clubFencheng" />
+    <result column="lianmeng_fencheng" jdbcType="VARCHAR" property="lianmengFencheng" />
+    <result column="suoshu_proxy" jdbcType="VARCHAR" property="suoshuProxy" />
+    <result column="proxy_fanshui" jdbcType="VARCHAR" property="proxyFanshui" />
+    <result column="personal_jiesuan" jdbcType="VARCHAR" property="personalJiesuan" />
+    <result column="hshb_type" jdbcType="VARCHAR" property="hshbType" />
+  </resultMap>
+
+  <resultMap id="GameRecordModelMap" type="com.kendy.model.GameRecordModel" extends="BaseResultMap">
+    <result column="teamId" property="teamId"    />
+    <result column="playerName" property="playerName" />
+    <result column="name" property="clubName" />
+  </resultMap>
+
+  <sql id="game_record_sql">
+    select r.*, m.playerName, ifnull(m.teamId, '') teamId, c.name from  game_record r left join members m on r.playerId = m.playerId left join club c on r.clubId = c.clubId
+  </sql>
+
+  <select id="getGameRecordsByClubId" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.clubId = #{clubId}
+  </select>
+
+  <select id="getGameRecordsByMaxTime" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.soft_time = #{maxRecordTime}
+  </select>
+
+  <select id="getGameRecordsByMaxTimeAndClub" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.soft_time = #{maxRecordTime} and r.clubId =  #{clubId}
+  </select>
+
+  <select id="getStaticDetailRecords" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>  where r.soft_time = #{softTime} and r.clubId =  #{clubId}  and m.teamId = #{teamId}
+  </select>
+
+  <select id="getRecordsByPlayerId" resultMap="GameRecordModelMap">
+    <include refid="game_record_sql"></include>
+    where r.soft_time = #{softTime} and r.clubId =  #{clubId}  and m.playerId = #{playerId} and r.personal_jiesuan = '0'
+  </select>
+
+  <select id="getTotalZJByPId" resultType="string">
+    <!--SELECT DISTINCT hr.playerName,sum(hr.shishou) as sum from (<include refid="game_record_sql"></include>) hr where hr.playerId = #{playerId}-->
+    SELECT sum(hr.shishou) as sum from (<include refid="game_record_sql"></include>) hr where hr.playerId = #{playerId}
+  </select>
+
+
+  <select id="test1" resultMap="GameRecordModelMap">
+    select * from game_record
+  </select>
+</mapper>
