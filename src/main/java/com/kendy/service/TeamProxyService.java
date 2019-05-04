@@ -155,7 +155,7 @@ public class TeamProxyService extends BasicService{
           if (newValue != null && StringUtil.isNotBlank(newValue.toString())) {
             Huishui huishui = dataConstants.huishuiMap.get(newValue);
             if (huishui != null) {
-              if (isTeamProxyManaged(huishui)
+              if ("0".equals(huishui.getShowInsure())
                   || StringUtil.isBlank(huishui.getShowInsure())) {
                 hasTeamBaoxian.setSelected(false);
               } else {
