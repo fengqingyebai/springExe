@@ -1,5 +1,6 @@
 package com.kendy.service;
 
+import com.kendy.constant.Constants;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,6 +61,8 @@ public class TeamProxyService extends BasicService{
   public MyController myController;
   @Autowired
   public MoneyService moneyService;
+  @Autowired
+  LittleGameService littleGameService;
 
   public DecimalFormat df = new DecimalFormat("#.00");
 
@@ -152,7 +155,7 @@ public class TeamProxyService extends BasicService{
           if (newValue != null && StringUtil.isNotBlank(newValue.toString())) {
             Huishui huishui = dataConstants.huishuiMap.get(newValue);
             if (huishui != null) {
-              if ("0".equals(huishui.getShowInsure())
+              if (isTeamProxyManaged(huishui)
                   || StringUtil.isBlank(huishui.getShowInsure())) {
                 hasTeamBaoxian.setSelected(false);
               } else {
@@ -223,7 +226,7 @@ public class TeamProxyService extends BasicService{
     }
     Huishui hs = dataConstants.huishuiMap.get(newValue);
     if (hs != null) {
-      if ("否".equals(hs.getZjManaged())) {
+      if (isTeamProxyManaged(hs)) {
         isZjManage.setSelected(false);
       } else {
         isZjManage.setSelected(true);
@@ -246,8 +249,9 @@ public class TeamProxyService extends BasicService{
     ObservableList<ProxyTeamInfo> obList = FXCollections.observableArrayList();
     if (teamList != null) {
       for (GameRecordModel info : teamList) {
+        String shishou = getShishou(info, hs);
         obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerid(), info.getPlayerName(),
-            info.getYszj(), info.getShishou(), NumUtil.getNum(info.getChuhuishui()) * (-1) + "",
+            info.getYszj(), shishou, NumUtil.getNum(info.getChuhuishui()) * (-1) + "",
             // 出回水是否等于回水
             info.getHuibao(), // 保险是否等于回保
             info.getTableid(), info.getSingleinsurance()// 保险
@@ -286,6 +290,32 @@ public class TeamProxyService extends BasicService{
     tableProxySum.setItems(ob_Heji_List);
     tableProxySum.getColumns().get(1).setText(NumUtil.digit1(proxyHeji + ""));
     tableProxySum.refresh();
+  }
+
+  /**
+   * 团队代理获取战绩显示
+   * 若团队非代管理，且为小游戏，则返回 if (yszj > 0) return yszj * 0.95 else return yszj
+   * 其他情况返回实收
+   * @param gameRecordModel
+   * @param hs
+   * @return
+   */
+  private String getShishou(GameRecordModel gameRecordModel, Huishui hs) {
+    boolean notTeamManaged = !isTeamProxyManaged(hs);
+    boolean isLittleGame = littleGameService.isLittleGame(gameRecordModel);
+    if (notTeamManaged && isLittleGame) {
+      String yszj = gameRecordModel.getYszj();
+      if (StringUtils.contains(yszj, "-")) {
+        return yszj;
+      } else {
+        return NumUtil.digit(NumUtil.getNum(yszj) * Constants.FINAL_HS_RATE_095);
+      }
+    }
+    return gameRecordModel.getShishou();
+  }
+
+  private boolean isTeamProxyManaged(Huishui hs) {
+    return "否".equals(hs.getZjManaged());
   }
 
   /**
