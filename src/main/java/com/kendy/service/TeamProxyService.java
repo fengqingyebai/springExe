@@ -250,17 +250,19 @@ public class TeamProxyService extends BasicService{
     if (teamList != null) {
       for (GameRecordModel info : teamList) {
         String shishou = getShishou(info, hs);
+        String chuhuishui = getChuhuishui(info, hs);
+        String huibao = getHuibao(info, hs);
         obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerid(), info.getPlayerName(),
-            info.getYszj(), shishou, NumUtil.getNum(info.getChuhuishui()) * (-1) + "",
+            info.getYszj(), shishou, chuhuishui,
             // 出回水是否等于回水
-            info.getHuibao(), // 保险是否等于回保
+            huibao, // 保险是否等于回保
             info.getTableid(), info.getSingleinsurance()// 保险
         ));
         sumYSZJ += NumUtil.getNum(info.getYszj());
-        sumZJ += NumUtil.getNum(info.getShishou());
+        sumZJ += NumUtil.getNum(shishou);
         sumBX += NumUtil.getNum(info.getSingleinsurance());
-        sumHS += (NumUtil.getNum(info.getChuhuishui())) * (-1);
-        sumHB += NumUtil.getNum(info.getHuibao());
+        sumHS += NumUtil.getNum(chuhuishui);
+        sumHB += NumUtil.getNum(huibao);
         sumRC += 1;
       }
     }
@@ -293,8 +295,50 @@ public class TeamProxyService extends BasicService{
   }
 
   /**
+   * 回保 = 保险*回水表E列比例*-1
+   * @param info
+   * @param hs
+   * @return
+   */
+  private String getHuibao(GameRecordModel info, Huishui hs) {
+    String baoxian = info.getSingleinsurance();
+    String rateStr = hs.getInsuranceRate();
+    double rate = 0d;
+    if (StringUtils.contains(rateStr, "%")) {
+      rate = NumUtil.getNumByPercent(rateStr);
+    } else {
+      rate = NumUtil.getNum(rateStr);
+    }
+    double huibao = NumUtil.getNum(baoxian) * rate * (-1);
+    return NumUtil.digit(huibao);
+  }
+
+
+  /**
+   * 计算出回水
+   * 出回水 = if(yszj > 0) then 0 else yszj * teamHsRate * (-1)
+   * @param info
+   * @param hs
+   * @return
+   */
+  private String getChuhuishui(GameRecordModel info, Huishui hs) {
+    String yszj = NumUtil.digit(info.getYszj());
+    if (StringUtils.contains(yszj, "-")) {
+      String huishuiRateStr = hs.getHuishuiRate();
+      double hsRate = 0d;
+      if (StringUtils.contains(huishuiRateStr, "%")) {
+        hsRate = NumUtil.getNumByPercent(huishuiRateStr);
+      } else {
+        hsRate = NumUtil.getNum(huishuiRateStr);
+      }
+      return NumUtil.digit(NumUtil.getNum(yszj) * hsRate * (-1));
+    }
+    return "0";
+  }
+
+  /**
    * 团队代理获取战绩显示
-   * 若团队非代管理，且为小游戏，则返回 if (yszj > 0) return yszj * 0.95 else return yszj
+   * 若为小游戏，则返回 if (yszj > 0) return yszj * 0.95 else return yszj
    * 其他情况返回实收
    * @param gameRecordModel
    * @param hs
@@ -303,7 +347,7 @@ public class TeamProxyService extends BasicService{
   private String getShishou(GameRecordModel gameRecordModel, Huishui hs) {
     boolean notTeamManaged = !isTeamProxyManaged(hs);
     boolean isLittleGame = littleGameService.isLittleGame(gameRecordModel);
-    if (notTeamManaged && isLittleGame) {
+    if (isLittleGame) {
       String yszj = gameRecordModel.getYszj();
       if (StringUtils.contains(yszj, "-")) {
         return yszj;
