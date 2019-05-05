@@ -220,6 +220,10 @@ public class ExcelReaderUtil {
           String jfPercent = "";
           for (int i = 1; i < 11; i++) {
             Cell cell = row.getCell(i);
+            if (cell == null) {
+              log.error("读取回水表发现NPE, 列：{}", i);
+              break;
+            }
             cell.setCellType(CellType.STRING);
             String value = cell.getStringCellValue();
             if (i == 1) {
