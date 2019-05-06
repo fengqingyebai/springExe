@@ -554,7 +554,10 @@ public class MyController extends BaseController implements Initializable {
         dataConstants.membersMap.putAll(allPlayers);// 求并集,key相同的会被替换掉
         // 插入到数据库
         List<Player> players = new ArrayList<>(allPlayers.values());
-        playerService.save(players);
+        long start = System.currentTimeMillis();
+        logger.info("人员总数：{}，开始批量导入数据库...", players.size());
+        playerService.insertBatch(players);
+        logger.info("人员批量导入库耗时：{}", (System.currentTimeMillis() - start));
 
         ShowUtil.show("导入人员名单成功", 2);
         // 刷新相关缓存

@@ -117,6 +117,7 @@ public class ExcelReaderUtil {
 
     Map<String, Player> membersMap = new LinkedHashMap<>();
     Player player;
+    long start = System.currentTimeMillis();
     log.info("读取人员名单开始...");
     try (FileInputStream is = new FileInputStream(file)) {
       Workbook workbook = getWeebWork(file.getAbsolutePath());
@@ -165,7 +166,7 @@ public class ExcelReaderUtil {
         }
       }
     }
-    log.info("读取人员名单结束! size:" + membersMap.size());
+    log.info("读取人员名单结束! size:{}, cost:{}", membersMap.size(), (System.currentTimeMillis() - start));
     return membersMap;
   }
 

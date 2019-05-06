@@ -127,19 +127,17 @@ public abstract class GenericServiceImpl<D extends GenericDao<E>, E extends Gene
       sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH, false);
       if (null != list && list.size() > 0) {
         int lsize = list.size();
-        for (int i = 0, n = list.size(); i < n; i++) {
+        for (int i = 0, n = lsize; i < n; i++) {
           // SqlSession session = sqlSessionFactory.openSession();
           E e = list.get(i);
           sqlSession.insert(sqlId, e);
           // save(list.get(i));
-          if ((i > 0 && i % 1000 == 0) || i == lsize - 1) {
-            // 手动每1000个一提交，提交后无法回滚
-            sqlSession.commit();
-            // 清理缓存，防止溢出
-            sqlSession.clearCache();
-          }
           count++;
         }
+        // 手动每1000个一提交，提交后无法回滚
+        sqlSession.commit();
+        // 清理缓存，防止溢出
+        sqlSession.clearCache();
       }
     } catch (Exception e) {
       // 没有提交的数据可以回滚

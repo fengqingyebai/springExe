@@ -14,4 +14,13 @@
     <result column="huibao" jdbcType="VARCHAR" property="huibao" />
     <result column="huishui" jdbcType="VARCHAR" property="huishui" />
   </resultMap>
+
+  <insert id="insertBatch">
+    INSERT INTO members
+    (playerId, playerName, gudong, teamId, edu, isParent, huibao, huishui)
+    VALUES
+    <foreach collection ="list" item="p" separator =",">
+      (#{p.playerid}, #{p.playername}, #{p.gudong}, #{p.teamid}, #{p.edu}, #{p.isparent}, #{p.huibao}, #{p.huishui})
+    </foreach >
+  </insert>
 </mapper>

@@ -224,8 +224,10 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
     return getDao().deleteByTeamId(teamId);
   }
 
-
-
+  @Override
+  public void insertBatch(List<Player> players) {
+    getDao().insertBatch(players);
+  }
 
   /**
    * 获取所有的人员名单
