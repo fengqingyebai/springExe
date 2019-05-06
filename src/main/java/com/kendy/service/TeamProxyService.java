@@ -53,14 +53,14 @@ public class TeamProxyService extends BasicService{
 
   private Logger log = LoggerFactory.getLogger(TeamProxyService.class);
   @Autowired
-  public DBUtil dbUtil;
+  private DBUtil dbUtil;
   @Autowired
-  public DataConstans dataConstants; // 数据控制类
+  private DataConstans dataConstants; // 数据控制类
 
   @Autowired
-  public MyController myController;
+  private MyController myController;
   @Autowired
-  public MoneyService moneyService;
+  private MoneyService moneyService;
   @Autowired
   LittleGameService littleGameService;
 
@@ -302,13 +302,7 @@ public class TeamProxyService extends BasicService{
    */
   private String getHuibao(GameRecordModel info, Huishui hs) {
     String baoxian = info.getSingleinsurance();
-    String rateStr = hs.getInsuranceRate();
-    double rate = 0d;
-    if (StringUtils.contains(rateStr, "%")) {
-      rate = NumUtil.getNumByPercent(rateStr);
-    } else {
-      rate = NumUtil.getNum(rateStr);
-    }
+    double rate = NumUtil.getNum(hs.getInsuranceRate());
     double huibao = NumUtil.getNum(baoxian) * rate * (-1);
     return NumUtil.digit(huibao);
   }
@@ -324,13 +318,7 @@ public class TeamProxyService extends BasicService{
   private String getChuhuishui(GameRecordModel info, Huishui hs) {
     String yszj = NumUtil.digit(info.getYszj());
     if (StringUtils.contains(yszj, "-")) {
-      String huishuiRateStr = hs.getHuishuiRate();
-      double hsRate = 0d;
-      if (StringUtils.contains(huishuiRateStr, "%")) {
-        hsRate = NumUtil.getNumByPercent(huishuiRateStr);
-      } else {
-        hsRate = NumUtil.getNum(huishuiRateStr);
-      }
+      double hsRate = NumUtil.getNum(hs.getHuishuiRate());
       return NumUtil.digit(NumUtil.getNum(yszj) * hsRate * (-1));
     }
     return "0";

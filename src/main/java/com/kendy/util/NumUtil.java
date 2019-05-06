@@ -21,6 +21,9 @@ public class NumUtil {
     if (StringUtil.isBlank(str)) {
       return 0d;
     } else {
+      if (StringUtils.contains(str, "%")) {
+        return NumUtil.getNumByPercent(str);
+      }
       try {
         return Double.valueOf(str).doubleValue();
       } catch (Exception e) {
@@ -101,7 +104,8 @@ public class NumUtil {
 
   // 把百分比转化为小数
   public static Double getNumByPercent(String percentStr) {
-    if (!StringUtil.isBlank(percentStr) && percentStr.contains("%")) {
+
+    if (StringUtils.contains(percentStr, "%")) {
       try {
         Double res = NumUtil
             .getNumDivide(new Double(percentStr.substring(0, percentStr.indexOf("%"))), 100d);

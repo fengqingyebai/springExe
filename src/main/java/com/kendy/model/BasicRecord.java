@@ -1,6 +1,5 @@
 package com.kendy.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.kendy.excel.myExcel4j.annotation.MyExcelField;
 
 /**
