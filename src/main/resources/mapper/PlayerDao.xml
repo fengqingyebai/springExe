@@ -16,7 +16,7 @@
   </resultMap>
 
   <insert id="insertBatch">
-    INSERT INTO members
+    REPLACE INTO members
     (playerId, playerName, gudong, teamId, edu, isParent, huibao, huishui)
     VALUES
     <foreach collection ="list" item="p" separator =",">
