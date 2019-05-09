@@ -124,6 +124,12 @@
                         <JFXTextField fx:id="jlbClubFenchengRate" alignment="CENTER" layoutX="947.0" layoutY="774.0" prefHeight="23.0" prefWidth="84.0" promptText="请填写小游戏类型，以##隔开" text="10%" unFocusColor="#c3bd10" />
                      </children>
                   </HBox>
+                  <HBox>
+                     <children>
+                        <Label layoutX="826.0" layoutY="607.0" prefHeight="30.0" prefWidth="54.0" text="托ID：" />
+                        <JFXTextField fx:id="tuoIdField" alignment="CENTER" layoutX="889.0" layoutY="611.0" prefHeight="23.0" prefWidth="227.0" promptText="以##隔开" unFocusColor="#c3bd10" />
+                     </children>
+                  </HBox>
                </children>
                <opaqueInsets>
                   <Insets bottom="30.0" />

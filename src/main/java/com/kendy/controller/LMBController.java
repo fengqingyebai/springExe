@@ -23,7 +23,6 @@ import com.kendy.util.FXUtil;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
 import com.kendy.util.TextFieldUtil;
 import com.kendy.util.TimeUtil;
 import java.net.URL;
@@ -34,9 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -131,6 +130,8 @@ public class LMBController extends BaseController implements Initializable {
   @FXML
   private JFXTextField gameTypeField;
   @FXML
+  private JFXTextField tuoIdField;
+  @FXML
   private JFXTextField jlbLianmengFenchengRate; // 加勒比联盟分成比例
   @FXML
   private JFXTextField jlbClubFenchengRate; // 加勒比俱乐部分成比例
@@ -208,6 +209,10 @@ public class LMBController extends BaseController implements Initializable {
       // 处理俱乐部
       mergeClubInformation();
 
+      // 桌号Map={桌号，该桌玩家记录列表}
+      Map<String, List<GameRecordModel>> tableIdMap = todayDatas.stream()
+          .collect(Collectors.groupingBy(GameRecordModel::getTableid));
+
       for (GameRecordModel model : todayDatas) {
         if (isGameType(model.getJutype())) {
           // 针对德州牛仔，根据设置的人员ID设置是否庄位
@@ -232,13 +237,14 @@ public class LMBController extends BaseController implements Initializable {
           if (isZhuangWei) {
             // 第一个表合计小游戏战绩抽取=是庄位=>对应战绩列*2
             // 设置小游戏战绩抽取(Q列彩池合计)
-            model.setSingleinsurance(computeGameZJChouqu(model));
+            model.setSingleinsurance(computeGameZJChouqu(model, tableIdMap.get(model.getTableid())));
             model.setClubZaifenpei("0");
           } else {
             // 第一个表合计小游戏联盟返水=不是庄位=>取详细表的俱乐部分成
             // 设置小游戏联盟返水(Y列 = 俱乐部再分配=战绩抽取)
             model.setClubZaifenpei(model.getClubFencheng());
-            model.setSingleinsurance("0");
+            // TODO
+            // model.setSingleinsurance("0");
           }
 
         }
@@ -305,12 +311,60 @@ public class LMBController extends BaseController implements Initializable {
     return NumUtil.digit(NumUtil.getNum(yszj)*(-1)*get_fencheng_rate(clubFenchengRate));
   }
 
-  private String computeGameZJChouqu(GameRecordModel model){
+  /**
+   * 获取后台的战绩抽取<br/>
+   * 本桌若有托，且是加勒比海，则战绩抽取公式：（庄位的原始战绩 + 所有托的原始战绩 + 所有托的保险相反值） * 2
+   * 本桌若无托，则用旧公式：则战绩抽取公式：庄位的原始战绩 * 2
+   * @param model
+   * @param tableIdRecors
+   * @return
+   */
+  private String computeGameZJChouqu(GameRecordModel model,
+      List<GameRecordModel> tableIdRecors){
+    boolean tableHasTuo = isTableHasTuo(tableIdRecors);
+    boolean jlbh = isJLBH(model);
+    if (jlbh && tableHasTuo) {
+      // 有托情况下使用新公式
+      return getGameZJChouquWithTuo(model, tableIdRecors);
+    }
+    // 使用旧公式
     String yszj = model.getYszj();
     return NumUtil.digit(NumUtil.getNum(yszj) * 2);
   }
 
+  private String getGameZJChouquWithTuo(GameRecordModel model, List<GameRecordModel> tableIdRecors) {
+    double zhuangweiYSZJ = NumUtil.getNum(model.getYszj());
+    double sumTuoYSZJ = 0d;
+    double sumTuoBaoxian = 0d;
+    for (GameRecordModel record : tableIdRecors) {
+      if (lmbCache.getTuoIds().contains(record.getPlayerid())) {
+        logger.info("是托：玩家名称：{}, 原始战绩{}, 保险{} ", record.getBeginplayername(), record.getYszj(),
+            -1 * NumUtil.getNum(record.getSingleinsurance()));
+        sumTuoYSZJ += NumUtil.getNum(record.getYszj());
+        sumTuoBaoxian += NumUtil.getNum(record.getSingleinsurance()) * (-1);
+      }
+    }
+    logger.info("是加勒比庄位：玩家ID是：{}, 名称是：{},其庄位原始战绩是：{}， 托总原始战绩：{}, 托总彩池合计：{}",
+        model.getPlayerid(), model.getBeginplayername(), model.getYszj(),
+        sumTuoYSZJ, sumTuoBaoxian);
+    return NumUtil.digit((zhuangweiYSZJ + sumTuoYSZJ + sumTuoBaoxian) * 2);
+  }
 
+  /**
+   * 判断一桌记录里是否有托
+   * @param tableIdRecors
+   * @return
+   */
+  private boolean isTableHasTuo(List<GameRecordModel> tableIdRecors) {
+    if (CollectionUtils.isNotEmpty(tableIdRecors)) {
+      for (GameRecordModel record : tableIdRecors) {
+        if (lmbCache.getTuoIds().contains(record.getPlayerid())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
 
   /**
@@ -371,9 +425,6 @@ public class LMBController extends BaseController implements Initializable {
    * 合并俱乐部信息
    */
   private void mergeClubInformation() {
-    if (CollectionUtils.isNotEmpty(lmbCache.getClubInfomations())) {
-      return;
-    }
     Map<String, Club> allClub = dbUtil.getAllClub();
     List<ClubInfomation> clubInfomations = lmbCache.getClubInfomations();
     if (allClub != null) {
@@ -461,6 +512,9 @@ public class LMBController extends BaseController implements Initializable {
 
     // 设置德州牛仔
     lmbCache.setDezhouZhuangweiIds(TextFieldUtil.defaultSplit(dezhouNiuzaiField));
+
+    // 托ID
+    lmbCache.setTuoIds(TextFieldUtil.defaultSplit(tuoIdField));
   }
 
   /**
@@ -497,6 +551,8 @@ public class LMBController extends BaseController implements Initializable {
     TextFieldUtil.setDefaultContent(dezhouNiuzaiField, lmbCache.getDezhouZhuangweiIds());
     // 设置加勒比海
     setFisrtClubInfomation();
+    // 设置托ID
+    TextFieldUtil.setDefaultContent(tuoIdField, lmbCache.getTuoIds());
 
   }
 
@@ -956,7 +1012,13 @@ public class LMBController extends BaseController implements Initializable {
    ******************************************************************************/
 
   public boolean isLittleGame(GameRecordModel recordModel) {
-    return lmbCache.getGameTypes().contains(recordModel.getJutype());
+    try {
+      return lmbCache.getGameTypes().contains(recordModel.getJutype());
+
+    } catch (Exception e) {
+      logger.error("缓存中不存在小游戏类型");
+      return false;
+    }
   }
 
   public boolean isJLBH(GameRecordModel gameRecordModel) {

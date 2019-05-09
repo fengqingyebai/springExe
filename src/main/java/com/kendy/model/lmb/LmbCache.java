@@ -14,6 +14,10 @@ public class LmbCache {
    * 小游戏类型
    */
   private List<String> gameTypes = new ArrayList<>();
+  /**
+   * 托玩家ID
+   */
+  private List<String> tuoIds = new ArrayList<>();
 
   /**
    * 德州牛仔庄位玩家ID
@@ -51,6 +55,14 @@ public class LmbCache {
 
   public void setClubInfomations(List<ClubInfomation> clubInfomations) {
     this.clubInfomations = clubInfomations;
+  }
+
+  public List<String> getTuoIds() {
+    return tuoIds;
+  }
+
+  public void setTuoIds(List<String> tuoIds) {
+    this.tuoIds = tuoIds;
   }
 }
 
