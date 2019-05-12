@@ -19,7 +19,6 @@ import com.kendy.model.lmb.LmbCache;
 import com.kendy.util.ButtonUtil;
 import com.kendy.util.ColumnUtil;
 import com.kendy.util.ErrorUtil;
-import com.kendy.util.FXUtil;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
@@ -128,6 +127,8 @@ public class LMBController extends BaseController implements Initializable {
   @FXML
   private StackPane stackPane;
   @FXML
+  private StackPane stackPaneClub;
+  @FXML
   private JFXTextField gameTypeField;
   @FXML
   private JFXTextField tuoIdField;
@@ -184,6 +185,31 @@ public class LMBController extends BaseController implements Initializable {
   }
 
   /**
+   * 示例：将一个普通装饰成带有导出功能的示例代码
+   * @param table
+   */
+  private void initExport(TableView<GlbInfo> table) {
+    MyTable<GlbInfo> myTable = new MyTable<>(table, "俱乐部信息");
+    myTable.setEntityClass(GlbInfo.class);
+    JFXButton exportBtn = ButtonUtil.getDownloadButnByTable(myTable);
+
+    stackPaneClub.getChildren().remove(0,stackPane.getChildren().size());
+    stackPaneClub.getChildren().addAll(table, exportBtn);
+    stackPaneClub.setAlignment(Pos.BOTTOM_CENTER);
+  }
+
+  @FXML
+  public void exportTableGlbAction() {
+    new MyTable<GlbInfo>(tableGlb, "俱乐部联盟币").exportByTable();
+  }
+
+
+  @FXML
+  public void exportTableGameAction(){
+    new MyTable<GameInfo>(tableGame, "小游戏联盟币").exportByTable();
+  }
+
+  /**
    * 从数据库获取今日数据
    */
   private void getData() {
@@ -226,16 +252,16 @@ public class LMBController extends BaseController implements Initializable {
           // 针对加勒比海，根据设置占比，设置俱乐部分成、联盟分成、联盟返水
           if (StringUtils.equals(JIA_LE_BI_HAI, model.getJutype())) {
             ClubInfomation clubInfomation = getClubInmationByClubId(model.getClubid());
-            // 设置小游戏俱乐部分成
-            model.setLianmengFencheng(computeFencheng(clubInfomation, model, true));
             // 设置小游戏联盟分成
+            model.setLianmengFencheng(computeFencheng(clubInfomation, model, true));
+            // 设置小游戏俱乐部分成
             model.setClubFencheng(computeFencheng(clubInfomation, model, false));
           }
 
           // 设置小游戏其他字段
           boolean isZhuangWei = StringUtils.equals(ZHUANG_WEI, model.getIsZhuangwei());
           if (isZhuangWei) {
-            // 第一个表合计小游戏战绩抽取=是庄位=>对应战绩列*2
+            // 第一个表合计小游戏战绩抽取=是庄位
             // 设置小游戏战绩抽取(Q列彩池合计)
             model.setSingleinsurance(computeGameZJChouqu(model, tableIdMap.get(model.getTableid())));
             model.setClubZaifenpei("0");
@@ -243,8 +269,6 @@ public class LMBController extends BaseController implements Initializable {
             // 第一个表合计小游戏联盟返水=不是庄位=>取详细表的俱乐部分成
             // 设置小游戏联盟返水(Y列 = 俱乐部再分配=战绩抽取)
             model.setClubZaifenpei(model.getClubFencheng());
-            // TODO
-            // model.setSingleinsurance("0");
           }
 
         }
@@ -295,7 +319,7 @@ public class LMBController extends BaseController implements Initializable {
   }
 
   /**
-   *
+   * 计算加勒比海分成：俱乐部分成和联盟分成 = (yszj - baoxiao) * 对应比例
    * @param model
    * @param isLMFencheng
    * @return
@@ -305,10 +329,11 @@ public class LMBController extends BaseController implements Initializable {
     String clubFenchengRate = clubInfomation.getClubFenchengRate();
     String lianmengFenchengRate = clubInfomation.getLianmengFenchengRate();
 
+    double value = NumUtil.getNum(yszj) - NumUtil.getNum(model.getSingleinsurance());
     if (isLMFencheng) {
-      return NumUtil.digit(NumUtil.getNum(yszj)*(-1)*get_fencheng_rate(lianmengFenchengRate));
+      return NumUtil.digit(value * (-1) * NumUtil.getNum(lianmengFenchengRate));
     }
-    return NumUtil.digit(NumUtil.getNum(yszj)*(-1)*get_fencheng_rate(clubFenchengRate));
+    return NumUtil.digit(value * (-1) * NumUtil.getNum(clubFenchengRate));
   }
 
   /**
@@ -585,7 +610,9 @@ public class LMBController extends BaseController implements Initializable {
 
     // 保存到数据库
     dbUtil.saveOrUpdateOthers(LMB_NAME, JSON.toJSONString(lmbCache));
-    FXUtil.info("小游戏类型保存成功, 已更新到软件系统，刷新生效哦！");
+
+    // 直接刷新
+    this.refreshAction();
   }
 
   /**

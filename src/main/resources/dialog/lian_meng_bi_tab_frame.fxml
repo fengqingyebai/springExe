@@ -21,21 +21,25 @@
    <children>
       <AnchorPane prefHeight="864.0" prefWidth="1296.0">
          <children>
-            <TableView fx:id="tableGlb" layoutX="41.0" layoutY="81.0" prefHeight="385.0" prefWidth="1231.0">
-               <columns>
-                  <TableColumn fx:id="glbClubName" prefWidth="89.0" text="俱乐部名称" />
-                  <TableColumn fx:id="glbClubId" minWidth="0.0" prefWidth="97.0" text="俱乐部ID" />
-                  <TableColumn fx:id="glbBaoxianChouqu" minWidth="0.0" prefWidth="92.0" text="保险抽取" />
-                  <TableColumn fx:id="glbZhanjiChouqu" minWidth="0.0" prefWidth="96.0" text="战绩抽取" />
-                  <TableColumn fx:id="glbChouquHeji" minWidth="0.0" prefWidth="89.0" text="抽取合计" />
-                  <TableColumn fx:id="glbLianmengDaiShoushui" minWidth="0.0" prefWidth="84.0" text="联盟代收水" />
-                  <TableColumn fx:id="glbLianmengFanshui" minWidth="0.0" prefWidth="70.0" text="联盟返水" />
-                  <TableColumn fx:id="glbLianmengBXJiaoshou" minWidth="0.0" prefWidth="114.0" text="联盟保险交收" />
-                  <TableColumn fx:id="glbLianmengBXZhancheng" minWidth="0.0" prefWidth="148.0" text="联盟收取后台保险占成" />
-                  <TableColumn fx:id="glbClubBaoxian" minWidth="0.0" prefWidth="97.0" text="俱乐部保险" />
-                  <TableColumn fx:id="glbClubHeji" minWidth="0.0" prefWidth="97.0" text="俱乐部合计" />
-               </columns>
-            </TableView>
+            <StackPane fx:id="stackPaneClub" layoutX="41.0" layoutY="81.0">
+               <children>
+                  <TableView fx:id="tableGlb" layoutX="41.0" layoutY="81.0" prefHeight="385.0" prefWidth="1231.0">
+                     <columns>
+                        <TableColumn fx:id="glbClubName" prefWidth="89.0" text="俱乐部名称" />
+                        <TableColumn fx:id="glbClubId" minWidth="0.0" prefWidth="97.0" text="俱乐部ID" />
+                        <TableColumn fx:id="glbBaoxianChouqu" minWidth="0.0" prefWidth="92.0" text="保险抽取" />
+                        <TableColumn fx:id="glbZhanjiChouqu" minWidth="0.0" prefWidth="96.0" text="战绩抽取" />
+                        <TableColumn fx:id="glbChouquHeji" minWidth="0.0" prefWidth="89.0" text="抽取合计" />
+                        <TableColumn fx:id="glbLianmengDaiShoushui" minWidth="0.0" prefWidth="84.0" text="联盟代收水" />
+                        <TableColumn fx:id="glbLianmengFanshui" minWidth="0.0" prefWidth="70.0" text="联盟返水" />
+                        <TableColumn fx:id="glbLianmengBXJiaoshou" minWidth="0.0" prefWidth="114.0" text="联盟保险交收" />
+                        <TableColumn fx:id="glbLianmengBXZhancheng" minWidth="0.0" prefWidth="148.0" text="联盟收取后台保险占成" />
+                        <TableColumn fx:id="glbClubBaoxian" minWidth="0.0" prefWidth="97.0" text="俱乐部保险" />
+                        <TableColumn fx:id="glbClubHeji" minWidth="0.0" prefWidth="97.0" text="俱乐部合计" />
+                     </columns>
+                  </TableView>
+               </children>
+            </StackPane>
             <JFXButton fx:id="bankFlowTitle" buttonType="RAISED" layoutX="14.0" layoutY="23.0" opacity="0.78" prefHeight="52.0" prefWidth="188.0" text="俱乐部合计" textFill="#9c8617">
                <effect>
                   <Lighting>
@@ -141,6 +145,22 @@
                </cursor>
                <font>
                   <Font name="System Bold" size="16.0" />
+               </font>
+            </JFXButton>
+            <JFXButton buttonType="RAISED" defaultButton="true" layoutX="1002.0" layoutY="34.0" onAction="#exportTableGlbAction" prefHeight="30.0" prefWidth="72.0" ripplerFill="#7118d7" style="-fx-background-color: #F0F0F0;" text="↓ 导出" textFill="#5250d0">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </JFXButton>
+            <JFXButton buttonType="RAISED" defaultButton="true" layoutX="623.0" layoutY="499.0" onAction="#exportTableGameAction" prefHeight="30.0" prefWidth="72.0" ripplerFill="#7118d7" style="-fx-background-color: #F0F0F0;" text="↓ 导出" textFill="#5250d0">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="15.0" />
                </font>
             </JFXButton>
          </children>

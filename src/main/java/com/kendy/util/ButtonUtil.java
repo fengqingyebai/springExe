@@ -20,11 +20,11 @@ public class ButtonUtil {
     exportBtn.setPrefHeight(40);
     exportBtn.setId("exportBtn");
     exportBtn.setOnAction(e -> {
-      if (TableUtil.isHasValue(table)) {
+      if (TableUtil.isHasValue(table.getOuterTable()) || TableUtil.isHasValue(table)) {
         try {
           logger.info("正在导出{}...", table.getExcelName());
           table.export();
-          logger.info("导出完成{}" + table.getExcelName());
+          logger.info("导出完成{}", table.getExcelName());
         } catch (Exception ee) {
           ErrorUtil.err("导出失败", ee);
         }
@@ -32,4 +32,17 @@ public class ButtonUtil {
     });
     return exportBtn;
   }
+  public static JFXButton getDownloadButnByTable(MyTable<?> table) {
+    JFXButton exportBtn = new JFXButton("导出");
+    exportBtn.setStyle("-fx-background-color: #DAF2E3; -fx-font-size: 20");
+    exportBtn.setPrefWidth(120);
+    exportBtn.setPrefHeight(40);
+    exportBtn.setId("exportBtn");
+    exportBtn.setOnAction(e -> {
+      table.exportByTable();
+    });
+    return exportBtn;
+  }
+
+
 }

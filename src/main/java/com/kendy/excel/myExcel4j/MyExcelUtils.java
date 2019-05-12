@@ -1131,6 +1131,15 @@ public final class MyExcelUtils {
     }
   }
 
+  public void exportObjects2Excel(List<?> data, TableView table, String targetPath)
+      throws Excel4JException, IOException {
+
+    try (FileOutputStream fos = new FileOutputStream(targetPath);
+        Workbook workbook = exportExcelNoTemplateHandlerByTable(data, table, true, null, true)) {
+      workbook.write(fos);
+    }
+  }
+
   // 单sheet数据导出
   private Workbook exportExcelNoTemplateHandler(List<?> data, Class<?> clazz, boolean isWriteHeader,
       String sheetName, boolean isXSSF)
@@ -1144,6 +1153,21 @@ public final class MyExcelUtils {
     }
 
     generateSheet(workbook, data, clazz, isWriteHeader, sheetName);
+
+    return workbook;
+  }
+  private Workbook exportExcelNoTemplateHandlerByTable(List<?> data, TableView table, boolean isWriteHeader,
+      String sheetName, boolean isXSSF)
+      throws Excel4JException {
+
+    Workbook workbook;
+    if (isXSSF) {
+      workbook = new XSSFWorkbook();
+    } else {
+      workbook = new HSSFWorkbook();
+    }
+
+    generateSheetByTable(workbook, data, table, isWriteHeader, sheetName);
 
     return workbook;
   }
@@ -1258,6 +1282,61 @@ public final class MyExcelUtils {
     }
     Row row = sheet.createRow(0);
     List<ExcelHeader> headers = Utils.getHeaderList(clazz);
+    if (isWriteHeader) {
+      // 写标题
+      for (int i = 0; i < headers.size(); i++) {
+        Cell cell = row.createCell(i);
+        cell.setCellValue(headers.get(i).getTitle());
+        cell.setCellStyle(columnTopStyle);
+      }
+    }
+    // 写数据
+    Object _data;
+    for (int i = 0; i < data.size(); i++) {
+      row = sheet.createRow(i + 1);
+      _data = data.get(i);
+      for (int j = 0; j < headers.size(); j++) {
+        row.createCell(j).setCellValue(Utils.getProperty(_data,
+            headers.get(j).getFiled(),
+            headers.get(j).getWriteConverter()));
+        row.getCell(j).setCellStyle(style);
+      }
+    }
+
+    // 设置列宽(泽涛：256的倍数，最长为256 * 256)
+    for (int colNum = 0; colNum < headers.size(); colNum++) {
+      int columnWidth = headers.get(colNum).getColWidth();
+      for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
+        Row currentRow;
+        // 当前行未被使用过
+        if (sheet.getRow(rowNum) == null) {
+          currentRow = sheet.createRow(rowNum);
+        } else {
+          currentRow = sheet.getRow(rowNum);
+          currentRow.setHeight((short) 400);
+        }
+      }
+      sheet.setColumnWidth(colNum, columnWidth * 256);
+    }
+
+  }
+  // 生成sheet数据
+  private void generateSheetByTable(Workbook workbook, List<?> data, TableView table,
+      boolean isWriteHeader, String sheetName)
+      throws Excel4JException {
+
+    // 获取列头样式对象
+    CellStyle columnTopStyle = ExcelCss.getColumnTopStyle(workbook);
+    CellStyle style = ExcelCss.getStyle(workbook);
+
+    Sheet sheet;
+    if (null != sheetName && !"".equals(sheetName)) {
+      sheet = workbook.createSheet(sheetName);
+    } else {
+      sheet = workbook.createSheet();
+    }
+    Row row = sheet.createRow(0);
+    List<ExcelHeader> headers = Utils.getHeaderListByTable(table);
     if (isWriteHeader) {
       // 写标题
       for (int i = 0; i < headers.size(); i++) {

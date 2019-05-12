@@ -2,12 +2,17 @@ package com.kendy.customize;
 
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.exception.ExcelException;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.TableUtil;
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 自定义TableView
@@ -20,6 +25,10 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class MyTable<K> extends TableView<K> {
 
+  Logger logger = LoggerFactory.getLogger(getClass());
+
+  private TableView<K> outerTable = null;
+
   private String excelName;
 
   private Class<K> entityClass;
@@ -30,6 +39,11 @@ public class MyTable<K> extends TableView<K> {
     // getRealType();
     // System.out.println("==================================泛型实例："+clazz.getName());
 
+  }
+
+  public MyTable(TableView outerTable, String excelName){
+    this.outerTable = outerTable;
+    this.excelName = excelName;
   }
 
   private void relectEntity(){
@@ -65,19 +79,67 @@ public class MyTable<K> extends TableView<K> {
     return clazz;
   }
 
-
-  public void export() throws Exception{
-    final ObservableList<K> items = getItems();
-
-    if(StringUtils.isBlank(excelName) || entityClass == null){
-      throw new ExcelException("导出的配置信息不完整！");
+  public final ObservableList<K> getMyItems(){
+    if(outerTable != null){
+      return outerTable.getItems();
     }
-    String excelOutputPath = "D:/" + excelName + ".xlsx";
-    MyExcelUtils.getInstance().exportObjects2Excel(items, entityClass, excelOutputPath);
+    return super.getItems();
+  }
+
+  /**
+   * 根据EntityClass导出Excellent
+   * @see #exportByTable()
+   * @throws Exception
+   */
+  public void export() throws Exception{
+    this.export0(true);
+  }
+
+
+  /**
+   * 根据TableView导出Excel数据
+   * @throws Exception
+   */
+  private void export0(boolean isExportByClass) throws Exception{
+    String errDesc = "导出的配置信息不完整！";
+    String excelOutputPath = getFinalOutputPath();
+    Objects.requireNonNull(excelName, errDesc);
+    if (isExportByClass) {
+      Objects.requireNonNull(entityClass, errDesc);
+      MyExcelUtils.getInstance().exportObjects2Excel(super.getItems(), entityClass, excelOutputPath);
+
+    } else {
+      Objects.requireNonNull(outerTable, errDesc);
+      MyExcelUtils.getInstance().exportObjects2Excel(outerTable.getItems(), outerTable, excelOutputPath);
+
+    }
     java.awt.Desktop.getDesktop().open(new File(excelOutputPath));
   }
 
+  private String getFinalOutputPath(){
+    return "E:/" + excelName + ".xlsx";
+  }
+
+
+  /**
+   * 根据TableView导出
+   */
+  public  void exportByTable() {
+    if (TableUtil.isHasValue(outerTable)) {
+      try {
+        logger.info("正在导出{}...", this.getExcelName());
+        this.export0(false);
+        logger.info("导出完成{}", this.getExcelName());
+      } catch (Exception ee) {
+        ErrorUtil.err("导出失败", ee);
+      }
+    }
+  }
+
   public String getExcelName() {
+    if (StringUtils.isBlank(excelName)) {
+      return outerTable == null ? "myTable" : "outerTable";
+    }
     return excelName;
   }
 
@@ -89,6 +151,13 @@ public class MyTable<K> extends TableView<K> {
     this.entityClass = entityClass;
   }
 
+  public TableView<K> getOuterTable() {
+    return outerTable;
+  }
+
+  public void setOuterTable(TableView<K> outerTable) {
+    this.outerTable = outerTable;
+  }
 }
 
 

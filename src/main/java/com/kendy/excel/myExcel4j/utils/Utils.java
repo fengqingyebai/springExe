@@ -43,6 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.Row;
@@ -98,6 +102,28 @@ public class Utils {
           throw new Excel4JException(e);
         }
       }
+    }
+    Collections.sort(headers);
+    return headers;
+  }
+  /**
+   * <p>根据JAVA对象注解获取Excel表头信息</p>
+   *
+   * @return 表头信息
+   */
+  public static List<ExcelHeader> getHeaderListByTable(TableView<?> table) throws Excel4JException {
+
+    List<ExcelHeader> headers = new ArrayList<>();
+    for (TableColumn<?, ?> column : table.getColumns()) {
+      headers.add(new ExcelHeader(
+          column.getText(),
+          2147483647,
+          null,
+          null,
+          column.getId(),
+          SimpleStringProperty.class,
+          15
+      ));
     }
     Collections.sort(headers);
     return headers;
