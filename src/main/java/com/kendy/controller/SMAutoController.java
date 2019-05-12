@@ -840,6 +840,7 @@ public class SMAutoController extends BaseController implements Initializable {
   private final String CN_MH = "：";
   private final String PU_TONG = "1";
   private final String AO_MA_HA = "2";
+  private final String DUAN_PAI = "5"; // 短牌
   private final String DA_BO_LUO = "6";
   private final String JIA_LE_BI = "8";
   private final int DOWN_LIMIT = 10; // 每次下载5个，总共一次性下载 6 * 3 = 18
@@ -937,7 +938,9 @@ public class SMAutoController extends BaseController implements Initializable {
   public void autoDownExcels(String DownType) {
 
     String houtai = PU_TONG.equals(DownType) ? "普通后台"
-        : AO_MA_HA.equals(DownType) ? "奥马哈后台" : DA_BO_LUO.equals(DownType) ? "大菠萝" : "加勒比";
+        : AO_MA_HA.equals(DownType) ? "奥马哈后台"
+            : DA_BO_LUO.equals(DownType) ? "大菠萝"
+                : JIA_LE_BI.equals(DownType) ? "加勒比" : "短牌";
 
     RespResult<GameRoomModel> parseObject = new RespResult<>();
     try {
@@ -1221,6 +1224,9 @@ public class SMAutoController extends BaseController implements Initializable {
 
             // 自动下载当天加勒比Excel
             autoDownExcels(JIA_LE_BI);
+
+            // 自动下载当天短牌Excel
+            autoDownExcels(DUAN_PAI);
           }
         });
         // Platform.runLater(new Runnable() {
