@@ -213,6 +213,10 @@ public class ExportAllLMExcel {
       for (int j = 0; j < tdLength; j++) {
         // 得到Excel工作表指定行的单元格
         Cell cell = row1.getCell(j);
+        if (cell == null) {
+          System.err.println("================cell 为空，行：" + i + ", 列：" + j);
+          continue;
+        }
 
         if (cell.getStringCellValue() != null && cell.getStringCellValue().length() > 0) {
           matcher = pattern.matcher(cell.getStringCellValue());
