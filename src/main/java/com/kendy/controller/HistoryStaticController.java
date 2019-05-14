@@ -50,10 +50,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 历史汇总控制类
+ * 历史统计控制类
  */
 @Component
-public class StaticController extends BaseController implements Initializable {
+public class HistoryStaticController extends BaseController implements Initializable {
 
   @Autowired
   private DBUtil dbUtil;
@@ -62,6 +62,7 @@ public class StaticController extends BaseController implements Initializable {
   private MyController myController;
 
 
+  // ========================================================左表：团队统计
   @FXML
   private TableView<TeamStaticInfo> tableTeamStatic; // 团队统计表
 
@@ -70,6 +71,11 @@ public class StaticController extends BaseController implements Initializable {
 
   @FXML
   private TableColumn<TeamStaticInfo, String> teamId; // 团队ID
+
+  @FXML
+  private TableColumn<TeamStaticInfo, String> sumYSZJ; // 原始战绩
+  @FXML
+  private TableColumn<TeamStaticInfo, String> sumBaoxian; // 原始保险
 
   @FXML
   private TableColumn<TeamStaticInfo, String> sumZJ; // 总战绩
@@ -554,7 +560,7 @@ public class StaticController extends BaseController implements Initializable {
       String name = "团队汇总" + TimeUtil.getDateTime();
       try {
         String[] rowsName =
-            new String[]{"联盟名称", "团家ID", "开始统计时间", "总战绩", "总回水", "总回保", "总人数", "服务费",
+            new String[]{"联盟名称", "团家ID", "开始统计时间", "原始战绩", "原始保险", "总战绩", "总回水", "总回保", "总人数", "服务费",
                 "总输赢", "团保比例", "团水比例"};
         List<Object[]> dataList = new ArrayList<Object[]>();
         Object[] objs = null;
@@ -564,18 +570,20 @@ public class StaticController extends BaseController implements Initializable {
           objs[0] = info.getTeamClubId();
           objs[1] = info.getTeamId();
           objs[2] = info.getStaticTime();
-          objs[3] = info.getSumZJ();
-          objs[4] = info.getSumChuhuishui();
-          objs[5] = info.getSumHuibao();
-          objs[6] = info.getSumPerson();
-          objs[7] = info.getTeamFWF();
-          objs[8] = info.getSumProfit();
-          objs[9] = info.getTeamProxyHBRate();
-          objs[10] = info.getTeamProxyHSRate();
+          objs[3] = info.getSumYSZJ();
+          objs[4] = info.getSumBaoxian();
+          objs[5] = info.getSumZJ();
+          objs[6] = info.getSumChuhuishui();
+          objs[7] = info.getSumHuibao();
+          objs[8] = info.getSumPerson();
+          objs[9] = info.getTeamFWF();
+          objs[10] = info.getSumProfit();
+          objs[11] = info.getTeamProxyHBRate();
+          objs[12] = info.getTeamProxyHSRate();
           dataList.add(objs);
         }
         List<Integer> columnWidths =
-            Arrays.asList(4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000, 4000);
+            Arrays.asList(4000, 4000, 4000, 4000, 4000,4000,4000, 4000, 4000, 4000, 4000, 4000, 4000);
         ExportExcelTemplate ex = new ExportExcelTemplate(name, rowsName, columnWidths, dataList);
         ex.export();
         System.out.println("finises..");

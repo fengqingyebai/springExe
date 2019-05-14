@@ -2951,7 +2951,7 @@ public class DBUtil {
     try {
       con = DBConnection.getConnection();
       String aTeamBeginSQL =
-      "SELECT b.softTime, b.teamId, b.sumZJ, b.sumHS, b.sumHB, b.sumFWF, b.sumPerson, round(b.sumZJ + b.sumHS + b.sumHB - b.sumFWF, 1) sumProfit, b.HBRate, b.HSRate FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate >= 0 AND HBRate >= 0 AND (sumHS + sumHB) > FWFValid ) THEN TRUNCATE ( sumHS * HSRate + sumHB * HBRate, 1 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 1) * (- 1) sumHS, ROUND(sum(r.huiBao), 1) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
+      "SELECT b.softTime, b.teamId, b.sumZJ, b.sumHS, b.sumHB, b.sumFWF, b.sumPerson, round(b.sumZJ + b.sumHS + b.sumHB - b.sumFWF, 1) sumProfit, b.HBRate, b.HSRate,b.sumYSZJ,b.sumBaoxian FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate >= 0 AND HBRate >= 0 AND (sumHS + sumHB) > FWFValid ) THEN TRUNCATE ( sumHS * HSRate + sumHB * HBRate, 1 ) ELSE 0 END AS sumFWF,a.sumYSZJ,a.sumBaoxian FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 1) * (- 1) sumHS, ROUND(sum(r.huiBao), 1) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid,sum(r.yszj) sumYSZJ,sum(r.singleInsurance) sumBaoxian FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
           + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
       String aTeamEndSQL = "GROUP BY r.soft_time, t.teamId ) a ) b ORDER BY b.softTime, b.teamId ASC ";
 
@@ -2962,7 +2962,7 @@ public class DBUtil {
       if (StringUtils.isNotBlank(teamId)) {
         aTeamConditionSQL = " AND t.teamId = '" + teamId + "' ";
       } else {
-        allTeamBeginSQL = "SELECT min(c.softTime) 统计时间, min(c.teamId) 团队ID, sum(c.sumZJ) 总战绩, sum(c.sumHS) 总回水, sum(c.sumHB) 总回保, sum(c.sumFWF) 总服务费, sum(c.sumPerson) 总人数, sum(c.sumProfit) 总输赢, min(c.HBRate) 代理回保比例, min(c.HSRate) 代理回水比例 FROM( ";
+        allTeamBeginSQL = "SELECT min(c.softTime) 统计时间, min(c.teamId) 团队ID, sum(c.sumZJ) 总战绩, sum(c.sumHS) 总回水, sum(c.sumHB) 总回保, sum(c.sumFWF) 总服务费, sum(c.sumPerson) 总人数, sum(c.sumProfit) 总输赢, min(c.HBRate) 代理回保比例, min(c.HSRate) 代理回水比例,sum(c.sumYSZJ) 原始战绩,sum(c.sumBaoxian) 原始保险 FROM( ";
         allTeamEndSQL = ")c GROUP BY c.teamId ORDER BY 总战绩 desc";
       }
       String sql = allTeamBeginSQL + aTeamBeginSQL + aTeamConditionSQL + aTeamEndSQL + allTeamEndSQL;
@@ -2981,6 +2981,8 @@ public class DBUtil {
         info.setSumProfit(rs.getString(8));
         info.setTeamProxyHBRate(NumUtil.getPercentStr(rs.getString(9)));
         info.setTeamProxyHSRate(NumUtil.getPercentStr(rs.getString(10)));
+        info.setSumYSZJ(rs.getString(11));
+        info.setSumBaoxian(rs.getString(12));
         list.add(info);
       }
     } catch (Exception e) {

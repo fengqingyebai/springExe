@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.StaticController">
+<AnchorPane prefHeight="864.0" prefWidth="1296.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.kendy.controller.HistoryStaticController">
     <children>
        <AnchorPane layoutY="1.0" minHeight="0.0" minWidth="0.0" prefHeight="862.0" prefWidth="1296.0">
           <children>
@@ -29,6 +29,8 @@
                          <TableColumn fx:id="teamClubId" prefWidth="79.0" text="所属俱乐部" />
                          <TableColumn fx:id="teamId" minWidth="0.0" prefWidth="49.0" text="团队ID" />
                          <TableColumn fx:id="staticTime" minWidth="0.0" prefWidth="88.0" text="开始统计时间" />
+                        <TableColumn fx:id="sumYSZJ" minWidth="0.0" prefWidth="77.0" text="原始战绩" />
+                        <TableColumn fx:id="sumBaoxian" minWidth="0.0" prefWidth="77.0" text="原始保险" />
                         <TableColumn fx:id="sumZJ" minWidth="0.0" prefWidth="77.0" text="总战绩" />
                         <TableColumn fx:id="sumChuhuishui" minWidth="0.0" prefWidth="64.0" text="总回水" />
                         <TableColumn fx:id="sumHuibao" minWidth="0.0" prefWidth="67.0" text="总回保" />

@@ -10,26 +10,32 @@ import javafx.beans.property.SimpleStringProperty;
 public class TeamStaticInfo implements Entity {
 
   @MyExcelField(title = "俱乐部ID", colWidth = 12)
-  private SimpleStringProperty teamClubId = new SimpleStringProperty();//俱乐部ID
+  private SimpleStringProperty teamClubId = new SimpleStringProperty();
 
   @MyExcelField(title = "团队ID")
-  private SimpleStringProperty teamId = new SimpleStringProperty();//团家ID
+  private SimpleStringProperty teamId = new SimpleStringProperty();
 
   @MyExcelField(title = "统计时间", colWidth = 15)
-  private SimpleStringProperty staticTime = new SimpleStringProperty();// 开始统计时间
+  private SimpleStringProperty staticTime = new SimpleStringProperty();
+
+  @MyExcelField(title = "原始战绩")
+  private SimpleStringProperty sumYSZJ = new SimpleStringProperty();
+
+  @MyExcelField(title = "原始保险")
+  private SimpleStringProperty sumBaoxian = new SimpleStringProperty();
 
   @MyExcelField(title = "总战绩")
-  private SimpleStringProperty sumZJ = new SimpleStringProperty();//总战绩
+  private SimpleStringProperty sumZJ = new SimpleStringProperty();
 
   @MyExcelField(title = "总回水")
   private SimpleStringProperty sumChuhuishui = new SimpleStringProperty();//总出回水
 
   @MyExcelField(title = "总回保")
-  private SimpleStringProperty sumHuibao = new SimpleStringProperty();//总回保
+  private SimpleStringProperty sumHuibao = new SimpleStringProperty();
 
 
   @MyExcelField(title = "总人数")
-  private SimpleStringProperty sumPerson = new SimpleStringProperty();//总人数
+  private SimpleStringProperty sumPerson = new SimpleStringProperty();
 
   @MyExcelField(title = "服务费")
   private SimpleStringProperty teamFWF = new SimpleStringProperty();// 团队服务费
@@ -178,5 +184,29 @@ public class TeamStaticInfo implements Entity {
 
   public void setTeamProxyHSRate(String teamProxyHSRate) {
     this.teamProxyHSRate.set(teamProxyHSRate);
+  }
+
+  public String getSumYSZJ() {
+    return sumYSZJ.get();
+  }
+
+  public SimpleStringProperty sumYSZJProperty() {
+    return sumYSZJ;
+  }
+
+  public void setSumYSZJ(String sumYSZJ) {
+    this.sumYSZJ.set(sumYSZJ);
+  }
+
+  public String getSumBaoxian() {
+    return sumBaoxian.get();
+  }
+
+  public SimpleStringProperty sumBaoxianProperty() {
+    return sumBaoxian;
+  }
+
+  public void setSumBaoxian(String sumBaoxian) {
+    this.sumBaoxian.set(sumBaoxian);
   }
 }

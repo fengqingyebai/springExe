@@ -3,7 +3,6 @@ package com.kendy.controller;
 import com.jfoenix.controls.JFXCheckBox;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.TimeUtil;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
@@ -27,7 +26,6 @@ import javafx.scene.layout.StackPane;
 import javax.annotation.PostConstruct;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.MaskerPane;
 import org.controlsfx.control.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -113,7 +111,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -157,7 +154,7 @@ public class MyController extends BaseController implements Initializable {
   @Autowired
   public BankFlowController bankFlowController; // 银行流水控制类
   @Autowired
-  public StaticController staticController; // 银行流水控制类
+  public HistoryStaticController historyStaticController; // 银行流水控制类
   @Autowired
   public GDController gdController; // 股东控制类
   @Autowired
