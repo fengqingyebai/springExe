@@ -321,6 +321,7 @@ public class MyController extends BaseController implements Initializable {
     addSubTab("历史统计", "history_static_tab_frame.fxml");
     addSubTab("战绩统计", "zj_static_tab_frame.fxml");
     addSubTab("联盟币统计", "lian_meng_bi_tab_frame.fxml");
+    addSubTab("联盟币贡献值", "lmb_contribute_tab_frame.fxml");
   }
 
   /**
