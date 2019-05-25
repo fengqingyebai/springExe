@@ -717,7 +717,9 @@ public class MoneyService {
         for (GameRecordModel info : teamLS) {
           sumOfZJ += NumUtil.getNum(getTeamSumZhanji(info));
           sumOfHS += Math.abs(NumUtil.getNum(info.getChuhuishui()));
-          sumOfHB += NumUtil.getNum(info.getSingleinsurance());// 就是回保
+          if (!littleGameService.isJLBH(info)) { // 移除加勒比海回保累计
+            sumOfHB += NumUtil.getNum(info.getSingleinsurance());// 就是回保
+          }
         }
         double sum = 0d;
         if (sumOfHB != 0) {// 需要乘以团队保险比例的

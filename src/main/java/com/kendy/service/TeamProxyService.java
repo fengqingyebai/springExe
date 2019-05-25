@@ -255,14 +255,17 @@ public class TeamProxyService extends BasicService{
         obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerid(), info.getPlayerName(),
             info.getYszj(), shishou, chuhuishui,
             // 出回水是否等于回水
-            huibao, // 保险是否等于回保
-            info.getTableid(), info.getSingleinsurance()// 保险
+            littleGameService.isJLBH(info) ? "0" : huibao, // 保险是否等于回保,加勒比海强制回保为0
+            info.getTableid(),
+            littleGameService.isJLBH(info) ? "0" : info.getSingleinsurance()// 保险
         ));
         sumYSZJ += NumUtil.getNum(info.getYszj());
         sumZJ += NumUtil.getNum(shishou);
         sumBX += NumUtil.getNum(info.getSingleinsurance());
         sumHS += NumUtil.getNum(chuhuishui);
-        sumHB += NumUtil.getNum(huibao);
+        if (!littleGameService.isJLBH(info)) {
+          sumHB += NumUtil.getNum(huibao);
+        }
         sumRC += 1;
       }
     }
