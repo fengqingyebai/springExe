@@ -27,6 +27,7 @@ public class Constants {
   public static final String CSS_CENTER_BOLD = "-fx-alignment: CENTER;-fx-font-weight: bold;";
   public static final String CSS_CENTER = "-fx-alignment: CENTER;";
 
+  public static final String HE_JI = "合计";
 
   public static final String ZERO = "0";
 

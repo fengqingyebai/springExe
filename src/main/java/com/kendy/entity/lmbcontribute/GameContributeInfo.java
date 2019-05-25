@@ -27,6 +27,11 @@ public class GameContributeInfo implements Entity {
   @MyExcelField(title = "联盟分成", colWidth = 15)
   private SimpleStringProperty gameLianmengFencheng = new SimpleStringProperty();
   /**
+   * 所属股东
+   */
+  @MyExcelField(title = "所属股东", colWidth = 15)
+  private SimpleStringProperty gameGudong = new SimpleStringProperty();
+  /**
    * 小游戏用户比例
    */
   @MyExcelField(title = "小游戏用户比例", colWidth = 15)
@@ -74,6 +79,18 @@ public class GameContributeInfo implements Entity {
 
   public void setGameLianmengFencheng(String gameLianmengFencheng) {
     this.gameLianmengFencheng.set(gameLianmengFencheng);
+  }
+
+  public String getGameGudong() {
+    return gameGudong.get();
+  }
+
+  public SimpleStringProperty gameGudongProperty() {
+    return gameGudong;
+  }
+
+  public void setGameGudong(String gameGudong) {
+    this.gameGudong.set(gameGudong);
   }
 
   public String getGameUserRate() {

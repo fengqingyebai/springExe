@@ -28,8 +28,9 @@
                   <TableColumn fx:id="glbBaoxianChouqu" minWidth="0.0" prefWidth="105.0" text="保险抽取" />
                   <TableColumn fx:id="glbZhanjiChouqu" minWidth="0.0" prefWidth="85.0" text="战绩抽取" />
                   <TableColumn fx:id="glbChouquHeji" minWidth="0.0" prefWidth="113.0" text="抽取合计" />
-                  <TableColumn fx:id="glbUserRate" minWidth="0.0" prefWidth="102.0" text="俱乐部用户比例" />
-                  <TableColumn fx:id="glbClubBaoxian" minWidth="0.0" prefWidth="145.0" text="俱乐部股东贡献值" />
+                  <TableColumn fx:id="glbGudong" minWidth="0.0" prefWidth="93.0" text="所属股东" />
+                  <TableColumn fx:id="glbUserRate" minWidth="0.0" prefWidth="100.0" text="俱乐部用户比例" />
+                  <TableColumn fx:id="glbContribute" minWidth="0.0" prefWidth="153.0" text="俱乐部股东贡献值" />
                </columns>
             </TableView>
             <JFXButton fx:id="bankFlowTitle" buttonType="RAISED" layoutX="14.0" layoutY="23.0" opacity="0.78" prefHeight="52.0" prefWidth="188.0" text="俱乐部合计" textFill="#9c8617">
@@ -67,9 +68,9 @@
                   <TableColumn fx:id="gameClubName" prefWidth="109.0" text="俱乐部名称" />
                   <TableColumn fx:id="gameClubId" minWidth="0.0" prefWidth="115.0" text="俱乐部ID" />
                   <TableColumn fx:id="gameLianmengFencheng" minWidth="0.0" prefWidth="140.0" text="联盟分成" />
-                  <TableColumn fx:id="gameClubFencheng" minWidth="0.0" prefWidth="157.0" text="俱乐部分成" />
-                  <TableColumn fx:id="gameUserRate" minWidth="0.0" prefWidth="152.0" text="小游戏用户比例" />
-                  <TableColumn fx:id="gameContribute" minWidth="0.0" prefWidth="152.0" text="小游戏股东贡献值" />
+                  <TableColumn fx:id="gameGudong" minWidth="0.0" prefWidth="128.0" text="所属股东" />
+                  <TableColumn fx:id="gameUserRate" minWidth="0.0" prefWidth="112.0" text="小游戏用户比例" />
+                  <TableColumn fx:id="gameContribute" minWidth="0.0" prefWidth="135.0" text="小游戏股东贡献值" />
                </columns>
                <cursor>
                   <Cursor fx:constant="HAND" />

@@ -1,87 +1,55 @@
 package com.kendy.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.jfoenix.controls.JFXButton;
-import com.kendy.constant.DataConstans;
+import com.kendy.constant.Constants;
 import com.kendy.customize.MyTable;
 import com.kendy.db.DBUtil;
-import com.kendy.db.entity.GameRecord;
-import com.kendy.db.entity.pk.GameRecordPK;
-import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.Club;
 import com.kendy.entity.GameInfo;
 import com.kendy.entity.GlbInfo;
 import com.kendy.entity.lmbcontribute.GameContributeInfo;
 import com.kendy.entity.lmbcontribute.GlbContributeInfo;
-import com.kendy.enums.ExcelAutoDownType;
 import com.kendy.model.GameRecordModel;
-import com.kendy.model.lmb.ClubInfomation;
-import com.kendy.model.lmb.LmbCache;
-import com.kendy.util.ButtonUtil;
-import com.kendy.util.ColumnUtil;
+import com.kendy.model.lmbcontribute.lmb.ClubContributeInfomation;
+import com.kendy.model.lmbcontribute.lmb.LmbContributeCache;
+import com.kendy.util.DateTimeUtils;
 import com.kendy.util.ErrorUtil;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
-import com.kendy.util.TextFieldUtil;
-import com.kendy.util.TimeUtil;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @author linzt
- * @date
+ * 联盟币贡献值控制类
  */
 @Component
 public class LMBContributeController extends BaseController implements Initializable {
-
-
-  @Autowired
-  MyController myController;
-
-  @Autowired
-  DataConstans dataConstans;
-
-  @Resource
-  GameRecordService gameRecordService;
-
-  @Autowired
-  ChangciController changciController;
 
   @Autowired
   LMBController lmbController;
 
   @Autowired
   DBUtil dbUtil;
-
 
   //======================================================俱乐部合计表
   @FXML
@@ -97,6 +65,8 @@ public class LMBContributeController extends BaseController implements Initializ
   @FXML
   private TableColumn<GlbContributeInfo, String> glbChouquHeji;
   @FXML
+  private TableColumn<GlbContributeInfo, String> glbGudong;
+  @FXML
   private TableColumn<GlbContributeInfo, String> glbUserRate;
   @FXML
   private TableColumn<GlbContributeInfo, String> glbContribute;
@@ -111,24 +81,22 @@ public class LMBContributeController extends BaseController implements Initializ
   @FXML
   private TableColumn<GameContributeInfo, String> gameLianmengFencheng;
   @FXML
+  private TableColumn<GameContributeInfo, String> gameGudong;
+  @FXML
   private TableColumn<GameContributeInfo, String> gameUserRate;
   @FXML
   private TableColumn<GameContributeInfo, String> gameContribute;
 
   //=================================
   @FXML
-  private StackPane stackPane;
+  private StackPane stackPane; // 遮罩层使用
 
-  private static final String JIA_LE_BI_HAI = ExcelAutoDownType.JIA_LE_BI.getName();
-  private static final String DE_ZHOU_NIU_ZAI = ExcelAutoDownType.DE_ZHOU_NIU_ZAI.getName();
-  private static final String ZHUANG_WEI = "1";
-  public static final String HE_JI = "合计";
-
+  private static final String ZERO_PERCENT = "0%";
   private static final String LMB_CONTRIBUTE_NAME = "lmb_contribute";
-  private Collection<GameRecordModel> todayDatas = new ArrayList<>(500);
-  private LmbCache lmbCache ; // 缓存联盟币界面数据
-  private Stage stage; // 查看视图
-
+  // 缓存数据
+  private LmbContributeCache lmbCache;
+  // 查看视图
+  private Stage stage;
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -156,80 +124,112 @@ public class LMBContributeController extends BaseController implements Initializ
       }
     });
 
-    // 初始化配置项
-    initConfig();
+    // 加载缓存
+    loadCache();
 
+    // 表格赋值
+    setTableData();
   }
 
 
   @FXML
   public void exportTableGlbAction() {
-    new MyTable<GlbContributeInfo>(tableGlb, "俱乐部联盟币贡献值").exportByTable();
+    new MyTable<GlbContributeInfo>(tableGlb,"俱乐部联盟币贡献值" + DateTimeUtils.formatBasic())
+        .exportByTable();
   }
 
 
   @FXML
-  public void exportTableGameAction(){
-    new MyTable<GameContributeInfo>(tableGame, "小游戏联盟币贡献值").exportByTable();
+  public void exportTableGameAction() {
+    new MyTable<GameContributeInfo>(tableGame, "小游戏联盟币贡献值" + DateTimeUtils.formatBasic())
+        .exportByTable();
   }
 
   /**
-   * 从数据库获取今日数据
+   * 设置表格数据
    */
-  private void getData() {
-    if (CollectionUtils.isNotEmpty(todayDatas)) {
-      todayDatas.clear();
+  private void setTableData() {
+    logger.info("从联盟币贡献值板块刷新联盟币板块...");
+    // 先刷新联盟币表
+    lmbController.doRefresh();
+    // 俱乐部数据源
+    List<GlbContributeInfo> glbList = new ArrayList<>();
+    for (GlbInfo item : lmbController.tableGlb.getItems()) {
+      if (!StringUtils.equals(Constants.HE_JI, item.getGlbClubName())) {
+        GlbContributeInfo info = new GlbContributeInfo();
+        ClubContributeInfomation cache = getClubInmationFromCache(item.getGlbClubId());
+        if (cache == null) {
+          continue;
+        }
+        String heji = StringUtils.defaultString(item.getGlbChouquHeji(), Constants.ZERO);
+        String userRate = cache.getGlbUserRate();
+        info.setGlbClubId(item.getGlbClubId());
+        info.setGlbClubName(item.getGlbClubName());
+        info.setGlbBaoxianChouqu(item.getGlbBaoxianChouqu());
+        info.setGlbZhanjiChouqu(item.getGlbZhanjiChouqu());
+        info.setGlbChouquHeji(heji);
+        info.setGlbGudong(cache.getGudong());
+        info.setGlbUserRate(userRate);
+        info.setGlbContribute(NumUtil.digit(NumUtil.getNumTimes(heji, userRate)));
+        glbList.add(info);
+      }
     }
-    todayDatas = gameRecordService
-        .getGameRecordsByMaxTime(changciController.getSoftDate());
-
+    //小游戏数据源
+    List<GameContributeInfo> gameList = new ArrayList<>();
+    for (GameInfo item : lmbController.tableGame.getItems()) {
+      if (!StringUtils.equals(Constants.HE_JI, item.getGameClubName())) {
+        GameContributeInfo info = new GameContributeInfo();
+        ClubContributeInfomation cache = getClubInmationFromCache(item.getGameClubId());
+        if (cache == null) {
+          continue;
+        }
+        String fencheng = item.getGameLianmengFencheng();
+        String userRate = cache.getGameUserRate();
+        info.setGameClubId(item.getGameClubId());
+        info.setGameClubName(item.getGameClubName());
+        info.setGameLianmengFencheng(fencheng);
+        info.setGameGudong(cache.getGudong());
+        info.setGameUserRate(userRate);
+        info.setGameContribute(NumUtil.digit(NumUtil.getNumTimes(fencheng, userRate)));
+        gameList.add(info);
+      }
+    }
+    // 赋值两个表
+    this.tableGlb.setItems(FXCollections.observableList(glbList));
+    this.tableGame.setItems(FXCollections.observableList(gameList));
   }
 
 
-
-  private ClubInfomation getClubInmationByClubId(String clubid) {
-    for (ClubInfomation clubInfomation : lmbCache.getClubInfomations()) {
+  /**
+   * 从缓存中获取单个俱乐部信息
+   * <p>
+   * Note: it will return null when club is not exist!
+   * @see #saveIfNull
+   * @return
+   */
+  private ClubContributeInfomation getClubInmationFromCache(String clubid) {
+    for (ClubContributeInfomation clubInfomation : lmbCache.getClubContributeInfomations()) {
       if (StringUtils.equals(clubid, clubInfomation.getClubId())) {
         return clubInfomation;
       }
     }
-    return saveClubInfomationIfNull(clubid);
-  }
-
-  private ClubInfomation saveClubInfomationIfNull(String clubId){
-    Map<String, Club> allClub = dbUtil.getAllClub();
-    ClubInfomation newClubInfo = new ClubInfomation();
-    if (MapUtils.isNotEmpty(allClub) && allClub.containsKey(clubId)) {
-      newClubInfo.setClubId(clubId);
-      newClubInfo.setClubName(allClub.get(clubId).getName());
-      List<ClubInfomation> clubInfomations = lmbCache.getClubInfomations();
-      if (lmbCache.getClubInfomations() != null) {
-        clubInfomations = new ArrayList<>();
-      }
-      clubInfomations.add(newClubInfo);
-    } else {
-      logger.error("俱乐部ID不存在：{}", clubId);
-    }
-    return newClubInfo;
+    return saveIfNull(clubid);
   }
 
 
-  private String getGameZJChouquWithTuo(GameRecordModel model, List<GameRecordModel> tableIdRecors) {
-    double zhuangweiYSZJ = NumUtil.getNum(model.getYszj());
-    double sumTuoYSZJ = 0d;
-    double sumTuoBaoxian = 0d;
-    for (GameRecordModel record : tableIdRecors) {
-      if (lmbCache.getTuoIds().contains(record.getPlayerid())) {
-        logger.info("是托：玩家名称：{}, 原始战绩{}, 保险{} ", record.getBeginplayername(), record.getYszj(),
-            -1 * NumUtil.getNum(record.getSingleinsurance()));
-        sumTuoYSZJ += NumUtil.getNum(record.getYszj());
-        sumTuoBaoxian += NumUtil.getNum(record.getSingleinsurance()) * (-1);
-      }
+  private ClubContributeInfomation saveIfNull(String clubid) {
+    Club club = dbUtil.getAllClub().get(clubid);
+    if (club == null) {
+      logger.error("俱乐部ID不存在：{}", clubid);
+      return null;
     }
-    logger.info("是加勒比庄位：玩家ID是：{}, 名称是：{},其庄位原始战绩是：{}， 托总原始战绩：{}, 托总彩池合计：{}",
-        model.getPlayerid(), model.getBeginplayername(), model.getYszj(),
-        sumTuoYSZJ, sumTuoBaoxian);
-    return NumUtil.digit((zhuangweiYSZJ + sumTuoYSZJ + sumTuoBaoxian) * 2);
+    ClubContributeInfomation info = new ClubContributeInfomation();
+    info.setClubId(clubid);
+    info.setClubName(club.getName());
+    info.setGudong(club.getGudong());
+    // 添加到缓存
+    lmbCache.getClubContributeInfomations().add(info);
+    return info;
   }
 
 
@@ -245,10 +245,8 @@ public class LMBContributeController extends BaseController implements Initializ
         Thread.sleep(1000);
         Platform.runLater(() -> {
 
-          getData();
-
-          // 处理业务逻辑
-          refresh();
+          // 从联盟币板块获取数据
+          setTableData();
         });
         return null;
       }
@@ -262,132 +260,68 @@ public class LMBContributeController extends BaseController implements Initializ
     new Thread(task).start();
   }
 
-  /**
-   * 合并俱乐部信息
-   */
-  private void mergeClubInformation() {
-    Map<String, Club> allClub = dbUtil.getAllClub();
-    List<ClubInfomation> clubInfomations = lmbCache.getClubInfomations();
-    if (allClub != null) {
-      if(allClub.size() == clubInfomations.size()){
-        return;
-      }
-      allClub.forEach((clubId, clubInfo)->{
-        boolean isContain = false;
-        for (ClubInfomation clubInfomation : clubInfomations) {
-          if (StringUtils.equals(clubId, clubInfomation.getClubId())) {
-            isContain = true;
-            break;
-          }
-        }
-        if (!isContain) {
-          ClubInfomation clubInfomation = new ClubInfomation();
-          clubInfomation.setClubId(clubId);
-          clubInfomation.setClubName(clubInfo.getName());
-          clubInfomations.add(clubInfomation);
-        }
-      });
-    }
-  }
-
-  /**
-   * 刷新两个表数据
-   */
-  private void refresh() {
-    if (CollectionUtils.isNotEmpty(todayDatas)) {
-      Map<String, List<GameRecordModel>> glbMap = new HashMap<>();
-      Map<String, List<GameRecordModel>> gameMap = new HashMap<>();
-      String clubId;
-      for (final GameRecordModel recordModel : todayDatas) {
-        clubId = recordModel.getClubid();
-
-        //小游戏
-        boolean isGameType = isGameType(recordModel.getJutype());
-        boolean notZhuangwei = !StringUtils.equals(ZHUANG_WEI, recordModel.getIsZhuangwei());
-        if (isGameType && notZhuangwei) {
-          // 属于小游戏且不是庄位
-          List<GameRecordModel> gameList = gameMap.getOrDefault(clubId, new ArrayList<>());
-          gameList.add(recordModel);
-          gameMap.put(clubId, gameList);
-        } else {
-          // 非小游戏
-          List<GameRecordModel> glbList = glbMap.getOrDefault(clubId, new ArrayList<>());
-          glbList.add(recordModel);
-          glbMap.put(clubId, glbList);
-        }
-      }
-      // 设置俱乐部表数据
-      setTableDataGlb(glbMap);
-      // 设置小游戏表数据
-      setTableDataGame(gameMap);
-    }
-  }
 
   /**
    * 从数据库加载
    */
-  private void loadLmbCacheFromDB(){
-    LmbCache _lmbCache = null;
+  private void loadCache() {
+    LmbContributeCache _lmbCache = null;
     try {
       String cacheJson = dbUtil.getValueByKey(LMB_CONTRIBUTE_NAME);
-      _lmbCache = JSON.parseObject(cacheJson, LmbCache.class);
+      _lmbCache = JSON.parseObject(cacheJson, LmbContributeCache.class);
       if (_lmbCache != null) {
-        // 设置值
-
-        lmbCache = _lmbCache;
+        lmbCache = _lmbCache; // 设置值
       }
     } catch (Exception e) {
-      ErrorUtil.err("加载配置项失败");
+      ErrorUtil.err("联盟币贡献值加载配置项失败");
     }
-  }
-
-  /**
-   * 点击保存时获取最新缓存
-   */
-  private void refreshLmbCache(){
-
-  }
-
-
-  private String getDefaultString(TextField textField) {
-    String content = StringUtils.defaultString(textField.getText()).trim();
-    if (content.contains("%")) {
-      return content;
-    }
-    return "0%";
   }
 
 
   /**
-   * 初始化配置项
+   * 双击行弹框
    */
-  private void initConfig() {
-
-    // 从数据库加载
-    loadLmbCacheFromDB();
-
-    // 初始化数据
-    getData();
+  private void openBaseView(boolean isTableGlb, String clubId, String clubName, String oldRate) {
+    TextInputDialog dialog = new TextInputDialog();
+    dialog.setTitle(clubName);
+    dialog.setGraphic(null);
+    dialog.setHeaderText(null);
+    dialog.setContentText("俱乐部比例%:");
+    ShowUtil.setIcon(dialog);
+    Optional<String> result = dialog.showAndWait();
+    if (result.isPresent()) {
+      if (!StringUtils.contains(result.get(), "%")) {
+        ShowUtil.show("请以百分号结尾!");
+        return;
+      }
+      String newRate = StringUtils.defaultString(result.get(), ZERO_PERCENT);
+      if (StringUtils.equals(newRate, oldRate)) {
+        return;
+      }
+      // 更新缓存
+      for (ClubContributeInfomation clubCahe : lmbCache.getClubContributeInfomations()) {
+        if (StringUtils.equals(clubId, clubCahe.getClubId())) {
+          if (isTableGlb) {
+            clubCahe.setGlbUserRate(newRate);
+          } else {
+            clubCahe.setGameUserRate(newRate);
+          }
+        }
+      }
+      // 持久化缓存
+      saveCache();
+      // 刷新界面
+      refreshAction();
+      ShowUtil.show("设置成功", 2);
+      logger.info("修改俱乐部{}用户比例：旧比例为{}, 新比例为{}", clubName, oldRate, newRate);
+    }
   }
 
-
-  @FXML
-  private void saveConfigActioin() {
-    // 刷新缓存
-    refreshLmbCache();
-
-    // 保存到数据库
+  /**
+   * 持久化缓存
+   */
+  private void saveCache() {
     dbUtil.saveOrUpdateOthers(LMB_CONTRIBUTE_NAME, JSON.toJSONString(lmbCache));
-
-    // 直接刷新
-    this.refreshAction();
-  }
-
-  /**
-   * 战绩记录是否为小游戏类型
-   */
-  private boolean isGameType(String gameType) {
-    return lmbCache.getGameTypes().contains(gameType);
   }
 
 
@@ -401,41 +335,7 @@ public class LMBContributeController extends BaseController implements Initializ
    * @param item
    */
   private void openGlbView(GlbContributeInfo item) {
-
-  }
-
-
-  /**
-   * 设置俱乐部表数据
-   */
-  private void setTableDataGlb(Map<String, List<GameRecordModel>> glbMap) {
-
-  }
-
-  /**
-   * 第一个俱乐部合计 = 联盟返水 + 俱乐部保险
-   */
-  private String getClubHeji(GlbInfo detail) {
-    String glbLianmengFanshui = detail.getGlbLianmengFanshui();
-    String glbClubBaoxian = detail.getGlbClubBaoxian();
-    String clubHeji = NumUtil
-        .getSum(glbLianmengFanshui, glbClubBaoxian);
-    return NumUtil.digit2(clubHeji);
-  }
-
-  private String getZhanjiChouqu(String yszj) {
-    String zhanjieChouqu = StringUtils.contains(yszj, "-") ? "0" : NumUtil.getNum(yszj) * 0.05 + "";
-    return NumUtil.digit2(zhanjieChouqu);
-  }
-
-
-
-  private String digit(double val) {
-    return NumUtil.digit(val);
-  }
-
-  private String digit(String val) {
-    return NumUtil.digit(val);
+    openBaseView(true, item.getGlbClubId(), item.getGlbClubName(), item.getGlbUserRate());
   }
 
 
@@ -449,6 +349,7 @@ public class LMBContributeController extends BaseController implements Initializ
    * @param item
    */
   private void openGameView(GameContributeInfo item) {
+    openBaseView(false, item.getGameClubId(), item.getGameClubName(), item.getGameUserRate());
   }
 
   private void addGameSumLine(List<GameInfo> detailList, GameInfo item) {
@@ -457,7 +358,7 @@ public class LMBContributeController extends BaseController implements Initializ
         return;
       }
       boolean isContaisHeji = detailList.stream().map(GameInfo::getGameType)
-          .anyMatch(e -> StringUtils.equals(HE_JI, e));
+          .anyMatch(e -> StringUtils.equals(Constants.HE_JI, e));
       if (isContaisHeji) {
         return; // 若已存在合计，则不再添加
       } else {
@@ -467,38 +368,10 @@ public class LMBContributeController extends BaseController implements Initializ
         sumInfo.setGamePlayerId("-");
         sumInfo.setGamePlayerName("-");
         sumInfo.setGamePaiju("-");
-        sumInfo.setGameType(HE_JI);
+        sumInfo.setGameType(Constants.HE_JI);
         detailList.add(sumInfo);
       }
     }
   }
-
-
-
-
-  /**
-   * 设置小游戏表数据
-   */
-  private void setTableDataGame(Map<String, List<GameRecordModel>> gameMap) {
-    ObservableList<GameInfo> obList = FXCollections.observableArrayList();
-
-  }
-
-
-
-  // ===================================================================================
-
-  /**
-   * 获取加勒比海联盟分成比例
-   * @return
-   */
-  private double get_fencheng_rate(String rate){
-    if (StringUtils.contains(rate, "%")) {
-      return NumUtil.getNumByPercent(rate);
-    }
-    return 0d;
-  }
-
-
 
 }

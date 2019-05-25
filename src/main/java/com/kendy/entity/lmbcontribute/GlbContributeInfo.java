@@ -38,6 +38,11 @@ public class GlbContributeInfo implements Entity {
   @MyExcelField(title = "抽取合计", colWidth = 15)
   private SimpleStringProperty glbChouquHeji = new SimpleStringProperty();
   /**
+   * 所属股东
+   */
+  @MyExcelField(title = "所属股东", colWidth = 15)
+  private SimpleStringProperty glbGudong = new SimpleStringProperty();
+  /**
    * 俱乐部用户比例
    */
   @MyExcelField(title = "俱乐部用户比例", colWidth = 15)
@@ -110,6 +115,18 @@ public class GlbContributeInfo implements Entity {
 
   public void setGlbChouquHeji(String glbChouquHeji) {
     this.glbChouquHeji.set(glbChouquHeji);
+  }
+
+  public String getGlbGudong() {
+    return glbGudong.get();
+  }
+
+  public SimpleStringProperty glbGudongProperty() {
+    return glbGudong;
+  }
+
+  public void setGlbGudong(String glbGudong) {
+    this.glbGudong.set(glbGudong);
   }
 
   public String getGlbUserRate() {

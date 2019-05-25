@@ -429,10 +429,7 @@ public class LMBController extends BaseController implements Initializable {
         Thread.sleep(1000);
         Platform.runLater(() -> {
 
-          getData();
-
-          // 处理业务逻辑
-          refresh();
+          doRefresh();
         });
         return null;
       }
@@ -444,6 +441,15 @@ public class LMBController extends BaseController implements Initializable {
       }
     };
     new Thread(task).start();
+  }
+
+  /**
+   * 执行刷新
+   */
+  public void doRefresh() {
+    getData();
+    // 处理业务逻辑
+    refresh();
   }
 
   /**
