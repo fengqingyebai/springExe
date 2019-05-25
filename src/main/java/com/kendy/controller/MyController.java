@@ -61,6 +61,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -215,6 +216,8 @@ public class MyController extends BaseController implements Initializable {
   public RadioButton radio_rate_0975;
   @FXML
   public RadioButton radio_rate_095;
+  @FXML
+  public CheckBox moveExcelCheckBox;
 
 
 
@@ -270,7 +273,8 @@ public class MyController extends BaseController implements Initializable {
     // 合并ID
     combineIDController.initCombineIdController(changciController.tableCurrentMoneyInfo);
 
-
+    // 默认开启移除Excel(导入战绩后)
+    initMoveExcel();
 
     // 选择导入白名单的版本
     initWhiteVersion();
@@ -296,8 +300,6 @@ public class MyController extends BaseController implements Initializable {
     initAutoTestMode();
 
   }
-
-
 
 
   /**
@@ -369,6 +371,14 @@ public class MyController extends BaseController implements Initializable {
         }
       }
     });
+  }
+
+  private void initMoveExcel() {
+    this.moveExcelCheckBox.setSelected(true);
+  }
+
+  public boolean isNeedMoveExcel() {
+    return moveExcelCheckBox.isSelected();
   }
 
   /**

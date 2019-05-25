@@ -109,7 +109,7 @@ public class LittleGameService {
 
   /**
    * 计算小游戏的合利润
-   * 加勒比合利润公式 = 实收 = 原始战绩 * 80% * (-1)
+   * 加勒比合利润公式 = 实收 = （原始战绩 - 保险） * 80% * (-1)
    * 德州牛仔合利润公式 = 实收 = 俱乐部分成列
    * @param r
    * @return
@@ -123,14 +123,15 @@ public class LittleGameService {
 
   /**
    * 计算小游戏的实收
-   * 加勒比实收 = 原始战绩 * 80% * (-1)
+   * 加勒比实收 = （原始战绩 - 保险） * 80% * (-1)
    * 德州牛仔实收 = 俱乐部分成列
    * @param r
    * @return
    */
   private String getShiShou0(GameRecordModel r) {
     if (isJLBH(r)) {
-      return NumUtil.digit(NumUtil.getNum(r.getYszj()) * Constants.LITTLE_GAME_RATE_MY * (-1));
+      double dif = NumUtil.getNum(r.getYszj()) - NumUtil.getNum(r.getSingleinsurance());
+      return NumUtil.digit(dif * Constants.LITTLE_GAME_RATE_MY * (-1));
     }
     if (isDeZhou(r)) {
       return NumUtil.digit(NumUtil.getNum(r.getClubFencheng()));

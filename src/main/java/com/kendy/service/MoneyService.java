@@ -263,14 +263,18 @@ public class MoneyService {
         TableView<CurrentMoneyInfo> tableCurrentMoneyInfo = changciController.tableCurrentMoneyInfo;
         double littleGameHoutaiProfit = 0;
         double playerProfit = 0; // 当局客户利润，即客户输赢
+        double gameBaoxian = 0; // 当局小游戏彩池合计
         for (GameRecordModel recordModel : currentList) {
           if (littleGameService.isLittleGame(recordModel)) {
-            // 小游戏后台盈利：原始战绩 * 20 * （-1）
+            // 小游戏后台盈利：（原始战绩 - 保险） * 20 * （-1）
+            double dif = NumUtil.getNum(recordModel.getYszj()) - NumUtil.getNum(recordModel.getSingleinsurance());
             littleGameHoutaiProfit +=
-                NumUtil.getNum(recordModel.getYszj()) * Constants.LITTLE_GAME_RATE_HOU_TAI * (-1);
+                dif * Constants.LITTLE_GAME_RATE_HOU_TAI * (-1);
             // 小游戏客户输赢
             playerProfit +=
                 NumUtil.getNum(recordModel.getYszj());
+            // 彩池合计 =
+            gameBaoxian += NumUtil.getNum(recordModel.getSingleinsurance()) * (-1);
           }
         }
         String tableId = ZhanjiType.getInstance().getTableId();
@@ -294,6 +298,25 @@ public class MoneyService {
                 oldSSJE, dangjuGameHoutaiProfit, newSSJE, tableId);
           }
         }
+        if (gameBaoxian !=  0) {
+          /************************************** 小游戏彩池合计 **********************************************/
+          String gameName = "小游戏彩池";
+          CurrentMoneyInfo infoByName = getInfoByName(gameName);
+          if (infoByName == null) {
+            infoByName = new CurrentMoneyInfo(gameName,
+                NumUtil.digit(gameBaoxian), "", "0",
+                MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+            // 若没有则新增一条
+            log.info("实时金额栏不存在{}，新增记录，实时金额为：{}, 桌号是：{}", gameName, gameBaoxian, tableId);
+            changciController.tableCurrentMoneyInfo.getItems().add(infoByName);
+          } else {
+            String oldSSJE = infoByName.getShishiJine();
+            String newSSJE = NumUtil.digit(NumUtil.getNum(oldSSJE) + gameBaoxian);
+            infoByName.setShishiJine(newSSJE);
+            log.info("{}修改=====旧金额：{}, 当局小游戏后台利润：{}，小游戏后台总利润：{}, 桌号是：{}",
+                gameName, oldSSJE, gameBaoxian, newSSJE, tableId);
+          }
+        }
         if (playerProfit != 0) {
           /************************************** 小游戏联盟对帐 **********************************************/
           String dangjuPlayerProfit = NumUtil.digit(playerProfit);
@@ -314,7 +337,7 @@ public class MoneyService {
                 oldSSJE, dangjuPlayerProfit, newSSJE, tableId);
           }
         }
-        if (littleGameHoutaiProfit != 0 || playerProfit != 0) {
+        if (littleGameHoutaiProfit != 0 || playerProfit != 0 || gameBaoxian != 0) {
           // 刷新
           changciController.tableCurrentMoneyInfo.refresh();
         }

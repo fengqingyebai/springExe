@@ -1275,13 +1275,15 @@ public class ChangciController extends BaseController implements Initializable {
       logger.info("白名单路径 为空或者不存在，锁定时不进行Excel转移！");
       return;
     }
-    try {
-      String fileName = FileUtil.getFileName(resourceFilePath);
-      String targetFilePath =
-          PathUtil.getUserDeskPath() + getSoftDate() + "已锁定" + File.separator + fileName;
-      FileUtils.moveFile(srcFile, new File(targetFilePath));
-    } catch (Exception e) {
-      ErrorUtil.err("转移Excel失败", e);
+    if (myController.isNeedMoveExcel()) {
+      try {
+        String fileName = FileUtil.getFileName(resourceFilePath);
+        String targetFilePath =
+            PathUtil.getUserDeskPath() + getSoftDate() + "已锁定" + File.separator + fileName;
+        FileUtils.moveFile(srcFile, new File(targetFilePath));
+      } catch (Exception e) {
+        ErrorUtil.err("转移Excel失败", e);
+      }
     }
   }
 

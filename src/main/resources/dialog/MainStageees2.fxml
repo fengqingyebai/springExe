@@ -132,6 +132,7 @@
                               </Label>
                               <RadioButton fx:id="radio_rate_0975" layoutX="742.0" layoutY="197.0" mnemonicParsing="false" selected="true" text="0.975" />
                               <RadioButton fx:id="radio_rate_095" layoutX="806.0" layoutY="197.0" mnemonicParsing="false" text="0.95" />
+                              <CheckBox fx:id="moveExcelCheckBox" layoutX="685.0" layoutY="241.0" mnemonicParsing="false" text="导入战绩后移动Excel" />
                            </children>
                         </AnchorPane>
                      </children>
