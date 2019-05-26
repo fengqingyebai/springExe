@@ -38,7 +38,7 @@ import com.kendy.entity.Huishui;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.model.CombineID;
 import com.kendy.model.GameRecordModel;
-import com.kendy.other.Wrap;
+import com.kendy.model.Wrap;
 import com.kendy.service.MoneyService;
 import com.kendy.util.CollectUtil;
 import com.kendy.util.FileUtil;

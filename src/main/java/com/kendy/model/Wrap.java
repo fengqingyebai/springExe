@@ -1,4 +1,4 @@
-package com.kendy.other;
+package com.kendy.model;
 
 /**
  * 对导入的Excel数据结果进行封装

@@ -194,14 +194,12 @@ public class DelController extends BaseController implements Initializable {
         if (!isSubId && !isSuperId) {
           dataConstants.membersMap.remove(playerId);// 从人员表中移动
           moneyService.del_SSJE_byId(playerId);// 更新实时金额表
-          // ConsUtil.refreshTeamIdAndPlayerId();//获取最新的团队ID与玩家ID列表的映射
           playerService.remove(playerId);// 从数据库中删除
         }
         // 情况二：是子ID
         if (isSubId) {
           dataConstants.membersMap.remove(playerId);// 从人员表中移动
           moneyService.del_SSJE_byId(playerId);// 更新实时金额表
-          // ConsUtil.refreshTeamIdAndPlayerId();//获取最新的团队ID与玩家ID列表的映射
 
           // 删除相关合并ID关系
           // 更新父节点所拥有的子节点
@@ -231,7 +229,6 @@ public class DelController extends BaseController implements Initializable {
             dataConstants.Combine_Super_Id_Map.remove(playerId);
             playerService.remove(playerId);// 从数据库中删除
             dbService.cancelCombineId(playerId);// 删除合并ID
-            // ConsUtil.refreshTeamIdAndPlayerId();//获取最新的团队ID与玩家ID列表的映射,跟删除人员的顺序不可调换
           }
         }
         ShowUtil.show("删除成功", 2);

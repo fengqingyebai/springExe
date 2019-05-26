@@ -9,7 +9,7 @@
 
 <AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1"
   xmlns="http://javafx.com/javafx/8.0.65"
-  fx:controller="com.kendy.test.progress.progressTest.FXMLDocumentController">
+  fx:controller="kendy.test.test.progress.progressTest.FXMLDocumentController">
   <children>
     <Label fx:id="label" layoutX="126" layoutY="120" minHeight="16" minWidth="69"/>
     <ProgressBar fx:id="process1" layoutX="37.0" layoutY="35.0" prefHeight="23.0" prefWidth="393.0"
