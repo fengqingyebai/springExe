@@ -69,7 +69,7 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </JFXButton>
-            <HBox fx:id="LmBox" layoutX="670.0" layoutY="51.0" opacity="0.58" prefHeight="29.0" prefWidth="312.0" style="-fx-background-color: 00FF00;">
+            <HBox fx:id="LmBox" layoutX="670.0" layoutY="51.0" opacity="0.58" prefHeight="29.0" prefWidth="312.0">
                <children>
                   <RadioButton fx:id="radioLM1" alignment="TOP_LEFT" layoutX="526.0" layoutY="50.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="104.0" text="联盟1">
                      <cursor>
