@@ -1,8 +1,21 @@
 package com.kendy.service;
 
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.BaseController;
+import com.kendy.controller.tgController.TGController;
+import com.kendy.db.DBUtil;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
+import com.kendy.entity.CurrentMoneyInfo;
+import com.kendy.entity.TGCompanyModel;
+import com.kendy.entity.TeamInfo;
+import com.kendy.entity.TypeValueInfo;
+import com.kendy.util.CollectUtil;
 import com.kendy.util.ColumnUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,23 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Resource;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import com.kendy.constant.DataConstans;
-import com.kendy.controller.BaseController;
-import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
-import com.kendy.entity.CurrentMoneyInfo;
-import com.kendy.entity.TGCompanyModel;
-import com.kendy.entity.TeamInfo;
-import com.kendy.entity.TypeValueInfo;
-import com.kendy.util.CollectUtil;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -39,6 +35,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javax.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
 /**
@@ -50,7 +51,8 @@ import javafx.scene.layout.HBox;
 @Component
 public class TgWaizhaiService {
 
-  private Logger log = Logger.getLogger(TgWaizhaiService.class);
+  private static Logger log = LoggerFactory.getLogger(TgWaizhaiService.class);
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired

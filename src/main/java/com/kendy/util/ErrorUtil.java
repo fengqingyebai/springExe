@@ -1,6 +1,7 @@
 package com.kendy.util;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 操作错误工具类
@@ -10,7 +11,7 @@ import org.apache.log4j.Logger;
  */
 public class ErrorUtil {
 
-  private static Logger log = Logger.getLogger(ErrorUtil.class);
+  private static Logger log = LoggerFactory.getLogger(ErrorUtil.class);
 
   /**
    * 错误提示及日志入库

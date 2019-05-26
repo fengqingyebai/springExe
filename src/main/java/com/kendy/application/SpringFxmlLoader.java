@@ -1,15 +1,14 @@
 package com.kendy.application;
 
+import com.kendy.util.ErrorUtil;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.log4j.PropertyConfigurator;
+import javafx.fxml.FXMLLoader;
+import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import com.kendy.util.ErrorUtil;
-import javafx.fxml.FXMLLoader;
-import javafx.util.Callback;
 
 
 /**
@@ -22,26 +21,24 @@ public class SpringFxmlLoader {
 
 
   public static Logger logger = null;
-
-  /*
-   * Spring IOC 容器
-   */
-  private static ApplicationContext applicationContext = null;
-
   /*
    * 加载日志
    * 注意：必须在Spring容器初始化之前手动加载日志
    */
   static {
     try {
-      // 生产环境可用
-      String logName = "log4j/log4j.properties";
-      PropertyConfigurator.configure(Main.class.getClassLoader().getResourceAsStream(logName));
       logger = LoggerFactory.getLogger(SpringFxmlLoader.class);
     } catch (Exception e) {
       ErrorUtil.err("日志组件初始化失败");
     }
   }
+  
+  /*
+   * Spring IOC 容器
+   */
+  private static ApplicationContext applicationContext = null;
+
+
 
   /*
    * 加载Spring容器

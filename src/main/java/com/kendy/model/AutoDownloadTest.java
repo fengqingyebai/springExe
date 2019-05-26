@@ -1,5 +1,6 @@
 package com.kendy.model;
 
+import com.alibaba.fastjson.JSON;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,12 +14,12 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
-import com.alibaba.fastjson.JSON;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoDownloadTest {
 
-  private static Logger log = Logger.getLogger(AutoDownloadTest.class);
+  private static Logger log = LoggerFactory.getLogger(AutoDownloadTest.class);
 
   private static final String DOWN_LOAD_EXCEL_URL =
       "http://cms.pokermanager.club/cms-api/game/exportGame";

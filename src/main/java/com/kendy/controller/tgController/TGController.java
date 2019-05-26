@@ -1,8 +1,40 @@
 package com.kendy.controller.tgController;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.BaseController;
 import com.kendy.controller.ChangciController;
+import com.kendy.controller.MyController;
+import com.kendy.db.DBUtil;
+import com.kendy.entity.ProxyTeamInfo;
+import com.kendy.entity.TGCommentInfo;
+import com.kendy.entity.TGCompanyModel;
+import com.kendy.entity.TGFwfinfo;
+import com.kendy.entity.TGKaixiaoInfo;
+import com.kendy.entity.TGLirunInfo;
+import com.kendy.entity.TGTeamInfo;
+import com.kendy.entity.TGTeamModel;
+import com.kendy.entity.TypeValueInfo;
+import com.kendy.excel.ExportExcelTemplate;
 import com.kendy.exception.FinancialException;
 import com.kendy.exception.tg.NoProxyDataException;
+import com.kendy.service.MoneyService;
+import com.kendy.service.TGExportExcelService;
+import com.kendy.service.TGFwfService;
+import com.kendy.service.TeamProxyService;
+import com.kendy.service.TgWaizhaiService;
+import com.kendy.service.WaizhaiService;
+import com.kendy.service.ZonghuiService;
+import com.kendy.util.AlertUtil;
+import com.kendy.util.CollectUtil;
+import com.kendy.util.DialogUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
+import com.kendy.util.TableUtil;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,52 +48,13 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.kendy.constant.Constants;
-import com.kendy.constant.DataConstans;
-import com.kendy.controller.BaseController;
-import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
-import com.kendy.entity.ProxyTeamInfo;
-import com.kendy.entity.TGCommentInfo;
-import com.kendy.entity.TGCompanyModel;
-import com.kendy.entity.TGFwfinfo;
-import com.kendy.entity.TGKaixiaoInfo;
-import com.kendy.entity.TGLirunInfo;
-import com.kendy.entity.TGTeamInfo;
-import com.kendy.entity.TGTeamModel;
-import com.kendy.entity.TypeValueInfo;
-import com.kendy.excel.ExportExcelTemplate;
-import com.kendy.interfaces.Entity;
-import com.kendy.service.MoneyService;
-import com.kendy.service.TGExportExcelService;
-import com.kendy.service.TGFwfService;
-import com.kendy.service.TeamProxyService;
-import com.kendy.service.TgWaizhaiService;
-import com.kendy.service.WaizhaiService;
-import com.kendy.service.ZonghuiService;
-import com.kendy.util.AlertUtil;
-import com.kendy.util.CollectUtil;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.DialogUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
-import com.kendy.util.TableUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -73,6 +66,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 处理联盟配额的控制器
@@ -83,8 +80,7 @@ import javafx.util.Pair;
 @Component
 public class TGController extends BaseController implements Initializable {
 
-  private Logger log = Logger.getLogger(TGController.class);
-
+  private Logger log = LoggerFactory.getLogger(TGController.class);
   @Autowired
   public DBUtil dbUtil;
   @Autowired

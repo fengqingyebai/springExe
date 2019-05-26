@@ -1,13 +1,11 @@
 package com.kendy.db;
 
+import com.kendy.util.ErrorUtil;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
-import org.apache.log4j.Logger;
-import com.kendy.util.ErrorUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 连接数据库
@@ -17,7 +15,7 @@ import com.kendy.util.ErrorUtil;
  */
 public class DBConnection {
 
-  private static Logger log = Logger.getLogger(DBConnection.class);
+  private static Logger log = LoggerFactory.getLogger(DBConnection.class);
 
   private static Connection connection = null;
 

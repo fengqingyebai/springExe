@@ -1,24 +1,16 @@
 package com.kendy.controller;
 
-import com.kendy.db.entity.Player;
-import com.kendy.db.service.CurrentMoneyService;
-import com.kendy.db.service.PlayerService;
-import com.kendy.enums.MoneyCreatorEnum;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.UUID;
-import javax.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBUtil;
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.CurrentMoneyService;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.KaixiaoInfo;
+import com.kendy.enums.MoneyCreatorEnum;
 import com.kendy.service.JifenService;
 import com.kendy.service.MoneyService;
 import com.kendy.service.ShangmaService;
@@ -27,6 +19,9 @@ import com.kendy.service.TgWaizhaiService;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
+import java.net.URL;
+import java.util.ResourceBundle;
+import java.util.UUID;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -36,6 +31,12 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 添加团队回水的控制器
@@ -46,7 +47,8 @@ import javafx.stage.Stage;
 @Component
 public class AddController extends BaseController implements Initializable {
 
-  private static Logger log = Logger.getLogger(AddController.class);
+  private Logger log = LoggerFactory.getLogger(AddController.class);
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired

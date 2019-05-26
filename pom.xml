@@ -19,6 +19,7 @@
     <poi.version>3.17</poi.version>
     <main.path>com.kendy.application.Main</main.path>
     <mapper.version>3.4.2</mapper.version>
+    <logback.version>1.2.3</logback.version>
 
     <!--数据库配置-->
     <db.jdbc.groupId>mysql</db.jdbc.groupId>
@@ -103,22 +104,28 @@
       <artifactId>commons-lang3</artifactId>
       <version>3.7</version>
     </dependency>
-    <!-- 日志组件 -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.2</version>
-    </dependency>
+    <!-- 日志 -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
+      <version>1.7.7</version>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>1.1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-access</artifactId>
+      <version>1.1.7</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.1.7</version>
+    </dependency>
+    <!-- 日志 -->
 
     <!-- 邮箱组件 -->
     <dependency>

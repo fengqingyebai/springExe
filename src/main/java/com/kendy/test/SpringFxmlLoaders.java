@@ -2,13 +2,9 @@ package com.kendy.test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.log4j.PropertyConfigurator;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import com.kendy.application.Main;
-import com.kendy.util.ErrorUtil;
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
+import org.springframework.context.ApplicationContext;
 
 public class SpringFxmlLoaders {
 

@@ -2,6 +2,7 @@ package com.kendy.excel;
 
 
 import com.kendy.util.CollectUtil;
+import com.kendy.util.TimeUtil;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
@@ -19,7 +19,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import com.kendy.util.TimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 导出Excel模板
@@ -29,7 +30,7 @@ import com.kendy.util.TimeUtil;
  */
 public class ExportExcelTemplate {
 
-  private static Logger log = Logger.getLogger(ExportExcelTemplate.class);
+  private static Logger log = LoggerFactory.getLogger(ExportExcelTemplate.class);
 
   private String title; // 标题
 

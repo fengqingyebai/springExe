@@ -1,12 +1,34 @@
 package com.kendy.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
+import com.kendy.db.DBUtil;
 import com.kendy.db.service.GameRecordService;
+import com.kendy.entity.Club;
+import com.kendy.entity.ClubQuota;
+import com.kendy.entity.ClubZhuofei;
+import com.kendy.entity.KeyValue;
+import com.kendy.entity.LMDetailInfo;
+import com.kendy.entity.LMSumInfo;
+import com.kendy.excel.ExportAllLMExcel;
+import com.kendy.excel.ExportLMExcel;
 import com.kendy.model.ClubInfo;
+import com.kendy.model.GameRecordModel;
 import com.kendy.service.LittleGameService;
+import com.kendy.util.CollectUtil;
 import com.kendy.util.ColumnUtil;
+import com.kendy.util.DialogUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.FXUtil;
+import com.kendy.util.MapUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -21,45 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.kendy.constant.Constants;
-import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
-import com.kendy.entity.Club;
-import com.kendy.entity.ClubQuota;
-import com.kendy.entity.ClubZhuofei;
-import com.kendy.entity.KeyValue;
-import com.kendy.entity.LMDetailInfo;
-import com.kendy.entity.LMSumInfo;
-import com.kendy.excel.ExportAllLMExcel;
-import com.kendy.excel.ExportLMExcel;
-import com.kendy.model.GameRecordModel;
-import com.kendy.util.CollectUtil;
-import com.kendy.util.DialogUtil;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.FXUtil;
-import com.kendy.util.MapUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -69,8 +52,13 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
@@ -83,7 +71,19 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 处理联盟对帐的控制器
@@ -93,6 +93,8 @@ import javafx.scene.paint.Color;
  */
 @Component
 public class LMController extends BaseController implements Initializable {
+
+  private Logger log = LoggerFactory.getLogger(LMController.class);
 
   @Autowired
   public DBUtil dbUtil;
@@ -160,9 +162,6 @@ public class LMController extends BaseController implements Initializable {
   //=================================================================================
   @FXML
   private StackPane lmStackPane;
-
-
-  private Logger log = Logger.getLogger(LMController.class);
 
   private final String FLOW_PANE_ID = "flowPane";
 

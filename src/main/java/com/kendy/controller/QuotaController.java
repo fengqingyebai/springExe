@@ -43,7 +43,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
 import javax.annotation.PostConstruct;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -57,7 +58,7 @@ import org.springframework.stereotype.Component;
 public class QuotaController extends BaseController implements Initializable {
 
 
-  private Logger log = Logger.getLogger(QuotaController.class);
+  private Logger log = LoggerFactory.getLogger(QuotaController.class);
   @Autowired
   public DBUtil dbUtil;
   @Autowired

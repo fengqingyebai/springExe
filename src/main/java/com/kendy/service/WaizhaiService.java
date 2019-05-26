@@ -1,9 +1,25 @@
 package com.kendy.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.kendy.constant.Constants;
+import com.kendy.constant.DataConstans;
+import com.kendy.controller.BaseController;
+import com.kendy.db.DBUtil;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
+import com.kendy.entity.CurrentMoneyInfo;
+import com.kendy.entity.Huishui;
+import com.kendy.entity.TeamInfo;
+import com.kendy.entity.WaizhaiInfo;
 import com.kendy.enums.MoneyCreatorEnum;
+import com.kendy.util.CollectUtil;
 import com.kendy.util.ColumnUtil;
+import com.kendy.util.ErrorUtil;
+import com.kendy.util.MapUtil;
+import com.kendy.util.NumUtil;
+import com.kendy.util.ShowUtil;
+import com.kendy.util.StringUtil;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,26 +29,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Resource;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.kendy.constant.Constants;
-import com.kendy.constant.DataConstans;
-import com.kendy.controller.BaseController;
-import com.kendy.db.DBUtil;
-import com.kendy.entity.CurrentMoneyInfo;
-import com.kendy.entity.Huishui;
-import com.kendy.entity.TeamInfo;
-import com.kendy.entity.WaizhaiInfo;
-import com.kendy.util.CollectUtil;
-import com.kendy.util.ErrorUtil;
-import com.kendy.util.MapUtil;
-import com.kendy.util.NumUtil;
-import com.kendy.util.ShowUtil;
-import com.kendy.util.StringUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -41,6 +37,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javax.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 外债信息服务类
@@ -51,7 +52,8 @@ import javafx.scene.layout.HBox;
 @Component
 public class WaizhaiService {
 
-  private Logger log = Logger.getLogger(WaizhaiService.class);
+  private static Logger log = LoggerFactory.getLogger(WaizhaiService.class);
+
   @Autowired
   public DBUtil dbUtil;
   @Autowired

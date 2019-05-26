@@ -1,16 +1,5 @@
 package com.kendy.controller;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-import javax.annotation.PostConstruct;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.jfoenix.controls.JFXChipView;
@@ -24,9 +13,13 @@ import com.kendy.entity.WaizhaiInfo;
 import com.kendy.enums.KeyEnum;
 import com.kendy.interfaces.Entity;
 import com.kendy.service.ShangmaService;
-import com.kendy.util.CollectUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -56,6 +49,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javax.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 上码控制器
@@ -66,7 +64,7 @@ import javafx.util.Callback;
 @Component
 public class SMController extends BaseController implements Initializable {
 
-  Logger logger = Logger.getLogger(SMController.class);
+  Logger logger = LoggerFactory.getLogger(SMController.class);
 
   @Autowired
   public DBUtil dbUtil;

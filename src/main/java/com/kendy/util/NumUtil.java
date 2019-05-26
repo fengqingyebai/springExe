@@ -4,7 +4,8 @@ import java.text.NumberFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 数据转换计算工具类
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
 public class NumUtil {
 
 
-  private static Logger log = Logger.getLogger(NumUtil.class);
+  private static Logger log = LoggerFactory.getLogger(NumUtil.class);
 
   // 把字符串转化为小数
   public static Double getNum(String str) {

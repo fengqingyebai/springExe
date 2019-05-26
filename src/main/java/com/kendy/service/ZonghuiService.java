@@ -1,17 +1,10 @@
 package com.kendy.service;
 
-import com.kendy.controller.ChangciController;
-import java.text.DecimalFormat;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
+import com.kendy.controller.ChangciController;
 import com.kendy.controller.MyController;
 import com.kendy.db.DBUtil;
 import com.kendy.entity.DangjuInfo;
@@ -23,9 +16,17 @@ import com.kendy.entity.ZonghuiKaixiaoInfo;
 import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
+import java.text.DecimalFormat;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 总汇信息服务类
@@ -36,7 +37,7 @@ import javafx.scene.control.TableView;
 @Component
 public class ZonghuiService {
 
-  private Logger log = Logger.getLogger(ZonghuiService.class);
+  private static Logger log = LoggerFactory.getLogger(ZonghuiService.class);
 
   @Autowired
   public DBUtil dbUtil;

@@ -1,17 +1,17 @@
 package com.kendy.util;
 
+import com.kendy.constant.Constants;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
-import com.kendy.application.Main;
-import com.kendy.constant.Constants;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 展示工具类
@@ -21,7 +21,7 @@ import javafx.stage.Stage;
  */
 public class ShowUtil {
 
-  private static Logger log = Logger.getLogger(ShowUtil.class);
+  private static Logger log = LoggerFactory.getLogger(ShowUtil.class);
 
   /**
    * 带有自动关闭功能的提示框

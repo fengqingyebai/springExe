@@ -1,31 +1,12 @@
 package com.kendy.service;
 
-import com.kendy.controller.ChangciController;
-import com.kendy.db.entity.Player;
-import com.kendy.db.service.PlayerService;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
+import com.kendy.controller.ChangciController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMController;
 import com.kendy.db.DBUtil;
+import com.kendy.db.entity.Player;
+import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.ShangmaDetailInfo;
@@ -41,6 +22,21 @@ import com.kendy.util.NumUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
 import com.kendy.util.TimeUtil;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -59,6 +55,11 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import javax.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 实时上码系统服务类
@@ -69,7 +70,8 @@ import javafx.util.Pair;
 @Component
 public class ShangmaService {
 
-  private Logger log = Logger.getLogger(ShangmaService.class);
+  private static Logger log = LoggerFactory.getLogger(ShangmaService.class);
+
 
   @Autowired
   public DBUtil dbUtil;

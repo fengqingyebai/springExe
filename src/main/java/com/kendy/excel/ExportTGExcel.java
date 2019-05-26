@@ -1,6 +1,7 @@
 package com.kendy.excel;
 
 
+import com.kendy.entity.TGExcelModel;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,7 +9,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -16,7 +16,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import com.kendy.entity.TGExcelModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 导出托管Excel
@@ -26,7 +27,7 @@ import com.kendy.entity.TGExcelModel;
  */
 public class ExportTGExcel {
 
-  private static Logger log = Logger.getLogger(ExportTGExcel.class);
+  private static Logger log = LoggerFactory.getLogger(ExportTGExcel.class);
 
   private String out = "D:/";
 

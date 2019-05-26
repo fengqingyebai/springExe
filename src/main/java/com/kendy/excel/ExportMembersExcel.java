@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -17,6 +16,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 导出Excel公共方法
@@ -26,7 +27,7 @@ import org.apache.poi.ss.usermodel.CellType;
  */
 public class ExportMembersExcel {
 
-  private static Logger log = Logger.getLogger(ExportMembersExcel.class);
+  private static Logger log = LoggerFactory.getLogger(ExportMembersExcel.class);
 
   // //显示的导出表的标题
   private String title;
