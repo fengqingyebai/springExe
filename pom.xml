@@ -3,15 +3,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.kendy</groupId>
   <artifactId>springExe</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-
   <name>账务软件</name>
-  <url>http://maven.apache.org</url>
+  <url>https://github.com/greatkendy123/springExe</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +17,6 @@
     <poi.version>3.17</poi.version>
     <main.path>com.kendy.application.Main</main.path>
     <mapper.version>3.4.2</mapper.version>
-    <logback.version>1.2.3</logback.version>
 
     <!--数据库配置-->
     <db.jdbc.groupId>mysql</db.jdbc.groupId>
@@ -47,7 +44,6 @@
 
   <dependencies>
     <!-- Spring依赖 -->
-    <!-- 1.Spring核心依赖 -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
@@ -73,7 +69,7 @@
       <artifactId>spring-tx</artifactId>
       <version>${spring.version}</version>
     </dependency>
-
+    <!-- Spring依赖 -->
 
     <!-- 阿里fastjson -->
     <dependency>
@@ -82,29 +78,23 @@
       <version>1.2.47</version>
     </dependency>
 
-    <!-- 引入 apache collections -->
+    <!--apache常用工具类 -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
       <version>4.1</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-email</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.6</version>
     </dependency>
-    <!-- 引入commons-lang3 -->
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.7</version>
     </dependency>
-    <!-- 日志 -->
+    <!-- logback日志 -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -126,14 +116,6 @@
       <version>1.1.7</version>
     </dependency>
     <!-- 日志 -->
-
-    <!-- 邮箱组件 -->
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-      <version>1.4.1</version>
-    </dependency>
-
     <!-- POI Excel组件 -->
     <dependency>
       <groupId>org.apache.poi</groupId>
@@ -178,13 +160,6 @@
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
       <version>4.4.6</version>
-    </dependency>
-
-    <!-- 引入单机版缓存机制 ehcache -->
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>2.10.4</version>
     </dependency>
 
     <!-- 引入jfoenix -->
@@ -247,22 +222,6 @@
       <artifactId>druid</artifactId>
       <version>1.1.2</version>
     </dependency>
-
-    <!--引入Lombok-->
-      <!--<dependency>-->
-        <!--<groupId>org.projectlombok</groupId>-->
-        <!--<artifactId>lombok</artifactId>-->
-        <!--<version>1.18.2</version>-->
-        <!--<scope>provided</scope>-->
-      <!--</dependency>-->
-
-    <!-- https://mvnrepository.com/artifact/org.jfxtras/ -->
-    <!--<dependency>-->
-      <!--<groupId>org.jfxtras</groupId>-->
-      <!--<artifactId>jmetro</artifactId>-->
-      <!--<version>4.2</version>-->
-    <!--</dependency>-->
-
 
     <!--单元测试-->
     <dependency>
