@@ -3,7 +3,7 @@ package com.kendy.controller;
 import com.jfoenix.controls.JFXButton;
 import com.kendy.constant.Constants;
 import com.kendy.customize.MyTable;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.ClubStaticInfo;
 import com.kendy.entity.TeamStaticInfo;
 import com.kendy.entity.TotalInfo2;
@@ -57,7 +57,7 @@ import org.springframework.stereotype.Component;
 public class StaticController extends BaseController implements Initializable {
 
   @Autowired
-  private DBUtil dbUtil;
+  private DBService dbService;
 
   @Autowired
   private MyController myController;
@@ -191,7 +191,7 @@ public class StaticController extends BaseController implements Initializable {
   private void loadTeamStaticView() {
     clearData(tableTeamStatic);
     // 从数据库加载统计数据
-    List<TeamStaticInfo> staticRecords = dbUtil
+    List<TeamStaticInfo> staticRecords = dbService
         .getStaticRecordsByClub(myController.getClubId(), null);
 
     // 渲染到页面
@@ -205,7 +205,7 @@ public class StaticController extends BaseController implements Initializable {
   private void loadClubStaticView() {
     clearData(tableClubStatic);
     // 从数据库加载统计数据
-    List<ClubStaticInfo> staticRecords = dbUtil.getClubTotalStatic(getSelectedLM());
+    List<ClubStaticInfo> staticRecords = dbService.getClubTotalStatic(getSelectedLM());
 
     // 渲染到页面
     tableClubStatic.getItems().addAll(staticRecords);
@@ -255,7 +255,7 @@ public class StaticController extends BaseController implements Initializable {
       TeamStaticInfo item = getSelectedRow(tableTeamStatic);
       if (AlertUtil.confirm("清空", "兄弟，确定要清空" + item.getTeamId() + "的历史记录吗？")) {
         // 清空数据
-        int updateRows = dbUtil.clearTeamGameRecord(myController.getClubId(), item.getTeamId());
+        int updateRows = dbService.clearTeamGameRecord(myController.getClubId(), item.getTeamId());
 
         // 刷新界面
         FXUtil.info("操作成功! 已清空了" + updateRows + "条记录！");
@@ -272,7 +272,7 @@ public class StaticController extends BaseController implements Initializable {
       String clubId = item.getClubId();
       if (AlertUtil.confirm(clubName, "兄弟，确定要清空" + clubName + "的历史记录吗？")) {
         // 清空数据
-        int updateRows = dbUtil.clearClubGameRecord(getSelectedLM(), clubId);
+        int updateRows = dbService.clearClubGameRecord(getSelectedLM(), clubId);
 
         // 刷新界面
         FXUtil.info("操作成功! 已清空了" + updateRows + "条记录！");
@@ -323,7 +323,7 @@ public class StaticController extends BaseController implements Initializable {
       setDoubleClick(table);
 
       // 获取值
-      List<TeamStaticInfo> list = dbUtil.getStaticRecordsByTeam(clubId, teamId);
+      List<TeamStaticInfo> list = dbService.getStaticRecordsByTeam(clubId, teamId);
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
@@ -371,7 +371,7 @@ public class StaticController extends BaseController implements Initializable {
     table.setEditable(false);
 
     // 获取值
-    List<TotalInfo2> list = dbUtil
+    List<TotalInfo2> list = dbService
         .getStaticDetailRecords(myController.getClubId(), teamId, softTime);
     table.getItems().addAll(list);
     table.getSelectionModel().clearSelection();
@@ -419,7 +419,7 @@ public class StaticController extends BaseController implements Initializable {
       //setDoubleClick(table);
 
       // 获取值
-      List<ClubStaticInfo> list = dbUtil.getClubEveryDayStatic(getSelectedLM(), clubId);
+      List<ClubStaticInfo> list = dbService.getClubEveryDayStatic(getSelectedLM(), clubId);
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
@@ -457,7 +457,7 @@ public class StaticController extends BaseController implements Initializable {
   public void exportAllClubExcelStaticAction(ActionEvent event) {
     // 获取数据
     String lmType = getSelectedLM();
-    List<ClubStaticInfo> clubsExcelStatic = dbUtil.getClubsExcelStatic(lmType);
+    List<ClubStaticInfo> clubsExcelStatic = dbService.getClubsExcelStatic(lmType);
     if (CollectUtil.isEmpty(clubsExcelStatic)) {
       ShowUtil.show("当前无数据！！");
       return;

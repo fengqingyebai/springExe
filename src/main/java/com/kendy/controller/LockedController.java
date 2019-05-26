@@ -9,7 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.JiaoshouInfo;
@@ -42,8 +42,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +49,7 @@ import org.springframework.stereotype.Component;
 public class LockedController extends BaseController implements Initializable {
 
   @Autowired
-  DBUtil dbUtil;
+  DBService dbService;
   @Autowired
   MoneyService moneyService;
   @Autowired
@@ -337,7 +335,7 @@ public class LockedController extends BaseController implements Initializable {
     moneyService.setTotalNumOnTable(tableJiaoshou, 0d);
     moneyService.setTotalNumOnTable(tablePingzhang, 0d);
 
-    if ("2017-01-01".equals(dbUtil.Load_Date)) {
+    if ("2017-01-01".equals(dbService.Load_Date)) {
       tableTeam.setItems(null);
       moneyService.setTotalNumOnTable(tableTeam, 0d, 4);
     }
@@ -513,14 +511,14 @@ public class LockedController extends BaseController implements Initializable {
     clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou, tablePingzhang);
     indexLabel.setText(INDEX_ZERO);
 
-    if (dbUtil.isPreData2017VeryFirst()) {
+    if (dbService.isPreData2017VeryFirst()) {
       moneyService.fillTableCurrentMoneyInfo(tableCurrentMoneyInfo, tableZijin, tableProfit,
           tableKaixiao, LMLabel);
     } else {
       moneyService.fillTableCurrentMoneyInfo2(tableTeam, tableCurrentMoneyInfo, tableZijin,
           tableProfit, tableKaixiao, LMLabel);
       // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-      Map<String, String> map = dbUtil.getLastLockedData();
+      Map<String, String> map = dbService.getLastLockedData();
       if (map != null && map.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"),
             new TypeReference<Map<String, List<GameRecordModel>>>() {

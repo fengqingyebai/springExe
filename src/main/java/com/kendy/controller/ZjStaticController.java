@@ -1,17 +1,12 @@
 package com.kendy.controller;
 
 import com.jfoenix.controls.JFXButton;
-import com.kendy.constant.Constants;
 import com.kendy.customize.MyTable;
-import com.kendy.db.DBUtil;
-import com.kendy.entity.ClubStaticInfo;
-import com.kendy.entity.TeamStaticInfo;
-import com.kendy.entity.TotalInfo2;
+import com.kendy.db.DBService;
 import com.kendy.entity.ZjClubStaticDetailInfo;
 import com.kendy.entity.ZjClubStaticInfo;
 import com.kendy.entity.ZjTeamStaticDetailInfo;
 import com.kendy.entity.ZjTeamStaticInfo;
-import com.kendy.enums.ColumnColorType;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.util.ButtonUtil;
 import com.kendy.util.ColumnUtil;
@@ -19,9 +14,7 @@ import com.kendy.util.ErrorUtil;
 import com.kendy.util.MaskerPaneUtil;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
-import com.kendy.util.TableUtil;
 import com.kendy.util.TimeUtil;
-import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -35,12 +28,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
-import org.controlsfx.control.MaskerPane;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +40,7 @@ import org.springframework.stereotype.Component;
 public class ZjStaticController extends BaseController implements Initializable {
 
   @Autowired
-  private DBUtil dbUtil;
+  private DBService dbService;
 
   @Autowired
   private MyController myController;
@@ -159,9 +148,9 @@ public class ZjStaticController extends BaseController implements Initializable 
     clearData(tableTeamStatic);
     // 加载原始数据
     String clubId = myController.getClubId();
-    dbUtil.insertZjStaticData(clubId);
+    dbService.insertZjStaticData(clubId);
     // 从数据库加载统计数据
-    List<ZjTeamStaticInfo> staticRecords = dbUtil.getZjTeamStaticsRecordsByClub(clubId);
+    List<ZjTeamStaticInfo> staticRecords = dbService.getZjTeamStaticsRecordsByClub(clubId);
 
     // 渲染到页面
     tableTeamStatic.getItems().addAll(staticRecords);
@@ -174,7 +163,7 @@ public class ZjStaticController extends BaseController implements Initializable 
   private void loadClubStaticView() {
     clearData(tableClubStatic);
     // 从数据库加载统计数据
-    List<ZjClubStaticInfo> staticRecords = dbUtil.getZjClubTotalStatic();
+    List<ZjClubStaticInfo> staticRecords = dbService.getZjClubTotalStatic();
 
     // 渲染到页面
     tableClubStatic.getItems().addAll(staticRecords);
@@ -199,7 +188,7 @@ public class ZjStaticController extends BaseController implements Initializable 
       table.setEditable(false);
 
       // 获取值
-      List<ZjTeamStaticDetailInfo> list = dbUtil.getZjTeamStaticsByTeamId(clubId, teamId);
+      List<ZjTeamStaticDetailInfo> list = dbService.getZjTeamStaticsByTeamId(clubId, teamId);
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 
@@ -270,7 +259,7 @@ public class ZjStaticController extends BaseController implements Initializable 
       table.setEditable(false);
 
       // 获取值
-      List<ZjClubStaticDetailInfo> list = dbUtil.getZjClubStaticDetail(clubId);
+      List<ZjClubStaticDetailInfo> list = dbService.getZjClubStaticDetail(clubId);
       table.getItems().addAll(list);
       table.getSelectionModel().clearSelection();
 

@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.jfoenix.controls.JFXButton;
 import com.kendy.constant.Constants;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.BankFlowInfo;
 import com.kendy.enums.BankEnum;
 import com.kendy.model.BankFlowModel;
@@ -48,7 +48,7 @@ public class BankFlowController extends BaseController implements Initializable 
   private Logger log = LoggerFactory.getLogger(getClass());
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
 
   @Autowired
   public MyController myController;
@@ -134,7 +134,7 @@ public class BankFlowController extends BaseController implements Initializable 
   private String getCurrentSoftTime() {
     String latestDay = changciController.getSoftDate();
     return StringUtil.isNotBlank(latestDay) ? latestDay
-        : StringUtil.nvl(dbUtil.getMaxBankFlowTime(), "");
+        : StringUtil.nvl(dbService.getMaxBankFlowTime(), "");
   }
 
   /**
@@ -147,7 +147,7 @@ public class BankFlowController extends BaseController implements Initializable 
     logger.info("清空银行流水界面数据");
     if (firstTime) {
       logger.info("从数据库加载所有银行流水数据");
-      totalBankFlowList = dbUtil.getAllHistoryBankMoney();
+      totalBankFlowList = dbService.getAllHistoryBankMoney();
       firstTime = false;
     }
 

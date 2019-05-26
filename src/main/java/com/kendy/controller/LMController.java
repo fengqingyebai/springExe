@@ -7,7 +7,7 @@ import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubQuota;
@@ -97,7 +97,7 @@ public class LMController extends BaseController implements Initializable {
   private Logger log = LoggerFactory.getLogger(LMController.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -205,7 +205,7 @@ public class LMController extends BaseController implements Initializable {
     initSingClubListen();
 
     // 软件一打开就从从数据库中获取所有俱乐部信息
-    allClubMap = dbUtil.getAllClub();
+    allClubMap = dbService.getAllClub();
     _clubListView = clubListView;
     refreshClubList();
 
@@ -272,7 +272,7 @@ public class LMController extends BaseController implements Initializable {
               StringUtil.isBlank(dataConstants.Date_Str) ? "2017-01-01" : dataConstants.Date_Str;
           ClubZhuofei clubZhuofei =
               new ClubZhuofei(date, club.getClubId(), newValue, "联盟" + lmType);
-          dbUtil.saveOrUpdate_club_zhuofei(clubZhuofei);
+          dbService.saveOrUpdate_club_zhuofei(clubZhuofei);
 
         } else if ("已结算".equals(sumInfo.getLmSumName())) {
           // club.setYiJieSuan(newValue);
@@ -282,7 +282,7 @@ public class LMController extends BaseController implements Initializable {
         // 更新结余
         updateTableLMSumOnly();
         // 同步到数据库
-        dbUtil.updateClub(club);
+        dbService.updateClub(club);
 
         // 设置合计桌费（这个没多大影响）
         setNewSumOfZF();
@@ -316,8 +316,8 @@ public class LMController extends BaseController implements Initializable {
     }
     allClubMap.values().forEach(club -> {
       try {
-        if (!dbUtil.isHasClub(club.getClubId())) {
-          dbUtil.addClub(club);
+        if (!dbService.isHasClub(club.getClubId())) {
+          dbService.addClub(club);
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -338,7 +338,7 @@ public class LMController extends BaseController implements Initializable {
    * @time 2018年5月30日
    */
   private void refreshAllClubMap() {
-    Map<String, Club> DBClubs = dbUtil.getAllClub();
+    Map<String, Club> DBClubs = dbService.getAllClub();
     if (MapUtil.isHavaValue(DBClubs) && MapUtil.isHavaValue(allClubMap)) {
       allClubMap.forEach((clubId, club) -> {
         Club dbClub = DBClubs.get(clubId);
@@ -791,7 +791,7 @@ public class LMController extends BaseController implements Initializable {
    */
   private void refresh_eachClubList() {
 
-    String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
+    String maxRecordTime = dbService.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
     if (StringUtil.isNotBlank(maxRecordTime)) {
       List<GameRecordModel> list = gameRecordService.getGameRecordsByMaxTime(maxRecordTime);
       // 处理从数据库返回的结果为Map
@@ -909,7 +909,7 @@ public class LMController extends BaseController implements Initializable {
 
   public void checkOverSharedEdu2(boolean showAll) {
     try {
-      String maxRecordTime = dbUtil.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
+      String maxRecordTime = dbService.getMaxGameRecordTime();// 最新一天的战绩记录（也可能是昨天的，是否要做个标记）
       if (StringUtils.isBlank(maxRecordTime)) {
         return;
       }
@@ -1139,7 +1139,7 @@ public class LMController extends BaseController implements Initializable {
       club.setName(newClubName);
 
       // 同步到数据库
-      dbUtil.updateClub(club);
+      dbService.updateClub(club);
       // DBUtil.batchUpdateRecordByClubId(clubId, newClubName); 泽涛注释：只修改club表
 
       // 重新刷新俱乐部列表
@@ -1184,7 +1184,7 @@ public class LMController extends BaseController implements Initializable {
       refreshClubListView(this.getCurrentLMType());
 
       // 同步到数据库
-      dbUtil.updateClub(club);
+      dbService.updateClub(club);
 
       // 更新俱乐部（额度）操作
       ShowUtil.show("更新俱乐部（额度）操作成功", 2);
@@ -1349,7 +1349,7 @@ public class LMController extends BaseController implements Initializable {
         ShowUtil.show("股东不能为空，修改失败！", 2);
       } else {
         club.setGudong(newGudong.trim().toUpperCase());
-        dbUtil.updateClub(club);
+        dbService.updateClub(club);
         ShowUtil.show("修改成功！", 2);
       }
     }
@@ -1841,13 +1841,13 @@ public class LMController extends BaseController implements Initializable {
     lmRangeMap.put(1, new LMRange(1, valueLM1));
     lmRangeMap.put(2, new LMRange(2, valueLM2));
     lmRangeMap.put(3, new LMRange(3, valueLM3));
-    dbUtil.saveOrUpdateOthers(LM_CONFIG_KEY, JSON.toJSONString(lmRangeMap));
+    dbService.saveOrUpdateOthers(LM_CONFIG_KEY, JSON.toJSONString(lmRangeMap));
     FXUtil.info("保存成功！");
   }
 
   //加载联盟范围配置项
   private void loadLMConfig() {
-    String lmConfigJson = dbUtil.getValueByKey(LM_CONFIG_KEY);
+    String lmConfigJson = dbService.getValueByKey(LM_CONFIG_KEY);
     if (lmConfigJson != null && lmConfigJson != "{}") {
       lmRangeMap = JSON.parseObject(lmConfigJson, new TypeReference<Map<Integer, LMRange>>() {
       });
@@ -1954,7 +1954,7 @@ public class LMController extends BaseController implements Initializable {
   }
 
   private void refreshTableLevel(String currentLMType) {
-    Map<String, String> validLevelAndCount = dbUtil.getValidLevelAndCount(currentLMType);
+    Map<String, String> validLevelAndCount = dbService.getValidLevelAndCount(currentLMType);
     ObservableList<KeyValue> obList = FXCollections.observableArrayList();
     if (MapUtil.isHavaValue(validLevelAndCount)) {
       validLevelAndCount.forEach((k, v) -> {
@@ -1978,7 +1978,7 @@ public class LMController extends BaseController implements Initializable {
    * 加载联盟范围配置项
    */
   private void loadEduShareLMConfig() {
-    String eduShareLMJson = dbUtil.getValueByKeyWithoutJson(LM_EDU_SHARE_KEY);
+    String eduShareLMJson = dbService.getValueByKeyWithoutJson(LM_EDU_SHARE_KEY);
     logger.info("从数据库加载额度共享配置项：" + eduShareLMJson);
     if (StringUtils.isNotBlank(eduShareLMJson)) {
       List<String> eduShareList =
@@ -2001,7 +2001,7 @@ public class LMController extends BaseController implements Initializable {
     if (CollectUtil.isEmpty(eduShareLMList)) {
       ShowUtil.show("兄弟，请先选择需要额度共享的联盟！");
     } else {
-      dbUtil.saveOrUpdateOthers(LM_EDU_SHARE_KEY, JSON.toJSONString(eduShareLMList));
+      dbService.saveOrUpdateOthers(LM_EDU_SHARE_KEY, JSON.toJSONString(eduShareLMList));
       FXUtil.info("保存成功！");
     }
   }

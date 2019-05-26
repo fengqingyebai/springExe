@@ -2,10 +2,9 @@ package com.kendy.controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.service.TeamProxyService;
@@ -34,7 +33,7 @@ import javafx.scene.layout.HBox;
 public class TeamProxyController extends BaseController implements Initializable {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired

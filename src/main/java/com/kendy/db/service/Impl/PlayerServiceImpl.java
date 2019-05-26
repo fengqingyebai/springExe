@@ -30,7 +30,7 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
 //      return playerModel;
 //    }
 //    try {
-//      con = DBConnection.getConnection();
+//      con = dataSource.getConnection();
 //      String sql;
 //      sql =
 //          "select m.playerId,m.playerName,m.teamId,m.gudong,m.edu,m.isParent from members m where playerId = ? ";
@@ -58,7 +58,7 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
   // 插入一条人员名单---未测试
 //  public void addMember(final PlayerModel playerModel) {
 //    try {
-//      con = DBConnection.getConnection();
+//      con = dataSource.getConnection();
 //      String sql;
 //      sql = "insert into members values(?,?,?,?,?,?,?,?)";
 //      ps = con.prepareStatement(sql);
@@ -111,7 +111,7 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
 //    boolean hasMember = false;
 //    try {
 //      // 获取数据
-//      con = DBConnection.getConnection();
+//      con = dataSource.getConnection();
 //      String sql = "select count(*) from members  where playerName = ?";
 //      ps = con.prepareStatement(sql);
 //      ps.setString(1, playerId);
@@ -137,7 +137,7 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
   // 修改人员名单---未测试
 //  public void updateMember(final PlayerModel playerModel) {
 //    try {
-//      con = DBConnection.getConnection();
+//      con = dataSource.getConnection();
 //      String sql;
 //      sql = "update members set playerName=?,gudong=?,teamId=?,edu=? where playerId =?";
 //      ps = con.prepareStatement(sql);
@@ -196,7 +196,7 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
   // 删除一条人员名单---未测试
 //  public void delMember(final String playerId) {
 //    try {
-//      con = DBConnection.getConnection();
+//      con = dataSource.getConnection();
 //      String sql;
 //      if (!StringUtil.isBlank(playerId)) {
 //        sql = "delete from members where playerId = '" + playerId + "'";
@@ -235,7 +235,7 @@ public class PlayerServiceImpl extends GenericServiceImpl<PlayerDao, Player, Str
 //  public List<PlayerModel> getAllMembers() {
 //    List<PlayerModel> result = new ArrayList<PlayerModel>();
 //    try {
-//      con = DBConnection.getConnection();
+//      con = dataSource.getConnection();
 //      String sql = "select * from members";
 //      ps = con.prepareStatement(sql);
 //      ResultSet rs = ps.executeQuery();

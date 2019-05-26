@@ -13,7 +13,7 @@ import com.jfoenix.controls.JFXToggleButton;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.CurrentMoney;
 import com.kendy.db.entity.Player;
 import com.kendy.db.entity.pk.CurrentMoneyPK;
@@ -103,7 +103,6 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +114,7 @@ public class ChangciController extends BaseController implements Initializable {
 
   // ===============================================================总汇主表
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public CombineIDController combineIDController;
   @Autowired
@@ -894,7 +893,7 @@ public class ChangciController extends BaseController implements Initializable {
       }
     });
 
-    dbUtil.updateRecordJiesuan(getSoftDate(), clubId, teamId);
+    dbService.updateRecordJiesuan(getSoftDate(), clubId, teamId);
   }
 
   public TeamInfo copyTeamInfo(TeamInfo info) {
@@ -1211,13 +1210,13 @@ public class ChangciController extends BaseController implements Initializable {
               .get(ju_size2 + "");
           String lastDataDetailJson = JSON.toJSONString(lastDataDetailMap);
 
-          dbUtil.saveLastLockedData(ju_size1, json_all_locked_data, ju_size2,
+          dbService.saveLastLockedData(ju_size1, json_all_locked_data, ju_size2,
               lastDataDetailJson);// IO耗时长
         });
 
         // 保存当前Excel记录到数据库
         try {
-          dbUtil.addGameRecordList(lmController.currentRecordList);
+          dbService.addGameRecordList(lmController.currentRecordList);
         } catch (Exception e) {
           ErrorUtil.err(e.getMessage(), e);
         }
@@ -1361,7 +1360,7 @@ public class ChangciController extends BaseController implements Initializable {
     moneyService.setTotalNumOnTable(tableJiaoshou, 0d);
     moneyService.setTotalNumOnTable(tablePingzhang, 0d);
 
-    if ("2017-01-01".equals(dbUtil.Load_Date)) {
+    if ("2017-01-01".equals(dbService.Load_Date)) {
       tableTeam.setItems(null);
       moneyService.setTotalNumOnTable(tableTeam, 0d, 4);
     }
@@ -1641,7 +1640,7 @@ public class ChangciController extends BaseController implements Initializable {
       // 恢复玩家战绩信息
       dataConstants.zjMap.remove(tableId);
 
-      Map<String, String> maps = dbUtil.getLastLockedData();
+      Map<String, String> maps = dbService.getLastLockedData();
       if (maps != null && maps.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(maps.get("Team_Huishui_Map"),
             new TypeReference<Map<String, List<GameRecordModel>>>() {
@@ -1701,7 +1700,7 @@ public class ChangciController extends BaseController implements Initializable {
         String kaixiaoID = info.getKaixiaoID();
         String kaixiaoGudong = info.getKaixiaoGudong();
         if (!StringUtil.isAnyBlank(kaixiaoID, kaixiaoGudong)) {
-          dbUtil.del_gudong_kaixiao_by_id(kaixiaoID);
+          dbService.del_gudong_kaixiao_by_id(kaixiaoID);
         }
       }
     } else {
@@ -1749,14 +1748,14 @@ public class ChangciController extends BaseController implements Initializable {
     clearData(tableTotalInfo, tablePaiju, tableTeam, tableDangju, tableJiaoshou, tablePingzhang);
     indexLabel.setText(INDEX_ZERO);
 
-    if (dbUtil.isPreData2017VeryFirst()) {
+    if (dbService.isPreData2017VeryFirst()) {
       moneyService.fillTableCurrentMoneyInfo(tableCurrentMoneyInfo, tableZijin, tableProfit,
           tableKaixiao, LMLabel);
     } else {
       moneyService.fillTableCurrentMoneyInfo2(tableTeam, tableCurrentMoneyInfo, tableZijin,
           tableProfit, tableKaixiao, LMLabel);
       // 缓存战绩文件夹中多份excel中的数据 {团队ID=List<GameRecord>...}这个可能会被修改，用在展示每场的tableTeam信息
-      Map<String, String> map = dbUtil.getLastLockedData();
+      Map<String, String> map = dbService.getLastLockedData();
       if (map != null && map.size() > 0) {
         dataConstants.Team_Huishui_Map = JSON.parseObject(map.get("Team_Huishui_Map"),
             new TypeReference<Map<String, List<GameRecordModel>>>() {

@@ -1,7 +1,6 @@
 package kendy.db;
 
-import com.kendy.db.DBUtil;
-import com.kendy.db.dao.GameRecordDao;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.GameRecord;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.entity.Club;
@@ -41,7 +40,7 @@ public class TestDB extends BaseTest{
 
   @Test
   public void test3() throws Exception {
-    DBUtil dbUtil = new DBUtil();
+    DBService dbService = new DBService();
     for (int i = 0; i < 50; i++) {
       Club club = new Club();
       club.setClubId(i+"");
@@ -56,7 +55,7 @@ public class TestDB extends BaseTest{
       club.setEdu2("1" + i);
       club.setEdu3("2" + i);
       club.setGudong("C");
-      dbUtil.saveOrUpdateClub(club);
+      dbService.saveOrUpdateClub(club);
     }
     System.out.println("finishes...");
   }

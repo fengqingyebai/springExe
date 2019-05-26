@@ -19,14 +19,8 @@
     <mapper.version>3.4.2</mapper.version>
 
     <!--数据库配置-->
-    <db.jdbc.groupId>mysql</db.jdbc.groupId>
     <db.jdbc.artifactId>mysql-connector-java</db.jdbc.artifactId>
     <db.jdbc.version>5.1.40</db.jdbc.version>
-    <!--<db.jdbc.version>8.0.15</db.jdbc.version>-->
-    <db.jdbc.driverClassName>com.mysql.jdbc.Driver</db.jdbc.driverClassName>
-    <db.jdbc.url><![CDATA[jdbc:mysql://127.0.0.1:3306/financial?characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=false]]></db.jdbc.url>
-    <db.jdbc.username>root</db.jdbc.username>
-    <db.jdbc.password><![CDATA[123456]]></db.jdbc.password>
 
   </properties>
 

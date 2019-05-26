@@ -5,7 +5,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.kendy.constant.DataConstans;
 import com.kendy.customize.MyTable;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.GameRecord;
 import com.kendy.db.entity.pk.GameRecordPK;
 import com.kendy.db.service.GameRecordService;
@@ -76,7 +76,7 @@ public class LMBController extends BaseController implements Initializable {
   ChangciController changciController;
 
   @Autowired
-  DBUtil dbUtil;
+  DBService dbService;
 
 
   //======================================================俱乐部合计表
@@ -286,7 +286,7 @@ public class LMBController extends BaseController implements Initializable {
   }
 
   private ClubInfomation saveClubInfomationIfNull(String clubId){
-    Map<String, Club> allClub = dbUtil.getAllClub();
+    Map<String, Club> allClub = dbService.getAllClub();
     ClubInfomation newClubInfo = new ClubInfomation();
     if (MapUtils.isNotEmpty(allClub) && allClub.containsKey(clubId)) {
       newClubInfo.setClubId(clubId);
@@ -456,7 +456,7 @@ public class LMBController extends BaseController implements Initializable {
    * 合并俱乐部信息
    */
   private void mergeClubInformation() {
-    Map<String, Club> allClub = dbUtil.getAllClub();
+    Map<String, Club> allClub = dbService.getAllClub();
     List<ClubInfomation> clubInfomations = lmbCache.getClubInfomations();
     if (allClub != null) {
       if(allClub.size() == clubInfomations.size()){
@@ -519,7 +519,7 @@ public class LMBController extends BaseController implements Initializable {
   private void loadLmbCacheFromDB(){
     LmbCache _lmbCache = null;
     try {
-      String cacheJson = dbUtil.getValueByKey(LMB_NAME);
+      String cacheJson = dbService.getValueByKey(LMB_NAME);
       _lmbCache = JSON.parseObject(cacheJson, LmbCache.class);
       if (_lmbCache != null) {
         // 设置值
@@ -615,7 +615,7 @@ public class LMBController extends BaseController implements Initializable {
     refreshLmbCache();
 
     // 保存到数据库
-    dbUtil.saveOrUpdateOthers(LMB_NAME, JSON.toJSONString(lmbCache));
+    dbService.saveOrUpdateOthers(LMB_NAME, JSON.toJSONString(lmbCache));
 
     // 直接刷新
     this.refreshAction();

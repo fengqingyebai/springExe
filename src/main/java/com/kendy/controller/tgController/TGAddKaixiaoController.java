@@ -19,7 +19,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TGKaixiaoInfo;
 import com.kendy.util.CollectUtil;
@@ -45,7 +45,7 @@ import javafx.scene.control.TextInputDialog;
 public class TGAddKaixiaoController extends BaseController implements Initializable {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -144,7 +144,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initPayItemChoice() {
-    String payItemsJson = dbUtil.getValueByKey(PAY_ITEMS_DB_KEY);
+    String payItemsJson = dbService.getValueByKey(PAY_ITEMS_DB_KEY);
     if (StringUtil.isNotBlank(payItemsJson) && !"{}".equals(payItemsJson)) {
       payItems = JSON.parseObject(payItemsJson, new TypeReference<List<String>>() {
       });
@@ -164,7 +164,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    */
   private void initTGCompanyChoice() {
     List<TGCompanyModel> tgCompanys =
-        dbUtil.get_all_tg_company_By_clubId(myController.currentClubId.getText());
+        dbService.get_all_tg_company_By_clubId(myController.currentClubId.getText());
     List<String> nameList = new ArrayList<>();
     if (CollectUtil.isHaveValue(tgCompanys)) {
       nameList =
@@ -211,7 +211,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
    */
   private void savePayItem() {
     String payItemsJson = JSON.toJSONString(payItems);
-    dbUtil.saveOrUpdateOthers(PAY_ITEMS_DB_KEY, payItemsJson);
+    dbService.saveOrUpdateOthers(PAY_ITEMS_DB_KEY, payItemsJson);
   }
 
   /**
@@ -257,7 +257,7 @@ public class TGAddKaixiaoController extends BaseController implements Initializa
     TGKaixiaoInfo TGKaixiaoEntity = getSubmitData();
     //TGController tgController = MyController.tgController;
     // 保存到数据库
-    dbUtil.saveOrUpdate_tg_kaixiao(TGKaixiaoEntity);
+    dbService.saveOrUpdate_tg_kaixiao(TGKaixiaoEntity);
     // 刷新界面
     if (equalsCurrentCompany()) {
       tgController.refreshTableTGKaixiao();

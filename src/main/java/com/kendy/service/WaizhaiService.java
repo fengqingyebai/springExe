@@ -5,7 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -55,7 +55,7 @@ public class WaizhaiService {
   private static Logger log = LoggerFactory.getLogger(WaizhaiService.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired

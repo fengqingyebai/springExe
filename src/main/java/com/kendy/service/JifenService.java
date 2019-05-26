@@ -1,15 +1,12 @@
 package com.kendy.service;
 
-import com.jfoenix.controls.JFXCheckBox;
-import com.kendy.enums.PermissionTabEnum;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import javax.persistence.Basic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.JifenInfo;
 import com.kendy.util.ShowUtil;
 import com.kendy.util.StringUtil;
@@ -30,7 +27,7 @@ import javafx.scene.control.TextField;
 public class JifenService extends BasicService{
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
 
@@ -106,7 +103,7 @@ public class JifenService extends BasicService{
     String limit = jifenRankLimit.getText();
     String teamId = jfTeamIDCombox.getSelectionModel().getSelectedItem();
     // 查询数据
-    List<JifenInfo> list = dbUtil
+    List<JifenInfo> list = dbService
         .getJifenQuery(clubId, jfInput, teamId, startTime, endTime, isCheckTeamProfitBox, limit);
     // 更新积分表
     tableJifen.setItems(null);

@@ -3,7 +3,7 @@ package com.kendy.service;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -54,7 +54,7 @@ public class TgWaizhaiService {
   private static Logger log = LoggerFactory.getLogger(TgWaizhaiService.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired
@@ -81,7 +81,7 @@ public class TgWaizhaiService {
     Set<String> tgTeamSet = new HashSet<>();
     try {
       TGCompanyModel currentCompany =
-          dbUtil.get_tg_company_by_id(tgController.getCurrentTGCompany());
+          dbService.get_tg_company_by_id(tgController.getCurrentTGCompany());
       String tgTeamsStr = currentCompany.getTgTeamsStr();
       if (StringUtil.isNotBlank(tgTeamsStr)) {
         tgTeamSet = Stream.of(tgTeamsStr.split("#")).collect(Collectors.toSet());

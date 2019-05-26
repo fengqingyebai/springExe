@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
@@ -43,7 +43,7 @@ import javafx.scene.input.KeyEvent;
 public class DelController extends BaseController implements Initializable {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -211,7 +211,7 @@ public class DelController extends BaseController implements Initializable {
           // 删除子节点
           dataConstants.Combine_Sub_Id_Map.remove(playerId);
           playerService.remove(playerId);// 从数据库中删除
-          dbUtil.saveOrUpdateCombineId(superId, subIdSet);// 删除合并ID(实际上是更新合并ID)
+          dbService.saveOrUpdateCombineId(superId, subIdSet);// 删除合并ID(实际上是更新合并ID)
         }
         // 情况三：是父ID
         if (isSuperId) {
@@ -230,7 +230,7 @@ public class DelController extends BaseController implements Initializable {
             moneyService.del_SSJE_byId(playerId);// 更新实时金额表
             dataConstants.Combine_Super_Id_Map.remove(playerId);
             playerService.remove(playerId);// 从数据库中删除
-            dbUtil.cancelCombineId(playerId);// 删除合并ID
+            dbService.cancelCombineId(playerId);// 删除合并ID
             // ConsUtil.refreshTeamIdAndPlayerId();//获取最新的团队ID与玩家ID列表的映射,跟删除人员的顺序不可调换
           }
         }

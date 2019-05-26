@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.db.service.PlayerService;
@@ -71,7 +71,7 @@ public class GDController extends BaseController implements Initializable {
   private Logger log = LoggerFactory.getLogger(GDController.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -243,7 +243,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年2月21日
    */
   private void initGudongKaixiaoDataList() {
-    List<KaixiaoInfo> get_all_gudong_kaixiao = dbUtil.get_all_gudong_kaixiao();
+    List<KaixiaoInfo> get_all_gudong_kaixiao = dbService.get_all_gudong_kaixiao();
     if (CollectUtil.isHaveValue(get_all_gudong_kaixiao)) {
       gudongKaixiao_dataList = get_all_gudong_kaixiao;
     }
@@ -418,7 +418,7 @@ public class GDController extends BaseController implements Initializable {
    * @time 2018年2月11日
    */
   private Double getLM1TotalZhuofei() {
-    List<ClubZhuofei> LM1_all_club_zhuofei = dbUtil.get_LM1_all_club_zhuofei();
+    List<ClubZhuofei> LM1_all_club_zhuofei = dbService.get_LM1_all_club_zhuofei();
     Double totalZhuofei = LM1_all_club_zhuofei.stream()
         .filter(info -> "联盟1".equals(info.getLmType())).map(ClubZhuofei::getZhuofei)
         .map(NumUtil::getNum).reduce(Double::sum).orElseGet(() -> 0d);
@@ -426,7 +426,7 @@ public class GDController extends BaseController implements Initializable {
   }
 
   private Double getLM1TotalZhuofei(String gudong) {
-    List<ClubZhuofei> LM1_all_club_zhuofei = dbUtil.get_LM1_all_club_zhuofei();
+    List<ClubZhuofei> LM1_all_club_zhuofei = dbService.get_LM1_all_club_zhuofei();
     Double totalZhuofei = LM1_all_club_zhuofei.stream()
         .filter(info -> "联盟1".equals(info.getLmType()) && info.getGudong().equals(gudong))
         .map(ClubZhuofei::getZhuofei).map(NumUtil::getNum).reduce(Double::sum).orElseGet(() -> 0d);
@@ -1297,7 +1297,7 @@ public class GDController extends BaseController implements Initializable {
       clearBtn.fire();
 
       // 删除数据库
-      dbUtil.del_all_record_and_zhuofei_and_kaixiao();
+      dbService.del_all_record_and_zhuofei_and_kaixiao();
 
       log.info("客户手动删除数据库中所有白名单数据成功！！");
       ShowUtil.show("手动删除成功！", 2);
@@ -1311,7 +1311,7 @@ public class GDController extends BaseController implements Initializable {
    */
   public void load_KF_data_Action(ActionEvent even) {
     // 从数据库获取客服数据
-    String kfValue = dbUtil.getValueByKey(TABLE_KF_DATA_KEY);
+    String kfValue = dbService.getValueByKey(TABLE_KF_DATA_KEY);
     Map<String, String> kfMap =
         JSON.parseObject(kfValue, new TypeReference<Map<String, String>>() {
         });
@@ -1365,7 +1365,7 @@ public class GDController extends BaseController implements Initializable {
         }
       });
       // 保存到数据库
-      dbUtil.saveOrUpdateOthers(TABLE_KF_DATA_KEY, JSON.toJSONString(kfMap));
+      dbService.saveOrUpdateOthers(TABLE_KF_DATA_KEY, JSON.toJSONString(kfMap));
       // 提示
       ShowUtil.show("保存成功，记录数：" + kfMap.size(), 2);
     } else {

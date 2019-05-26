@@ -19,7 +19,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.util.CollectUtil;
@@ -46,7 +46,7 @@ public class TGAddCommentController extends BaseController implements Initializa
 
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -146,7 +146,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initTypeChoice() {
-    String typeItemsJson = dbUtil.getValueByKey(TG_WANGJIA_COMMENT_DB_KEY);
+    String typeItemsJson = dbService.getValueByKey(TG_WANGJIA_COMMENT_DB_KEY);
     if (StringUtil.isNotBlank(typeItemsJson) && !"{}".equals(typeItemsJson)) {
       typeItems = JSON.parseObject(typeItemsJson, new TypeReference<List<String>>() {
       });
@@ -166,7 +166,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    */
   private void initTGCompanyChoice() {
     List<TGCompanyModel> tgCompanys =
-        dbUtil.get_all_tg_company_By_clubId(myController.currentClubId.getText());
+        dbService.get_all_tg_company_By_clubId(myController.currentClubId.getText());
     List<String> nameList = new ArrayList<>();
     if (CollectUtil.isHaveValue(tgCompanys)) {
       nameList =
@@ -213,7 +213,7 @@ public class TGAddCommentController extends BaseController implements Initializa
    */
   private void saveTypeItem() {
     String typeItemsJson = JSON.toJSONString(typeItems);
-    dbUtil.saveOrUpdateOthers(TG_WANGJIA_COMMENT_DB_KEY, typeItemsJson);
+    dbService.saveOrUpdateOthers(TG_WANGJIA_COMMENT_DB_KEY, typeItemsJson);
   }
 
   /**
@@ -261,7 +261,7 @@ public class TGAddCommentController extends BaseController implements Initializa
     // TGController tgController = MyController.tgController;
 
     // 保存到数据库
-    dbUtil.saveOrUpdate_tg_comment(tgCommentInfo);
+    dbService.saveOrUpdate_tg_comment(tgCommentInfo);
     // 刷新界面
     if (equalsCurrentCompany()) {
       tgController.refreshTableTGComment();

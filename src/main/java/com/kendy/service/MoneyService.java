@@ -11,7 +11,7 @@ import com.kendy.controller.GDController;
 import com.kendy.controller.LMBController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMAutoController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.CurrentMoney;
 import com.kendy.db.entity.Player;
 import com.kendy.db.entity.pk.CurrentMoneyPK;
@@ -68,7 +68,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -85,7 +84,6 @@ import javafx.stage.Stage;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.Notifications;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -98,7 +96,7 @@ public class MoneyService {
   private Logger log = LoggerFactory.getLogger(MoneyService.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired
@@ -1020,7 +1018,7 @@ public class MoneyService {
     Map<String, String> profitMap = null;
     if (dataConstants.Index_Table_Id_Map.size() == 0) {
       log.info("=========================刷新（从昨天加载数据）");
-      if (dbUtil.isPreData2017VeryFirst()) {
+      if (dbService.isPreData2017VeryFirst()) {
         profitMap = JSON.parseObject(dataConstants.preDataMap.get("昨日利润"),
             new TypeReference<Map<String, String>>() {
             });
@@ -1919,7 +1917,7 @@ public class MoneyService {
         // 保存到数据库
         BankFlowModel bankMoney =
             new BankFlowModel(info.getZijinType(), value, TimeUtil.getDateTime2(), softDate);
-        dbUtil.saveHistoryBankMoney(bankMoney);
+        dbService.saveHistoryBankMoney(bankMoney);
         // 生成界面表记录
         info.setZijinAccount(
             NumUtil.digit0(NumUtil.getNum(oddZijin) + NumUtil.getNum(result.get().trim())));
@@ -2171,7 +2169,7 @@ public class MoneyService {
     String[] rowsName = new String[]{"父ID", "子ID列表(请用#隔开)"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
-    Map<String, Set<String>> combineIdMap = dbUtil.getCombineData();
+    Map<String, Set<String>> combineIdMap = dbService.getCombineData();
     if (combineIdMap == null || combineIdMap.size() == 0) {
       ShowUtil.show("数据库中无合并ID数据");
       return;
@@ -2469,7 +2467,7 @@ public class MoneyService {
       tableZijin.refresh();
 
       // 删除该资金类型的银行流水
-      dbUtil.delBankFlowByType(bankName);
+      dbService.delBankFlowByType(bankName);
 
       // TODO 修改银行流水TAB中的列
 

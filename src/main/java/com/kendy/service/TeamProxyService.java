@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.ProxySumInfo;
 import com.kendy.entity.ProxyTeamInfo;
@@ -53,7 +53,7 @@ public class TeamProxyService extends BasicService{
 
   private Logger log = LoggerFactory.getLogger(TeamProxyService.class);
   @Autowired
-  private DBUtil dbUtil;
+  private DBService dbService;
   @Autowired
   private DataConstans dataConstants; // 数据控制类
 
@@ -189,7 +189,7 @@ public class TeamProxyService extends BasicService{
           hs.setShowInsure(showInsure);
           dataConstants.huishuiMap.put(teamId, hs);
           // 更新到数据库
-          dbUtil.updateTeamHsShowInsure(teamId, showInsure);
+          dbService.updateTeamHsShowInsure(teamId, showInsure);
         }
       }
     });
@@ -495,7 +495,7 @@ public class TeamProxyService extends BasicService{
         hs.setProxyFWF(FWFStr);
         dataConstants.huishuiMap.put(teamId, hs);// 更新到缓存中
         // 更新到数据库
-        dbUtil.updateTeamHS(hs);
+        dbService.updateTeamHS(hs);
       } else {
         ShowUtil.show("刷新失败，没有" + teamId + "的相关信息!");
         return;

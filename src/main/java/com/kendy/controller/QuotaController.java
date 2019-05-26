@@ -1,7 +1,7 @@
 package com.kendy.controller;
 
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.Club;
 import com.kendy.entity.ClubBankInfo;
 import com.kendy.entity.ClubBankModel;
@@ -60,7 +60,7 @@ public class QuotaController extends BaseController implements Initializable {
 
   private Logger log = LoggerFactory.getLogger(QuotaController.class);
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -155,7 +155,7 @@ public class QuotaController extends BaseController implements Initializable {
 
     LM = lmController.LM;
 
-    allClubBankModels = dbUtil.getAllClubBanks();// 加载 俱乐部银行卡信息数据
+    allClubBankModels = dbService.getAllClubBanks();// 加载 俱乐部银行卡信息数据
     if (allClubBankModels.isEmpty()) {
       lmController.allClubMap.values().forEach(club -> {
         ClubBankModel model = new ClubBankModel();
@@ -164,7 +164,7 @@ public class QuotaController extends BaseController implements Initializable {
         // 刷新缓存
         allClubBankModels.put(club.getClubId(), model);
         // 插入到数据库
-        dbUtil.addOrUpdateClubBank(model);
+        dbService.addOrUpdateClubBank(model);
       });
     }
   }
@@ -585,7 +585,7 @@ public class QuotaController extends BaseController implements Initializable {
       bank.setPersonName(personName);
       bank.setPhoneNumber(phoneNumber);
       bank.setBankAccountInfo(bankAccountInfo);
-      dbUtil.addOrUpdateClubBank(bank);
+      dbService.addOrUpdateClubBank(bank);
 
       // 往银行信息表添加一条记录
       addClubBank2Table(bank);
@@ -699,7 +699,7 @@ public class QuotaController extends BaseController implements Initializable {
       model.setPersonName(personName);
       model.setPhoneNumber(phoneNumber);
       model.setBankAccountInfo(bankAccountInfo);
-      dbUtil.addOrUpdateClubBank(model);
+      dbService.addOrUpdateClubBank(model);
 
       // 更新缓存
       allClubBankModels.put(item.getClubId(), model);

@@ -54,10 +54,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
@@ -68,15 +70,18 @@ import org.springframework.stereotype.Component;
  * @time 2018年1月1日 下午10:54:17
  */
 @Component
-public class DBUtil {
+public class DBService {
 
-  private Logger loger = LoggerFactory.getLogger(DBUtil.class);
+  private Logger loger = LoggerFactory.getLogger(DBService.class);
 
   @Resource
   private GameRecordService gameRecordService;
 
   @Resource
   private PlayerService playerService;
+
+  @Autowired
+  private DataSource dataSource;
 
 
   private Connection con = null;
@@ -86,7 +91,7 @@ public class DBUtil {
   /**
    * 构造方法
    */
-  public DBUtil() {
+  public DBService() {
     super();
     loger.info("正在初始化DBUtil构造方法");
   }
@@ -94,6 +99,15 @@ public class DBUtil {
   @PostConstruct
   public void inits() {
     loger.info("正在初始化DBUtil构造方法后的初始化");
+  }
+
+  public Connection getConnection(){
+    try {
+      return dataSource.getConnection();
+    } catch (SQLException e) {
+      loger.error("数据库连接失败", e);
+    }
+    return null;
   }
 
   /**
@@ -104,7 +118,7 @@ public class DBUtil {
       String endTime, boolean isCheckTeamProfitBox, String limit) {
     List<JifenInfo> list = new LinkedList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String subSql =
           isCheckTeamProfitBox ? "sum(shouHuishui) + sum(chuHuishui)" : "sum(shouHuishui)";
       String sql = new StringBuilder()
@@ -139,7 +153,7 @@ public class DBUtil {
   // 删除一条团队
   public void delHuishui(final String teamId) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       if (!StringUtil.isBlank(teamId)) {
         sql = "delete from teamhs where teamId = '" + teamId.toUpperCase() + "'";
@@ -157,7 +171,7 @@ public class DBUtil {
   // 导入昨日留底数据（仅在导入和锁定最后一场时用到）
   public void insertPreData(String dataTime, String preData) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       // 先删除所有昨日留底数据
       String sql = "delete from yesterday_data";
       ps = con.prepareStatement(sql);
@@ -179,7 +193,7 @@ public class DBUtil {
 
   public void _insertPreData(String dataTime, String preData) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       if ("2017-01-01".equals(dataTime)) {
         // 查看数据库是不是有2017-01-01的数据
@@ -227,7 +241,7 @@ public class DBUtil {
     Map<String, String> map = new HashMap<>();
     try {
       // 获取数据
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "select * from yesterday_data yd where yd.dateTime = (select MAX(dateTime) from yesterday_data )";
@@ -274,7 +288,7 @@ public class DBUtil {
     Map<String, String> map = new HashMap<>();
     try {
       // 获取数据
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "select * from last_locked_data l where l.ju = (select MAX(ju) from last_locked_data)";
       ps = con.prepareStatement(sql);
@@ -311,7 +325,7 @@ public class DBUtil {
     // ======================================================把锁定的详细数据单独加进来
     Map<String, Map<String, String>> locked_data_detail_map = new HashMap<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from last_locked_data_detail ";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -339,7 +353,7 @@ public class DBUtil {
   public boolean addTeamHS(final Huishui hs) {
     boolean isOK = true;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "insert into teamhs values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";// 13列
       ps = con.prepareStatement(sql);
@@ -376,7 +390,7 @@ public class DBUtil {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "update teamhs set huishuiRate=? where teamId =?";
       ps = con.prepareStatement(sql);
@@ -402,7 +416,7 @@ public class DBUtil {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "update teamhs set insuranceRate=? where teamId =?";
       ps = con.prepareStatement(sql);
@@ -425,7 +439,7 @@ public class DBUtil {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "update teamhs set gudong=? where teamId =?";
       ps = con.prepareStatement(sql);
@@ -449,7 +463,7 @@ public class DBUtil {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "update teamhs set teamYajin=?, teamEdu=?, teamAvailabel=?  where teamId =?";
       ps = con.prepareStatement(sql);
@@ -474,7 +488,7 @@ public class DBUtil {
     teamId = teamId.toUpperCase();
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "update teamhs set showInsure=? where teamId =?";
       ps = con.prepareStatement(sql);
@@ -497,7 +511,7 @@ public class DBUtil {
    */
   public void updateTeamHS(final Huishui hs) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "update teamhs set teamName=?,huishuiRate=?,insuranceRate=?,"
           + "gudong=?,zjManaged=?,beizhu=?,proxyHSRate=?,proxyHBRate=?,proxyFWF=?,showInsure=?,teamYajin=?,teamEdu=?,teamAvailabel=?  where teamId = ?";// 11列
       ps = con.prepareStatement(sql);
@@ -532,7 +546,7 @@ public class DBUtil {
   public void insertTeamHS(final Map<String, Huishui> map) {
     if (map != null && map.size() > 0) {
       try {
-        con = DBConnection.getConnection();
+        con = dataSource.getConnection();
         if (map != null && map.size() > 0) {
           sql = "delete from teamhs";
           ps = con.prepareStatement(sql);
@@ -583,7 +597,7 @@ public class DBUtil {
     // int ju_size = dataConstants.Index_Table_Id_Map.size();
     try {
       loger.info("================插入锁定数据进数据库...开始");
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
 
       // 插入最新锁定数据
       long start = System.currentTimeMillis();
@@ -658,7 +672,7 @@ public class DBUtil {
   public List<Huishui> getAllTeamHS() {
     List<Huishui> result = new ArrayList<Huishui>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from teamhs";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -730,7 +744,7 @@ public class DBUtil {
   public boolean clearAllData() {
     boolean isOK = true;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
 
       List<String> delTables =
@@ -765,7 +779,7 @@ public class DBUtil {
   public boolean handle_last_locked_data() {
     boolean isOK = true;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select count(*) from last_locked_data";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -792,7 +806,7 @@ public class DBUtil {
   private int getMaxJu() {
     int maxJu = 0;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select max(ju) from last_locked_data";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -810,7 +824,7 @@ public class DBUtil {
   // 结束今天统计时更新已锁定数据
   private void update_last_locked_data(int maxJu) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "update last_locked_data set ju = 0 where ju = ?";
       ps = con.prepareStatement(sql);
       ps.setInt(1, maxJu);
@@ -836,7 +850,7 @@ public class DBUtil {
   public Map<String, Set<String>> getCombineData() {
     Map<String, Set<String>> combineMap = new HashMap<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select parentId,subIdJson,update_time from combine_ids";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -896,7 +910,7 @@ public class DBUtil {
   public boolean updateCombineId(String superId, String subIdJson, String time) {
     boolean isOK = true;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "update combine_ids set subIdJson=?,update_time=? where parentId = ?";
       ps = con.prepareStatement(sql);
       ps.setString(1, subIdJson);
@@ -925,7 +939,7 @@ public class DBUtil {
   public boolean addNewCombineId(String parentId, String subIdJson, String time) {
     boolean isOK = true;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "insert into combine_ids values(?,?,?)";
       ps = con.prepareStatement(sql);
@@ -953,7 +967,7 @@ public class DBUtil {
     boolean hasCombineId = false;
     try {
       // 获取数据
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select count(*) from combine_ids  where parentId = ?";
       ps = con.prepareStatement(sql);
       ps.setString(1, parentId);
@@ -980,7 +994,7 @@ public class DBUtil {
   public void cancelCombineId(String parentId) {
     if (isHasCombineId(parentId)) {
       try {
-        con = DBConnection.getConnection();
+        con = dataSource.getConnection();
         String sql = "delete from combine_ids where parentId = ?";
         ps = con.prepareStatement(sql);
         ps.setString(1, parentId);
@@ -1003,7 +1017,7 @@ public class DBUtil {
     int buttonCode = 1;
     try {
       // 获取数据
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select count(*),min(ju) from last_locked_data";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1035,7 +1049,7 @@ public class DBUtil {
   public Map<String, Club> getAllClub() {
     Map<String, Club> map = new HashMap<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from club";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1071,7 +1085,7 @@ public class DBUtil {
    */
   public void delClub(final String id) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       if (!StringUtil.isBlank(id)) {
         sql = "delete from club where clubId = '" + id + "'";
@@ -1094,7 +1108,7 @@ public class DBUtil {
    */
   public void reset_clubZhuofei_to_0() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "update club c set c.zhuoFei='0',c.zhuoFei2='0',c.zhuoFei3='0',c.yiJieSuan='0',c.yiJieSuan2='0',c.yiJieSuan3='0'";
@@ -1116,7 +1130,7 @@ public class DBUtil {
   public void addClub(final Club club) {
     try {
       // 数据库中没有则添加
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "insert into club values(?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
@@ -1155,7 +1169,7 @@ public class DBUtil {
     boolean hsRecord = false;
     try {
       // 获取数据
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select count(*) from club  where clubId = ?";
       ps = con.prepareStatement(sql);
       ps.setString(1, id);
@@ -1183,7 +1197,7 @@ public class DBUtil {
   public boolean updateClub(final Club club) {
     boolean isOK = true;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql =
           "update club set name=?,edu=?,zhuoFei=?,yiJieSuan=?,zhuoFei2=?,zhuoFei3=?,yiJieSuan2=?,yiJieSuan3=?,edu2=?,edu3=?,gudong=?  where clubId = ?";
       ps = con.prepareStatement(sql);
@@ -1230,7 +1244,7 @@ public class DBUtil {
    */
   public void clearAllClub_ZF_YiJiSuan() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "update club set zhuoFei='0',zhuoFei2='0',zhuoFei3='0',yiJieSuan='0',yiJieSuan2='0',yiJieSuan3='0'";
@@ -1252,7 +1266,7 @@ public class DBUtil {
    */
   public void del_all_record() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
 
       sql = "delete from record ";
@@ -1273,7 +1287,7 @@ public class DBUtil {
    */
   public void del_all_record_and_zhuofei_and_kaixiao() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
 
       sql = "delete from game_record ";
@@ -1301,7 +1315,7 @@ public class DBUtil {
   public boolean addOrUpdateClubBank(final ClubBankModel bank) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "replace into clubBank values(?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
@@ -1331,7 +1345,7 @@ public class DBUtil {
   public Map<String, ClubBankModel> getAllClubBanks() {
     Map<String, ClubBankModel> map = new HashMap<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from  clubBank";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1373,7 +1387,7 @@ public class DBUtil {
 
   private String getValueString(String key, String value) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select value from  others o where o.key = '" + key + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1402,7 +1416,7 @@ public class DBUtil {
    */
   public void delValueByKey(final String key) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       if (!StringUtil.isBlank(key)) {
         sql = "delete from others where key = '" + key + "'";
@@ -1424,7 +1438,7 @@ public class DBUtil {
   public boolean saveOrUpdateOthers(final String key, final String value) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "replace into others values(?,?)";
       ps = con.prepareStatement(sql);
@@ -1449,7 +1463,7 @@ public class DBUtil {
   public void addValue(final String key, final String value) {
     try {
       // 数据库中没有则添加
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "insert into others values(?,?)";
       ps = con.prepareStatement(sql);
@@ -1476,7 +1490,7 @@ public class DBUtil {
   public boolean saveOrUpdate_SM_nextday(final ShangmaNextday nextday) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "replace into shangma_nextday(playerId,playerName,changci,shangma,time,type) values(?,?,?,?,?,?)";
@@ -1506,7 +1520,7 @@ public class DBUtil {
   public List<ShangmaNextday> getAllSM_nextday() {
     List<ShangmaNextday> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from  shangma_nextday n where n.type = '0' ";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1536,7 +1550,7 @@ public class DBUtil {
   public boolean setNextDayLoaded() {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "update shangma_nextday n  set n.type = '1' where n.type = '0' ";
       ps = con.prepareStatement(sql);
@@ -1564,7 +1578,7 @@ public class DBUtil {
   public boolean saveOrUpdate_club_zhuofei(final ClubZhuofei zhuofei) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "replace into club_zhuofei(time,clubId,zhuofei,lmType) values(?,?,?,?)";
       ps = con.prepareStatement(sql);
@@ -1591,7 +1605,7 @@ public class DBUtil {
   public List<ClubZhuofei> get_LM1_all_club_zhuofei() {
     List<ClubZhuofei> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql =
           "select cz.time, cz.clubId, cz.zhuofei, cz.lmType, c.name, c.gudong from  club_zhuofei cz  "
               + "LEFT JOIN club c on cz.clubId = c.clubId where cz.lmType='联盟1'";
@@ -1617,7 +1631,7 @@ public class DBUtil {
    */
   public void del_all_club_zhuofei() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from club_zhuofei ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1639,7 +1653,7 @@ public class DBUtil {
   public boolean saveOrUpdate_gudong_kaixiao(final KaixiaoInfo kaixiao) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "replace into gudong_kaixiao(kaixiaoID, kaixiaoType, kaixiaoMoney, kaixiaoGudong, kaixiaoTime) values(?,?,?,?,?)";
@@ -1668,7 +1682,7 @@ public class DBUtil {
   public List<KaixiaoInfo> get_all_gudong_kaixiao() {
     List<KaixiaoInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from gudong_kaixiao";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1692,7 +1706,7 @@ public class DBUtil {
    */
   public void del_all_gudong_kaixiao() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from gudong_kaixiao ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1710,7 +1724,7 @@ public class DBUtil {
    */
   public void del_gudong_kaixiao_by_id(String kaixiaoID) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from gudong_kaixiao where kaixiaoID like '" + kaixiaoID + "%'";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1732,7 +1746,7 @@ public class DBUtil {
   public boolean saveOrUpdate_tg_kaixiao(final TGKaixiaoInfo kaixiao) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "replace into tg_kaixiao(tg_id, tg_date, tg_player_name, tg_pay_items, tg_money, tg_company) values(?,?,?,?,?,?)";
@@ -1762,7 +1776,7 @@ public class DBUtil {
   public List<TGKaixiaoInfo> get_all_tg_kaixiao() {
     List<TGKaixiaoInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_kaixiao";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1786,7 +1800,7 @@ public class DBUtil {
    */
   public void del_all_tg_kaixiao() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_kaixiao ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1804,7 +1818,7 @@ public class DBUtil {
    */
   public void del_tg_kaixiao_by_id(String kaixiaoID) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_kaixiao where tg_id = '" + kaixiaoID + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1826,7 +1840,7 @@ public class DBUtil {
   public boolean saveOrUpdate_tg_comment(final TGCommentInfo comment) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "replace into tg_comment(id, tg_date, tg_player_id, tg_player_name, tg_type, tg_id, tg_name, tg_beizhu, tg_company) values(?,?,?,?,?,?,?,?,?)";
@@ -1859,7 +1873,7 @@ public class DBUtil {
   public List<TGCommentInfo> get_all_tg_comment() {
     List<TGCommentInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_comment";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1885,7 +1899,7 @@ public class DBUtil {
    */
   public void del_all_tg_comment() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_comment ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1903,7 +1917,7 @@ public class DBUtil {
    */
   public void del_tg_comment_by_id(String commentID) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_comment where id = '" + commentID + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -1926,7 +1940,7 @@ public class DBUtil {
     boolean isOK = false;
 
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql = "replace into tg_company(tg_company_name, company_rate, tg_company_rate"
           + ", yajin, edu, tg_teams_str, beizhu,club_id, yifenhong) values(?,?,?,?,?,?,?,?,?)";
@@ -1959,7 +1973,7 @@ public class DBUtil {
   public List<TGCompanyModel> get_all_tg_company() {
     List<TGCompanyModel> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_company";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -1995,7 +2009,7 @@ public class DBUtil {
       return list;
     }
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_company where club_id = '" + clubId + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2026,7 +2040,7 @@ public class DBUtil {
    */
   public void del_all_tg_company() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_company ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2041,7 +2055,7 @@ public class DBUtil {
   public TGCompanyModel get_tg_company_by_id(String company) {
     TGCompanyModel model = null;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_company where tg_company_name = '" + company + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2065,7 +2079,7 @@ public class DBUtil {
    */
   public void del_tg_company_by_id(String companyName) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_company where tg_company_name = '" + companyName + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2087,7 +2101,7 @@ public class DBUtil {
   public boolean saveOrUpdate_tg_team(final TGTeamModel team) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "replace into tg_team(tg_team_id, tg_hs_rate, tg_hb_rate, tg_fwf_rate,tg_team_proxy) values(?,?,?,?,?)";
@@ -2116,7 +2130,7 @@ public class DBUtil {
   public List<TGTeamModel> get_all_tg_team() {
     List<TGTeamModel> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_team";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2137,7 +2151,7 @@ public class DBUtil {
   public TGTeamModel get_tg_team_by_id(String teamId) {
     TGTeamModel model = null;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_team where tg_team_id = '" + teamId + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2161,7 +2175,7 @@ public class DBUtil {
    */
   public void del_all_tg_team() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_team ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2179,7 +2193,7 @@ public class DBUtil {
    */
   public void del_tg_team_by_id(String teamId) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_comment where tg_team_id = '" + teamId + "'";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2201,7 +2215,7 @@ public class DBUtil {
   public boolean saveOrUpdate_tg_lirun(final TGLirunInfo lirun) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "replace into tg_lirun(tg_lirun_date, tg_lirun_total_profit, tg_lirun_total_kaixiao, tg_lirun_atm_company,"
@@ -2236,7 +2250,7 @@ public class DBUtil {
   public List<TGLirunInfo> get_all_tg_lirun(String tgCompany) {
     List<TGLirunInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from tg_lirun where tg_lirun_company_name='" + tgCompany + "'";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2262,7 +2276,7 @@ public class DBUtil {
   public boolean del_all_tg_lirun() {
     boolean delOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from tg_lirun ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2283,7 +2297,7 @@ public class DBUtil {
    */
   public void del_all_locked_data_details() {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "delete from last_locked_data_detail ";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2306,7 +2320,7 @@ public class DBUtil {
   public boolean saveHistoryBankMoney(final BankFlowModel moneyModel) {
     boolean isOK = false;
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "insert into history_bank_money(bank_name, money, update_time, soft_time) values(?,?,?,?)";
@@ -2332,7 +2346,7 @@ public class DBUtil {
   public List<BankFlowModel> getAllHistoryBankMoney() {
     List<BankFlowModel> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select * from history_bank_money order by soft_time, update_time";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2354,7 +2368,7 @@ public class DBUtil {
    */
   public void delBankFlowByType(final String bankName) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       if (StringUtil.isNotBlank(bankName)) {
         sql = "delete from history_bank_money where bank_name = '" + bankName + "'";
@@ -2388,7 +2402,7 @@ public class DBUtil {
    */
   public void updateRecordJiesuan(String softTime, String clubId, String teamId) {
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "update game_record r "
           + "left join members m on r.playerId = m.playerId "
           + "set isJiesuaned = '1' "
@@ -2436,7 +2450,7 @@ public class DBUtil {
   public String getMaxGameRecordTime() {
     String maxRecordTime = "";
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select max(soft_time) from game_record";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2458,7 +2472,7 @@ public class DBUtil {
   public Map<String, String> getValidLevelAndCount(String currentLMType) {
     Map<String, String> map = new HashMap<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql =
           "SELECT max(LEVEL), count(DISTINCT tableId) FROM ( SELECT tableId,LEVEL, sumHandsCount, soft_time FROM game_record WHERE sumHandsCount > '0' and lmType = '"
               + currentLMType
@@ -2485,7 +2499,7 @@ public class DBUtil {
   public String getMaxBankFlowTime() {
     String maxRecordTime = "";
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql = "select max(soft_time) from history_bank_money";
       ps = con.prepareStatement(sql);
       ResultSet rs = ps.executeQuery();
@@ -2518,7 +2532,7 @@ public class DBUtil {
   private List<TeamStaticInfo> getStaticRecords(String clubId, String teamId) {
     List<TeamStaticInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String aTeamBeginSQL =
           "SELECT b.softTime, b.teamId, b.sumZJ, b.sumHS, b.sumHB, b.sumFWF, b.sumPerson, round(b.sumZJ + b.sumHS + b.sumHB - b.sumFWF, 1) sumProfit, b.HBRate, b.HSRate FROM ( SELECT a.teamId, a.sumZJ, a.sumHS, a.sumHB, a.sumPerson, a.softTime, a.HBRate, a.HSRate, CASE WHEN ( HSRate >= 0 AND HBRate >= 0 AND (sumHS + sumHB) > FWFValid ) THEN TRUNCATE ( sumHS * HSRate + sumHB * HBRate, 1 ) ELSE 0 END AS sumFWF FROM ( SELECT m.teamId, sum(r.shishou) sumZJ, ROUND(sum(r.chuHuishui), 1) * (- 1) sumHS, ROUND(sum(r.huiBao), 1) sumHB, count(1) + '' sumPerson, ROUND(sum(r.heLirun), 0) sumProfit, min(r.soft_time) softTime, min(t.proxyHBRate) * 0.01 HBRate, min(t.proxyHSRate) * 0.01 HSRate, min(t.proxyFWF) FWFValid FROM game_record r LEFT JOIN members m ON r.playerId = m.playerId LEFT JOIN teamhs t ON m.teamId = t.teamId "
               + " WHERE  r.isCleared = '0' and r.clubId = '" + clubId + "' ";
@@ -2598,7 +2612,7 @@ public class DBUtil {
     int i = 0;
     try {
       loger.info("清空团队的记录，俱乐部是：{}, 团队是：{}", clubId, teamId);
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "update game_record r LEFT JOIN members m on r.playerId = m.playerId  set r.isCleared = '1'  where r.clubId = '"
@@ -2618,7 +2632,7 @@ public class DBUtil {
     int i = 0;
     try {
       loger.info("清空俱乐部的记录，俱乐部是：{}, 所属联盟是：{}", clubId, lmType);
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String sql;
       sql =
           "update game_record r LEFT JOIN club c on r.clubId = c.clubId  set r.isCleared = '1'  where r.isCleared = '0' and r.clubId = '"
@@ -2661,7 +2675,7 @@ public class DBUtil {
       boolean isExportAllClubExcels) {
     List<ClubStaticInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       String baseSql =
           "SELECT r.lmType, c. NAME, r.clubId, ROUND(sum(r.yszj) * " + Constants.FINAL_HS_RATE_095
               + ", 0) 总战绩 , ROUND( sum(r.shuihouxian), 0 ) 总保险, count(1) 总人数,  min(r.soft_time) FROM game_record r LEFT JOIN club c ON r.clubId = c.clubId "
@@ -2729,7 +2743,7 @@ public class DBUtil {
     try {
       String sql = "";
       // 先删除
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
       sql = "delete from game_record_zj";
       ps = con.prepareStatement(sql);
       ps.execute();
@@ -2756,7 +2770,7 @@ public class DBUtil {
     // 更新最新数据到战绩表game_record_zj
     List<ZjTeamStaticInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
 
       long start = System.currentTimeMillis();
       String sql = "SELECT rr.clubId 所属俱乐部, rr.teamId 团队ID, sum(rr.personCount) 人次, min(rr.soft_time) 最早统计时间 FROM ( SELECT * FROM ( SELECT r.clubId, r.teamId, r.playerId, r.playerName, count(1) personCount, sum(r.yszj) totalYszj, min(r.soft_time) soft_time FROM game_record_zj r WHERE r.clubId = ? GROUP BY r.playerId ) a WHERE a.totalYszj > 0 ) rr GROUP BY rr.teamId";
@@ -2787,7 +2801,7 @@ public class DBUtil {
     // 更新最新数据到战绩表game_record_zj
     List<ZjTeamStaticDetailInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
 
       long start = System.currentTimeMillis();
       String sql = "SELECT * FROM ( SELECT r.clubId 所属俱乐部, r.teamId 团队ID, r.playerId 玩家ID, r.playerName 玩家名称, count(1) 人次, sum(r.yszj) 累计战绩 FROM game_record_zj r WHERE r.clubId = ? AND r.teamId = ? GROUP BY r.playerId ) a WHERE a.累计战绩 > 0";
@@ -2824,7 +2838,7 @@ public class DBUtil {
     // 更新最新数据到战绩表game_record_zj
     List<ZjClubStaticInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
 
       long start = System.currentTimeMillis();
       String sql = "SELECT r.club_name 俱乐部名称, r.clubId 俱乐部ID, min(r.soft_time) 最早统计时间, count(1) 人次 FROM game_record_zj r GROUP BY r.clubId";
@@ -2855,7 +2869,7 @@ public class DBUtil {
     // 更新最新数据到战绩表game_record_zj
     List<ZjClubStaticDetailInfo> list = new ArrayList<>();
     try {
-      con = DBConnection.getConnection();
+      con = dataSource.getConnection();
 
       // 再插入
       long start = System.currentTimeMillis();

@@ -3,13 +3,12 @@ package com.kendy.controller;
 import com.alibaba.fastjson.JSON;
 import com.kendy.constant.Constants;
 import com.kendy.customize.MyTable;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.Club;
 import com.kendy.entity.GameInfo;
 import com.kendy.entity.GlbInfo;
 import com.kendy.entity.lmbcontribute.GameContributeInfo;
 import com.kendy.entity.lmbcontribute.GlbContributeInfo;
-import com.kendy.model.GameRecordModel;
 import com.kendy.model.lmbcontribute.lmb.ClubContributeInfomation;
 import com.kendy.model.lmbcontribute.lmb.LmbContributeCache;
 import com.kendy.util.DateTimeUtils;
@@ -20,12 +19,10 @@ import com.kendy.util.ShowUtil;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -49,7 +46,7 @@ public class LMBContributeController extends BaseController implements Initializ
   LMBController lmbController;
 
   @Autowired
-  DBUtil dbUtil;
+  DBService dbService;
 
   //======================================================俱乐部合计表
   @FXML
@@ -218,7 +215,7 @@ public class LMBContributeController extends BaseController implements Initializ
 
 
   private ClubContributeInfomation saveIfNull(String clubid) {
-    Club club = dbUtil.getAllClub().get(clubid);
+    Club club = dbService.getAllClub().get(clubid);
     if (club == null) {
       logger.error("俱乐部ID不存在：{}", clubid);
       return null;
@@ -267,7 +264,7 @@ public class LMBContributeController extends BaseController implements Initializ
   private void loadCache() {
     LmbContributeCache _lmbCache = null;
     try {
-      String cacheJson = dbUtil.getValueByKey(LMB_CONTRIBUTE_NAME);
+      String cacheJson = dbService.getValueByKey(LMB_CONTRIBUTE_NAME);
       _lmbCache = JSON.parseObject(cacheJson, LmbContributeCache.class);
       if (_lmbCache != null) {
         lmbCache = _lmbCache; // 设置值
@@ -321,7 +318,7 @@ public class LMBContributeController extends BaseController implements Initializ
    * 持久化缓存
    */
   private void saveCache() {
-    dbUtil.saveOrUpdateOthers(LMB_CONTRIBUTE_NAME, JSON.toJSONString(lmbCache));
+    dbService.saveOrUpdateOthers(LMB_CONTRIBUTE_NAME, JSON.toJSONString(lmbCache));
   }
 
 

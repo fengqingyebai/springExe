@@ -3,7 +3,7 @@ package com.kendy.controller;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.db.service.PlayerService;
@@ -50,7 +50,7 @@ public class AddController extends BaseController implements Initializable {
   private Logger log = LoggerFactory.getLogger(AddController.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -183,7 +183,7 @@ public class AddController extends BaseController implements Initializable {
     if (!StringUtil.isBlank(hs.getTeamId()) && !StringUtil.isBlank(hs.getHuishuiRate())) {
       dataConstants.huishuiMap.put(hs.getTeamId(), hs);
       // 入库
-      dbUtil.addTeamHS(hs);
+      dbService.addTeamHS(hs);
       log.info("已经添加该团队回水:" + hs.toString());
       ShowUtil.show("已经添加该团队回水", 2);
       // add 2017-10-23
@@ -262,11 +262,11 @@ public class AddController extends BaseController implements Initializable {
               kaixiaoID = kaixiaoID + "#" + (i++); // 共用一个开销ID, 从0编写到N
               KaixiaoInfo averageInfo =
                   new KaixiaoInfo(kaixiaoID, kxType, averageKaixiaoMoney, gudongName, kaixiaoTime);
-              dbUtil.saveOrUpdate_gudong_kaixiao(averageInfo);
+              dbService.saveOrUpdate_gudong_kaixiao(averageInfo);
             }
 
           } else {
-            dbUtil.saveOrUpdate_gudong_kaixiao(kaixiaoInfo);
+            dbService.saveOrUpdate_gudong_kaixiao(kaixiaoInfo);
           }
           // 缓存？ TODO
         }

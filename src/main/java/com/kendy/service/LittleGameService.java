@@ -5,7 +5,7 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.ChangciController;
 import com.kendy.controller.LMBController;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.db.service.PlayerService;
@@ -29,7 +29,7 @@ public class LittleGameService {
   private Logger log = LoggerFactory.getLogger(MoneyService.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired

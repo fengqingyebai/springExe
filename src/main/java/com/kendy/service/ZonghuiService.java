@@ -6,7 +6,7 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.ChangciController;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.DangjuInfo;
 import com.kendy.entity.DangtianHuizongInfo;
 import com.kendy.entity.KaixiaoInfo;
@@ -40,7 +40,7 @@ public class ZonghuiService {
   private static Logger log = LoggerFactory.getLogger(ZonghuiService.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired

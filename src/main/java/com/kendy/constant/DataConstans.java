@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.ShangmaDetailInfo;
@@ -46,7 +46,7 @@ public class DataConstans {
   private Logger logger = LoggerFactory.getLogger(DataConstans.class);
 
   @Autowired
-  private DBUtil dbUtil;
+  private DBService dbService;
 
   @Resource
   GameRecordService gameRecordService;
@@ -148,10 +148,10 @@ public class DataConstans {
 
   // 初始化股东列表
   public void initGudong() {
-    String gudongs = dbUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
+    String gudongs = dbService.getValueByKeyWithoutJson(KEY_GU_DONG);
     if (StringUtil.isBlank(gudongs)) {
       gudongs = "B,C,Q,银河"; // 如果客户删除这四个，想用其它的，这里的值就不对了
-      dbUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
+      dbService.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
     }
     if (!StringUtil.isBlank(gudongs)) {
       for (String gudong : gudongs.split(",")) {
@@ -314,7 +314,7 @@ public class DataConstans {
       });
 
       // 初始化团队回水
-      List<Huishui> teamHSList = dbUtil.getAllTeamHS();
+      List<Huishui> teamHSList = dbService.getAllTeamHS();
       huishuiMap = new HashMap<>();
       teamHSList.forEach(hs -> {
         huishuiMap.put(hs.getTeamId().toUpperCase(), hs);
@@ -335,7 +335,7 @@ public class DataConstans {
    * @time 2017年11月4日
    */
   public void initCombineId() {
-    this.Combine_Super_Id_Map = dbUtil.getCombineData();
+    this.Combine_Super_Id_Map = dbService.getCombineData();
     if (this.Combine_Super_Id_Map == null) {
       this.Combine_Super_Id_Map = new HashMap<>();
     } else {
@@ -356,10 +356,10 @@ public class DataConstans {
     // 初始化昨日留底数据
     preDataMap = new HashMap<>();
     try {
-      preDataMap = dbUtil.getLastPreData();
+      preDataMap = dbService.getLastPreData();
       // 从数据库中获取上一次保存的锁定数据
-      if (!dbUtil.isPreData2017VeryFirst()) {
-        Map<String, String> map = dbUtil.getLastLockedData();
+      if (!dbService.isPreData2017VeryFirst()) {
+        Map<String, String> map = dbService.getLastLockedData();
         SumMap = JSON.parseObject(map.get("SumMap"), new TypeReference<Map<String, Double>>() {
         });
       }
@@ -387,11 +387,11 @@ public class DataConstans {
     recoveryGameRecords();
 
     // 加载每一场的锁定数据
-    All_Locked_Data_Map = dbUtil.getAllLockedRecords();
+    All_Locked_Data_Map = dbService.getAllLockedRecords();
     logger.info("加载锁定数据：" + (All_Locked_Data_Map == null ? "为null!" : "不为空"));
 
     // 从数据库中获取上一次保存的锁定数据
-    Map<String, String> map = dbUtil.getLastLockedData();
+    Map<String, String> map = dbService.getLastLockedData();
 
     // 玩家ID=上码详情列表（正在使用的值）
     SM_Detail_Map = JSON.parseObject(map.get("SM_Detail_Map"),
@@ -462,9 +462,9 @@ public class DataConstans {
    * 中途继续恢复记录信息 主要是恢复 Dangju_Team_Huishui_List， zjMap，Team_Huishui_Map，Total_Team_Huishui_Map
    */
   public void recoveryGameRecords() {
-    String maxGameRecordTime = dbUtil.getMaxGameRecordTime();
+    String maxGameRecordTime = dbService.getMaxGameRecordTime();
     // String clubId = myController.currentClubId.getText();
-    String clubId = dbUtil.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
+    String clubId = dbService.getValueByKeyWithoutJson(KeyEnum.CLUB_ID.getKeyName());
     List<GameRecordModel> gameRecordModels = gameRecordService.getGameRecordsByMaxTimeAndClub(maxGameRecordTime, clubId);
 
     if (StringUtil.isAnyBlank(maxGameRecordTime, clubId) || CollectUtil.isEmpty(gameRecordModels)) {

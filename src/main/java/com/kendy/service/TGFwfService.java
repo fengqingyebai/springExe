@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.entity.TGFwfinfo;
@@ -43,13 +43,13 @@ import javafx.scene.control.TableView;
 public class TGFwfService {
 
   @Autowired
-  private DBUtil dbUtil;
+  private DBService dbService;
   @Autowired
   private TGController tgController;
 
   public void inits() {
-    if (dbUtil == null) {
-      dbUtil = SpringFxmlLoader.getContext().getBean(DBUtil.class);
+    if (dbService == null) {
+      dbService = SpringFxmlLoader.getContext().getBean(DBService.class);
       tgController = SpringFxmlLoader.getContext().getBean(TGController.class);
     }
   }
@@ -69,7 +69,7 @@ public class TGFwfService {
     }
     inits();
 
-    List<TGCompanyModel> tgCompanys = dbUtil.get_all_tg_company();
+    List<TGCompanyModel> tgCompanys = dbService.get_all_tg_company();
 
     Set<String> teamSet = new HashSet<>();
     if (CollectUtil.isHaveValue(tgCompanys)) {

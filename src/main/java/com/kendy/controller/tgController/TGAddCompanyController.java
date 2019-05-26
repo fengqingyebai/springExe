@@ -3,7 +3,7 @@ package com.kendy.controller.tgController;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.Huishui;
 import com.kendy.entity.TGCompanyModel;
 import com.kendy.util.CollectUtil;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 public class TGAddCompanyController extends BaseController implements Initializable {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -102,7 +102,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
    * @time 2018年3月3日
    */
   private void initGudongTeamMap() {
-    List<Huishui> allTeamHS = dbUtil.getAllTeamHS();
+    List<Huishui> allTeamHS = dbService.getAllTeamHS();
     if (CollectUtil.isHaveValue(allTeamHS)) {
       gudongTeamMap = allTeamHS.stream().collect(Collectors.groupingBy(Huishui::getGudong));
     }
@@ -221,7 +221,7 @@ public class TGAddCompanyController extends BaseController implements Initializa
     // 保存到数据库由主控制类去刷新全部
     TGCompanyModel tgCompanyModel = getSubmitData();
 
-    dbUtil.saveOrUpdate_tg_company(tgCompanyModel);
+    dbService.saveOrUpdate_tg_company(tgCompanyModel);
     ShowUtil.show("添加成功", 1);
 
     tgController.loadDataLastest();

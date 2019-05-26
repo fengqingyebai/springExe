@@ -7,7 +7,7 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
 import com.kendy.controller.ChangciController;
 import com.kendy.controller.MyController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.ProxyTeamInfo;
 import com.kendy.entity.TGCommentInfo;
 import com.kendy.entity.TGCompanyModel;
@@ -82,7 +82,7 @@ public class TGController extends BaseController implements Initializable {
 
   private Logger log = LoggerFactory.getLogger(TGController.class);
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -415,7 +415,7 @@ public class TGController extends BaseController implements Initializable {
       ShowUtil.show("先选择要删除的托管开销记录！");
     } else {
       // 同步到数据库
-      dbUtil.del_tg_kaixiao_by_id(selectedItem.getTgKaixiaoEntityId());
+      dbService.del_tg_kaixiao_by_id(selectedItem.getTgKaixiaoEntityId());
       refreshTableTGKaixiao();
       ShowUtil.show("操作完成 ", 1);
     }
@@ -431,7 +431,7 @@ public class TGController extends BaseController implements Initializable {
       ShowUtil.show("先选择要删除的托管玩家备注记录！");
     } else {
       // 同步到数据库
-      dbUtil.del_tg_comment_by_id(selectedItem.getTgCommentEntityId());
+      dbService.del_tg_comment_by_id(selectedItem.getTgCommentEntityId());
       refreshTableTGComment();
       ShowUtil.show("操作完成 ", 1);
     }
@@ -443,7 +443,7 @@ public class TGController extends BaseController implements Initializable {
   public void refreshTableTGKaixiao() {
 
     // 从数据库获取最新数据
-    List<TGKaixiaoInfo> tgKaixiaoList = dbUtil.get_all_tg_kaixiao();
+    List<TGKaixiaoInfo> tgKaixiaoList = dbService.get_all_tg_kaixiao();
     String company = currentTGCompanyLabel.getText();
     if (StringUtil.isAnyBlank(company)) {
       ShowUtil.show("请选择托管公司！");
@@ -499,7 +499,7 @@ public class TGController extends BaseController implements Initializable {
    */
   public void refreshTableTGComment() {
     // 从数据库获取最新数据
-    List<TGCommentInfo> tgCommentList = dbUtil.get_all_tg_comment();
+    List<TGCommentInfo> tgCommentList = dbService.get_all_tg_comment();
     // 过滤某个托管公司 TODO
     String company = currentTGCompanyLabel.getText();
     if (StringUtil.isAnyBlank(company)) {
@@ -549,7 +549,7 @@ public class TGController extends BaseController implements Initializable {
     // 清空数据
 
     // 获取数据
-    List<TGCompanyModel> tgCompanys = dbUtil.get_all_tg_company();
+    List<TGCompanyModel> tgCompanys = dbService.get_all_tg_company();
 
     if (CollectUtil.isHaveValue(tgCompanys)) {
       // 获取特定结构 {托管公司 ：｛ 团队名称 ： 团队数据列表 ｝｝ TODO
@@ -693,7 +693,7 @@ public class TGController extends BaseController implements Initializable {
    * @time 2018年3月11日
    */
   private void setTGCompanyInfo(String tgCompany) {
-    TGCompanyModel tgCompanyModel = dbUtil.get_tg_company_by_id(tgCompany);
+    TGCompanyModel tgCompanyModel = dbService.get_tg_company_by_id(tgCompany);
     if (tgCompanyModel == null) {
       return;
     }
@@ -711,7 +711,7 @@ public class TGController extends BaseController implements Initializable {
    * @time 2018年3月11日
    */
   private void setTGTeamRateInfo(String teamId) {
-    TGTeamModel tgTeamModel = dbUtil.get_tg_team_by_id(teamId);
+    TGTeamModel tgTeamModel = dbService.get_tg_team_by_id(teamId);
     if (tgTeamModel == null) {
       // 设置
       tgTeamHSRate.setText("0%");
@@ -897,7 +897,7 @@ public class TGController extends BaseController implements Initializable {
    * @time 2018年3月17日
    */
   public Map<String, TGTeamModel> getTgTeamModelMap() {
-    List<TGTeamModel> tableTGTeams = dbUtil.get_all_tg_team();
+    List<TGTeamModel> tableTGTeams = dbService.get_all_tg_team();
     if (CollectUtil.isEmpty(tableTGTeams)) {
       tableTGTeams = new ArrayList<>();
     }
@@ -930,7 +930,7 @@ public class TGController extends BaseController implements Initializable {
    */
   private void refreshTableTGTeam() {
     List<TypeValueInfo> list;
-    String teamsJson = dbUtil.getValueByKey(TG_TEAM_RATE_DB_KEY);
+    String teamsJson = dbService.getValueByKey(TG_TEAM_RATE_DB_KEY);
     if (StringUtil.isNotBlank(teamsJson) && !"{}".equals(teamsJson)) {
       list = JSON.parseObject(teamsJson, new TypeReference<List<TypeValueInfo>>() {
       });
@@ -938,7 +938,7 @@ public class TGController extends BaseController implements Initializable {
       // list = new ArrayList<>();
       list = getMoniTGTeamRate();
       String teamJson = JSON.toJSONString(list);
-      dbUtil.saveOrUpdateOthers(TG_TEAM_RATE_DB_KEY, teamJson);
+      dbService.saveOrUpdateOthers(TG_TEAM_RATE_DB_KEY, teamJson);
     }
     tableTGTeamRate.setItems(FXCollections.observableArrayList(list));
   }
@@ -983,7 +983,7 @@ public class TGController extends BaseController implements Initializable {
         // 添加
         tableTGTeams.add(new TypeValueInfo(teamId, teamRate));
         String teamsJson = JSON.toJSONString(tableTGTeams);
-        dbUtil.saveOrUpdateOthers(TG_TEAM_RATE_DB_KEY, teamsJson);
+        dbService.saveOrUpdateOthers(TG_TEAM_RATE_DB_KEY, teamsJson);
         // 刷新当前表(战绩) TODO
         refreshTableTGTeam();
       } catch (Exception e) {
@@ -1004,7 +1004,7 @@ public class TGController extends BaseController implements Initializable {
     tableTGTeamRate.getItems().remove(selectedItem);
     ObservableList<TypeValueInfo> items = tableTGTeamRate.getItems();
     String teamsJson = JSON.toJSONString(items);
-    dbUtil.saveOrUpdateOthers(TG_TEAM_RATE_DB_KEY, teamsJson);
+    dbService.saveOrUpdateOthers(TG_TEAM_RATE_DB_KEY, teamsJson);
     // 刷新当前表(战绩) TODO
     refreshTableTGTeam();
 
@@ -1100,7 +1100,7 @@ public class TGController extends BaseController implements Initializable {
     TGTeamModel team =
         new TGTeamModel(tgTeamId, teamHSRate, teamHBRate, teamFWFRate, getTeamProxyChecked());
 
-    dbUtil.saveOrUpdate_tg_team(team);
+    dbService.saveOrUpdate_tg_team(team);
     ShowUtil.show("保存成功", 2);
   }
 
@@ -1124,7 +1124,7 @@ public class TGController extends BaseController implements Initializable {
       ShowUtil.show("请先选择托管公司！");
       return;
     }
-    TGCompanyModel db_company = dbUtil.get_tg_company_by_id(tgCompany);
+    TGCompanyModel db_company = dbService.get_tg_company_by_id(tgCompany);
     if (db_company == null) {
       ShowUtil.show("数据库中没有存储此托管公司！");
       return;
@@ -1140,7 +1140,7 @@ public class TGController extends BaseController implements Initializable {
     db_company.setEdu(companyEdu);
     db_company.setYifenhong(yifenhong);
 
-    dbUtil.saveOrUpdate_tg_company(db_company);
+    dbService.saveOrUpdate_tg_company(db_company);
     ShowUtil.show("保存成功", 2);
   }
 
@@ -1161,7 +1161,7 @@ public class TGController extends BaseController implements Initializable {
     TGLirunInfo lirun = new TGLirunInfo();
 
     // 获取数据库的历史日利润表 TODO
-    List<TGLirunInfo> liruns = dbUtil.get_all_tg_lirun(tgCompany);
+    List<TGLirunInfo> liruns = dbService.get_all_tg_lirun(tgCompany);
     if (CollectUtil.isHaveValue(liruns)) {
       String today = getDateString();
       boolean isTodayContains =
@@ -1194,7 +1194,7 @@ public class TGController extends BaseController implements Initializable {
           .map(TypeValueInfo::getValue).findFirst().orElse("0");
       lirun.setTgLirunTotalProfit(tgLirunTotalProfit);
       // 获取总开销
-      List<TGKaixiaoInfo> allTGKaixiaos = dbUtil.get_all_tg_kaixiao();
+      List<TGKaixiaoInfo> allTGKaixiaos = dbService.get_all_tg_kaixiao();
       double sumOfKaixiao =
           allTGKaixiaos.stream().filter(info -> tgCompany.equals(info.getTgKaixiaoCompany()))
               .map(TGKaixiaoInfo::getTgKaixiaoMoney).mapToDouble(NumUtil::getNum).sum();
@@ -1203,7 +1203,7 @@ public class TGController extends BaseController implements Initializable {
       lirun.setTgLirunRestHeji(
           NumUtil.digit2(NumUtil.getSum(tgLirunTotalProfit, sumOfKaixiao + "")));
       // 设置公司占股
-      TGCompanyModel companyModel = dbUtil.get_tg_company_by_id(tgCompany);
+      TGCompanyModel companyModel = dbService.get_tg_company_by_id(tgCompany);
       String companyRate = companyModel.getCompanyRate();
       companyRate = companyRate.endsWith("%") ? NumUtil.getNumByPercent(companyRate) + ""
           : NumUtil.getNum(companyRate) / 100.0 + "";
@@ -1219,7 +1219,7 @@ public class TGController extends BaseController implements Initializable {
 
       // 设置团队服务费 TODO
       Double tgCompanyProxy = 0.0d;
-      List<TGTeamModel> tgTeamInfos = dbUtil.get_all_tg_team();
+      List<TGTeamModel> tgTeamInfos = dbService.get_all_tg_team();
       Set<String> proxyTeamSet =
           tgTeamInfos.stream().filter(info -> "1".equals(info.getTgTeamProxy()))
               .map(TGTeamModel::getTgTeamId).collect(Collectors.toSet());
@@ -1317,8 +1317,8 @@ public class TGController extends BaseController implements Initializable {
    * @time 2018年3月19日
    */
   public void deleteKaixiaoAndComment() {
-    dbUtil.del_all_tg_kaixiao();
-    dbUtil.del_all_tg_comment();
+    dbService.del_all_tg_kaixiao();
+    dbService.del_all_tg_comment();
     log.info("结束今天统计时删除托管中的开销和玩家备注...");
   }
 
@@ -1339,7 +1339,7 @@ public class TGController extends BaseController implements Initializable {
       int size = tableTGLirun.getItems().size();
       if (size > 0) {
         TGLirunInfo tgLirunInfo = tableTGLirun.getItems().get(size - 1);
-        dbUtil.saveOrUpdate_tg_lirun(tgLirunInfo);
+        dbService.saveOrUpdate_tg_lirun(tgLirunInfo);
         ShowUtil.show("保存成功", 2);
       } else {
         ShowUtil.show("无可保存的数据！", 2);
@@ -1351,7 +1351,7 @@ public class TGController extends BaseController implements Initializable {
    * 手动清空利润表
    */
   public void clearLirunAction() {
-    boolean delOK = dbUtil.del_all_tg_lirun();
+    boolean delOK = dbService.del_all_tg_lirun();
     if (delOK) {
       if (TableUtil.isHasValue(tableTGLirun)) {
         tableTGLirun.getItems().clear();
@@ -1365,7 +1365,7 @@ public class TGController extends BaseController implements Initializable {
    * 获取团队的回保比例
    */
   public double getTgTeamHuibaoRate(String teamId) {
-    List<TGTeamModel> tgTeams = dbUtil.get_all_tg_team();
+    List<TGTeamModel> tgTeams = dbService.get_all_tg_team();
     if (CollectUtil.isHaveValue(tgTeams)) {
       Optional<TGTeamModel> teamInfoOpt =
           tgTeams.stream().filter(info -> teamId.equals(info.getTgTeamId())).findFirst();
@@ -1386,7 +1386,7 @@ public class TGController extends BaseController implements Initializable {
    * 获取团队的服务费比例
    */
   public double getTgTeamFwfRate(String teamId) {
-    List<TGTeamModel> tgTeams = dbUtil.get_all_tg_team();
+    List<TGTeamModel> tgTeams = dbService.get_all_tg_team();
     if (CollectUtil.isHaveValue(tgTeams)) {
       Optional<TGTeamModel> teamInfoOpt =
           tgTeams.stream().filter(info -> teamId.equals(info.getTgTeamId())).findFirst();

@@ -4,7 +4,7 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.ChangciController;
 import com.kendy.controller.MyController;
 import com.kendy.controller.SMController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
 import com.kendy.entity.CurrentMoneyInfo;
@@ -74,7 +74,7 @@ public class ShangmaService {
 
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Autowired
@@ -170,7 +170,7 @@ public class ShangmaService {
    * @time 2018年2月5日
    */
   public void init_SM_NextDay_Map() {
-    List<ShangmaNextday> allSM_nextday = dbUtil.getAllSM_nextday();
+    List<ShangmaNextday> allSM_nextday = dbService.getAllSM_nextday();
     if (!allSM_nextday.isEmpty()) {
       SM_NextDay_Map = allSM_nextday.stream().map(nextday -> {
         String playerId = nextday.getPlayerId();
@@ -757,7 +757,7 @@ public class ShangmaService {
     nextday.setPlayerName(detail.getShangmaDetailName());
     nextday.setChangci(detail.getShangmaJu());
     nextday.setShangma(detail.getShangmaSM());
-    dbUtil.saveOrUpdate_SM_nextday(nextday);
+    dbService.saveOrUpdate_SM_nextday(nextday);
 
     // 2保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =
@@ -1143,7 +1143,7 @@ public class ShangmaService {
         });
 
         // 将数据表中的删除
-        dbUtil.setNextDayLoaded();
+        dbService.setNextDayLoaded();
 
         // 清空SM_NextDay_Map
         SM_NextDay_Map.clear();
@@ -1278,7 +1278,7 @@ public class ShangmaService {
     }
 
     // 1 保存到数据库
-    dbUtil.saveOrUpdate_SM_nextday(nextday);
+    dbService.saveOrUpdate_SM_nextday(nextday);
 
     // 2 保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =
@@ -1360,7 +1360,7 @@ public class ShangmaService {
     String teamId = shangmaTeamIdLabel.getText();
     if (StringUtil.isNotBlank(teamId)) {
       String teamAvailableValue = smTeamShangmaCheckBox.isSelected() ? "1" : "0";
-      boolean updateOK = dbUtil.updateTeamYajinAndEdu(teamId, teamYajin.getText(),
+      boolean updateOK = dbService.updateTeamYajinAndEdu(teamId, teamYajin.getText(),
           teamEdu.getText(), teamAvailableValue);
       if (updateOK) {
         // 更新缓存
@@ -1561,7 +1561,7 @@ public class ShangmaService {
 
     // 以下为不重复项
     // 1 保存到数据库
-    dbUtil.saveOrUpdate_SM_nextday(nextday);
+    dbService.saveOrUpdate_SM_nextday(nextday);
 
     // 2 保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =
@@ -1610,7 +1610,7 @@ public class ShangmaService {
     nextday.setPlayerName(detail.getShangmaDetailName());
     nextday.setChangci(detail.getShangmaJu());
     nextday.setShangma(detail.getShangmaSM());
-    dbUtil.saveOrUpdate_SM_nextday(nextday);
+    dbService.saveOrUpdate_SM_nextday(nextday);
 
     // 2保存到缓存
     List<ShangmaDetailInfo> currentNextdayList =

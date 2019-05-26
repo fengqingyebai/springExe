@@ -5,7 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.jfoenix.controls.JFXChipView;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.entity.ShangmaDetailInfo;
 import com.kendy.entity.ShangmaInfo;
@@ -67,7 +67,7 @@ public class SMController extends BaseController implements Initializable {
   Logger logger = LoggerFactory.getLogger(SMController.class);
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -411,7 +411,7 @@ public class SMController extends BaseController implements Initializable {
    * 加载被过滤的团队，进行缓存
    */
   private void loadFilterTeams() {
-    String jsonFilterTeams = dbUtil.getValueByKey(FILTER_TEAM_KEY);
+    String jsonFilterTeams = dbService.getValueByKey(FILTER_TEAM_KEY);
     if (StringUtil.isNotBlank(jsonFilterTeams) && !jsonFilterTeams.equals("{}")) {
       filterTeams = JSON.parseObject(jsonFilterTeams, new TypeReference<List<String>>() {
       });
@@ -449,7 +449,7 @@ public class SMController extends BaseController implements Initializable {
       filterTeams = chipView.getChips();
       // 保存到数据库
       String jsonString = JSON.toJSONString(filterTeams);
-      dbUtil.saveOrUpdateOthers(FILTER_TEAM_KEY, jsonString);
+      dbService.saveOrUpdateOthers(FILTER_TEAM_KEY, jsonString);
 
     });
   }

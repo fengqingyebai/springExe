@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.MemberZJInfo;
 import com.kendy.model.GameRecordModel;
 import com.kendy.util.NumUtil;
@@ -34,7 +34,7 @@ import javafx.scene.control.TextField;
 public class MemberService {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public DataConstans dataConstants; // 数据控制类
   @Resource

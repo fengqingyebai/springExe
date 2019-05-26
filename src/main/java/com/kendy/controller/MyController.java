@@ -6,8 +6,7 @@ import com.kendy.application.SpringFxmlLoader;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBConnection;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
 import com.kendy.entity.Huishui;
@@ -33,10 +32,10 @@ import com.kendy.util.StringUtil;
 import com.kendy.util.SystemUtil;
 import java.io.File;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -98,7 +97,7 @@ import org.springframework.stereotype.Component;
 public class MyController extends BaseController implements Initializable {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public CombineIDController combineIDController;
   @Autowired
@@ -251,11 +250,11 @@ public class MyController extends BaseController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
 
     // 第一次打开主窗口时设置当前俱乐部ID值
-    String clubIdValue = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
+    String clubIdValue = dbService.getValueByKeyWithoutJson(KEY_CLUB_ID);
     currentClubId.setText(clubIdValue);
 
     // 第一次打开主窗口时显示所有股东
-    String gudongs = dbUtil.getValueByKeyWithoutJson(KEY_GU_DONG);
+    String gudongs = dbService.getValueByKeyWithoutJson(KEY_GU_DONG);
     dataConstants.gudongList = new ArrayList<>();
     if (!StringUtil.isBlank(gudongs)) {
       for (String gudong : gudongs.split(",")) {
@@ -592,7 +591,7 @@ public class MyController extends BaseController implements Initializable {
       Wrap wrap = excelReaderUtil.readHuishuiRecord(new File(huishuiFilePath));
       if (wrap.resultSuccess) {
         dataConstants.huishuiMap.putAll((Map<String, Huishui>) wrap.obj);
-        dbUtil.insertTeamHS((Map<String, Huishui>) wrap.obj);
+        dbService.insertTeamHS((Map<String, Huishui>) wrap.obj);
         ShowUtil.show("导入回水比例成功", 2);
         // 代理查询初始化团队ID
         teamProxyService.initTeamSelectAndZjManage(teamProxyController.teamIDCombox);
@@ -635,7 +634,7 @@ public class MyController extends BaseController implements Initializable {
           // 保存到数据库、
           String dataTime = "2017-01-01";// 第一次导入时是没有时间的，故到时可以改,注意这里没有匹配人员ID
           String json_preData = JSON.toJSONString(dataConstants.preDataMap);
-          dbUtil.insertPreData(dataTime, json_preData);
+          dbService.insertPreData(dataTime, json_preData);
           dataConstants.preDataMap = _preDataMap;
           ShowUtil.show("导入昨日留底成功", 2);
         }
@@ -676,7 +675,7 @@ public class MyController extends BaseController implements Initializable {
             dataConstants.Combine_Sub_Id_Map.put(_subID, _parentId);// 更新子节点
           });
           // 入库
-          dbUtil.saveOrUpdateCombineId(_parentId, _subIdSet);
+          dbService.saveOrUpdateCombineId(_parentId, _subIdSet);
         } else {// 缓存中存在此父节点，需要进行比较
           boolean isNeedSave = false;
           for (String _subId : _subIdSet) {
@@ -688,7 +687,7 @@ public class MyController extends BaseController implements Initializable {
           }
           if (isNeedSave) {
             // 入库
-            dbUtil.saveOrUpdateCombineId(_parentId, subIdSet);
+            dbService.saveOrUpdateCombineId(_parentId, subIdSet);
           }
         }
       }
@@ -709,9 +708,9 @@ public class MyController extends BaseController implements Initializable {
    */
   public void configCurrentClueIdAction(ActionEvent event) {
     new DialogUtil("修改", "新俱乐部ID:").getTextResult().ifPresent(newClubId -> {
-      String _currentClubId = dbUtil.getValueByKeyWithoutJson(KEY_CLUB_ID);
+      String _currentClubId = dbService.getValueByKeyWithoutJson(KEY_CLUB_ID);
       if (!StringUtils.equals(newClubId, _currentClubId) && StringUtil.isNotBlank(newClubId)) {
-        dbUtil.saveOrUpdateOthers(KEY_CLUB_ID, newClubId);
+        dbService.saveOrUpdateOthers(KEY_CLUB_ID, newClubId);
         ShowUtil.show("软件的当前俱乐部为" + newClubId, 2);
         currentClubId.setText(newClubId);
       }
@@ -733,7 +732,7 @@ public class MyController extends BaseController implements Initializable {
 
         // 更新数据库
         String gudongs = dataConstants.gudongList.stream().collect(Collectors.joining(","));
-        dbUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
+        dbService.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
       }
     }
   }
@@ -750,7 +749,7 @@ public class MyController extends BaseController implements Initializable {
 
       // 持久化
       String gudongs = cacheGudongs.stream().collect(Collectors.joining(","));
-      dbUtil.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
+      dbService.saveOrUpdateOthers(KEY_GU_DONG, gudongs);
     }
   }
 
@@ -833,29 +832,23 @@ public class MyController extends BaseController implements Initializable {
   }
 
 
-
-
-
-
+  /**
+   * 测试数据库连接
+   * @param event
+   */
   public void dbConnectAction(ActionEvent event) {
-    if (DBConnection.getConnection() != null) {
+    if (dbService != null && dbService.getConnection() != null) {
       dbConnectionState.setText("已成功连接！");
       dbConnectionState.setTextFill(Color.web("#0076a3"));
     }
   }
 
 
-
-
-
-
-
-
   /**
    * 用户输入新的一天
    */
   private boolean handleNewDayTimeOK() {
-    String maxGameRecordTimeStr = dbUtil.getMaxGameRecordTime();
+    String maxGameRecordTimeStr = dbService.getMaxGameRecordTime();
     String newDay =
         StringUtil.isBlank(maxGameRecordTimeStr) ? LocalDate.now().toString() :
             LocalDate.parse(maxGameRecordTimeStr).plusDays(1).toString();
@@ -897,7 +890,7 @@ public class MyController extends BaseController implements Initializable {
     if (AlertUtil.confirm("即将初始化所有配置项，点击确定开始操作新一天报表!")) {
 
       // 从数据库中判断是否符合从中途继续条件
-      if (2 == dbUtil.newStaticOrContinue()) {
+      if (2 == dbService.newStaticOrContinue()) {
         ShowUtil.show("开始新一天的统计条件不满足，请点击中途继续按钮！");
         return;
       }
@@ -925,7 +918,7 @@ public class MyController extends BaseController implements Initializable {
       tabs.getSelectionModel().select(1);
 
       // 代理查询：
-      List<Huishui> list = dbUtil.getAllTeamHS();
+      List<Huishui> list = dbService.getAllTeamHS();
       list.forEach(hs -> {
         dataConstants.huishuiMap.put(hs.getTeamId(), hs);
       });
@@ -952,7 +945,7 @@ public class MyController extends BaseController implements Initializable {
     String content = "即将加载关闭之前的最后锁定数据，确认要从中途加载吗？";
     if (AlertUtil.confirm(content)) {
       // 从数据库中判断是否符合从中途继续条件
-      if (1 == dbUtil.newStaticOrContinue()) {
+      if (1 == dbService.newStaticOrContinue()) {
         ShowUtil.show("中途继续条件不满足，请点击开始新一天的统计！");
         return;
       }
@@ -1030,10 +1023,10 @@ public class MyController extends BaseController implements Initializable {
       // 将最后一场的锁定数据保存到数据库，只保留实时金额和昨日利润等
       endOneDayStaticAndSave();
       // 处理锁定数据
-      dbUtil.handle_last_locked_data();
-      dbUtil.del_all_locked_data_details();// 删除今日的锁定数据
+      dbService.handle_last_locked_data();
+      dbService.del_all_locked_data_details();// 删除今日的锁定数据
 
-      dbUtil.reset_clubZhuofei_to_0();// 重置联盟中俱乐部的桌费和已结算为0
+      dbService.reset_clubZhuofei_to_0();// 重置联盟中俱乐部的桌费和已结算为0
 
       tgController.deleteKaixiaoAndComment();// 删除托管中的开销和玩家备注信息
 
@@ -1060,7 +1053,7 @@ public class MyController extends BaseController implements Initializable {
     map.put("实时开销", JSON.toJSONString(Arrays.asList()));// new KaixiaoInfo()
     map.put("实时开销总和", JSON.toJSONString(0));// new KaixiaoInfo()
     String time = dataConstants.Date_Str;
-    dbUtil.insertPreData(time, JSON.toJSONString(map));
+    dbService.insertPreData(time, JSON.toJSONString(map));
   }
 
   /**
@@ -1099,7 +1092,7 @@ public class MyController extends BaseController implements Initializable {
    */
   public void clearAllDataAction(ActionEvent event) {
     if (AlertUtil.confirm("即将清空桌费、已结算、已锁定的历史数据，是否继续?")) {
-      if (dbUtil.clearAllData()) {
+      if (dbService.clearAllData()) {
         ShowUtil.show("清空成功。", 1);
       } else {
         ShowUtil.show("清空失败");
@@ -1158,7 +1151,7 @@ public class MyController extends BaseController implements Initializable {
         }
 
         // 清空数据库与缓存中回水表中的团队记录
-        dbUtil.delHuishui(teamId);
+        dbService.delHuishui(teamId);
         dataConstants.huishuiMap.remove(teamId);
 
         // 清空数据库与缓存中属于该团队的人员记录
@@ -1237,7 +1230,7 @@ public class MyController extends BaseController implements Initializable {
       if (size > 6) {
         _hsRate = NumUtil.getNum(NumUtil.digit4(_hsRate.toString()));
       }
-      if (!dbUtil.updateTeamHsRate(teamID, _hsRate + "")) {
+      if (!dbService.updateTeamHsRate(teamID, _hsRate + "")) {
         return;
       }
 
@@ -1285,7 +1278,7 @@ public class MyController extends BaseController implements Initializable {
       if (size > 6) {
         _hsRate = NumUtil.getNum(NumUtil.digit4(_hsRate.toString()));
       }
-      if (!dbUtil.updateTeamHsBaoxianRate(teamID, _hsRate + "")) {
+      if (!dbService.updateTeamHsBaoxianRate(teamID, _hsRate + "")) {
         return;
       }
 
@@ -1322,7 +1315,7 @@ public class MyController extends BaseController implements Initializable {
       }
       // 开始修改
       // 1修改数据库
-      if (!dbUtil.updateTeamHsGudong(teamID, teamGD)) {
+      if (!dbService.updateTeamHsGudong(teamID, teamGD)) {
         ShowUtil.show("修改失败");
         return;
       }

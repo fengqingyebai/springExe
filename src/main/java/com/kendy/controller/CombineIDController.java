@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.tgController.TGController;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.entity.CurrentMoneyInfo;
 import com.kendy.service.MoneyService;
 import com.kendy.service.TeamProxyService;
@@ -47,7 +47,7 @@ import javafx.scene.input.KeyEvent;
 public class CombineIDController extends BaseController implements Initializable {
 
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -127,7 +127,7 @@ public class CombineIDController extends BaseController implements Initializable
           // 刷新上码表
 
           // 更新到数据库
-          dbUtil.cancelCombineId(parentId);
+          dbService.cancelCombineId(parentId);
         }
 
       }
@@ -331,7 +331,7 @@ public class CombineIDController extends BaseController implements Initializable
       moneyService.flush_SSJE_table();
 
       // 将合并ID同步到数据库
-      dbUtil.saveOrUpdateCombineId(parentId, subIdSets);
+      dbService.saveOrUpdateCombineId(parentId, subIdSets);
 
       ShowUtil.show("合并ID成功！", 2);
     } catch (Exception e) {

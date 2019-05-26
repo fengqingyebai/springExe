@@ -3,7 +3,7 @@ package com.kendy.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.DataConstans;
-import com.kendy.db.DBUtil;
+import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.db.service.PlayerService;
@@ -101,7 +101,7 @@ public class SMAutoController extends BaseController implements Initializable {
 
   private Logger log = LoggerFactory.getLogger(SMAutoController.class);
   @Autowired
-  public DBUtil dbUtil;
+  public DBService dbService;
   @Autowired
   public MyController myController;
   @Autowired
@@ -243,7 +243,7 @@ public class SMAutoController extends BaseController implements Initializable {
    * @time 2018年3月28日
    */
   private void initNextDayRange() {
-    String range = dbUtil.getValueByKeyWithoutJson(SM_AOTO_NEXT_DAY_DB_KEY);
+    String range = dbService.getValueByKeyWithoutJson(SM_AOTO_NEXT_DAY_DB_KEY);
     if (StringUtil.isNotBlank(range)) {
       smNextDayRangeFieldd.setText(range);
     } else {
@@ -269,7 +269,7 @@ public class SMAutoController extends BaseController implements Initializable {
   public void saveTokenAction(ActionEvent event) {
     String token = tokenArea.getText();
     if (StringUtil.isNotBlank(token)) {
-      dbUtil.saveOrUpdateOthers(SM_AOTO_TOKEN_DB_KEY, token.trim());
+      dbService.saveOrUpdateOthers(SM_AOTO_TOKEN_DB_KEY, token.trim());
       ShowUtil.show("保存OK", 1);
     } else {
       ShowUtil.show("别逗，token啥都没写，你就要保存?", 1);
@@ -282,7 +282,7 @@ public class SMAutoController extends BaseController implements Initializable {
    * @time 2018年3月31日
    */
   public void loadTokenAction(ActionEvent event) {
-    String token = dbUtil.getValueByKeyWithoutJson(SM_AOTO_TOKEN_DB_KEY);
+    String token = dbService.getValueByKeyWithoutJson(SM_AOTO_TOKEN_DB_KEY);
     if (StringUtil.isNotBlank(token)) {
       tokenArea.setText(token);
       ShowUtil.show("加载完成", 1);
@@ -382,7 +382,7 @@ public class SMAutoController extends BaseController implements Initializable {
   public void saveNextDayConfigAction(ActionEvent evet) {
     String smNextDayRange = smNextDayRangeFieldd.getText();
     if (StringUtil.isNotBlank(smNextDayRange)) {
-      dbUtil.saveOrUpdateOthers(SM_AOTO_NEXT_DAY_DB_KEY, smNextDayRange);
+      dbService.saveOrUpdateOthers(SM_AOTO_NEXT_DAY_DB_KEY, smNextDayRange);
       ShowUtil.show("保存OK", 1);
     } else {
       ShowUtil.show("别逗，啥都没写，你就要保存?", 1);
