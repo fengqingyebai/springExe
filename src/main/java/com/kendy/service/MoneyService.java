@@ -1074,7 +1074,7 @@ public class MoneyService {
     String tempSingleVal = "";// 实时金额表中每一行的具体金额
     for (CurrentMoneyInfo moneyInfo : list) {
       tempSingleVal = moneyInfo.getShishiJine();
-      if (StringUtil.isAllNotBlank(tempSingleVal, moneyInfo.getMingzi())) {
+      if (StringUtil.isAllNotBlank(moneyInfo.getMingzi())) {
         sumOfTableCurrentMoney +=
             NumUtil.getNum(tempSingleVal) + NumUtil.getNum(moneyInfo.getCmiLmb());
       }
