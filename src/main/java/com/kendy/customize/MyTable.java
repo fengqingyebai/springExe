@@ -3,6 +3,7 @@ package com.kendy.customize;
 import com.kendy.excel.myExcel4j.MyExcelUtils;
 import com.kendy.exception.ExcelException;
 import com.kendy.util.ErrorUtil;
+import com.kendy.util.StringUtil;
 import com.kendy.util.TableUtil;
 import java.io.File;
 import java.lang.reflect.ParameterizedType;
@@ -117,9 +118,11 @@ public class MyTable<K> extends TableView<K> {
   }
 
   private String getFinalOutputPath(){
+    if (StringUtils.isNotBlank(this.excelName)) {
+      excelName = excelName.replace("/", "").replace(":", ":/").replace("?", "");
+    }
     return "D:/" + excelName + ".xlsx";
   }
-
 
   /**
    * 根据TableView导出
