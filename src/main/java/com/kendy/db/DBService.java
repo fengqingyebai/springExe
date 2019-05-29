@@ -2557,7 +2557,7 @@ public class DBService {
         info.setTeamClubId(clubId);
         info.setStaticTime(rs.getString(1));
         info.setTeamId(rs.getString(2));
-        info.setSumZJ(rs.getString(3));
+        info.setSumZJ(NumUtil.digit(rs.getString(3)));
         info.setSumChuhuishui(rs.getString(4));
         info.setSumHuibao(rs.getString(5));
         info.setTeamFWF(rs.getString(6));

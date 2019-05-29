@@ -977,8 +977,8 @@ public class LMBController extends BaseController implements Initializable {
         detail.setGamePlayerId(model.getPlayerid());
         detail.setGamePlayerName(model.getBeginplayername());
         detail.setGamePaiju(model.getTableid());
-        detail.setGameLianmengFencheng(model.getLianmengFencheng());
-        detail.setGameClubFencheng(model.getClubFencheng());
+        detail.setGameLianmengFencheng(NumUtil.digit(model.getLianmengFencheng()));
+        detail.setGameClubFencheng(NumUtil.digit(model.getClubFencheng()));
         detail.setGameClubHeji(
             NumUtil.digit2(NumUtil.getSum(model.getLianmengFencheng(), model.getClubFencheng())));
         detailGameInfos.add(detail);
