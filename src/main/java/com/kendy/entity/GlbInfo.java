@@ -12,6 +12,11 @@ import javafx.beans.property.SimpleStringProperty;
 public class GlbInfo implements Entity {
 
   /**
+   * 俱乐部从属股东
+   */
+  @MyExcelField(title = "股东", colWidth = 15)
+  private SimpleStringProperty glbGudong = new SimpleStringProperty();
+  /**
    * 俱乐部ID
    */
   @MyExcelField(title = "俱乐部ID", colWidth = 15)
@@ -333,5 +338,17 @@ public class GlbInfo implements Entity {
 
   public void setGlbClubBaoxian(String glbClubBaoxian) {
     this.glbClubBaoxian.set(glbClubBaoxian);
+  }
+
+  public String getGlbGudong() {
+    return glbGudong.get();
+  }
+
+  public SimpleStringProperty glbGudongProperty() {
+    return glbGudong;
+  }
+
+  public void setGlbGudong(String glbGudong) {
+    this.glbGudong.set(glbGudong);
   }
 }

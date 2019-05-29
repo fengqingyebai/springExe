@@ -11,6 +11,11 @@ import javafx.beans.property.SimpleStringProperty;
 public class GameInfo implements Entity {
 
   /**
+   * 小游戏俱乐部从属股东
+   */
+  @MyExcelField(title = "股东", colWidth = 15)
+  private SimpleStringProperty gameGudong = new SimpleStringProperty();
+  /**
    * 小游戏俱乐部ID
    */
   @MyExcelField(title = "俱乐部ID", colWidth = 15)
@@ -171,5 +176,17 @@ public class GameInfo implements Entity {
 
   public void setGameType(String gameType) {
     this.gameType.set(gameType);
+  }
+
+  public String getGameGudong() {
+    return gameGudong.get();
+  }
+
+  public SimpleStringProperty gameGudongProperty() {
+    return gameGudong;
+  }
+
+  public void setGameGudong(String gameGudong) {
+    this.gameGudong.set(gameGudong);
   }
 }

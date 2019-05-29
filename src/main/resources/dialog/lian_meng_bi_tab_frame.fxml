@@ -25,6 +25,7 @@
                <children>
                   <TableView fx:id="tableGlb" layoutX="41.0" layoutY="81.0" prefHeight="385.0" prefWidth="1231.0">
                      <columns>
+                        <TableColumn fx:id="glbGudong" minWidth="0.0" prefWidth="97.0" text="股东" />
                         <TableColumn fx:id="glbClubName" prefWidth="89.0" text="俱乐部名称" />
                         <TableColumn fx:id="glbClubId" minWidth="0.0" prefWidth="97.0" text="俱乐部ID" />
                         <TableColumn fx:id="glbBaoxianChouqu" minWidth="0.0" prefWidth="92.0" text="保险抽取" />
@@ -70,13 +71,14 @@
                   <Font name="System Bold" size="26.0" />
                </font>
             </JFXButton>
-            <TableView fx:id="tableGame" layoutX="40.0" layoutY="554.0" prefHeight="286.0" prefWidth="659.0">
+            <TableView fx:id="tableGame" layoutX="40.0" layoutY="554.0" prefHeight="286.0" prefWidth="744.0">
                <columns>
+                  <TableColumn fx:id="gameGudong" minWidth="0.0" prefWidth="88.0" text="股东" />
                   <TableColumn fx:id="gameClubName" prefWidth="109.0" text="俱乐部名称" />
                   <TableColumn fx:id="gameClubId" minWidth="0.0" prefWidth="115.0" text="俱乐部ID" />
                   <TableColumn fx:id="gameLianmengFencheng" minWidth="0.0" prefWidth="140.0" text="联盟分成" />
                   <TableColumn fx:id="gameClubFencheng" minWidth="0.0" prefWidth="157.0" text="俱乐部分成" />
-                  <TableColumn fx:id="gameClubHeji" minWidth="0.0" prefWidth="117.0" text="俱乐部合计" />
+                  <TableColumn fx:id="gameClubHeji" minWidth="0.0" prefWidth="114.0" text="俱乐部合计" />
                </columns>
                <cursor>
                   <Cursor fx:constant="HAND" />
@@ -90,7 +92,7 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </JFXButton>
-            <VBox layoutX="749.0" layoutY="474.0" spacing="10.0">
+            <VBox layoutX="833.0" layoutY="499.0" spacing="10.0">
                <children>
                   <HBox layoutX="826.0" layoutY="607.0">
                      <children>
@@ -139,7 +141,7 @@
                   <Insets bottom="30.0" />
                </opaqueInsets>
             </VBox>
-            <JFXButton alignment="CENTER" defaultButton="true" layoutX="1098.0" layoutY="505.0" onAction="#saveConfigActioin" prefHeight="43.0" prefWidth="122.0" ripplerFill="#2e80eb" style="-fx-background-color: #F0F0F0;" text="保存配置" textAlignment="CENTER" textFill="#56b00c">
+            <JFXButton alignment="CENTER" defaultButton="true" layoutX="1137.0" layoutY="504.0" onAction="#saveConfigActioin" prefHeight="43.0" prefWidth="122.0" ripplerFill="#2e80eb" style="-fx-background-color: #F0F0F0;" text="保存配置" textAlignment="CENTER" textFill="#56b00c">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>
@@ -155,7 +157,7 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </JFXButton>
-            <JFXButton buttonType="RAISED" defaultButton="true" layoutX="623.0" layoutY="499.0" onAction="#exportTableGameAction" prefHeight="30.0" prefWidth="72.0" ripplerFill="#7118d7" style="-fx-background-color: #F0F0F0;" text="↓ 导出" textFill="#5250d0">
+            <JFXButton buttonType="RAISED" defaultButton="true" layoutX="712.0" layoutY="499.0" onAction="#exportTableGameAction" prefHeight="30.0" prefWidth="72.0" ripplerFill="#7118d7" style="-fx-background-color: #F0F0F0;" text="↓ 导出" textFill="#5250d0">
                <cursor>
                   <Cursor fx:constant="HAND" />
                </cursor>

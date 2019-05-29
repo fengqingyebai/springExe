@@ -83,6 +83,8 @@ public class LMBController extends BaseController implements Initializable {
   @FXML
   public TableView<GlbInfo> tableGlb;
   @FXML
+  private TableColumn<GlbInfo, String> glbGudong;
+  @FXML
   private TableColumn<GlbInfo, String> glbClubId;
   @FXML
   private TableColumn<GlbInfo, String> glbClubName;
@@ -108,6 +110,8 @@ public class LMBController extends BaseController implements Initializable {
   //===================================================================小游戏合计表
   @FXML
   public TableView<GameInfo> tableGame;
+  @FXML
+  private TableColumn<GameInfo, String> gameGudong;
   @FXML
   private TableColumn<GameInfo, String> gameClubId;
   @FXML
@@ -148,6 +152,7 @@ public class LMBController extends BaseController implements Initializable {
   private Collection<GameRecordModel> todayDatas = new ArrayList<>(500);
   private LmbCache lmbCache ; // 缓存联盟币界面数据
   private Stage stage; // 查看视图
+  private Map<String, String> clubMap = new HashMap<>(); // {clubId, clubName}
 
 
   @Override
@@ -452,11 +457,23 @@ public class LMBController extends BaseController implements Initializable {
     refresh();
   }
 
+  private void setClubMap(Map<String, Club> allClub){
+    if (allClub != null) {
+      allClub.forEach((clubId, clubInfo)->{
+        this.clubMap.put(clubId, StringUtils.defaultString(clubInfo.getGudong(), ""));
+      });
+    }
+  }
+
+  private String getClubNameById(String clubId) {
+    return this.clubMap.getOrDefault(clubId, "");
+  }
   /**
    * 合并俱乐部信息
    */
   private void mergeClubInformation() {
     Map<String, Club> allClub = dbService.getAllClub();
+    setClubMap(allClub);
     List<ClubInfomation> clubInfomations = lmbCache.getClubInfomations();
     if (allClub != null) {
       if(allClub.size() == clubInfomations.size()){
@@ -850,10 +867,12 @@ public class LMBController extends BaseController implements Initializable {
       clubInfo.setDetailList(details);
       clubInfo.setGlbClubId(details.get(0).getGlbClubId());
       clubInfo.setGlbClubName(details.get(0).getGlbClubName());
+      clubInfo.setGlbGudong(getClubNameById(clubInfo.getGlbClubId()));
     } else {
       clubInfo.setDetailList(null);
       clubInfo.setGlbClubName("合计");
       clubInfo.setGlbClubId("-");
+      clubInfo.setGlbGudong("-");
     }
     return clubInfo;
   }
@@ -1016,10 +1035,12 @@ public class LMBController extends BaseController implements Initializable {
       clubInfo.setDetailList(details);
       clubInfo.setGameClubId(details.get(0).getGameClubId());
       clubInfo.setGameClubName(details.get(0).getGameClubName());
+      clubInfo.setGameGudong(getClubNameById(clubInfo.getGameClubId()));
     } else {
       clubInfo.setDetailList(null);
       clubInfo.setGameClubName(HE_JI);
       clubInfo.setGameClubId("-");
+      clubInfo.setGameGudong("-");
     }
     return clubInfo;
   }
