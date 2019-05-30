@@ -728,7 +728,7 @@ public class SMAutoController extends BaseController implements Initializable {
     double ssje = 0;
     double edu = 0;
     for (CurrentMoneyInfo cmi : cmiList) {
-      ssje += NumUtil.getNum(cmi.getShishiJine());
+      ssje += (NumUtil.getNum(cmi.getShishiJine()) + NumUtil.getNum(cmi.getCmiLmb()));
       if (edu < NumUtil.getNum(cmi.getCmiEdu())) {
         edu = NumUtil.getNum(cmi.getCmiEdu());
       }
