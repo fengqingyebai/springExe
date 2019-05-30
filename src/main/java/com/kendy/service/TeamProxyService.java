@@ -252,20 +252,22 @@ public class TeamProxyService extends BasicService{
         String shishou = getShishou(info, hs);
         String chuhuishui = getChuhuishui(info, hs);
         String huibao = getHuibao(info, hs);
+        boolean isLittleGame = littleGameService.isLittleGame(info);
         obList.add(new ProxyTeamInfo(info.getTeamId(), info.getPlayerid(), info.getPlayerName(),
-            info.getYszj(), shishou, chuhuishui,
+            info.getYszj(), shishou,
+            isLittleGame ? "0" : chuhuishui,
             // 出回水是否等于回水
-            littleGameService.isJLBH(info) ? "0" : huibao, // 保险是否等于回保,加勒比海强制回保为0
+            isLittleGame ? "0" : huibao, // 保险是否等于回保,加勒比海强制回保为0
             info.getTableid(),
-            littleGameService.isJLBH(info) ? "0" : info.getSingleinsurance()// 保险
+            isLittleGame ? "0" : info.getSingleinsurance()// 保险
         ));
         sumYSZJ += NumUtil.getNum(info.getYszj());
         sumZJ += NumUtil.getNum(shishou);
         sumBX += NumUtil.getNum(info.getSingleinsurance());
         sumHS += NumUtil.getNum(chuhuishui);
-        if (!littleGameService.isJLBH(info)) {
+        //if (!littleGameService.isJLBH(info)) {
           sumHB += NumUtil.getNum(huibao);
-        }
+        //}
         sumRC += 1;
       }
     }
