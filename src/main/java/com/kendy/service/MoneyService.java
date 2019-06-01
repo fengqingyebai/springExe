@@ -2532,7 +2532,8 @@ public class MoneyService {
     List<CurrentMoneyInfo> lianHeInfoList = getLianHeInfoList(parentId, ssje_map);
     double sumSSJE = 0d;
     for (CurrentMoneyInfo currentMoneyInfo : lianHeInfoList) {
-      sumSSJE += NumUtil.getNum(currentMoneyInfo.getShishiJine());
+      sumSSJE += (NumUtil.getNum(currentMoneyInfo.getShishiJine()) + NumUtil
+          .getNum(currentMoneyInfo.getCmiLmb()));
     }
     return NumUtil.digit(sumSSJE);
   }
