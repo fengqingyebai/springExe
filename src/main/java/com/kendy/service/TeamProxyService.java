@@ -263,11 +263,11 @@ public class TeamProxyService extends BasicService{
         ));
         sumYSZJ += NumUtil.getNum(info.getYszj());
         sumZJ += NumUtil.getNum(shishou);
-        sumBX += NumUtil.getNum(info.getSingleinsurance());
-        sumHS += NumUtil.getNum(chuhuishui);
-        //if (!littleGameService.isJLBH(info)) {
+        if (!littleGameService.isLittleGame(info)) {
+          sumBX += NumUtil.getNum(info.getSingleinsurance());
+          sumHS += NumUtil.getNum(chuhuishui);
           sumHB += NumUtil.getNum(huibao);
-        //}
+        }
         sumRC += 1;
       }
     }
