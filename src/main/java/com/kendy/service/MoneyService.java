@@ -7,6 +7,7 @@ import com.kendy.constant.DataConstans;
 import com.kendy.controller.BankFlowController;
 import com.kendy.controller.ChangciController;
 import com.kendy.controller.ChangciController.ZhanjiType;
+import com.kendy.controller.CombineIDController;
 import com.kendy.controller.GDController;
 import com.kendy.controller.LMBController;
 import com.kendy.controller.MyController;
@@ -96,27 +97,27 @@ public class MoneyService {
   private Logger log = LoggerFactory.getLogger(MoneyService.class);
 
   @Autowired
-  public DBService dbService;
+  private DBService dbService;
   @Autowired
-  public DataConstans dataConstants; // 数据控制类
+  private DataConstans dataConstants; // 数据控制类
   @Autowired
-  public MyController myController;
+  private MyController myController;
   @Autowired
-  public SMAutoController smAutoController; // 托管控制类
+  private SMAutoController smAutoController; // 托管控制类
   @Autowired
-  public GDController gdController; // 股东控制类
+  private GDController gdController; // 股东控制类
   @Autowired
-  public ShangmaService shangmaService; // 上码控制类
+  private ShangmaService shangmaService; // 上码控制类
   @Autowired
-  public BankFlowController bankFlowController; // 银行流水类
+  private BankFlowController bankFlowController; // 银行流水类
   @Autowired
-  LMBController lmbController;
-
+  private LMBController lmbController;
   @Autowired
-  ChangciController changciController;
-
+  private CombineIDController combineIDController;
   @Autowired
-  LittleGameService littleGameService; // 小游戏服务类
+  private ChangciController changciController;
+  @Autowired
+  private LittleGameService littleGameService; // 小游戏服务类
 
   @Resource
   GameRecordService gameRecordService;
@@ -2504,6 +2505,36 @@ public class MoneyService {
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * 根据父ID获取实时金额表中的联合列表(包含了父节点信息)
+   * @param parentId
+   * @param ssje_map
+   * @return
+   */
+  public final List<CurrentMoneyInfo> getLianHeInfoList(String parentId, final
+      Map<String, CurrentMoneyInfo> ssje_map) {
+    List<CurrentMoneyInfo> list = new ArrayList<>();
+    Set<String> idSet = combineIDController.getAllLianheIds(parentId);
+    if (ssje_map != null) {
+      ssje_map.forEach((playerId, info) -> {
+      if (idSet.contains(playerId)) {
+        list.add(copyCurrentMoneyInfo(info));
+      }
+      });
+    }
+    return list;
+  }
+
+  public String getTotalSSJE(String parentId, final
+  Map<String, CurrentMoneyInfo> ssje_map){
+    List<CurrentMoneyInfo> lianHeInfoList = getLianHeInfoList(parentId, ssje_map);
+    double sumSSJE = 0d;
+    for (CurrentMoneyInfo currentMoneyInfo : lianHeInfoList) {
+      sumSSJE += NumUtil.getNum(currentMoneyInfo.getShishiJine());
+    }
+    return NumUtil.digit(sumSSJE);
   }
 
 }

@@ -47,25 +47,11 @@ import javafx.scene.input.KeyEvent;
 public class CombineIDController extends BaseController implements Initializable {
 
   @Autowired
-  public DBService dbService;
+  private DBService dbService;
   @Autowired
-  public MyController myController;
+  private MoneyService moneyService; // 配帐控制类
   @Autowired
-  public TGController tgController; // 托管控制类
-  @Autowired
-  public TeamProxyService teamProxyService; // 配帐控制类
-  @Autowired
-  public TgWaizhaiService tgWaizhaiService; // 配帐控制类
-  @Autowired
-  public WaizhaiService waizhaiService; // 配帐控制类
-  @Autowired
-  public ZonghuiService zonghuiService; // 配帐控制类
-  @Autowired
-  public MoneyService moneyService; // 配帐控制类
-  @Autowired
-  public DataConstans dataConstants; // 数据控制类
-  @Resource
-  PlayerService playerService;
+  private DataConstans dataConstants; // 数据控制类
 
   // =====================================================================合并ID对话框
   public TableView<CurrentMoneyInfo> tableCurrentMoneyInfo;
@@ -397,6 +383,17 @@ public class CombineIDController extends BaseController implements Initializable
 
   public boolean isSubId(String playerId) {
     return dataConstants.Combine_Sub_Id_Map.containsKey(playerId);
+  }
+
+  public boolean isHasLianheId(String playerId) {
+    return isSubId(playerId) || isSuperId(playerId);
+  }
+
+  public final Set<String> getAllLianheIds(String parentId){
+    Set<String> idSet = dataConstants.Combine_Super_Id_Map
+        .getOrDefault(parentId, new HashSet<>());
+    idSet.add(parentId);
+    return idSet;
   }
 
   /**

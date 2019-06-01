@@ -5,6 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.kendy.constant.Constants;
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
+import com.kendy.controller.CombineIDController;
 import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
 import com.kendy.db.service.PlayerService;
@@ -38,6 +39,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +57,15 @@ public class WaizhaiService {
   private static Logger log = LoggerFactory.getLogger(WaizhaiService.class);
 
   @Autowired
-  public DBService dbService;
+  private DBService dbService;
   @Autowired
-  public DataConstans dataConstants; // 数据控制类
+  private DataConstans dataConstants; // 数据控制类
   @Autowired
-  public MoneyService moneyService; // 
+  private MoneyService moneyService; //
   @Autowired
-  public BaseController baseController;
+  private BaseController baseController;
+  @Autowired
+  private CombineIDController combineIDController;
 
   @Resource
   PlayerService playerService;
@@ -210,7 +214,7 @@ public class WaizhaiService {
     }
     List<CurrentMoneyInfo> SSJE_obList = new LinkedList<>();
     for (CurrentMoneyInfo infos : CurrentMoneyInfoList) {
-      if (!StringUtil.isBlank(infos.getWanjiaId()) && !StringUtil.isBlank(infos.getMingzi())) {
+      if (StringUtils.isNotBlank(infos.getWanjiaId()) && StringUtils.isNotBlank(infos.getMingzi())) {
         SSJE_obList.add(infos);
       }
     }
@@ -339,8 +343,10 @@ public class WaizhaiService {
           if (isSuperId) {
             String playerName = dataConstants.membersMap.get(pId).getPlayername();
             if ("公司".equals(teamID)) {
-              final String _cmSuperIdSum = cmi.getCmSuperIdSum();
-              cmi.setShishiJine(_cmSuperIdSum);
+//              final String _cmSuperIdSum = cmi.getCmSuperIdSum();
+//              cmi.setShishiJine(_cmSuperIdSum);
+              final String totalSSJE = cmi.getShishiJine();
+              cmi.setShishiJine(totalSSJE);
 //              log.info(String.format("外债：股东%s--属于公司的父节点%s(%s）设置联合额度%s为实时金额", gudongName, playerName,
 //                  pId, _cmSuperIdSum));
               continue;
@@ -358,8 +364,10 @@ public class WaizhaiService {
               // 新增一个所属团队信息
               ite.remove();
               CurrentMoneyInfo cmiInfo =
-                  new CurrentMoneyInfo(_teamId, cmi.getCmSuperIdSum(), "", "",
+                  new CurrentMoneyInfo(_teamId, cmi.getShishiJine(), "", "",
                       MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
+//                  new CurrentMoneyInfo(_teamId, cmi.getCmSuperIdSum(), "", "",
+//                      MoneyCreatorEnum.DEFAULT.getCreatorName(), "");
               ite.add(cmiInfo);
 //              log.info(String.format("外债：股东%s--根据父点(%s)新建团队外债信息（%s），联合额度（团队的实时金额）为%s，并删除父节点",
 //                  gudongName, playerName, _teamId, cmi.getCmSuperIdSum()));
@@ -425,6 +433,8 @@ public class WaizhaiService {
     if (MapUtil.isNullOrEmpty(gudongMap)) {
       return;
     }
+    // 缓存父节点总实时金额信息 add 20190601
+    Map<String, String> parentSSJEMap = getParentSSJEMap(ssje_map);
 
     Map<String, CurrentMoneyInfo> tempSuperInfoMap = new HashMap<>();// {父ID : 复制的CurrentMoneyInfo}
 
@@ -469,15 +479,22 @@ public class WaizhaiService {
           if (superId != null && tempSuperInfoMap.get(superId) == null) {
             // CurrentMoneyInfo superInfo = ssje_map.get(playerId);
             CurrentMoneyInfo superInfo = cmiInfo;
-            if (superInfo != null && NumUtil.getNum(superInfo.getCmSuperIdSum()) >= 0) {
-              // log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
-              ite.remove();
-            }
-            if (superInfo != null && NumUtil.getNum(superInfo.getCmSuperIdSum()) < 0) {
-              // log.info(String.format("外债：修改父节点%s的实时金额从%s到%s",getPlayerName(superId),
-              // superInfo.getShishiJine(),superInfo.getCmSuperIdSum()));
-              superInfo.setShishiJine(superInfo.getCmSuperIdSum());// 核心
-              tempSuperInfoMap.put(superId, superInfo);
+            // 重新设置父低点的实时金额
+            if (superInfo != null) {
+              String totalSSJE = parentSSJEMap.get(superId);
+              //if (superInfo != null && NumUtil.getNum(superInfo.getCmSuperIdSum()) >= 0) {
+              if (NumUtil.getNum(totalSSJE) >= 0) {
+                // log.info("外债：删除父节点("+getPlayerName(playerId)+")，其联合ID为正");
+                ite.remove();
+              }
+              if (NumUtil.getNum(totalSSJE) < 0){
+                // log.info(String.format("外债：修改父节点%s的实时金额从%s到%s",getPlayerName(superId),
+                // superInfo.getShishiJine(),superInfo.getCmSuperIdSum()));
+                //superInfo.setShishiJine(superInfo.getCmSuperIdSum());// 核心
+                superInfo.setShishiJine(totalSSJE); // 核心
+                cmiInfo.setShishiJine(totalSSJE); // 核心
+                tempSuperInfoMap.put(superId, superInfo);
+              }
             }
           }
         }
@@ -488,6 +505,20 @@ public class WaizhaiService {
 
   }
 
+  private Map<String, String> getParentSSJEMap(Map<String, CurrentMoneyInfo> ssje_map) {
+    Map<String, String> parentSSJEMap = new HashMap<>();
+    if (ssje_map != null) {
+      ssje_map.forEach((playerId, info) -> {
+        if (combineIDController.isSuperId(playerId)) {
+          String totalSSJE = moneyService.getTotalSSJE(playerId, ssje_map);
+          if (StringUtils.contains(totalSSJE, "-")) {
+            parentSSJEMap.put(playerId, moneyService.getTotalSSJE(playerId, ssje_map));
+          }
+        }
+      });
+    }
+    return parentSSJEMap;
+  }
 
 
   private String getPlayerName(String playerId) {
