@@ -217,9 +217,9 @@ public class ExcelReaderUtil {
           String proxyHbRate = "";
           // 代理服务费
           String proxyFWF = "";
-          // 积分比例
-          String jfPercent = "";
-          for (int i = 1; i < 11; i++) {
+          // 团队小游戏返利比例
+          String teamGameFLRate = "";
+          for (int i = 1; i < 12; i++) {
             Cell cell = row.getCell(i);
             if (cell == null) {
               log.error("读取回水表发现NPE, 列：{}", i);
@@ -284,16 +284,16 @@ public class ExcelReaderUtil {
               // 服务费====="+value);
               proxyFWF = value;
             } else if (i == 11) {
-              // 积分比例====="+value);
+              // 小游戏返利比例====="+value);
               if (StringUtil.isBlank(value)) {
                 value = "0";
               }
-              jfPercent = NumUtil.getPercentStr(Double.valueOf(value));
+              teamGameFLRate = NumUtil.getPercentStr(Double.valueOf(value));
             }
           }
-          if (!StringUtil.isBlank(teamId)) {
+          if (StringUtils.isNotBlank(teamId)) {
             huishuiMap.put(teamId, new Huishui(teamId, teamName, huishuiRate, insuranceRate, gudong,
-                zjManage, beizhu, proxyHsRate, proxyHbRate, proxyFWF));
+                zjManage, beizhu, proxyHsRate, proxyHbRate, proxyFWF, teamGameFLRate));
           }
         }
       }

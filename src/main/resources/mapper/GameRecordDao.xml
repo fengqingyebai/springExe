@@ -43,6 +43,7 @@
     <result column="proxy_fanshui" jdbcType="VARCHAR" property="proxyFanshui" />
     <result column="personal_jiesuan" jdbcType="VARCHAR" property="personalJiesuan" />
     <result column="hshb_type" jdbcType="VARCHAR" property="hshbType" />
+    <result column="team_game_fl_rate" jdbcType="VARCHAR" property="teamGameFlRate" />
   </resultMap>
 
   <resultMap id="GameRecordModelMap" type="com.kendy.model.GameRecordModel" extends="BaseResultMap">

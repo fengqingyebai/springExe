@@ -1,5 +1,9 @@
 package com.kendy.entity;
 
+/**
+ * 团队回水
+ * TODO 将重构为实体类
+ */
 public class Huishui {
 
   //团id
@@ -44,28 +48,12 @@ public class Huishui {
   //打勾：团队可上码
   public String teamAvailabel = "0";
 
-  //=================== constructors ================================================
+  // 团队小游戏返利比例
+  public String teamGameFLRate = "0%";
+
   public Huishui() {
     super();
   }
-
-//	public Huishui(String teamId, String teamName, String gudong, String huishuiRate, String beizhu,
-//			String insuranceRate, String zjManaged) {
-//		super();
-//		this.teamId = teamId;
-//		this.teamName = teamName;
-//		this.gudong = gudong;
-//		this.huishuiRate = huishuiRate;
-//		this.beizhu = beizhu;
-//		this.insuranceRate = insuranceRate;
-//		this.zjManaged = zjManaged;
-//	}
-//	
-//
-//	
-//	
-
-  //=================== getter and setter ================================================
 
 
   public String getTeamId() {
@@ -74,7 +62,7 @@ public class Huishui {
 
   public Huishui(String teamId, String teamName, String huishuiRate, String insuranceRate,
       String gudong,
-      String zjManaged, String beizhu, String proxyHSRate, String proxyHBRate, String proxyFWF) {
+      String zjManaged, String beizhu, String proxyHSRate, String proxyHBRate, String proxyFWF, String teamGameFLRate) {
     super();
     this.teamId = teamId;
     this.teamName = teamName;
@@ -86,6 +74,7 @@ public class Huishui {
     this.proxyHSRate = proxyHSRate;
     this.proxyHBRate = proxyHBRate;
     this.proxyFWF = proxyFWF;
+    this.teamGameFLRate = teamGameFLRate;
   }
 
 
@@ -96,7 +85,7 @@ public class Huishui {
       String gudong,
       String zjManaged, String beizhu, String proxyHSRate, String proxyHBRate, String proxyFWF,
       String showInsure,
-      String teamYajin, String teamEdu, String teamAvailabel) {
+      String teamYajin, String teamEdu, String teamAvailabel, String teamGameFLRate) {
     super();
     this.teamId = teamId;
     this.teamName = teamName;
@@ -112,6 +101,7 @@ public class Huishui {
     this.teamYajin = teamYajin;
     this.teamEdu = teamEdu;
     this.teamAvailabel = teamAvailabel;
+    this.teamGameFLRate = teamGameFLRate;
   }
 
 
@@ -237,7 +227,12 @@ public class Huishui {
     this.teamAvailabel = teamAvailabel;
   }
 
-  //=================== toString ================================================
+  public String getTeamGameFLRate() {
+    return teamGameFLRate;
+  }
 
-
+  public Huishui setTeamGameFLRate(String teamGameFLRate) {
+    this.teamGameFLRate = teamGameFLRate;
+    return this;
+  }
 }

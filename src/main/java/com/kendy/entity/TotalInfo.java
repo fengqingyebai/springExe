@@ -42,6 +42,9 @@ public class TotalInfo implements Entity {
   @MyExcelField(title = "收回水")
   private SimpleStringProperty shouHuishui = new SimpleStringProperty();//收回水
 
+  @MyExcelField(title = "小游戏返利")
+  private SimpleStringProperty gameFL = new SimpleStringProperty();//收回水
+
   @MyExcelField(title = "合利润")
   private SimpleStringProperty heLirun = new SimpleStringProperty();//合利润
 
@@ -235,5 +238,17 @@ public class TotalInfo implements Entity {
 
   public void setIsLittleGame(String isLittleGame) {
     this.isLittleGame.set(isLittleGame);
+  }
+
+  public String getGameFL() {
+    return gameFL.get();
+  }
+
+  public SimpleStringProperty gameFLProperty() {
+    return gameFL;
+  }
+
+  public void setGameFL(String gameFL) {
+    this.gameFL.set(gameFL);
   }
 }

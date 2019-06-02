@@ -9,6 +9,7 @@ import com.kendy.db.DBService;
 import com.kendy.db.service.CurrentMoneyService;
 import com.kendy.db.service.GameRecordService;
 import com.kendy.db.service.PlayerService;
+import com.kendy.entity.Huishui;
 import com.kendy.entity.WanjiaInfo;
 import com.kendy.model.GameRecordModel;
 import com.kendy.util.NumUtil;
@@ -66,6 +67,7 @@ public class LittleGameService {
     String shuihouxian = "0";
     String shouHuishui = "0";
     String huiBao = "0";
+    String gameFl = getGameFl(r);
 
     // 初始名称
     r.setBeginplayername(r.getPlayerName());
@@ -95,10 +97,27 @@ public class LittleGameService {
     // 个人回水、回保
     setPersonalHsHb0(r);
 
+    // 小游戏返利
+    r.setGameFl(gameFl);
+
     // 合利润
     r.setHelirun(NumUtil.digit2(getHeLirun0(r)));
 
   }
+
+  /**
+   * 小游戏返利公式：实收 * 相应的团队小游戏返利比例
+   * @param r
+   * @return
+   */
+  private String getGameFl(GameRecordModel r) {
+    Huishui huishui = dataConstants.huishuiMap.get(r.getTeamId());
+    if (huishui != null) {
+      return NumUtil.digit(NumUtil.getNumTimes(r.getShishou(), huishui.getTeamGameFLRate()));
+    }
+    return "0";
+  }
+
 
   public void setPersonalHsHb0(GameRecordModel r) {
     r.setHshbType("0"); // 默认为团队类型
@@ -109,14 +128,14 @@ public class LittleGameService {
 
   /**
    * 计算小游戏的合利润
-   * 加勒比合利润公式 = 实收 = （原始战绩 - 保险） * 80% * (-1)
+   * 加勒比合利润公式 = 实收 - 小游戏返利 = （原始战绩 - 保险） * 80% * (-1)
    * 德州牛仔合利润公式 = 实收 = 俱乐部分成列
    * @param r
    * @return
    */
   private String getHeLirun0(GameRecordModel r) {
-    if (isJLBH(r) || isDeZhou(r)) {
-      return r.getShishou();
+    if (isLittleGame(r)) {
+      return NumUtil.digit(NumUtil.getNum(r.getShishou()) - NumUtil.getNum(r.getGameFl()));
     }
     return "0";
   }

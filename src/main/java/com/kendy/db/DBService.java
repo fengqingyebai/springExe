@@ -342,7 +342,51 @@ public class DBService {
       close(con, ps);
     }
     return locked_data_detail_map;
-    // ======================================================
+
+  }
+
+  /*************************************************************************************************
+   *
+   *                                  回水表
+   *
+   * ************************************************************************************************
+   */
+  /**
+   * 获取所有的团队回水
+   */
+  public List<Huishui> getAllTeamHS() {
+    List<Huishui> result = new ArrayList<Huishui>();
+    try {
+      con = dataSource.getConnection();
+      String sql = "select * from teamhs";
+      ps = con.prepareStatement(sql);
+      ResultSet rs = ps.executeQuery();
+      Huishui hs;
+      while (rs.next()) {
+        hs = new Huishui();
+        hs.setTeamId(rs.getString(1));
+        hs.setTeamName(rs.getString(2));
+        hs.setHuishuiRate(rs.getString(3));
+        hs.setInsuranceRate(rs.getString(4));
+        hs.setGudong(rs.getString(5));
+        hs.setZjManaged(rs.getString(6));
+        hs.setBeizhu(rs.getString(7));
+        hs.setProxyHSRate(rs.getString(8));
+        hs.setProxyHBRate(rs.getString(9));
+        hs.setProxyFWF(rs.getString(10));
+        hs.setShowInsure(rs.getString(11));
+        hs.setTeamYajin(rs.getString(12));
+        hs.setTeamEdu(rs.getString(13));
+        hs.setTeamAvailabel(rs.getString(14));
+        hs.setTeamGameFLRate(rs.getString(15));
+        result.add(hs);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } finally {
+      close(con, ps);
+    }
+    return result;
   }
 
   /**
@@ -355,7 +399,7 @@ public class DBService {
     try {
       con = dataSource.getConnection();
       String sql;
-      sql = "insert into teamhs values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";// 13列
+      sql = "insert into teamhs values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       ps = con.prepareStatement(sql);
       ps.setString(1, hs.getTeamId().toUpperCase());
       ps.setString(2, hs.getTeamName());
@@ -371,6 +415,7 @@ public class DBService {
       ps.setString(12, hs.getTeamYajin());
       ps.setString(13, hs.getTeamEdu());
       ps.setString(14, hs.getTeamAvailabel());
+      ps.setString(15, hs.getTeamGameFLRate());
       ps.execute();
     } catch (SQLException e) {
       isOK = false;
@@ -513,7 +558,7 @@ public class DBService {
     try {
       con = dataSource.getConnection();
       String sql = "update teamhs set teamName=?,huishuiRate=?,insuranceRate=?,"
-          + "gudong=?,zjManaged=?,beizhu=?,proxyHSRate=?,proxyHBRate=?,proxyFWF=?,showInsure=?,teamYajin=?,teamEdu=?,teamAvailabel=?  where teamId = ?";// 11列
+          + "gudong=?,zjManaged=?,beizhu=?,proxyHSRate=?,proxyHBRate=?,proxyFWF=?,showInsure=?,teamYajin=?,teamEdu=?,teamAvailabel=?,team_game_fl_rate=?  where teamId = ?";// 11列
       ps = con.prepareStatement(sql);
       ps.setString(1, hs.getTeamName());
       ps.setString(2, hs.getHuishuiRate());
@@ -529,6 +574,7 @@ public class DBService {
       ps.setString(12, hs.getTeamEdu());
       ps.setString(13, hs.getTeamAvailabel());
       ps.setString(14, hs.getTeamId().toUpperCase());
+      ps.setString(15, hs.getTeamGameFLRate());
       ps.execute();
       loger.info("团队回水修改");
     } catch (SQLException e) {
@@ -558,7 +604,7 @@ public class DBService {
         loger.info("团队回水进数据库开始...");
         for (Map.Entry<String, Huishui> entry : map.entrySet()) {
           hs = entry.getValue();
-          sql = "insert into teamhs values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";// 10列
+          sql = "insert into teamhs values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
           ps = con.prepareStatement(sql);
           ps.setString(1, hs.getTeamId().toUpperCase());
           ps.setString(2, hs.getTeamName());
@@ -574,6 +620,7 @@ public class DBService {
           ps.setString(12, hs.getTeamYajin());
           ps.setString(13, hs.getTeamEdu());
           ps.setString(14, hs.getTeamAvailabel());
+          ps.setString(15, hs.getTeamGameFLRate());
           ps.execute();
         }
         loger.info("团队回水进数据库结束！size:" + map.size());
@@ -656,52 +703,6 @@ public class DBService {
 
   }
 
-  public <K, V> Entry<K, V> getTail(LinkedHashMap<K, V> map) {
-    Iterator<Entry<K, V>> iterator = map.entrySet().iterator();
-    Entry<K, V> tail = null;
-    while (iterator.hasNext()) {
-      tail = iterator.next();
-    }
-    return tail;
-  }
-
-
-  /**
-   * 获取所有的团队回水
-   */
-  public List<Huishui> getAllTeamHS() {
-    List<Huishui> result = new ArrayList<Huishui>();
-    try {
-      con = dataSource.getConnection();
-      String sql = "select * from teamhs";
-      ps = con.prepareStatement(sql);
-      ResultSet rs = ps.executeQuery();
-      Huishui hs;
-      while (rs.next()) {
-        hs = new Huishui();
-        hs.setTeamId(rs.getString(1));
-        hs.setTeamName(rs.getString(2));
-        hs.setHuishuiRate(rs.getString(3));
-        hs.setInsuranceRate(rs.getString(4));
-        hs.setGudong(rs.getString(5));
-        hs.setZjManaged(rs.getString(6));
-        hs.setBeizhu(rs.getString(7));
-        hs.setProxyHSRate(rs.getString(8));
-        hs.setProxyHBRate(rs.getString(9));
-        hs.setProxyFWF(rs.getString(10));
-        hs.setShowInsure(rs.getString(11));
-        hs.setTeamYajin(rs.getString(12));
-        hs.setTeamEdu(rs.getString(13));
-        hs.setTeamAvailabel(rs.getString(14));
-        result.add(hs);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    } finally {
-      close(con, ps);
-    }
-    return result;
-  }
 
 
   /******************************************************** 关闭流 ******/

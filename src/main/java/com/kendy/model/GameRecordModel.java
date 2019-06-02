@@ -82,6 +82,11 @@ public class GameRecordModel extends BasicRecord {
    */
   private String hshbType = "0";
 
+  /**
+   * 小游戏返利
+   */
+  private String gameFl = "0";
+
 
   /**
    *
@@ -248,5 +253,14 @@ public class GameRecordModel extends BasicRecord {
 
   public void setHshbType(String hshbType) {
     this.hshbType = hshbType;
+  }
+
+  public String getGameFl() {
+    return gameFl;
+  }
+
+  public GameRecordModel setGameFl(String gameFl) {
+    this.gameFl = gameFl;
+    return this;
   }
 }

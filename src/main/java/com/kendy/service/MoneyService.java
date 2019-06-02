@@ -177,6 +177,7 @@ public class MoneyService {
       String shouHuishui = r.getShouhuishui();
       String huibao = r.getHuibao();
       String heLirun = r.getHelirun();
+      String gameFl = r.getGameFl();
 
       // 团(团ID)
       info.setTuan(teamId);
@@ -203,6 +204,9 @@ public class MoneyService {
 
       //设置回水回保
       setHsHbOfTotalInfo(info, r);
+
+      // 小游戏返利
+      info.setGameFL(gameFl);
 
       tableTotalInfoList.add(info);
 
@@ -488,6 +492,8 @@ public class MoneyService {
     // 个人回水、回保
     setPersonalHsHb(r);
 
+    r.setGameFl("0");
+
     // 合利润
     r.setHelirun(NumUtil.digit2(getHeLirun(r)));
 
@@ -702,6 +708,7 @@ public class MoneyService {
         double sumOfZJ = 0.0;
         double sumOfHS = 0.0;
         double sumOfHB = 0.0;
+        double sumOfGameFL = 0.0;
         List<GameRecordModel> teamLS = dataConstants.Team_Huishui_Map
             .getOrDefault(relatedTeamId, new ArrayList<>());
         //只获取未结算的数据
@@ -719,6 +726,7 @@ public class MoneyService {
           if (!littleGameService.isJLBH(info)) { // 移除加勒比海回保累计
             sumOfHB += NumUtil.getNum(info.getSingleinsurance());// 就是回保
           }
+          sumOfGameFL += NumUtil.getNum(info.getGameFl());
         }
         double sum = 0d;
         if (sumOfHB != 0) {// 需要乘以团队保险比例的
@@ -729,10 +737,12 @@ public class MoneyService {
         } else {
           sum = sumOfHS + sumOfHB + sumOfZJ;// 战绩不代管理,加战绩(个人记录没有支付按钮，团队处理战绩)
         }
+        // add
+        sum += sumOfGameFL;
         sum_teamHS_and_teamBS += sum;// 团队回水和团队保险的总和
         // 计算当局需要显示的团队记录
         list.add(new TeamInfo(relatedTeamId, digit0(sumOfZJ), NumUtil.digit1(sumOfHS + ""),
-            NumUtil.digit1(sumOfHB + ""), digit0(sum)));
+            NumUtil.digit1(sumOfHB + ""), digit0(sum), NumUtil.digit(sumOfGameFL)));
       }
     }
     // 缓存总和
@@ -787,7 +797,7 @@ public class MoneyService {
     if (dataConstants.SumMap != null && dataConstants.SumMap.size() != 0) {
       // 初始化当局表
       ObservableList<DangjuInfo> list = FXCollections.observableArrayList();
-      List<String> tableDangjuList = Arrays.asList("服务费", "保险", "团队回水", "团队回保", "小游戏当局利润");
+      List<String> tableDangjuList = Arrays.asList("服务费", "保险", "团队回水", "团队回保", "小游戏当局利润", "小游戏返利");
       tableDangjuList.forEach(type -> {
         list.add(new DangjuInfo(type, dataConstants.SumMap.get(type) + ""));
       });
@@ -825,6 +835,7 @@ public class MoneyService {
     List<String> shouHuishuiList = new ArrayList<>();
     List<String> heLirunList = new ArrayList<>();
     List<String> littleGameShishouList = new ArrayList<>();
+    List<String> littleGameFL = new ArrayList<>();
 
     lists.forEach(info -> {
       jifenList.add(info.getJifen());
@@ -838,6 +849,7 @@ public class MoneyService {
       heLirunList.add(info.getHeLirun());
       if (StringUtils.equals("1", info.getIsLittleGame())) {
         littleGameShishouList.add(info.getShishou());
+        littleGameFL.add(info.getGameFL());
       }
     });
 
@@ -856,7 +868,8 @@ public class MoneyService {
     cacheMap.put("保险", cacheMap.get("总水后险"));
     cacheMap.put("团队回水", cacheMap.get("总出回水"));
     cacheMap.put("团队回保", cacheMap.get("总保回") * (-1));
-    cacheMap.put("小游戏当局利润", getSum(littleGameShishouList));
+    cacheMap.put("小游戏当局利润", getSum(littleGameShishouList) * (-1));
+    cacheMap.put("小游戏返利", getSum(littleGameFL));
     double dj = Double.sum(cacheMap.get("服务费"), cacheMap.get("保险"))
         + Double.sum(cacheMap.get("团队回水"), cacheMap.get("团队回保"))
         + cacheMap.get("小游戏当局利润");
@@ -1224,6 +1237,7 @@ public class MoneyService {
     // 获取ObserableList
     try {
       ObservableList<ProfitInfo> list = table.getItems();
+      addColumn(table);
       for (ProfitInfo info : list) {
         String type = info.getProfitType();
         if ("总服务费".equals(type)) {
@@ -1253,11 +1267,22 @@ public class MoneyService {
           info.setProfitAccount(
               digit0(
                   NumUtil.getNum(info.getProfitAccount()) + getSumMapValue("小游戏当局利润")));
+
+        } else if ("小游戏总返利".endsWith(type)) {
+          info.setProfitAccount(
+              digit0(
+                  NumUtil.getNum(info.getProfitAccount()) + getSumMapValue("小游戏返利")));
         }
       }
       table.setItems(list);
     } catch (Exception e) {
       log.error("检测到更新利润表出错，可能是没有导入数据就进行平帐和锁定");
+    }
+  }
+
+  private void addColumn(TableView<ProfitInfo> table) {
+    if (!table.getItems().stream().anyMatch(e -> StringUtils.equals(e.getProfitType(), "小游戏总返利"))) {
+      table.getItems().add(new ProfitInfo("小游戏总返利", "0"));
     }
   }
 
@@ -2104,7 +2129,7 @@ public class MoneyService {
     String title = "回水表" + sdf.format(new Date());
     log.info("导出团队回水表Excel:" + title);
     String[] rowsName =
-        new String[]{"团队ID", "团队名字", "比例", "保险比例", "股东", "战绩是否代管理", "备注", "回水比例", "回保比例", "服务费判定"};
+        new String[]{"团队ID", "团队名字", "比例", "保险比例", "股东", "战绩是否代管理", "备注", "回水比例", "回保比例", "服务费判定", "小游戏返利"};
     List<Object[]> dataList = new ArrayList<Object[]>();
     Object[] objs = null;
     Map<String, Huishui> huishuiMap = dataConstants.huishuiMap;
@@ -2124,6 +2149,7 @@ public class MoneyService {
       objs[7] = hs.getProxyHSRate();
       objs[8] = hs.getProxyHBRate();
       objs[9] = hs.getProxyFWF();
+      objs[10] = hs.getTeamGameFLRate();
       dataList.add(objs);
     }
     String out = "D:/" + title;

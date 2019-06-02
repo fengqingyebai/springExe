@@ -10,6 +10,7 @@ public class TeamInfo implements Entity {
   private SimpleStringProperty teamZJ = new SimpleStringProperty();//团战绩
   private SimpleStringProperty teamHS = new SimpleStringProperty();//团回水
   private SimpleStringProperty teamBS = new SimpleStringProperty();//团保险
+  private SimpleStringProperty teamGameFL = new SimpleStringProperty("0");//团小游戏返利
   //
   private SimpleStringProperty teamSum = new SimpleStringProperty("0");//团和
   private SimpleStringProperty hasJiesuaned = new SimpleStringProperty("0");//团保险
@@ -26,13 +27,14 @@ public class TeamInfo implements Entity {
    * @param teamHS 团回水
    * @param teamBS 团保险
    */
-  public TeamInfo(String teamID, String teamZJ, String teamHS, String teamBS, String teamSum) {
+  public TeamInfo(String teamID, String teamZJ, String teamHS, String teamBS, String teamSum, String teamGameFL) {
     super();
     this.teamID = new SimpleStringProperty(teamID);
     this.teamZJ = new SimpleStringProperty(teamZJ);
     this.teamHS = new SimpleStringProperty(teamHS);
     this.teamBS = new SimpleStringProperty(teamBS);
     this.teamSum = new SimpleStringProperty(teamSum);
+    this.teamGameFL = new SimpleStringProperty(teamGameFL);
   }
 
 
@@ -122,6 +124,17 @@ public class TeamInfo implements Entity {
     this.hasJiesuanedProperty().set(hasJiesuaned);
   }
 
+  public String getTeamGameFL() {
+    return teamGameFL.get();
+  }
+
+  public SimpleStringProperty teamGameFLProperty() {
+    return teamGameFL;
+  }
+
+  public void setTeamGameFL(String teamGameFL) {
+    this.teamGameFL.set(teamGameFL);
+  }
 
   @Override
   public String toString() {

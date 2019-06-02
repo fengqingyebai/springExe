@@ -197,6 +197,12 @@ public class GameRecord extends GenericEntity {
     private String hshbType;
 
     /**
+     * 小游戏返利
+     */
+    @Column(name = "game_fl")
+    private String gameFl;
+
+    /**
      * 获取软件时间
      *
      * @return soft_time - 软件时间
@@ -830,5 +836,14 @@ public class GameRecord extends GenericEntity {
      */
     public void setHshbType(String hshbType) {
         this.hshbType = hshbType == null ? null : hshbType.trim();
+    }
+
+    public String getGameFl() {
+        return gameFl;
+    }
+
+    public GameRecord setGameFl(String gameFl) {
+        this.gameFl = gameFl;
+        return this;
     }
 }

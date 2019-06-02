@@ -58,22 +58,23 @@
                               <Button fx:id="importZJBtn" mnemonicParsing="false" onAction="#importZJExcelAction" prefHeight="23.0" prefWidth="65.0" text="导入" />
                            </children>
                         </HBox>
-                        <TableView fx:id="tableTotalInfo" layoutX="38.0" layoutY="101.0" prefHeight="207.0" prefWidth="907.0">
+                        <TableView fx:id="tableTotalInfo" layoutX="38.0" layoutY="101.0" prefHeight="204.0" prefWidth="923.0">
                            <columns>
-                              <TableColumn fx:id="tuan" prefWidth="75.0" text="团ID" />
-                              <TableColumn fx:id="wanjiaId" prefWidth="103.0" text="玩家ID" />
-                              <TableColumn fx:id="wanjia" prefWidth="106.0" text="玩家" />
-                              <TableColumn fx:id="jifen" prefWidth="71.0" text="计分" />
-                              <TableColumn fx:id="shishou" prefWidth="67.0" text="实收" />
-                              <TableColumn fx:id="baoxian" prefWidth="73.0" text="保险" />
-                              <TableColumn fx:id="chuHuishui" prefWidth="70.0" text="出回水" />
-                              <TableColumn fx:id="baohui" prefWidth="76.0" text="回保" />
-                              <TableColumn fx:id="shuihouxian" prefWidth="79.0" text="水后险" />
-                              <TableColumn fx:id="shouHuishui" text="收回水" />
-                              <TableColumn fx:id="heLirun" prefWidth="87.0" text="合利润" />
+                              <TableColumn fx:id="tuan" prefWidth="59.0" text="团ID" />
+                              <TableColumn fx:id="wanjiaId" prefWidth="87.0" text="玩家ID" />
+                              <TableColumn fx:id="wanjia" prefWidth="93.0" text="玩家" />
+                              <TableColumn fx:id="jifen" prefWidth="64.0" text="计分" />
+                              <TableColumn fx:id="shishou" prefWidth="66.0" text="实收" />
+                              <TableColumn fx:id="baoxian" prefWidth="57.0" text="保险" />
+                              <TableColumn fx:id="chuHuishui" prefWidth="75.0" text="出回水" />
+                              <TableColumn fx:id="baohui" prefWidth="90.0" text="回保" />
+                              <TableColumn fx:id="shuihouxian" prefWidth="74.0" text="水后险" />
+                              <TableColumn fx:id="shouHuishui" prefWidth="82.0" text="收回水" />
+                              <TableColumn fx:id="gameFL" prefWidth="70.0" text="小游戏返利" />
+                              <TableColumn fx:id="heLirun" prefWidth="85.0" text="合利润" />
                            </columns>
                         </TableView>
-                        <TableView fx:id="tablePaiju" layoutX="40.0" layoutY="324.0" prefHeight="148.0" prefWidth="515.0">
+                        <TableView fx:id="tablePaiju" layoutX="40.0" layoutY="324.0" prefHeight="148.0" prefWidth="557.0">
                            <columns>
                               <TableColumn fx:id="copy" prefWidth="65.0" text="复制" />
                               <TableColumn fx:id="paiju" prefWidth="72.0" text="牌局" />
@@ -84,18 +85,18 @@
                               <TableColumn fx:id="pay" prefWidth="79.0" text="支付" />
                            </columns>
                         </TableView>
-                        <TableView fx:id="tableCurrentMoneyInfo" layoutX="569.0" layoutY="362.0" maxHeight="1.7976931348623157E308" prefHeight="449.0" prefWidth="376.0">
+                        <TableView fx:id="tableCurrentMoneyInfo" layoutX="617.0" layoutY="367.0" maxHeight="1.7976931348623157E308" prefHeight="449.0" prefWidth="344.0">
                            <columns>
                               <TableColumn fx:id="cmSuperIdSum" prefWidth="55.0" text="总和" />
                               <TableColumn fx:id="mingzi" prefWidth="87.0" text="名字" />
-                              <TableColumn fx:id="shishiJine" maxWidth="3000.0" minWidth="0.0" prefWidth="85.0" text="实时金额" />
+                              <TableColumn fx:id="shishiJine" maxWidth="3000.0" minWidth="0.0" prefWidth="70.0" text="实时金额" />
                               <TableColumn fx:id="cmiLmb" minWidth="0.0" prefWidth="62.0" text="联盟币余" />
-                              <TableColumn fx:id="cmiEdu" minWidth="0.0" prefWidth="62.0" text="额度" />
+                              <TableColumn fx:id="cmiEdu" minWidth="0.0" prefWidth="51.0" text="额度" />
                            </columns>
                         </TableView>
-                        <VBox layoutX="962.0" layoutY="117.0" prefHeight="696.0" prefWidth="152.0">
+                        <VBox layoutX="984.0" layoutY="114.0" prefHeight="696.0" prefWidth="152.0">
                            <children>
-                              <TableView fx:id="tableZijin" prefHeight="194.0" prefWidth="152.0">
+                              <TableView fx:id="tableZijin" prefHeight="191.0" prefWidth="152.0">
                                  <columns>
                                     <TableColumn fx:id="zijinType" prefWidth="60.0" text="资金" />
                                     <TableColumn fx:id="zijinAccount" prefWidth="74.0" />
@@ -134,18 +135,19 @@
                               </TableView>
                            </children>
                         </VBox>
-                        <Hyperlink fx:id="addCurrentMoneyLink" layoutX="564.0" layoutY="327.0" onAction="#openAddCurrentMoneyAction" text="新增" />
-                        <TableView fx:id="tableTeam" layoutX="41.0" layoutY="486.0" prefHeight="157.0" prefWidth="516.0">
+                        <Hyperlink fx:id="addCurrentMoneyLink" layoutX="617.0" layoutY="327.0" onAction="#openAddCurrentMoneyAction" text="新增" />
+                        <TableView fx:id="tableTeam" layoutX="41.0" layoutY="486.0" prefHeight="157.0" prefWidth="556.0">
                            <columns>
                               <TableColumn fx:id="teamID" prefWidth="73.0" text="团队ID" />
                               <TableColumn fx:id="teamZJ" prefWidth="82.0" text="团队累计战绩" />
-                              <TableColumn fx:id="teamHS" prefWidth="107.0" text="团队累计回水" />
-                              <TableColumn fx:id="teamBS" prefWidth="96.0" text="团队累计回保" />
-                              <TableColumn fx:id="teamSum" prefWidth="61.0" text="总" />
-                              <TableColumn fx:id="teamJiesuan" prefWidth="81.0" text="结算" />
+                              <TableColumn fx:id="teamGameFL" prefWidth="75.0" text="小游戏返利" />
+                              <TableColumn fx:id="teamHS" prefWidth="96.0" text="团队累计回水" />
+                              <TableColumn fx:id="teamBS" prefWidth="86.0" text="团队累计回保" />
+                              <TableColumn fx:id="teamSum" prefWidth="56.0" text="总" />
+                              <TableColumn fx:id="teamJiesuan" prefWidth="71.0" text="结算" />
                            </columns>
                         </TableView>
-                        <VBox layoutX="1136.0" layoutY="90.0" prefHeight="727.0" prefWidth="158.0">
+                        <VBox layoutX="1158.0" layoutY="87.0" prefHeight="727.0" prefWidth="158.0">
                            <children>
                               <Button fx:id="refreshBtn" layoutX="917.0" layoutY="156.0" mnemonicParsing="false" onAction="#refreshAction" prefHeight="23.0" prefWidth="148.0" text="平帐按钮" />
                               <AnchorPane prefHeight="17.0" prefWidth="142.0" />
@@ -181,9 +183,9 @@
                               <Insets left="8.0" right="8.0" top="4.0" />
                            </padding>
                         </VBox>
-                        <TextField fx:id="searchText" layoutX="819.0" layoutY="326.0" onDragEntered="#searchRowAction" onKeyPressed="#searchRowByEnterEvent" prefHeight="23.0" prefWidth="84.0" />
-                        <Button fx:id="searchBtn" layoutX="902.0" layoutY="326.0" mnemonicParsing="false" onAction="#searchRowAction" prefHeight="23.0" prefWidth="43.0" text="搜索" />
-                        <Button fx:id="lockDangjuBtn" layoutX="1144.0" layoutY="39.0" mnemonicParsing="false" onAction="#lockDangjuAction" prefHeight="34.0" prefWidth="142.0" style="-fx-border-color: red;" text="锁定当局">
+                        <TextField fx:id="searchText" layoutX="835.0" layoutY="326.0" onDragEntered="#searchRowAction" onKeyPressed="#searchRowByEnterEvent" prefHeight="23.0" prefWidth="84.0" />
+                        <Button fx:id="searchBtn" layoutX="918.0" layoutY="326.0" mnemonicParsing="false" onAction="#searchRowAction" prefHeight="23.0" prefWidth="43.0" text="搜索" />
+                        <Button fx:id="lockDangjuBtn" layoutX="1166.0" layoutY="36.0" mnemonicParsing="false" onAction="#lockDangjuAction" prefHeight="34.0" prefWidth="142.0" style="-fx-border-color: red;" text="锁定当局">
                            <font>
                               <Font name="System Bold" size="12.0" />
                            </font>
@@ -194,18 +196,18 @@
                            </font>
                         </Label>
                         <Label fx:id="indexLabel" alignment="CENTER" layoutX="758.0" layoutY="32.0" prefHeight="58.0" prefWidth="153.0" text="第 0 局" />
-                        <Hyperlink fx:id="delCurrentMoneyBtn" layoutX="594.0" layoutY="327.0" onAction="#delCurrentMoneyAction" text="删除" />
-                        <Hyperlink fx:id="exportSSJE" layoutX="625.0" layoutY="327.0" onAction="#exportSSJEAction" text="导出" />
-                        <HBox fx:id="hbox_autoTestMode" layoutX="961.0" layoutY="56.0" prefHeight="37.0" prefWidth="153.0" spacing="10.0">
+                        <Hyperlink fx:id="delCurrentMoneyBtn" layoutX="647.0" layoutY="327.0" onAction="#delCurrentMoneyAction" text="删除" />
+                        <Hyperlink fx:id="exportSSJE" layoutX="678.0" layoutY="327.0" onAction="#exportSSJEAction" text="导出" />
+                        <HBox fx:id="hbox_autoTestMode" layoutX="984.0" layoutY="38.0" prefHeight="37.0" prefWidth="153.0" spacing="10.0">
                            <children>
                               <Button fx:id="importZJBtn2" mnemonicParsing="false" onAction="#refreshNextExcelAction" prefHeight="36.0" prefWidth="43.0" text="刷导" />
                               <Button fx:id="importZJBtn3" mnemonicParsing="false" onAction="#importNextZJExcelAction" prefHeight="36.0" prefWidth="99.0" text="导入下一场" />
                            </children>
                         </HBox>
                         <Button layoutX="22.0" layoutY="56.0" mnemonicParsing="false" onAction="#importBlankExcelAction" text="空白表" />
-                        <Hyperlink layoutX="990.0" layoutY="93.0" onAction="#addBankAction" prefHeight="21.0" prefWidth="20.0" text="加" />
-                        <Hyperlink layoutX="962.0" layoutY="93.0" onAction="#delBankAction" prefHeight="21.0" prefWidth="28.0" text="删" />
-                        <TableView fx:id="tablePersonal" layoutX="41.0" layoutY="661.0" prefHeight="153.0" prefWidth="516.0">
+                        <Hyperlink layoutX="1012.0" layoutY="82.0" onAction="#addBankAction" prefHeight="21.0" prefWidth="20.0" text="加" />
+                        <Hyperlink layoutX="984.0" layoutY="82.0" onAction="#delBankAction" prefHeight="21.0" prefWidth="28.0" text="删" />
+                        <TableView fx:id="tablePersonal" layoutX="41.0" layoutY="661.0" prefHeight="153.0" prefWidth="556.0">
                            <columns>
                               <TableColumn fx:id="personalPlayerId" text="玩家ID" />
                               <TableColumn fx:id="personalPlayerName" prefWidth="95.0" text="玩家名称" />
@@ -216,8 +218,6 @@
                            </columns>
                         </TableView>
                         <JFXToggleButton fx:id="spiderNode" graphicTextGap="0.0" layoutX="724.0" layoutY="308.0" prefHeight="59.0" prefWidth="93.0" text="爬取" toggleColor="#5ed684d3" toggleLineColor="#5fd887d6" />
-                        <Hyperlink layoutX="656.0" layoutY="327.0" onAction="#saveAllMoney2DBAction" prefHeight="21.0" prefWidth="43.0" text="保存↑" />
-                        <Hyperlink layoutX="693.0" layoutY="327.0" onAction="#forceReplaceMoneyFromDBAction" prefHeight="21.0" prefWidth="43.0" text="覆盖↓" />
                      </children>
                   </AnchorPane>
                </content>

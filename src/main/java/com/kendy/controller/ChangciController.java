@@ -196,6 +196,8 @@ public class ChangciController extends BaseController implements Initializable {
   @FXML
   public TableColumn<TotalInfo, String> shouHuishui;// 收回水
   @FXML
+  public TableColumn<TotalInfo, String> gameFL;// 小游戏返水
+  @FXML
   public TableColumn<TotalInfo, String> heLirun;// 合利润
 
   // =================================================实时金额表tableView
@@ -289,6 +291,8 @@ public class ChangciController extends BaseController implements Initializable {
   public TableColumn<TeamInfo, String> teamID;// 团ID
   @FXML
   public TableColumn<TeamInfo, String> teamZJ;// 团战绩
+  @FXML
+  public TableColumn<TeamInfo, String> teamGameFL;// 团队累计小游戏返水
   @FXML
   public TableColumn<TeamInfo, String> teamHS;// 团回水
   @FXML
@@ -898,7 +902,7 @@ public class ChangciController extends BaseController implements Initializable {
 
   public TeamInfo copyTeamInfo(TeamInfo info) {
     TeamInfo temp = new TeamInfo(info.getTeamID(), info.getTeamZJ(), info.getTeamHS(),
-        info.getTeamBS(), info.getTeamSum());
+        info.getTeamBS(), info.getTeamSum(), info.getTeamGameFL());
     return temp;
   }
 
