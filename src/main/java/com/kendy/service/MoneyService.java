@@ -868,11 +868,11 @@ public class MoneyService {
     cacheMap.put("保险", cacheMap.get("总水后险"));
     cacheMap.put("团队回水", cacheMap.get("总出回水"));
     cacheMap.put("团队回保", cacheMap.get("总保回") * (-1));
-    cacheMap.put("小游戏当局利润", getSum(littleGameShishouList) * (-1));
-    cacheMap.put("小游戏返利", getSum(littleGameFL));
+    cacheMap.put("小游戏当局利润", getSum(littleGameShishouList));
+    cacheMap.put("小游戏返利", getSum(littleGameFL)  * (-1));
     double dj = Double.sum(cacheMap.get("服务费"), cacheMap.get("保险"))
         + Double.sum(cacheMap.get("团队回水"), cacheMap.get("团队回保"))
-        + cacheMap.get("小游戏当局利润");
+        + cacheMap.get("小游戏当局利润") + cacheMap.get("小游戏返利");
     cacheMap.put("当局", dj);// 总当局
     // 交收表
     cacheMap.put("客户输赢", cacheMap.get("总实收"));

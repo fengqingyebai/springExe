@@ -67,7 +67,6 @@ public class LittleGameService {
     String shuihouxian = "0";
     String shouHuishui = "0";
     String huiBao = "0";
-    String gameFl = getGameFl(r);
 
     // 初始名称
     r.setBeginplayername(r.getPlayerName());
@@ -98,7 +97,7 @@ public class LittleGameService {
     setPersonalHsHb0(r);
 
     // 小游戏返利
-    r.setGameFl(gameFl);
+    r.setGameFl(getGameFl(r)); // 前面必须先设置团队ID
 
     // 合利润
     r.setHelirun(NumUtil.digit2(getHeLirun0(r)));
