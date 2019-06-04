@@ -344,6 +344,7 @@ public class LMBController extends BaseController implements Initializable {
   /**
    * 获取后台的战绩抽取<br/>
    * 本桌若有托，且是加勒比海，则战绩抽取公式：（庄位的原始战绩 + 所有托的原始战绩 + 所有托的保险相反值） * 2
+   * 本桌若有托，且是德州，则战绩抽取公式：（庄位的原始战绩 + 所有托的原始战绩 ） * 2
    * 本桌若无托，则用旧公式：则战绩抽取公式：庄位的原始战绩 * 2
    * @param model
    * @param tableIdRecors
@@ -353,31 +354,35 @@ public class LMBController extends BaseController implements Initializable {
       List<GameRecordModel> tableIdRecors){
     boolean tableHasTuo = isTableHasTuo(tableIdRecors);
     boolean jlbh = isJLBH(model);
+    boolean deZhou = isDeZhou(model);
     if (jlbh && tableHasTuo) {
-      // 有托情况下使用新公式
-      return getGameZJChouquWithTuo(model, tableIdRecors);
+      // 有托情况下使用新公式-加勒比
+      return getGameZJChouquWithTuo(model, tableIdRecors, true);
+    }
+    if (deZhou && tableHasTuo) {
+      // 有托情况下使用新公式-德州
+      return getGameZJChouquWithTuo(model, tableIdRecors, false);
     }
     // 使用旧公式
-    String yszj = model.getYszj();
-    return NumUtil.digit(NumUtil.getNum(yszj) * 2);
+    return NumUtil.digit(NumUtil.getNum(model.getYszj()) * 2);
   }
 
-  private String getGameZJChouquWithTuo(GameRecordModel model, List<GameRecordModel> tableIdRecors) {
+
+  private String getGameZJChouquWithTuo(GameRecordModel model, List<GameRecordModel> tableIdRecors, boolean isJLB) {
     double zhuangweiYSZJ = NumUtil.getNum(model.getYszj());
     double sumTuoYSZJ = 0d;
     double sumTuoBaoxian = 0d;
     for (GameRecordModel record : tableIdRecors) {
       if (lmbCache.getTuoIds().contains(record.getPlayerid())) {
-        logger.info("是托：玩家名称：{}, 原始战绩{}, 保险{} ", record.getBeginplayername(), record.getYszj(),
-            -1 * NumUtil.getNum(record.getSingleinsurance()));
         sumTuoYSZJ += NumUtil.getNum(record.getYszj());
         sumTuoBaoxian += NumUtil.getNum(record.getSingleinsurance()) * (-1);
       }
     }
-    logger.info("是加勒比庄位：玩家ID是：{}, 名称是：{},其庄位原始战绩是：{}， 托总原始战绩：{}, 托总彩池合计：{}",
-        model.getPlayerid(), model.getBeginplayername(), model.getYszj(),
-        sumTuoYSZJ, sumTuoBaoxian);
-    return NumUtil.digit((zhuangweiYSZJ + sumTuoYSZJ + sumTuoBaoxian) * 2);
+    if (isJLB) {
+      return NumUtil.digit((zhuangweiYSZJ + sumTuoYSZJ + sumTuoBaoxian) * 2);
+    }
+    // 德州
+    return NumUtil.digit((zhuangweiYSZJ + sumTuoYSZJ) * 2);
   }
 
   /**
