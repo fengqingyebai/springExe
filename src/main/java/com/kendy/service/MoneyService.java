@@ -2381,9 +2381,9 @@ public class MoneyService {
       List<CurrentMoneyInfo> subInfoList = entry.getValue();
       Double superIdSum = 0d;// 合并ID节点总和
       for (CurrentMoneyInfo info : subInfoList) {
-        superIdSum += NumUtil.getNum(info.getShishiJine()) + NumUtil.getNum(info.getCmiLmb());
+        superIdSum += NumUtil.getNum(info.getShishiJine());
       }
-      String sumSuper = NumUtil.getSum(superInfo.getShishiJine(), superInfo.getCmiLmb(), superInfo.getCmiEdu());
+      String sumSuper = NumUtil.getSum(superInfo.getShishiJine());
       superInfo
           .setCmSuperIdSum(NumUtil.digit0(NumUtil.getSum(superIdSum+"", sumSuper)));
 
