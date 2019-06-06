@@ -2,6 +2,7 @@ package com.kendy.service;
 
 import com.kendy.constant.DataConstans;
 import com.kendy.controller.BaseController;
+import com.kendy.controller.CombineIDController;
 import com.kendy.controller.tgController.TGController;
 import com.kendy.db.DBService;
 import com.kendy.db.entity.Player;
@@ -54,15 +55,17 @@ public class TgWaizhaiService {
   private static Logger log = LoggerFactory.getLogger(TgWaizhaiService.class);
 
   @Autowired
-  public DBService dbService;
+  private DBService dbService;
   @Autowired
-  public DataConstans dataConstants; // 数据控制类
+  private DataConstans dataConstants; // 数据控制类
   @Autowired
-  public TGController tgController;
+  private TGController tgController;
   @Autowired
-  public BaseController baseController;
+  private BaseController baseController;
   @Autowired
-  MoneyService moneyService;
+  private MoneyService moneyService;
+  @Autowired
+  private CombineIDController combineIDController;
 
   @Resource
   PlayerService playerService;
@@ -333,9 +336,10 @@ public class TgWaizhaiService {
   }
 
   private boolean superList(CurrentMoneyInfo cmi) {
-    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
-    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
-    return isSuperId && !isSubId;
+    return combineIDController.isSuperId(cmi.getWanjiaId());
+//    boolean isSuperId = dataConstants.Combine_Super_Id_Map.containsKey(cmi.getWanjiaId());
+//    boolean isSubId = dataConstants.Combine_Sub_Id_Map.containsKey(cmi.getWanjiaId());
+//    return isSuperId && !isSubId;
   }
 
 
